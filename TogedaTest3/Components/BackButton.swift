@@ -8,13 +8,20 @@
 import SwiftUI
 
 struct BackButton: View {
+    let action: () -> Void
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Button(action: action) {
+            Image(systemName: "chevron.backward")
+                .foregroundColor(Color("textColor"))
+                .frame(width: 40, height: 40)
+                .background(.bar)
+                .cornerRadius(8.0)
+        }
     }
 }
 
 struct BackButton_Previews: PreviewProvider {
     static var previews: some View {
-        BackButton()
+        BackButton(action: {print("Button pressed!")})
     }
 }

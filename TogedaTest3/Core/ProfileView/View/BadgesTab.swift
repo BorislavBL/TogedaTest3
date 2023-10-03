@@ -8,8 +8,35 @@
 import SwiftUI
 
 struct BadgesTab: View {
+    
+    private let adaptiveColums = [
+        GridItem(.adaptive(minimum: 80))
+    ]
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack (alignment: .leading) {
+            Text("Badges")
+                .font(.body)
+                .fontWeight(.bold)
+            LazyVGrid(columns: adaptiveColums, spacing: 10){
+                ForEach(0..<30, id: \.self){index in
+                    Button {
+                        print("clicked")
+                    } label: {
+                        Image("event_2")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 80, height: 80)
+                            .background(.gray)
+                            .clipShape(Circle())
+                    }
+                }
+            }
+        }
+        .frame(minWidth: 0, maxWidth: .infinity)
+        .padding()
+        .background(.bar)
+        .cornerRadius(30)
     }
 }
 

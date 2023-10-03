@@ -6,3 +6,13 @@
 //
 
 import Foundation
+
+struct UserService {
+    func fetchUser(withID id: String) {
+        
+    }
+    
+    func fetchUsers(withID id: String) {
+        
+    }
+}

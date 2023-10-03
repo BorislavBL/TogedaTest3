@@ -6,3 +6,15 @@
 //
 
 import Foundation
+
+struct PostService {
+    func fetchPost(withID id: String) {
+        
+    }
+    
+    func fetchPosts(withIDs ids: [String]) -> [Post] {
+        return Post.MOCK_POSTS.filter { post in
+            return ids.contains(post.id)
+        }
+    }
+}

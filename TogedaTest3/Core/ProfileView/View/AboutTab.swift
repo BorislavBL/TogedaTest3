@@ -6,15 +6,60 @@
 //
 
 import SwiftUI
+import WrappingHStack
 
 struct AboutTab: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    
+    var user: User
+    
+    var body: some View{
+        VStack (alignment: .leading) {
+            Text("About Me")
+                .font(.body)
+                .fontWeight(.bold)
+            WrappingHStack(alignment: .leading){
+                ForEach(user.abouts, id: \.self){about in
+                    Text(about)
+                        .normalTagTextStyle()
+                        .normalTagCapsuleStyle()
+                }
+            }.padding(.bottom, 30)
+            Text("Interests")
+                .font(.body)
+                .fontWeight(.bold)
+            WrappingHStack(alignment: .leading){
+                ForEach(user.interests, id: \.self){interest in
+                    Text(interest)
+                        .normalTagTextStyle()
+                        .normalTagCapsuleStyle()
+                }
+            }.padding(.bottom, 30)
+            
+            if let description = user.description {
+                
+                Text("Description")
+                    .font(.body)
+                    .fontWeight(.bold)
+                    .padding(.bottom, 5)
+                
+                ExpandableText(description, lineLimit: 4)
+                    .lineSpacing(8.0)
+                    .fontWeight(.medium)
+                    .foregroundColor(.gray)
+                    .padding(.bottom, 8)
+            }
+            
+        }
+        .frame(minWidth: 0, maxWidth: .infinity)
+        .padding()
+        .background(.bar)
+        .cornerRadius(30)
     }
 }
 
 struct AboutTab_Previews: PreviewProvider {
     static var previews: some View {
-        AboutTab()
+        AboutTab(user: User.MOCK_USERS[0])
     }
 }
+

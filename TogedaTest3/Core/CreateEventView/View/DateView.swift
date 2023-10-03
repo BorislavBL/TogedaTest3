@@ -8,8 +8,74 @@
 import SwiftUI
 
 struct DateView: View {
+    @State var date = Date()
+    @State var from = Date()
+    @State var to = Date()
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var timeSettings = 0
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ScrollView{
+            VStack(alignment:.leading){
+                
+                HStack{
+                    Spacer()
+                    Button(action:{dismiss()}) {
+                        Image(systemName: "xmark")
+                            .padding(.all, 8)
+                            .background(Color("secondaryColor"))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding()
+                
+                Text("Choose Date")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .padding(.horizontal)
+                
+                DatePicker("Choose date", selection: $date, in: Date()..., displayedComponents: .date)
+                    .datePickerStyle(GraphicalDatePickerStyle())
+                    .padding(.horizontal, 8)
+                    .accentColor(.blue)
+//                    .frame(width: 320, height: 320)
+
+
+                
+                Text("Choose Time")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .padding(.horizontal)
+                
+                Picker("Choose Time", selection: $timeSettings) {
+                    Text("Exact Time").tag(0)
+                    Text("Range").tag(1)
+                    Text("Anytime").tag(2)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                
+                if timeSettings != 2 {
+                    DatePicker("From", selection: $from, displayedComponents: .hourAndMinute)
+                        .datePickerStyle(.graphical)
+                        .padding(.horizontal)
+                        .fontWeight(.semibold)
+                    
+                    if timeSettings == 1 {
+                        DatePicker("To", selection: $to, displayedComponents: .hourAndMinute)
+                            .datePickerStyle(.graphical)
+                            .padding(.horizontal)
+                            .fontWeight(.semibold)
+                    }
+                } else {
+                    Text("Anytime")
+                        .padding(.horizontal)
+                }
+            }
+            .padding(.vertical)
+            .frame(maxHeight: UIScreen.main.bounds.height, alignment: .top)
+        }
     }
 }
 

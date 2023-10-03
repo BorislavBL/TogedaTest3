@@ -8,8 +8,28 @@
 import SwiftUI
 
 struct EventComponent: View {
+    
+    private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 3) - 18
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack(alignment: .bottom) {
+            Image("event_1")
+                .resizable()
+                .scaledToFill()
+                .frame(width: imageDimension, height: imageDimension + imageDimension * 0.3)
+                .clipped()
+            
+            VStack{
+                Text("Hiking in the mountain")
+                    .font(.footnote)
+                    .foregroundColor(.white)
+                    .fontWeight(.bold)
+            }
+            .frame(maxWidth: imageDimension)
+            .frame(height: imageDimension * 0.4)
+            .background(Color(.black).opacity(0.3))
+        }
+        .cornerRadius(20)
     }
 }
 

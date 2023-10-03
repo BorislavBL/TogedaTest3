@@ -8,10 +8,56 @@
 import SwiftUI
 
 struct EventTab: View {
+    
+    @State var selectedFilter: String = "All"
+    
+    private let gridItems: [GridItem] = [
+        .init(.flexible(), spacing: 2),
+        .init(.flexible(), spacing: 2),
+        .init(.flexible(), spacing: 2),
+    ]
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack (alignment: .leading, spacing: 20) {
+            Text("Events")
+                .font(.body)
+                .fontWeight(.bold)
+            
+            HStack(alignment: .center, spacing: 5) {
+                
+                ForEach(["All", "Current", "Past"], id:\.self) {filter in
+                    Button {
+                        selectedFilter = filter
+                    } label: {
+                        if selectedFilter == filter {
+                            Text(filter)
+                                .selectedTagTextStyle()
+                                .selectedTagCapsuleStyle()
+                        } else {
+                            Text(filter)
+                                .normalTagTextStyle()
+                                .normalTagCapsuleStyle()
+                        }
+                    }
+                }
+                
+            }
+
+            
+            LazyVGrid(columns: gridItems, spacing: 10) {
+                ForEach(0..<9, id: \.self){abouts in
+                    EventComponent()
+                }
+            }
+        }
+        .frame(minWidth: 0, maxWidth: .infinity)
+        .padding()
+        .background(.bar)
+        .cornerRadius(30)
     }
 }
+
+
 
 struct EventTab_Previews: PreviewProvider {
     static var previews: some View {

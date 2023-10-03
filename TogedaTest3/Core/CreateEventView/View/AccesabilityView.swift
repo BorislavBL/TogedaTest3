@@ -7,11 +7,63 @@
 
 import SwiftUI
 
+enum Visabilities: Hashable {
+    case Public
+    case Private
+    case Ask_to_join
+}
+
 struct AccesabilityView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State var selectedVisability: Visabilities = .Public
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+        VStack(alignment:.leading){
+            
+            HStack{
+                Spacer()
+                Button(action:{dismiss()}) {
+                    Image(systemName: "xmark")
+                        .padding(.all, 8)
+                        .background(Color("secondaryColor"))
+                        .clipShape(Circle())
+                }
+            }
+            .padding()
+            
+            List {
+                Text("Accessability")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                
+                Picker("", selection: $selectedVisability) {
+                    Text("Public").tag(Visabilities.Public)
+                    Text("Private").tag(Visabilities.Private)
+                    Text("Ask To Join").tag(Visabilities.Ask_to_join)
+                }
+                .labelsHidden()
+                .pickerStyle(InlinePickerStyle())
+                
+                Group{
+                    if selectedVisability == .Public {
+                        Text("Everyone will be able to join your event without any restrictions.")
+                        
+                    } else if selectedVisability == .Private {
+                        Text("Your event won't be visable on the feed page and people will be able to join it only if you personally invite them.")
+                    } else if selectedVisability == .Ask_to_join {
+                        Text("Your event will be visable to evryone but people will have to request access in order to join.")
+                    }
+                }
+                .font(.callout)
+                .foregroundColor(.gray)
+            }
+            .listStyle(.plain)
+        }
+        
     }
 }
+
 
 struct AccesabilityView_Previews: PreviewProvider {
     static var previews: some View {

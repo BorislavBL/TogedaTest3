@@ -6,3 +6,15 @@
 //
 
 import Foundation
+import MapKit
+
+struct Location: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
+}
+
+struct Place: Identifiable {
+    let id: String
+    let name: String
+    let coordinate: CLLocationCoordinate2D
+}

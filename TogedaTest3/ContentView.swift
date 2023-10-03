@@ -8,14 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
+    @StateObject var viewModel = ContentViewModel()
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        Group {
+            if let user = viewModel.currentUser{
+               MainTabView(user: user)
+           } else {
+               Text("IDK")
+           }
         }
-        .padding()
     }
 }
 
