@@ -11,7 +11,10 @@ import SwiftUI
 import MapKit
 
 class MapViewModel: ObservableObject{
-    
+    @Published var searchText: String = ""
+    @Published var address: String?
+    @Published var mapSelection: Post?
+    @Published var showPostView: Bool = false
 }
 
 //

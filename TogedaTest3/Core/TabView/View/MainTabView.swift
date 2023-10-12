@@ -11,14 +11,11 @@ struct MainTabView: View {
     @StateObject var router = TabRouter()
     var user: User
     
-    let locationManager = LocationManager()
-    
     @StateObject var postsViewModel = PostsViewModel()
     @StateObject var userViewModel = UserViewModel()
     
     var body: some View {
-        
-        ZStack(alignment: .bottom) {
+        NavigationView{
             TabView(selection: $router.screen) {
                 Group {
                     HomeView(postsViewModel: postsViewModel, userViewModel: userViewModel)
@@ -39,7 +36,7 @@ struct MainTabView: View {
                     .tabItem {
                         Image(systemName: "plus.square")
                     }
-                    Text("Messenger")
+                    TestView()
                         .tag(Screen.message)
                         .tabItem {
                             Image(systemName: "message")
@@ -50,7 +47,12 @@ struct MainTabView: View {
                             Image(systemName: "person.circle")
                         }
                 }
-
+                
+            }
+            .onAppear {
+                let tabBarAppearance = UITabBarAppearance()
+                tabBarAppearance.configureWithDefaultBackground()
+                UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
             }
             .onChange(of: router.screen) { oldValue, newValue in
                 if router.screen == .add {
@@ -62,7 +64,8 @@ struct MainTabView: View {
             }
             .sheet(isPresented: $router.isPresenting) {
                 CreateEventView()
-                    .presentationDragIndicator(.visible)
+                    .presentationDragIndicator(.hidden)
+                    .interactiveDismissDisabled(true)
             }
             .sheet(isPresented: $postsViewModel.showPostOptions, content: {
                 List {
@@ -86,7 +89,6 @@ struct MainTabView: View {
             })
         }
     }
-    
 }
 
 

@@ -13,8 +13,8 @@ struct Location: Identifiable {
     let coordinate: CLLocationCoordinate2D
 }
 
-struct Place: Identifiable {
-    let id: String
-    let name: String
-    let coordinate: CLLocationCoordinate2D
-}
+//struct Place: Identifiable {
+//    let id: String
+//    let name: String
+//    let coordinate: CLLocationCoordinate2D
+//}

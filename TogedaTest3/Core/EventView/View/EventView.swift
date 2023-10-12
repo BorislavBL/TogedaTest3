@@ -19,11 +19,8 @@ struct EventView: View {
     
     @State private var peopleIn: Int = 0
     
-    let locations = [
-        Location(coordinate: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194))
-    ]
-    
     @State private var address: String?
+    @State var showPostOptions = false
     
     var body: some View {
         
@@ -240,12 +237,12 @@ struct EventView: View {
                                 .normalTagTextStyle()
                                 .normalTagCapsuleStyle()
                                 .onAppear{
-                                    reverseGeocode(coordinate: locations[0].coordinate) { result in
+                                    reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
                                         address = result
                                     }
                                 }
                             
-                            MapSlot(locations: locations)
+                            MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
                             
                             Text("Interests")
                                 .font(.title3)
@@ -278,13 +275,21 @@ struct EventView: View {
                         Button {
                             viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
                         } label: {
-                            Text("Join")
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 60)
-                                .background(Color("blackAndWhite"))
-                                .foregroundColor(Color("testColor"))
-                                .cornerRadius(10)
-                                .fontWeight(.semibold)
+                            HStack(spacing:2){
+                                if post.peopleIn.contains(userViewModel.user.id) {
+                                    Image(systemName:"checkmark")
+                                    Text("Joined")
+                                         .fontWeight(.semibold)
+                                } else {
+                                    Text("Join")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .cornerRadius(10)
                         }
                         
                         Button {
@@ -319,10 +324,32 @@ struct EventView: View {
             .navigationBarBackButtonHidden(true)
             .navigationBarItems(leading:Button(action: {dismiss()}) {
                 Image(systemName: "chevron.left")
-            }, trailing:Image(systemName: "ellipsis")
-                .rotationEffect(.degrees(90))
+            }, trailing:Button(action: {
+                showPostOptions = true
+                viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
+            }, label: {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+            })
             )
         }
+        .sheet(isPresented: $showPostOptions, content: {
+            List {
+                Button("Save") {
+                    viewModel.selectedOption = "Save"
+                }
+                
+                Button("Share via") {
+                    viewModel.selectedOption = "Share"
+                }
+                
+                Button("Report") {
+                    viewModel.selectedOption = "Report"
+                }
+            }
+            .presentationDetents([.fraction(0.4)])
+            .presentationDragIndicator(.visible)
+        })
         .onAppear {
             self.peopleIn = post.peopleIn.count
         }

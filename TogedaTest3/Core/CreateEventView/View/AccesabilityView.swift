@@ -18,48 +18,43 @@ struct AccesabilityView: View {
     @State var selectedVisability: Visabilities = .Public
     
     var body: some View {
-        
-        VStack(alignment:.leading){
+        List {
+            Text("Accessability")
+                .font(.title3)
+                .fontWeight(.bold)
             
-            HStack{
-                Spacer()
-                Button(action:{dismiss()}) {
-                    Image(systemName: "xmark")
-                        .padding(.all, 8)
-                        .background(Color("secondaryColor"))
-                        .clipShape(Circle())
+            Picker("", selection: $selectedVisability) {
+                Text("Public").tag(Visabilities.Public)
+                Text("Private").tag(Visabilities.Private)
+                Text("Ask To Join").tag(Visabilities.Ask_to_join)
+            }
+            .labelsHidden()
+            .pickerStyle(InlinePickerStyle())
+            
+            Group{
+                if selectedVisability == .Public {
+                    Text("Everyone will be able to join your event without any restrictions.")
+                    
+                } else if selectedVisability == .Private {
+                    Text("Your event won't be visable on the feed page and people will be able to join it only if you personally invite them.")
+                } else if selectedVisability == .Ask_to_join {
+                    Text("Your event will be visable to evryone but people will have to request access in order to join.")
                 }
             }
-            .padding()
-            
-            List {
-                Text("Accessability")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                
-                Picker("", selection: $selectedVisability) {
-                    Text("Public").tag(Visabilities.Public)
-                    Text("Private").tag(Visabilities.Private)
-                    Text("Ask To Join").tag(Visabilities.Ask_to_join)
-                }
-                .labelsHidden()
-                .pickerStyle(InlinePickerStyle())
-                
-                Group{
-                    if selectedVisability == .Public {
-                        Text("Everyone will be able to join your event without any restrictions.")
-                        
-                    } else if selectedVisability == .Private {
-                        Text("Your event won't be visable on the feed page and people will be able to join it only if you personally invite them.")
-                    } else if selectedVisability == .Ask_to_join {
-                        Text("Your event will be visable to evryone but people will have to request access in order to join.")
-                    }
-                }
-                .font(.callout)
-                .foregroundColor(.gray)
-            }
-            .listStyle(.plain)
+            .font(.callout)
+            .foregroundColor(.gray)
         }
+        .listStyle(.plain)
+        .padding(.vertical)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading:Button(action: {dismiss()}) {
+            Image(systemName: "chevron.left")
+                .padding(.all, 8)
+                .background(Color("secondaryColor"))
+                .clipShape(Circle())
+        }
+        )
+        
         
     }
 }

@@ -8,12 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var locationManager = LocationManager()
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @StateObject var viewModel = ContentViewModel()
     var body: some View {
         Group {
             if let user = viewModel.currentUser{
                MainTabView(user: user)
+                    .environmentObject(locationManager)
            } else {
                Text("IDK")
            }

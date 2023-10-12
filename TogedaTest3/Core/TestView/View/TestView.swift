@@ -9,13 +9,16 @@ import SwiftUI
 
 struct TestView: View {
     @State private var searchText = ""
+    @State var showSearch = false
     
     var body: some View {
         NavigationView {
-          Text("Searching for \(searchText)")
-          .searchable(text: $searchText, prompt: "Look for something")
-          .foregroundColor(.red)
-          .navigationTitle("Searchable Example")
+            VStack{
+                CustomSearchBar(searchText: $searchText, showCancelButton: $showSearch)
+                Text("Searching for \(searchText)")
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .navigationTitle("Searchable Example")
         }
     }
 }

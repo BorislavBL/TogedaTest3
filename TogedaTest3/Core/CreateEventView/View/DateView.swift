@@ -18,18 +18,6 @@ struct DateView: View {
     var body: some View {
         ScrollView{
             VStack(alignment:.leading){
-                
-                HStack{
-                    Spacer()
-                    Button(action:{dismiss()}) {
-                        Image(systemName: "xmark")
-                            .padding(.all, 8)
-                            .background(Color("secondaryColor"))
-                            .clipShape(Circle())
-                    }
-                }
-                .padding()
-                
                 Text("Choose Date")
                     .font(.title3)
                     .fontWeight(.bold)
@@ -76,6 +64,14 @@ struct DateView: View {
             .padding(.vertical)
             .frame(maxHeight: UIScreen.main.bounds.height, alignment: .top)
         }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading:Button(action: {dismiss()}) {
+            Image(systemName: "chevron.left")
+                .padding(.all, 8)
+                .background(Color("secondaryColor"))
+                .clipShape(Circle())
+        }
+        )
     }
 }
 

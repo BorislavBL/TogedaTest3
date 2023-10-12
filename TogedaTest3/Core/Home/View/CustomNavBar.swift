@@ -13,44 +13,62 @@ struct CustomNavBar: View {
     @ObservedObject var viewModel: FilterViewModel
     @ObservedObject var postViewModel: PostsViewModel
     @ObservedObject var userViewModel: UserViewModel
+    @ObservedObject var homeViewModel: HomeViewModel
     
     var body: some View {
         VStack{
-            HStack(spacing: 12){
-                Text("Togeda")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(Color("blackAndWhite"))
-                
-                Spacer(minLength: 0)
-                
-                Group{
+            if !homeViewModel.showCancelButton{
+                HStack(spacing: 12){
+                    Text("Togeda")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color("blackAndWhite"))
                     
-                    NavigationLink(destination: SearchView(postViewModel: postViewModel, userViewModel: userViewModel)
-                        .toolbar(.hidden, for: .tabBar)
-                    ) {
-                        Image(systemName: "magnifyingglass")
+                    Spacer(minLength: 0)
+                    
+                    Group{
+                        //                    NavigationLink(destination: SearchView(postViewModel: postViewModel, userViewModel: userViewModel)
+                        //                        .toolbar(.hidden, for: .tabBar)
+                        //                    ) {
+                        //                        Image(systemName: "magnifyingglass")
+                        //                    }
+                        
+                        Button{
+                            withAnimation{
+                                homeViewModel.showCancelButton = true
+                            }
+                        } label:{
+                            Image(systemName: "magnifyingglass")
+                        }
+                        
+                        NavigationLink(destination: TestView()) {
+                            Image(systemName: "bell")
+                        }
+                        
                     }
-                    
-                    
-                    NavigationLink(destination: TestView()) {
-                        Image(systemName: "bell")
-                    }
+                    .foregroundColor(Color("textColor"))
+                    .padding(8)
+                    .background(Color("secondaryColor"))
+                    .clipShape(Circle())
                     
                 }
-                .foregroundColor(Color("textColor"))
-                .padding(8)
-                .background(Color("secondaryColor"))
-                .clipShape(Circle())
+                .padding(.horizontal)
                 
+                if showFilter{
+                    Filters(viewModel: viewModel)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            } else {
+                VStack(alignment: .leading, spacing:8){
+                    CustomSearchBar(searchText: $homeViewModel.searchText, showCancelButton: $homeViewModel.showCancelButton)
+                    
+                    SearchFilters(viewModel: homeViewModel)
+                    
+                }
+                .padding(.top, 8)
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
-            
-            if showFilter{
-                Filters(viewModel: viewModel)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-            }
-            
+
             Divider()
         }
         .background(.bar)
@@ -63,6 +81,6 @@ struct CustomNavBar: View {
 struct CustomNavBar_Previews: PreviewProvider {
     @State static var showFilterPreview = true
     static var previews: some View {
-        CustomNavBar(showFilter: $showFilterPreview, viewModel: FilterViewModel(), postViewModel: PostsViewModel(), userViewModel: UserViewModel())
+        CustomNavBar(showFilter: $showFilterPreview, viewModel: FilterViewModel(), postViewModel: PostsViewModel(), userViewModel: UserViewModel(), homeViewModel: HomeViewModel())
     }
 }

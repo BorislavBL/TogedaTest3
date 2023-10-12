@@ -13,9 +13,8 @@ struct HomeView: View {
     @State private var height: CGFloat = 94
     let navbarHeight: CGFloat = 94
     
+    @StateObject var viewModel = HomeViewModel()
     @StateObject var filterViewModel = FilterViewModel()
-//    @StateObject var postsViewModel = PostsViewModel()
-//    @StateObject var userViewModel = UserViewModel()
     @ObservedObject var postsViewModel: PostsViewModel
     @ObservedObject var userViewModel: UserViewModel
     @State var test = false
@@ -81,9 +80,25 @@ struct HomeView: View {
                             }
                         }
                     }
-                    
-                    
-                    CustomNavBar(showFilter: $showFilter, viewModel: filterViewModel, postViewModel: postsViewModel, userViewModel: userViewModel)
+                    .overlay{
+                        if viewModel.showCancelButton {
+                            SearchView(viewModel: viewModel, postsViewModel: postsViewModel, userViewModel: userViewModel)
+                        }
+                    }
+                    .onChange(of: viewModel.searchText){
+                        if !viewModel.searchText.isEmpty {
+                            viewModel.searchPostResults = Post.MOCK_POSTS.filter{ result in
+                                result.title.lowercased().contains(viewModel.searchText.lowercased())
+                            }
+                            viewModel.searchUserResults = User.MOCK_USERS.filter{result in
+                                result.fullname.lowercased().contains(viewModel.searchText.lowercased())
+                            }
+                        } else {
+                            viewModel.searchPostResults = Post.MOCK_POSTS
+                            viewModel.searchUserResults = User.MOCK_USERS
+                        }
+                    }
+                    CustomNavBar(showFilter: $showFilter, viewModel: filterViewModel, postViewModel: postsViewModel, userViewModel: userViewModel, homeViewModel: viewModel)
                         .anchorPreference(key:HeaderBoundsKey.self, value:.bounds) {$0}
                         .overlayPreferenceValue(HeaderBoundsKey.self) { value in
                             GeometryReader{proxy in
@@ -99,75 +114,8 @@ struct HomeView: View {
                 
             }
             .sheet(isPresented: $filterViewModel.filterIsSelected) {
-                if let options = filterViewModel.selectedFilter?.options{
-                    VStack(spacing: 20){
-                        
-                        List{
-                            Section{
-                                ForEach(options) { option in
-                                    Button {
-                                        print(option.name)
-                                        filterViewModel.filters[filterViewModel.selectedFilterIndex].selectingCategory = option.name
-                                    } label: {
-                                        HStack{
-                                            Text(option.name)
-                                            
-                                            Spacer()
-                                            
-                                            if(option.name == filterViewModel.filters[filterViewModel.selectedFilterIndex].selectingCategory){
-                                                Image(systemName: "checkmark")
-                                            }
-                                            
-                                        }
-                                        
-                                    }                                }
-                                
-                            } footer: {
-                                Button {
-                                    print("Done")
-                                    filterViewModel.filters[filterViewModel.selectedFilterIndex].selectedCategory = filterViewModel.filters[filterViewModel.selectedFilterIndex].selectingCategory
-                                    filterViewModel.filterIsSelected = false
-                                } label: {
-                                    Text("Submit")
-                                        .frame(maxWidth: .infinity)
-                                        .frame(height: 60)
-                                        .background(Color("blackAndWhite"))
-                                        .foregroundColor(Color("testColor"))
-                                        .fontWeight(.semibold)
-                                    
-                                }
-                                .cornerRadius(10)
-                                .padding(.top)
-                            }
-                            
-                        }
-                        
-                    }
-                    .presentationDetents([.fraction(0.9)])
-                    .presentationDragIndicator(.visible)
-                    .background(Color(UIColor.systemGroupedBackground))
-                }
+                FilterView(filterViewModel: filterViewModel)
             }
-//            .sheet(isPresented: $postsViewModel.showPostOptions, content: {
-//                List {
-//                    Button("Save") {
-//                        postsViewModel.selectedOption = "Save"
-//                    }
-//                    
-//                    Button("Share via") {
-//                        postsViewModel.selectedOption = "Share"
-//                    }
-//                    
-//                    Button("Report") {
-//                        postsViewModel.selectedOption = "Report"
-//                    }
-//                }
-//                .presentationDetents([.fraction(0.4)])
-//                .presentationDragIndicator(.visible)
-//            })
-//            .fullScreenCover(isPresented: $postsViewModel.showDetailsPage, content: {
-//                EventView(viewModel: postsViewModel, post: postsViewModel.posts[postsViewModel.clickedPostIndex], userViewModel: userViewModel)
-//            })
             .navigationDestination(for: Post.self) { post in
                 EventView(viewModel: postsViewModel, post: post, userViewModel: userViewModel)
                 //.toolbar(.hidden, for: .tabBar)

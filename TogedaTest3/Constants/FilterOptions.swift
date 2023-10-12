@@ -90,6 +90,8 @@ let interestStrings = [
     "Blogging"
 ]
 
+let searchFilters = ["Events", "People", "Groups"]
+
 let TimeOptions = timeStrings.map { Option(id: NSUUID().uuidString, name: $0) }
 let CategoryOptions = categoryStrings.map { Option(id: NSUUID().uuidString, name: $0) }
 let DistanceOptions = distanceStrings.map { Option(id: NSUUID().uuidString, name: $0) }

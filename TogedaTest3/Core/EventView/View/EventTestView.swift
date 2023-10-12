@@ -19,9 +19,8 @@ struct EventTestView: View {
     
     @State private var peopleIn: Int = 0
 
-    let locations = [
-        Location(coordinate: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194))
-    ]
+    let location = Location(coordinate: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194))
+    
     
     @State private var address: String?
     
@@ -240,12 +239,12 @@ struct EventTestView: View {
                                 .normalTagTextStyle()
                                 .normalTagCapsuleStyle()
                                 .onAppear{
-                                    reverseGeocode(coordinate: locations[0].coordinate) { result in
+                                    reverseGeocode(coordinate: location.coordinate) { result in
                                         address = result
                                     }
                                 }
                             
-                            MapSlot(locations: locations)
+//                            MapSlot(name:post.title, location: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude))
                             
                             Text("Interests")
                                 .font(.title3)

@@ -14,30 +14,31 @@ struct ProfileTabs: View {
     @Binding var offset: CGFloat
     
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            
-            ForEach(0..<tabs.count, id:\.self) {index in
-                Button {
-                    Task {
-                        withAnimation {
-                            tabIndex = index
-                            offset = UIScreen.main.bounds.width * (2 - CGFloat(index))
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(alignment: .center, spacing: 10) {
+                
+                ForEach(0..<tabs.count, id:\.self) {index in
+                    Button {
+                        Task {
+                            withAnimation {
+                                tabIndex = index
+                                offset = UIScreen.main.bounds.width * (2 - CGFloat(index))
+                            }
+                        }
+                    } label: {
+                        if tabIndex == index {
+                            Text(tabs[index])
+                                .selectedTagTextStyle()
+                                .selectedTagCapsuleStyle()
+                        } else {
+                            Text(tabs[index])
+                                .normalTagTextStyle()
+                                .normalTagCapsuleStyle()
                         }
                     }
-                } label: {
-                    if tabIndex == index {
-                        Text(tabs[index])
-                            .selectedTagTextStyle()
-                            .selectedTagCapsuleStyle()
-                    } else {
-                        Text(tabs[index])
-                            .normalTagTextStyle()
-                            .normalTagCapsuleStyle()
-                    }
                 }
+                
             }
-            
-            
         }
     }
 }

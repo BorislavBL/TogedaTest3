@@ -15,76 +15,71 @@ struct CategoryView: View {
     let categories = CategoryOptions.dropLast()
     
     var body: some View {
-        VStack(alignment:.leading){
+        ScrollView(){
             
-            HStack{
-                Spacer()
-                Button(action:{dismiss()}) {
-                    Image(systemName: "xmark")
-                        .padding(.all, 8)
-                        .background(Color("secondaryColor"))
-                        .clipShape(Circle())
-                }
-            }
-            .padding()
-            
-            ScrollView(){
+            LazyVStack(alignment: .leading, spacing: 20) {
+                Text("Category")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .padding(.horizontal)
                 
-                LazyVStack(alignment: .leading, spacing: 20) {
-                    Text("Category")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .padding(.horizontal)
-                    
-                    WrappingHStack(alignment: .leading){
-                        ForEach(categories) { category in
-                            Button{
-                                selectedCategory = category.name
-                            } label:{
-                                if category.name == selectedCategory{
-                                    Text(category.name)
-                                        .selectedTagTextStyle()
-                                        .selectedTagCapsuleStyle()
-                                } else {
-                                    Text(category.name)
-                                        .normalTagTextStyle()
-                                        .normalTagCapsuleStyle()
-                                }
+                WrappingHStack(alignment: .leading){
+                    ForEach(categories) { category in
+                        Button{
+                            selectedCategory = category.name
+                        } label:{
+                            if category.name == selectedCategory{
+                                Text(category.name)
+                                    .selectedTagTextStyle()
+                                    .selectedTagCapsuleStyle()
+                            } else {
+                                Text(category.name)
+                                    .normalTagTextStyle()
+                                    .normalTagCapsuleStyle()
                             }
                         }
                     }
-                    .padding(.horizontal)
-                    
-                    Text("Interests")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .padding(.horizontal)
-                    
-                    WrappingHStack(alignment: .leading){
-                        ForEach(InterestOptions, id: \.name) { interest in
-                            Button {
-                                if selectedInterests.contains(interest.name) {
-                                    selectedInterests.removeAll { $0 == interest.name }
-                                } else {
-                                    selectedInterests.append(interest.name)
-                                }
-                            } label: {
-                                if selectedInterests.contains(interest.name) {
-                                    Text(interest.name)
-                                        .selectedTagTextStyle()
-                                        .selectedTagCapsuleStyle()
-                                } else {
-                                    Text(interest.name)
-                                        .normalTagTextStyle()
-                                        .normalTagCapsuleStyle()
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
                 }
+                .padding(.horizontal)
+                
+                Text("Interests")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .padding(.horizontal)
+                
+                WrappingHStack(alignment: .leading){
+                    ForEach(InterestOptions, id: \.name) { interest in
+                        Button {
+                            if selectedInterests.contains(interest.name) {
+                                selectedInterests.removeAll { $0 == interest.name }
+                            } else {
+                                selectedInterests.append(interest.name)
+                            }
+                        } label: {
+                            if selectedInterests.contains(interest.name) {
+                                Text(interest.name)
+                                    .selectedTagTextStyle()
+                                    .selectedTagCapsuleStyle()
+                            } else {
+                                Text(interest.name)
+                                    .normalTagTextStyle()
+                                    .normalTagCapsuleStyle()
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal)
             }
         }
+        .padding(.vertical)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading:Button(action: {dismiss()}) {
+            Image(systemName: "chevron.left")
+                .padding(.all, 8)
+                .background(Color("secondaryColor"))
+                .clipShape(Circle())
+        }
+        )
     }
 }
 

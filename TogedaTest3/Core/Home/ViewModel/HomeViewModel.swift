@@ -9,6 +9,17 @@ import Foundation
 
 import SwiftUI
 
+class HomeViewModel: ObservableObject {
+    @Published var searchText: String = ""
+    @Published var showSearch: Bool = false
+    @Published var showCancelButton: Bool = false
+    
+    @Published var selectedFilter = searchFilters[0]
+    @Published var searchPostResults: [Post] = Post.MOCK_POSTS
+    @Published var searchUserResults: [User] = User.MOCK_USERS
+    
+}
+
 struct HeaderBoundsKey: PreferenceKey {
     static var defaultValue: Anchor<CGRect>?
     static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
