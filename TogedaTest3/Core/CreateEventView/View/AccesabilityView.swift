@@ -11,11 +11,20 @@ enum Visabilities: Hashable {
     case Public
     case Private
     case Ask_to_join
+    
+    var value : String {
+      switch self {
+      // Use Internationalization, as appropriate.
+      case .Public: return "Public"
+      case .Private: return "Private"
+      case .Ask_to_join: return "Ask To Join"
+      }
+    }
 }
 
 struct AccesabilityView: View {
     @Environment(\.dismiss) private var dismiss
-    @State var selectedVisability: Visabilities = .Public
+    @Binding var selectedVisability: Visabilities
     
     var body: some View {
         List {
@@ -49,6 +58,7 @@ struct AccesabilityView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
+                .imageScale(.medium)
                 .padding(.all, 8)
                 .background(Color("secondaryColor"))
                 .clipShape(Circle())
@@ -62,6 +72,6 @@ struct AccesabilityView: View {
 
 struct AccesabilityView_Previews: PreviewProvider {
     static var previews: some View {
-        AccesabilityView()
+        AccesabilityView(selectedVisability: .constant(.Public))
     }
 }

@@ -10,13 +10,39 @@ import MapKit
 
 struct CreateEventView: View {
     @Environment(\.dismiss) private var dismiss
-    @State var title: String = ""
-    @State var showParticipants = false
-    @State var participants: Int = 0
-    @State var showPricing = false
-    @State var price: Int = 0
     @State var showExitSheet: Bool = false
+    
+    //Title
+    @State var title: String = ""
+    
+    //Participants View
+    @State var showParticipants = false
+    @State var participants: Int?
+    
+    //Pricing View
+    @State var showPricing = false
+    @State var price: Double?
+    
+    //Location View
     @State var returnedPlace = Place(mapItem: MKMapItem())
+    
+    //Date View
+    @State var date = Date()
+    @State var from = Date()
+    @State var to = Date()
+    
+    //Description View
+    @State var description: String = ""
+    
+    //Accesability
+    @State var selectedVisability: Visabilities = .Public
+    
+    //Category
+    @State var selectedCategory: String = "Sport"
+    @State var selectedInterests: [String] = [""]
+    
+    //PhotoPicker
+    @StateObject var photoPickerVM = PhotoPickerViewModel()
     
     var body: some View {
         NavigationStack {
@@ -27,12 +53,45 @@ struct CreateEventView: View {
                         .fontWeight(.bold)
                         .lineLimit(2, reservesSpace: true)
                         .padding(.vertical)
+                        .onChange(of: title) { oldValue, newValue in
+                            if title.count > 70 {
+                                title = String(title.prefix(70))
+                            }
+                        }
                     
                     VStack(spacing: 10) {
                         Group{
                             
                             NavigationLink {
-                                DateView()
+                                PhotoPickerView(photoPickerVM: photoPickerVM)
+                            } label: {
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "photo")
+                                        .imageScale(.large)
+                                    
+                                    
+                                    Text("Photos")
+                                    
+                                    Spacer()
+                                    
+                                    if photoPickerVM.selectedImages.contains(where: {$0 != nil}) {
+                                        Text("Selected")
+                                            .foregroundColor(.gray)
+                                    } else {
+                                        Text("Select")
+                                            .foregroundColor(.gray)
+                                    }
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .padding(.trailing, 10)
+                                        .foregroundColor(.gray)
+                                    
+                                    
+                                }
+                            }
+                            
+                            NavigationLink {
+                                DateView(date: $date, from: $from, to: $to)
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "calendar")
@@ -43,7 +102,7 @@ struct CreateEventView: View {
                                     
                                     Spacer()
                                     
-                                    Text("19/07/23")
+                                    Text(separateDateAndTime(from:date).date)
                                         .foregroundColor(.gray)
                                     
                                     Image(systemName: "chevron.right")
@@ -74,7 +133,7 @@ struct CreateEventView: View {
                             
                             
                             NavigationLink {
-                                DescriptionView()
+                                DescriptionView(description: $description)
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "square.and.pencil")
@@ -84,6 +143,10 @@ struct CreateEventView: View {
                                     Text("Description")
                                     
                                     Spacer()
+                                    
+                                    Text(description)
+                                        .foregroundColor(.gray)
+                                        .lineLimit(1)
                                     
                                     Image(systemName: "chevron.right")
                                         .padding(.trailing, 10)
@@ -104,7 +167,7 @@ struct CreateEventView: View {
                                     
                                     Spacer()
                                     
-                                    Text("Sofia, Bulgaria")
+                                    Text("\(returnedPlace.name == "Unknown Location" ? "Select": returnedPlace.name)")
                                         .foregroundColor(.gray)
                                     
                                     Image(systemName: "chevron.right")
@@ -129,9 +192,14 @@ struct CreateEventView: View {
                                         
                                         Spacer()
                                         
-                                        Text("Any")
-                                            .foregroundColor(.gray)
-                                        
+                                        if let participant = participants{
+                                            Text(participant > 0 ? "\(participant)" : "No Limit")
+                                                .foregroundColor(.gray)
+                                        } else {
+                                            Text("No Limit")
+                                                .foregroundColor(.gray)
+                                        }
+
                                         Image(systemName: showParticipants ? "chevron.down" : "chevron.right")
                                             .padding(.trailing, 10)
                                             .foregroundColor(.gray)
@@ -169,8 +237,14 @@ struct CreateEventView: View {
                                     
                                     Spacer()
                                     
-                                    Text("Free")
-                                        .foregroundColor(.gray)
+                                    if let price = self.price{
+                                        
+                                        Text(price > 0.0 ? "€ \(price, specifier: "%.2f")" : "Free")
+                                            .foregroundColor(.gray)
+                                    } else {
+                                        Text("Free")
+                                            .foregroundColor(.gray)
+                                    }
                                     
                                     Image(systemName: showPricing ? "chevron.down" : "chevron.right")
                                         .padding(.trailing, 10)
@@ -184,10 +258,11 @@ struct CreateEventView: View {
                                         
                                         Spacer()
                                         
-                                        TextField("Free", value: $price, format:.currency(code: "EUR"))
+                                        TextField("€ 0.00", value: $price, format:.currency(code: "EUR"))
                                             .foregroundColor(.gray)
                                             .frame(width: 70)
                                             .textFieldStyle(.roundedBorder)
+                                            .keyboardType(.numberPad)
                                             
                                         
                                     }
@@ -195,7 +270,7 @@ struct CreateEventView: View {
                             }
                             
                             NavigationLink {
-                                AccesabilityView()
+                                AccesabilityView(selectedVisability: $selectedVisability)
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "eye.circle")
@@ -206,7 +281,7 @@ struct CreateEventView: View {
                                     
                                     Spacer()
                                     
-                                    Text("Public")
+                                    Text(selectedVisability.value)
                                         .foregroundColor(.gray)
                                     
                                     Image(systemName: "chevron.right")
@@ -218,7 +293,7 @@ struct CreateEventView: View {
                             }
                             
                             NavigationLink {
-                                CategoryView(selectedCategory: "Sport", selectedInterests: [""])
+                                CategoryView(selectedCategory: $selectedCategory, selectedInterests: $selectedInterests)
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "square.grid.2x2")
@@ -229,7 +304,7 @@ struct CreateEventView: View {
                                     
                                     Spacer()
                                     
-                                    Text("Sport")
+                                    Text(selectedCategory)
                                         .foregroundColor(.gray)
                                     
                                     Image(systemName: "chevron.right")
@@ -252,25 +327,34 @@ struct CreateEventView: View {
                 
                 Spacer()
                 
-                Button {
-                    print("hello")
-                } label: {
-                    Text("Next")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 60)
-                        .background(Color("blackAndWhite"))
-                        .foregroundColor(Color("testColor"))
-                        .cornerRadius(10)
-                        .fontWeight(.semibold)
+                if !title.isEmpty, returnedPlace.name != "Unknown Location" {
+                    NavigationLink(destination: TestView()) {
+                        Text("Next")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .cornerRadius(10)
+                            .fontWeight(.semibold)
+                    }
+                    .padding()
+                } else {
+                        Text("Next")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(.gray)
+                            .foregroundColor(Color("testColor"))
+                            .cornerRadius(10)
+                            .fontWeight(.semibold)
+                            .padding()
                 }
-                .padding()
-
                 
             }
             .frame(maxHeight: UIScreen.main.bounds.height,alignment: .top)
             .navigationBarBackButtonHidden(true)
             .navigationBarItems(trailing:Button(action: {showExitSheet = true}) {
                 Image(systemName: "xmark")
+                    .imageScale(.medium)
                     .padding(.all, 8)
                     .background(Color("secondaryColor"))
                     .clipShape(Circle())

@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct DateView: View {
-    @State var date = Date()
-    @State var from = Date()
-    @State var to = Date()
+    @Binding var date: Date
+    @Binding var from: Date
+    @Binding var to: Date
     @Environment(\.dismiss) private var dismiss
     
     @State private var timeSettings = 0
@@ -67,6 +67,7 @@ struct DateView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
+                .imageScale(.medium)
                 .padding(.all, 8)
                 .background(Color("secondaryColor"))
                 .clipShape(Circle())
@@ -77,6 +78,6 @@ struct DateView: View {
 
 struct DateView_Previews: PreviewProvider {
     static var previews: some View {
-        DateView()
+        DateView(date: .constant(Date()), from: .constant(Date()), to: .constant(Date()))
     }
 }

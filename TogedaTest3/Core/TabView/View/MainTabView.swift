@@ -62,10 +62,10 @@ struct MainTabView: View {
                     router.oldScreen = newValue
                 }
             }
-            .sheet(isPresented: $router.isPresenting) {
+            .fullScreenCover(isPresented: $router.isPresenting) {
                 CreateEventView()
-                    .presentationDragIndicator(.hidden)
-                    .interactiveDismissDisabled(true)
+//                    .presentationDragIndicator(.hidden)
+//                    .interactiveDismissDisabled(true)
             }
             .sheet(isPresented: $postsViewModel.showPostOptions, content: {
                 List {

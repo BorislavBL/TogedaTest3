@@ -11,14 +11,36 @@ import MapKit
 class LocationManager: NSObject, ObservableObject {
     @Published var location: CLLocation?
     @Published var region = MKCoordinateRegion()
+    
+    @Published var authorizationStatus: CLAuthorizationStatus
+    
     private let locationManager = CLLocationManager()
     
     override init() {
+        authorizationStatus = locationManager.authorizationStatus
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
+    }
+    
+    func requestAuthorization(){
+
+       locationManager.desiredAccuracy = kCLLocationAccuracyBest
+       locationManager.delegate = self
+        
+       if authorizationStatus == .notDetermined{
+           locationManager.requestWhenInUseAuthorization()
+       }
+       else if authorizationStatus == .denied{
+           //TODO
+       }
+        locationManager.startUpdatingLocation()
+   }
+    
+    func test(){
+        locationManager.requestWhenInUseAuthorization()
     }
 }
 
@@ -28,6 +50,6 @@ extension LocationManager: CLLocationManagerDelegate{
         guard let location = locations.last else {return}
         self.location = location
         self.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 5000, longitudinalMeters: 5000)
-        locationManager.stopUpdatingLocation()
+//        locationManager.stopUpdatingLocation()
     }
 }

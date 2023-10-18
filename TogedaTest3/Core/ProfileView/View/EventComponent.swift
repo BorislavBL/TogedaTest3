@@ -16,7 +16,7 @@ struct EventComponent: View {
             Image("event_1")
                 .resizable()
                 .scaledToFill()
-                .frame(width: imageDimension, height: imageDimension + imageDimension * 0.3)
+                .frame(width: imageDimension, height: imageDimension * 1.3)
                 .clipped()
             
             VStack{

@@ -14,6 +14,7 @@ struct LocationPicker: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var returnedPlace: Place
     @State var showCancelButton: Bool = false
+    @State private var placemark: CLPlacemark?
     
     var body: some View {
         VStack {
@@ -21,21 +22,28 @@ struct LocationPicker: View {
                 .padding(.horizontal)
             
             if placeVM.searchText.isEmpty {
-                Text("Location:\n \(locationManager.location?.coordinate.latitude ?? 0.0), \(locationManager.location?.coordinate.longitude ?? 0.0)")
                 
-                Button {
-                    
-                } label: {
-                    Label {
-                        Text("Use Current Location")
-                            .font(.callout)
-                    } icon: {
-                        Image(systemName: "location.north.circle.fill")
+                if locationManager.authorizationStatus == .authorizedWhenInUse{
+                    Button {
+                        locationManager.requestAuthorization()
+                        placeVM.findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace)
+                        UIApplication.shared.endEditing(true)
+                        placeVM.searchText = ""
+                        showCancelButton = false
+                        dismiss()
+                        
+                    } label: {
+                        Label {
+                            Text("Use Current Location")
+                                .font(.callout)
+                        } icon: {
+                            Image(systemName: "location.north.circle.fill")
+                        }
+                        .foregroundStyle(.blue)
                     }
-                    .foregroundStyle(.blue)
+                    .frame(maxWidth: .infinity, alignment: .leading )
+                    .padding()
                 }
-                .frame(maxWidth: .infinity, alignment: .leading )
-                .padding()
             } else {
                 
                 List(placeVM.places){ place in
@@ -55,15 +63,16 @@ struct LocationPicker: View {
                 }
                 .listStyle(.plain)
             }
-
+            
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
+                .imageScale(.medium)
                 .padding(.all, 8)
                 .background(Color("secondaryColor"))
                 .clipShape(Circle())
-    })
+        })
         .padding(.vertical)
         .frame(maxHeight: .infinity, alignment: .top )
     }
@@ -73,3 +82,4 @@ struct LocationPicker: View {
     LocationPicker(returnedPlace: .constant(Place(mapItem: MKMapItem())))
         .environmentObject(LocationManager())
 }
+

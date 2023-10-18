@@ -7,7 +7,7 @@
 
 import Foundation
 
-import Foundation
+import SwiftUI
 import MapKit
 import Combine
 
@@ -18,6 +18,7 @@ class LocationPickerViewModel: ObservableObject {
     
     var cancellable: AnyCancellable?
     @Published var fetchedPlaces: [CLPlacemark]?
+    @Published var isCurrentLocation: Bool = false
     
     init() {
         cancellable = $searchText
@@ -46,6 +47,32 @@ class LocationPickerViewModel: ObservableObject {
             self.places = response.mapItems.map(Place.init)
         }
     }
+    
+    func mapItem(from placemark: CLPlacemark) -> MKMapItem {
+        let mkPlacemark = MKPlacemark(placemark: placemark)
+        return MKMapItem(placemark: mkPlacemark)
+    }
+    
+    func findLocationDetails(location: CLLocation?, returnedPlace: Binding<Place>) {
+        guard let location = location else { return }
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+            if let error = error {
+                print("Error reverse geocoding: \(error.localizedDescription)")
+                
+            } else if let firstPlacemark = placemarks?.first {
+                returnedPlace.wrappedValue = Place(mapItem: self.mapItem(from: firstPlacemark))
+            } else {
+                print("else")
+            }
+        }
+    }
+    
+//    extension CLLocation {
+//        func placemark(completion: @escaping (_ placemark: CLPlacemark?, _ error: Error?) -> ()) {
+//            CLGeocoder().reverseGeocodeLocation(self) { completion($0?.first, $1) }
+//        }
+//    }
     
     func search(text: String, region: MKCoordinateRegion){
         let searchRequest = MKLocalSearch.Request()
