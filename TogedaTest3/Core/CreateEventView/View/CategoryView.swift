@@ -42,10 +42,18 @@ struct CategoryView: View {
                 }
                 .padding(.horizontal)
                 
-                Text("Interests")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .padding(.horizontal)
+                HStack{
+                    Text("Interests")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .padding(.horizontal)
+                    
+                    Spacer()
+                    
+                    Text("\(10 - selectedInterests.count)")
+                        .foregroundStyle(.gray)
+                        .padding(.horizontal)
+                }
                 
                 WrappingHStack(alignment: .leading){
                     ForEach(InterestOptions, id: \.name) { interest in
@@ -53,7 +61,9 @@ struct CategoryView: View {
                             if selectedInterests.contains(interest.name) {
                                 selectedInterests.removeAll { $0 == interest.name }
                             } else {
-                                selectedInterests.append(interest.name)
+                                if selectedInterests.count < 10 {
+                                    selectedInterests.append(interest.name)
+                                }
                             }
                         } label: {
                             if selectedInterests.contains(interest.name) {
@@ -86,6 +96,6 @@ struct CategoryView: View {
 
 struct CategoryView_Previews: PreviewProvider {
     static var previews: some View {
-        CategoryView(selectedCategory: .constant("Sport"), selectedInterests: .constant(["hiking"]))
+        CategoryView(selectedCategory: .constant("Sport"), selectedInterests: .constant([]))
     }
 }

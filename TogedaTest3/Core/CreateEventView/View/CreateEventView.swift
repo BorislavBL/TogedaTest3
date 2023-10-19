@@ -11,9 +11,11 @@ import MapKit
 struct CreateEventView: View {
     @Environment(\.dismiss) private var dismiss
     @State var showExitSheet: Bool = false
-    
+    @State var displayWarnings: Bool = false
+    @State var alertMessage = ""
     //Title
     @State var title: String = ""
+    @State var placeholder: String = "What event would you like to make?"
     
     //Participants View
     @State var showParticipants = false
@@ -30,6 +32,7 @@ struct CreateEventView: View {
     @State var date = Date()
     @State var from = Date()
     @State var to = Date()
+    @State var isDate = true
     
     //Description View
     @State var description: String = ""
@@ -39,16 +42,17 @@ struct CreateEventView: View {
     
     //Category
     @State var selectedCategory: String = "Sport"
-    @State var selectedInterests: [String] = [""]
+    @State var selectedInterests: [String] = []
     
     //PhotoPicker
     @StateObject var photoPickerVM = PhotoPickerViewModel()
+
     
     var body: some View {
         NavigationStack {
             VStack{
                 ScrollView{
-                    TextField("What event would you like to make?", text: $title, axis: .vertical)
+                    TextField(placeholder, text: $title, axis: .vertical)
                         .font(.headline)
                         .fontWeight(.bold)
                         .lineLimit(2, reservesSpace: true)
@@ -67,11 +71,9 @@ struct CreateEventView: View {
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "photo")
-                                        .imageScale(.large)
-                                    
-                                    
+                                        .foregroundStyle(.tint)
                                     Text("Photos")
-                                    
+                                        .foregroundStyle(.tint)
                                     Spacer()
                                     
                                     if photoPickerVM.selectedImages.contains(where: {$0 != nil}) {
@@ -79,19 +81,43 @@ struct CreateEventView: View {
                                             .foregroundColor(.gray)
                                     } else {
                                         Text("Select")
-                                            .foregroundColor(.gray)
+                                            .foregroundStyle(.gray)
                                     }
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .padding(.trailing, 10)
+                                        .foregroundStyle(.gray)
+                                    
+                                    
+                                }
+                                .foregroundStyle(.red)
+                            }
+
+                            
+                            NavigationLink {
+                                LocationPicker(returnedPlace: $returnedPlace)
+                            } label: {
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "mappin.circle")
+                                        .imageScale(.large)
+                                    
+                                    
+                                    Text("Location")
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(returnedPlace.name == "Unknown Location" ? "Select": returnedPlace.name)")
+                                        .foregroundColor(.gray)
                                     
                                     Image(systemName: "chevron.right")
                                         .padding(.trailing, 10)
                                         .foregroundColor(.gray)
                                     
-                                    
                                 }
                             }
                             
                             NavigationLink {
-                                DateView(date: $date, from: $from, to: $to)
+                                DateView(isDate: $isDate, date: $date, from: $from, to: $to)
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "calendar")
@@ -102,7 +128,8 @@ struct CreateEventView: View {
                                     
                                     Spacer()
                                     
-                                    Text(separateDateAndTime(from:date).date)
+                                    
+                                    Text(isDate ? separateDateAndTime(from:date).date : "Any day")
                                         .foregroundColor(.gray)
                                     
                                     Image(systemName: "chevron.right")
@@ -147,28 +174,6 @@ struct CreateEventView: View {
                                     Text(description)
                                         .foregroundColor(.gray)
                                         .lineLimit(1)
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .padding(.trailing, 10)
-                                        .foregroundColor(.gray)
-                                    
-                                }
-                            }
-                            
-                            NavigationLink {
-                                LocationPicker(returnedPlace: $returnedPlace)
-                            } label: {
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "mappin.circle")
-                                        .imageScale(.large)
-                                    
-                                    
-                                    Text("Location")
-                                    
-                                    Spacer()
-                                    
-                                    Text("\(returnedPlace.name == "Unknown Location" ? "Select": returnedPlace.name)")
-                                        .foregroundColor(.gray)
                                     
                                     Image(systemName: "chevron.right")
                                         .padding(.trailing, 10)
@@ -320,6 +325,7 @@ struct CreateEventView: View {
                         .padding(.vertical, 5)
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         .normalTagRectangleStyle()
+                        
                     }
 
                 }
@@ -327,9 +333,11 @@ struct CreateEventView: View {
                 
                 Spacer()
                 
-                if !title.isEmpty, returnedPlace.name != "Unknown Location" {
-                    NavigationLink(destination: TestView()) {
-                        Text("Next")
+                if !title.isEmpty, returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }) {
+                    Button{
+                      dismiss()
+                    } label: {
+                        Text("Create")
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
                             .background(Color("blackAndWhite"))
@@ -339,7 +347,7 @@ struct CreateEventView: View {
                     }
                     .padding()
                 } else {
-                        Text("Next")
+                        Text("Create")
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
                             .background(.gray)
@@ -347,6 +355,10 @@ struct CreateEventView: View {
                             .cornerRadius(10)
                             .fontWeight(.semibold)
                             .padding()
+                            .onTapGesture {
+                                warningCondition()
+                                displayWarnings = true
+                            }
                 }
                 
             }
@@ -360,6 +372,9 @@ struct CreateEventView: View {
                     .clipShape(Circle())
             }
             )
+        }
+        .alert(alertMessage, isPresented: $displayWarnings) {
+            Button("OK", role: .cancel) { }
         }
         .sheet(isPresented: $showExitSheet, content: {
             VStack(spacing: 30){
@@ -383,6 +398,15 @@ struct CreateEventView: View {
             .padding()
             .presentationDetents([.fraction(0.2)])
         })
+    }
+    
+    func warningCondition() {
+        let text = "In order to create an event you first have to:"
+        let title = title.isEmpty ? "\n Write a suitable title." : ""
+        let photos = photoPickerVM.selectedImages.contains(where: { $0 == nil }) ? "\n Select suitable photos." : ""
+        let location = returnedPlace.name == "Unknown Location" ? "\n Select a disired location." : ""
+        
+        alertMessage = text + title + photos + location
     }
 }
 

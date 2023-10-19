@@ -10,7 +10,7 @@ import PhotosUI
 
 struct PhotoPickerView: View {
     @ObservedObject var photoPickerVM: PhotoPickerViewModel
-    private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 3) - 18
+    private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 3) - 16
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -19,7 +19,7 @@ struct PhotoPickerView: View {
                 Text("Add Photos")
                     .font(.title3)
                     .fontWeight(.bold)
-                    .padding(.horizontal)
+                    
                 
                 Grid {
                     GridRow {

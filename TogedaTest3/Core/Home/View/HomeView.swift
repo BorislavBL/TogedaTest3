@@ -121,7 +121,7 @@ struct HomeView: View {
                 //.toolbar(.hidden, for: .tabBar)
             }
             .navigationDestination(for: User.self) { user in
-                Text(user.username)
+                UserProfileView(user: user)
             }
         }
         

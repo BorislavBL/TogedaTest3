@@ -45,15 +45,25 @@ struct EventTab: View {
 
             
             LazyVGrid(columns: gridItems, spacing: 10) {
-                ForEach(0..<9, id: \.self){abouts in
+                ForEach(0..<6, id: \.self){ abouts in
                     EventComponent()
                 }
+            }
+            
+            Button{
+                
+            } label: {
+                Text("View All")
+                    .normalTagTextStyle()
+                    .frame(maxWidth: .infinity)
+                    .normalTagRectangleStyle()
+                    
             }
         }
         .frame(minWidth: 0, maxWidth: .infinity)
         .padding()
         .background(.bar)
-        .cornerRadius(30)
+        .cornerRadius(10)
     }
 }
 

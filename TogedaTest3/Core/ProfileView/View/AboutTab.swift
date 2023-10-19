@@ -53,7 +53,7 @@ struct AboutTab: View {
         .frame(minWidth: 0, maxWidth: .infinity)
         .padding()
         .background(.bar)
-        .cornerRadius(30)
+        .cornerRadius(10)
     }
 }
 

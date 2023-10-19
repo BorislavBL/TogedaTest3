@@ -8,57 +8,80 @@
 import SwiftUI
 
 struct DateView: View {
+    @Binding var isDate: Bool
     @Binding var date: Date
     @Binding var from: Date
     @Binding var to: Date
     @Environment(\.dismiss) private var dismiss
     
+    @State private var daySettings = 0
     @State private var timeSettings = 0
     
     var body: some View {
         ScrollView{
             VStack(alignment:.leading){
+                
                 Text("Choose Date")
                     .font(.title3)
                     .fontWeight(.bold)
                     .padding(.horizontal)
                 
-                DatePicker("Choose date", selection: $date, in: Date()..., displayedComponents: .date)
-                    .datePickerStyle(GraphicalDatePickerStyle())
-                    .padding(.horizontal, 8)
-                    .accentColor(.blue)
-//                    .frame(width: 320, height: 320)
-
-
-                
-                Text("Choose Time")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .padding(.horizontal)
-                
-                Picker("Choose Time", selection: $timeSettings) {
-                    Text("Exact Time").tag(0)
-                    Text("Range").tag(1)
-                    Text("Anytime").tag(2)
+                Picker("Choose Day", selection: $daySettings) {
+                    Text("Exact day").tag(0)
+                    Text("Any day").tag(1)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
                 
-                if timeSettings != 2 {
-                    DatePicker("From", selection: $from, displayedComponents: .hourAndMinute)
-                        .datePickerStyle(.graphical)
+                
+                DatePicker("Choose date", selection: $date, in: Date()..., displayedComponents: .date)
+                    .datePickerStyle(GraphicalDatePickerStyle())
+                    .disabled(!isDate)
+                    .padding(.horizontal, 8)
+                    .accentColor(.blue)
+                    .onChange(of: daySettings) { oldValue, newValue in
+                        if newValue == 1 {
+                            isDate = false
+                        } else {
+                            isDate = true
+                        }
+                    }
+//                    .frame(width: 320, height: 320)
+
+
+                if isDate {
+                    Text("Choose Time")
+                        .font(.title3)
+                        .fontWeight(.bold)
                         .padding(.horizontal)
-                        .fontWeight(.semibold)
                     
-                    if timeSettings == 1 {
-                        DatePicker("To", selection: $to, displayedComponents: .hourAndMinute)
+                    Picker("Choose Time", selection: $timeSettings) {
+                        Text("Anytime").tag(0)
+                        Text("Range").tag(1)
+                        Text("Exact Time").tag(2)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    
+                    if timeSettings != 0 {
+                        DatePicker("From", selection: $from, displayedComponents: .hourAndMinute)
                             .datePickerStyle(.graphical)
                             .padding(.horizontal)
                             .fontWeight(.semibold)
+                        
+                        if timeSettings == 1 {
+                            DatePicker("To", selection: $to, displayedComponents: .hourAndMinute)
+                                .datePickerStyle(.graphical)
+                                .padding(.horizontal)
+                                .fontWeight(.semibold)
+                        }
+                    } else {
+                        HStack {
+                            Text("The event won't have a specific timeframe.")
+                                .fontWeight(.medium)
+                                .padding()
+                        }
                     }
-                } else {
-                    Text("Anytime")
-                        .padding(.horizontal)
                 }
             }
             .padding(.vertical)
@@ -78,6 +101,6 @@ struct DateView: View {
 
 struct DateView_Previews: PreviewProvider {
     static var previews: some View {
-        DateView(date: .constant(Date()), from: .constant(Date()), to: .constant(Date()))
+        DateView(isDate:.constant(true), date: .constant(Date()), from: .constant(Date()), to: .constant(Date()))
     }
 }
