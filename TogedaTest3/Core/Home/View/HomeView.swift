@@ -17,7 +17,6 @@ struct HomeView: View {
     @StateObject var filterViewModel = FilterViewModel()
     @ObservedObject var postsViewModel: PostsViewModel
     @ObservedObject var userViewModel: UserViewModel
-    @State var test = false
     
     @State private var refreshingHeight:CGFloat = 0.0
     
@@ -38,6 +37,19 @@ struct HomeView: View {
                                 ForEach(postsViewModel.posts, id: \.id) { post in
                                     PostCell(viewModel: postsViewModel, post: post, userViewModel: userViewModel)
                                 }
+                                
+                                if postsViewModel.isLoading {
+                                    ProgressView() // Show spinner while loading
+                                }
+                                
+                                Rectangle()
+                                    .frame(width: 0, height: 0)
+                                    .onAppear {
+                                        postsViewModel.isLoading = true
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            postsViewModel.isLoading = false
+                                        }
+                                    }
                             }
                             .padding(.top, navbarHeight - 15)
                             .padding(.vertical)
@@ -65,7 +77,6 @@ struct HomeView: View {
                                         }
                                 }
                             )
-                            
                         }
                         .onAppear{
                             postsViewModel.fetchPosts()
@@ -112,6 +123,9 @@ struct HomeView: View {
                         }
                 }
                 
+            }
+            .sheet(isPresented: $postsViewModel.showJoinRequest){
+                JoinRequestView(postsViewModel: postsViewModel, userViewModel: userViewModel)
             }
             .sheet(isPresented: $filterViewModel.filterIsSelected) {
                 FilterView(filterViewModel: filterViewModel)

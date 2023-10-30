@@ -13,6 +13,7 @@ class LocationManager: NSObject, ObservableObject {
     @Published var region = MKCoordinateRegion()
     
     @Published var authorizationStatus: CLAuthorizationStatus
+    @Published var showLocationServicesView: Bool = false
     
     private let locationManager = CLLocationManager()
     
@@ -25,8 +26,30 @@ class LocationManager: NSObject, ObservableObject {
         locationManager.startUpdatingLocation()
     }
     
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch manager.authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .restricted:
+            showLocationServicesView = true
+        case .denied:
+            showLocationServicesView = true
+        case .authorizedAlways:
+            showLocationServicesView = false
+        case .authorizedWhenInUse:
+            showLocationServicesView = false
+            locationManager.requestAlwaysAuthorization()
+        default:
+            print("default")
+        }
+    }
+    
+    
+    func stopLocation() {
+        locationManager.stopUpdatingLocation()
+    }
+    
     func requestAuthorization(){
-
        locationManager.desiredAccuracy = kCLLocationAccuracyBest
        locationManager.delegate = self
         
@@ -34,14 +57,11 @@ class LocationManager: NSObject, ObservableObject {
            locationManager.requestWhenInUseAuthorization()
        }
        else if authorizationStatus == .denied{
-           //TODO
+           showLocationServicesView = true
        }
         locationManager.startUpdatingLocation()
    }
     
-    func test(){
-        locationManager.requestWhenInUseAuthorization()
-    }
 }
 
 extension LocationManager: CLLocationManagerDelegate{

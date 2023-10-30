@@ -50,9 +50,7 @@ struct EventTab: View {
                 }
             }
             
-            Button{
-                
-            } label: {
+            NavigationLink(destination: UserTabViews(title: "Events", filters: ["All", "Current", "Past"])) {
                 Text("View All")
                     .normalTagTextStyle()
                     .frame(maxWidth: .infinity)
@@ -72,5 +70,6 @@ struct EventTab: View {
 struct EventTab_Previews: PreviewProvider {
     static var previews: some View {
         EventTab()
+
     }
 }

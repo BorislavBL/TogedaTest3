@@ -16,6 +16,9 @@ struct CreateEventView: View {
     //Title
     @State var title: String = ""
     @State var placeholder: String = "What event would you like to make?"
+    @FocusState private var focusedField: Bool
+    
+    @State private var name = "Taylor Swift"
     
     //Participants View
     @State var showParticipants = false
@@ -33,6 +36,8 @@ struct CreateEventView: View {
     @State var from = Date()
     @State var to = Date()
     @State var isDate = true
+    @State var daySettings = 0
+    @State var timeSettings = 0
     
     //Description View
     @State var description: String = ""
@@ -46,22 +51,48 @@ struct CreateEventView: View {
     
     //PhotoPicker
     @StateObject var photoPickerVM = PhotoPickerViewModel()
-
     
     var body: some View {
         NavigationStack {
             VStack{
-                ScrollView{
-                    TextField(placeholder, text: $title, axis: .vertical)
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .lineLimit(2, reservesSpace: true)
-                        .padding(.vertical)
-                        .onChange(of: title) { oldValue, newValue in
-                            if title.count > 70 {
-                                title = String(title.prefix(70))
+                
+                ScrollView(showsIndicators: false){
+                    //                    TextField(placeholder, text: $title, axis: .vertical)
+                    //                        .submitLabel(.done)
+                    //                        .focused($isTitle)
+                    //                        .onSubmit {
+                    //                            isTitle = false
+                    //                            print("ok")
+                    //                        }
+                    //                        .font(.headline)
+                    //                        .fontWeight(.bold)
+                    //                        .lineLimit(2, reservesSpace: true)
+                    //                        .padding(.vertical)
+                    //                        .onChange(of: title) { oldValue, newValue in
+                    //                            if title.count > 70 {
+                    //                                title = String(title.prefix(70))
+                    //                            }
+                    //                        }
+                    
+                    VStack(alignment: .leading){
+                        Text("Title:")
+                            .foregroundStyle(.tint)
+                        TextField(placeholder, text: $title)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .onChange(of: title) { oldValue, newValue in
+                                if title.count > 70 {
+                                    title = String(title.prefix(70))
+                                }
                             }
-                        }
+                    }
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .padding(.vertical, 5)
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                    .normalTagRectangleStyle()
+                    .padding(.top)
+                    
                     
                     VStack(spacing: 10) {
                         Group{
@@ -92,7 +123,7 @@ struct CreateEventView: View {
                                 }
                                 .foregroundStyle(.red)
                             }
-
+                            
                             
                             NavigationLink {
                                 LocationPicker(returnedPlace: $returnedPlace)
@@ -117,7 +148,7 @@ struct CreateEventView: View {
                             }
                             
                             NavigationLink {
-                                DateView(isDate: $isDate, date: $date, from: $from, to: $to)
+                                DateView(isDate: $isDate, date: $date, from: $from, to: $to, daySettings: $daySettings, timeSettings: $timeSettings)
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "calendar")
@@ -138,25 +169,25 @@ struct CreateEventView: View {
                                     
                                 }
                             }
-
-
-    //                        HStack(alignment: .center, spacing: 10) {
-    //                            Image(systemName: "clock")
-    //                                .imageScale(.large)
-    //
-    //
-    //                            Text("Time")
-    //
-    //                            Spacer()
-    //
-    //                            Text("13:00")
-    //                                .foregroundColor(.gray)
-    //
-    //                            Image(systemName: "chevron.right")
-    //                                .padding(.trailing, 10)
-    //                                .foregroundColor(.gray)
-    //
-    //                        }
+                            
+                            
+                            //                        HStack(alignment: .center, spacing: 10) {
+                            //                            Image(systemName: "clock")
+                            //                                .imageScale(.large)
+                            //
+                            //
+                            //                            Text("Time")
+                            //
+                            //                            Spacer()
+                            //
+                            //                            Text("13:00")
+                            //                                .foregroundColor(.gray)
+                            //
+                            //                            Image(systemName: "chevron.right")
+                            //                                .padding(.trailing, 10)
+                            //                                .foregroundColor(.gray)
+                            //
+                            //                        }
                             
                             
                             NavigationLink {
@@ -184,10 +215,10 @@ struct CreateEventView: View {
                             
                             VStack(alignment: .leading, spacing: 20){
                                 
-                            Button {
-                                showParticipants.toggle()
-                            } label: {
-                               
+                                Button {
+                                    showParticipants.toggle()
+                                } label: {
+                                    
                                     HStack(alignment: .center, spacing: 10) {
                                         Image(systemName: "person.2.circle")
                                             .imageScale(.large)
@@ -204,7 +235,7 @@ struct CreateEventView: View {
                                             Text("No Limit")
                                                 .foregroundColor(.gray)
                                         }
-
+                                        
                                         Image(systemName: showParticipants ? "chevron.down" : "chevron.right")
                                             .padding(.trailing, 10)
                                             .foregroundColor(.gray)
@@ -222,41 +253,41 @@ struct CreateEventView: View {
                                             .foregroundColor(.gray)
                                             .frame(width: 70)
                                             .textFieldStyle(.roundedBorder)
-                                            
+                                            .keyboardType(.numberPad)
                                         
                                     }
                                 }
                             }
-
+                            
                             VStack(alignment: .leading, spacing: 20){
-                            Button {
-                                showPricing.toggle()
-                            } label: {
-                                
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "wallet.pass")
-                                        .imageScale(.large)
+                                Button {
+                                    showPricing.toggle()
+                                } label: {
                                     
-                                    
-                                    Text("Price")
-                                    
-                                    Spacer()
-                                    
-                                    if let price = self.price{
+                                    HStack(alignment: .center, spacing: 10) {
+                                        Image(systemName: "wallet.pass")
+                                            .imageScale(.large)
                                         
-                                        Text(price > 0.0 ? "€ \(price, specifier: "%.2f")" : "Free")
+                                        
+                                        Text("Price")
+                                        
+                                        Spacer()
+                                        
+                                        if let price = self.price{
+                                            
+                                            Text(price > 0.0 ? "€ \(price, specifier: "%.2f")" : "Free")
+                                                .foregroundColor(.gray)
+                                        } else {
+                                            Text("Free")
+                                                .foregroundColor(.gray)
+                                        }
+                                        
+                                        Image(systemName: showPricing ? "chevron.down" : "chevron.right")
+                                            .padding(.trailing, 10)
                                             .foregroundColor(.gray)
-                                    } else {
-                                        Text("Free")
-                                            .foregroundColor(.gray)
+                                        
                                     }
-                                    
-                                    Image(systemName: showPricing ? "chevron.down" : "chevron.right")
-                                        .padding(.trailing, 10)
-                                        .foregroundColor(.gray)
-                                    
                                 }
-                            }
                                 if showPricing {
                                     HStack(alignment: .center, spacing: 10) {
                                         Text("Write a Price")
@@ -268,7 +299,7 @@ struct CreateEventView: View {
                                             .frame(width: 70)
                                             .textFieldStyle(.roundedBorder)
                                             .keyboardType(.numberPad)
-                                            
+                                        
                                         
                                     }
                                 }
@@ -327,15 +358,15 @@ struct CreateEventView: View {
                         .normalTagRectangleStyle()
                         
                     }
-
+                    
                 }
                 .padding(.horizontal)
                 
-                Spacer()
+                //                Spacer()
                 
                 if !title.isEmpty, returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }) {
                     Button{
-                      dismiss()
+                        dismiss()
                     } label: {
                         Text("Create")
                             .frame(maxWidth: .infinity)
@@ -347,18 +378,18 @@ struct CreateEventView: View {
                     }
                     .padding()
                 } else {
-                        Text("Create")
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(.gray)
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
-                            .fontWeight(.semibold)
-                            .padding()
-                            .onTapGesture {
-                                warningCondition()
-                                displayWarnings = true
-                            }
+                    Text("Create")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(.gray)
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                        .fontWeight(.semibold)
+                        .padding()
+                        .onTapGesture {
+                            warningCondition()
+                            displayWarnings = true
+                        }
                 }
                 
             }
@@ -398,6 +429,7 @@ struct CreateEventView: View {
             .padding()
             .presentationDetents([.fraction(0.2)])
         })
+        .resignKeyboardOnDragGesture()
     }
     
     func warningCondition() {

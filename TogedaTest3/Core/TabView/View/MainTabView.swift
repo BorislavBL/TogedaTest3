@@ -13,16 +13,25 @@ struct MainTabView: View {
     
     @StateObject var postsViewModel = PostsViewModel()
     @StateObject var userViewModel = UserViewModel()
+    @EnvironmentObject var locationManager: LocationManager
     
     var body: some View {
         NavigationView{
             TabView(selection: $router.screen) {
                 Group {
-                    HomeView(postsViewModel: postsViewModel, userViewModel: userViewModel)
-                        .tag(Screen.home)
-                        .tabItem {
-                            Image(systemName: "house")
-                        }
+                    if locationManager.showLocationServicesView{
+                        AllowLocationView()
+                            .tag(Screen.home)
+                            .tabItem {
+                                Image(systemName: "house")
+                            }
+                    } else {
+                        HomeView(postsViewModel: postsViewModel, userViewModel: userViewModel)
+                            .tag(Screen.home)
+                            .tabItem {
+                                Image(systemName: "house")
+                            }
+                    }
                     MapView(postsViewModel: postsViewModel, userViewModel: userViewModel)
                         .tag(Screen.map)
                         .tabItem {
@@ -97,5 +106,6 @@ struct MainTabView: View {
 struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {
         MainTabView(user: User.MOCK_USERS[1])
+            .environmentObject(LocationManager())
     }
 }

@@ -11,21 +11,48 @@ struct ProfileView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     
     var user: User
-
+    
     @StateObject var viewModel = ProfileViewModel()
+    @State private var showImageSet = false
     
     var body: some View {
         NavigationStack{
             ScrollView(showsIndicators: false){
                 VStack(alignment: .center) {
-                    if let profileImage = user.profileImageUrl {
-                        Image(profileImage)
-                            .resizable()
-                            .scaledToFill()
-                            .background(.gray)
-                            .frame(width: 120, height: 120)
-                            .cornerRadius(20)
-                            .clipped()
+                    if let profileImages = user.profileImageUrl {
+                        if showImageSet {
+                            TabView {
+                                ForEach(profileImages, id: \.self) { image in
+                                    Button{
+                                        showImageSet = false
+                                    } label:{
+                                        Image(image)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .clipped()
+                                    }
+                                    
+                                }
+                                
+                            }
+                            .tabViewStyle(PageTabViewStyle())
+                            .cornerRadius(10)
+                            .frame(height: 400)
+                            
+                        } else {
+                            
+                            Button{
+                                showImageSet = true
+                            }label:{
+                                Image(profileImages[0])
+                                    .resizable()
+                                    .scaledToFill()
+                                    .background(.gray)
+                                    .frame(width: 120, height: 120)
+                                    .cornerRadius(20)
+                                    .clipped()
+                            }
+                        }
                     } else {
                         Image(systemName: "person.crop.circle")
                             .resizable()
@@ -62,24 +89,24 @@ struct ProfileView: View {
                         }
                     }.padding(.vertical)
                     
-//                    HStack(alignment:.center, spacing: 10) {
-//                        Button {
-//                            
-//                        } label: {
-//                            Text("Add Friend")
-//                                .normalTagTextStyle()
-//                                .frame(width: UIScreen.main.bounds.width/2 - 60)
-//                                .normalTagRectangleStyle()
-//                        }
-//                        Button {
-//                            
-//                        } label: {
-//                            Text("Message")
-//                                .normalTagTextStyle()
-//                                .frame(width: UIScreen.main.bounds.width/2 - 60)
-//                                .normalTagRectangleStyle()
-//                        }
-//                    }
+                    //                    HStack(alignment:.center, spacing: 10) {
+                    //                        Button {
+                    //
+                    //                        } label: {
+                    //                            Text("Add Friend")
+                    //                                .normalTagTextStyle()
+                    //                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                    //                                .normalTagRectangleStyle()
+                    //                        }
+                    //                        Button {
+                    //
+                    //                        } label: {
+                    //                            Text("Message")
+                    //                                .normalTagTextStyle()
+                    //                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                    //                                .normalTagRectangleStyle()
+                    //                        }
+                    //                    }
                     
                     HStack(alignment: .top, spacing: 30) {
                         UserStats(value: String(user.friendIDs.count), title: "Friends")
@@ -118,10 +145,8 @@ struct ProfileView: View {
                                 .imageScale(.large)
                                 .foregroundColor(.accentColor)
                         }
-
-                        Button {
-                            print("")
-                        } label: {
+                        
+                        NavigationLink(destination: UserSettingsView()) {
                             Image(systemName: "gear")
                                 .imageScale(.large)
                                 .foregroundColor(.accentColor)
@@ -136,6 +161,6 @@ struct ProfileView: View {
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileView(user: User.MOCK_USERS[1])
+        ProfileView(user: User.MOCK_USERS[0])
     }
 }

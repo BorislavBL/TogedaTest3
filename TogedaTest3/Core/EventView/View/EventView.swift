@@ -47,7 +47,7 @@ struct EventView: View {
                                 
                                 
                                 if let image = post.user?.profileImageUrl {
-                                    Image(image)
+                                    Image(image[0])
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 60, height: 60)
@@ -102,14 +102,21 @@ struct EventView: View {
                                         .imageScale(.large)
                                     
                                     VStack(alignment: .leading, spacing: 5) {
-                                        Text("Bulgaria, Sofia")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
                                         
-                                        Text("St. Georg Washington")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
+                                        if post.peopleIn.contains(userViewModel.user.id) || post.accessability == .Public{
+                                            Text("Bulgaria, Sofia")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                            
+                                            Text("St. Georg Washington")
+                                                .font(.footnote)
+                                                .foregroundColor(.gray)
+                                                .fontWeight(.bold)
+                                        } else {
+                                            Text("The exact location will be revealed upon joining.")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                        }
                                     }
                                 }
                                 
@@ -129,7 +136,7 @@ struct EventView: View {
                                                     
                                                     if let image = post.participants[number].profileImageUrl {
                                                         
-                                                        Image(image)
+                                                        Image(image[0])
                                                             .resizable()
                                                             .scaledToFill()
                                                             .frame(width: 40, height: 40)
@@ -170,7 +177,7 @@ struct EventView: View {
                                         .imageScale(.large)
                                     
                                     VStack(alignment: .leading, spacing: 5) {
-                                        Text(post.type.capitalized)
+                                        Text(post.accessability.value.capitalized)
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                         
@@ -233,16 +240,26 @@ struct EventView: View {
                                 .fontWeight(.bold)
                                 .padding(.vertical, 8)
                             
-                            Text(address ?? "-/--")
-                                .normalTagTextStyle()
-                                .normalTagCapsuleStyle()
-                                .onAppear{
-                                    reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
-                                        address = result
+                            if post.peopleIn.contains(userViewModel.user.id) || post.accessability == .Public{
+                                
+                                Text(address ?? "-/--")
+                                    .normalTagTextStyle()
+                                    .normalTagCapsuleStyle()
+                                    .onAppear{
+                                        reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
+                                            address = result
+                                        }
                                     }
-                                }
-                            
-                            MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
+                                
+                                MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
+                                
+                            } else {
+                                Text("The location will be revealed upon joining.")
+                                    .lineSpacing(8.0)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.gray)
+                                    .padding(.bottom, 8)
+                            }
                             
                             Text("Interests")
                                 .font(.title3)

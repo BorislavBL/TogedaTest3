@@ -49,9 +49,7 @@ struct CalendarTab: View {
                 }
             }
             
-            Button{
-                
-            } label: {
+            NavigationLink(destination: UserTabViews(title: "Calendar", filters: ["All", "Going", "Saved"])) {
                 Text("View All")
                     .normalTagTextStyle()
                     .frame(maxWidth: .infinity)

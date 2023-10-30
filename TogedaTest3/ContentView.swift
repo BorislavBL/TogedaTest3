@@ -20,6 +20,11 @@ struct ContentView: View {
                Text("IDK")
            }
         }
+//        .alert("Please enable your Location", isPresented: $locationManager.showLocationServicesAlert){
+//            Button("OK"){
+//                UIApplication.shared.open(URL(string:UIApplication.openSettingsURLString)!)
+//            }
+//        }
     }
 }
 

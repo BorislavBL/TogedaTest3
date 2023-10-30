@@ -25,7 +25,7 @@ struct PostCell: View {
                         if let user = post.user{
                             NavigationLink(value: user) {
                                 if let image = user.profileImageUrl {
-                                    Image(image)
+                                    Image(image[0])
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 50, height: 50)
@@ -108,7 +108,9 @@ struct PostCell: View {
                 
                 HStack(alignment: .center, spacing: 20){
                     Button {
-                        viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
+//                        viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
+                        viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
+                        viewModel.showJoinRequest = true
                     } label: {
                         Image(systemName: post.peopleIn.contains(userViewModel.user.id) ? "person.2.circle.fill" : "person.2.circle")
                             .resizable()
@@ -116,11 +118,25 @@ struct PostCell: View {
                             .frame(width: 25, height: 25)
                     }
                     
-                    NavigationLink(destination: TestView()) {
+                    if post.peopleIn.contains(userViewModel.user.id) || post.accessability == .Public{
+                        
+                        Button{
+                            let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)")
+                            if UIApplication.shared.canOpenURL(url!) {
+                                UIApplication.shared.open(url!, options: [:], completionHandler: nil)
+                            }
+                        } label: {
+                            Image(systemName: "mappin.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 25, height: 25)
+                        }
+                    } else {
                         Image(systemName: "mappin.circle")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 25, height: 25)
+                            .foregroundStyle(.gray)
                     }
                     
                     Button {

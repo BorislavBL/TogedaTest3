@@ -60,7 +60,7 @@ struct SearchView: View {
                         } label: {
                             HStack(alignment:.center, spacing: 10){
                                 if let image = user.profileImageUrl {
-                                    Image(image)
+                                    Image(image[0 ])
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 80, height: 80)

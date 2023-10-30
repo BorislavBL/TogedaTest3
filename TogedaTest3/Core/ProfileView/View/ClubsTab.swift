@@ -49,9 +49,7 @@ struct ClubsTab: View {
                 }
             }
             
-            Button{
-                
-            } label: {
+            NavigationLink(destination: UserTabViews(title: "Clubs", filters: ["All", "Owner", "Member"])) {
                 Text("View All")
                     .normalTagTextStyle()
                     .frame(maxWidth: .infinity)

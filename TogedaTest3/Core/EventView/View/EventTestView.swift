@@ -49,7 +49,7 @@ struct EventTestView: View {
                                 
                                 
                                 if let image = post.user?.profileImageUrl {
-                                    Image(image)
+                                    Image(image[0])
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 60, height: 60)
@@ -131,7 +131,7 @@ struct EventTestView: View {
                                                     
                                                     if let image = post.participants[number].profileImageUrl {
                                                         
-                                                        Image(image)
+                                                        Image(image[0])
                                                             .resizable()
                                                             .scaledToFill()
                                                             .frame(width: 40, height: 40)

@@ -14,8 +14,8 @@ struct DateView: View {
     @Binding var to: Date
     @Environment(\.dismiss) private var dismiss
     
-    @State private var daySettings = 0
-    @State private var timeSettings = 0
+    @Binding var daySettings: Int
+    @Binding var timeSettings: Int
     
     var body: some View {
         ScrollView{
@@ -101,6 +101,6 @@ struct DateView: View {
 
 struct DateView_Previews: PreviewProvider {
     static var previews: some View {
-        DateView(isDate:.constant(true), date: .constant(Date()), from: .constant(Date()), to: .constant(Date()))
+        DateView(isDate:.constant(true), date: .constant(Date()), from: .constant(Date()), to: .constant(Date()), daySettings: .constant(0), timeSettings: .constant(0) )
     }
 }

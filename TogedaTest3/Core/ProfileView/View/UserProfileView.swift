@@ -11,20 +11,47 @@ struct UserProfileView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.dismiss) private var dismiss
     var user: User
-    
+    let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     @StateObject var viewModel = ProfileViewModel()
+    @State private var showImageSet = false
     
     var body: some View {
         ScrollView(showsIndicators: false){
             VStack(alignment: .center) {
-                if let profileImage = user.profileImageUrl {
-                    Image(profileImage)
-                        .resizable()
-                        .scaledToFill()
-                        .background(.gray)
-                        .frame(width: 120, height: 120)
-                        .cornerRadius(20)
-                        .clipped()
+                if let profileImages = user.profileImageUrl {
+                    if showImageSet {
+                        TabView {
+                            ForEach(profileImages, id: \.self) { image in
+                                Button{
+                                    showImageSet = false
+                                } label:{
+                                    Image(image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .clipped()
+                                }
+                                
+                            }
+                            
+                        }
+                        .tabViewStyle(PageTabViewStyle())
+                        .cornerRadius(10)
+                        .frame(height: 400)
+                        
+                    } else {
+                        
+                        Button{
+                            showImageSet = true
+                        }label:{
+                            Image(profileImages[0])
+                                .resizable()
+                                .scaledToFill()
+                                .background(.gray)
+                                .frame(width: 120, height: 120)
+                                .cornerRadius(20)
+                                .clipped()
+                        }
+                    }
                 } else {
                     Image(systemName: "person.crop.circle")
                         .resizable()
@@ -61,22 +88,24 @@ struct UserProfileView: View {
                     }
                 }.padding(.vertical)
                 
-                HStack(alignment:.center, spacing: 10) {
-                    Button {
-                        
-                    } label: {
-                        Text("Add Friend")
-                            .normalTagTextStyle()
-                            .frame(width: UIScreen.main.bounds.width/2 - 60)
-                            .normalTagRectangleStyle()
-                    }
-                    Button {
-                        
-                    } label: {
-                        Text("Message")
-                            .normalTagTextStyle()
-                            .frame(width: UIScreen.main.bounds.width/2 - 60)
-                            .normalTagRectangleStyle()
+                if user.id != userId{
+                    HStack(alignment:.center, spacing: 10) {
+                        Button {
+                            
+                        } label: {
+                            Text("Add Friend")
+                                .normalTagTextStyle()
+                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                .normalTagRectangleStyle()
+                        }
+                        Button {
+                            
+                        } label: {
+                            Text("Message")
+                                .normalTagTextStyle()
+                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                .normalTagRectangleStyle()
+                        }
                     }
                 }
                 
@@ -101,6 +130,9 @@ struct UserProfileView: View {
             AboutTab(user: user)
             EventTab()
             ClubsTab()
+            if user.id == userId {
+                CalendarTab()
+            }
             
             
         }
@@ -109,22 +141,22 @@ struct UserProfileView: View {
         .background(Color("testColor"))
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 5) { // adjust the spacing value as needed
-                    Button {
-                        print("")
-                    } label: {
-                        Image(systemName: "plus.square")
-                            .imageScale(.large)
-                            .foregroundColor(.accentColor)
-                    }
-                    
-                    Button {
-                        print("")
-                    } label: {
-                        Image(systemName: "gear")
-                            .imageScale(.large)
-                            .foregroundColor(.accentColor)
+            if user.id == userId {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack(spacing: 5) { // adjust the spacing value as needed
+                        Button {
+                            print("")
+                        } label: {
+                            Image(systemName: "plus.square")
+                                .imageScale(.large)
+                                .foregroundColor(.accentColor)
+                        }
+                        
+                        NavigationLink(destination: UserSettingsView()) {
+                            Image(systemName: "gear")
+                                .imageScale(.large)
+                                .foregroundColor(.accentColor)
+                        }
                     }
                 }
             }

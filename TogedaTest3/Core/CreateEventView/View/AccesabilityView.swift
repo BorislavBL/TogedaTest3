@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum Visabilities: Hashable {
+enum Visabilities: Hashable, Codable {
     case Public
     case Private
     case Ask_to_join

@@ -8,7 +8,6 @@
 import SwiftUI
 import MapKit
 
-
 struct MapView: View {
     //    @State private var mapRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 41.89, longitude: 12.49), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
     
@@ -21,14 +20,14 @@ struct MapView: View {
     @State private var visibleRegion: MKCoordinateRegion?
     
     @State private var searchText: String = ""
-    @State private var searchResults: [Post] = Post.MOCK_POSTS
+    @State private var searchResults: [Post] = Post.MOCK_POSTS.filter{$0.accessability == Visabilities.Public}
     @State var showSearch: Bool = false
     
     @State private var address: String?
     
     @ObservedObject var postsViewModel: PostsViewModel
     @ObservedObject var userViewModel: UserViewModel
-    @State var mapPosts: [Post] = Post.MOCK_POSTS
+    @State var mapPosts: [Post] = Post.MOCK_POSTS.filter{$0.accessability == Visabilities.Public}
     
     @StateObject var filterViewModel = FilterViewModel()
     //    @StateObject var viewModel = MapViewModel()
@@ -41,9 +40,11 @@ struct MapView: View {
             Map(position: $cameraPosition, interactionModes: [.zoom, .pan], selection: $mapSelection, scope: locationSpace) {
                 
                 ForEach(mapPosts, id: \.id) { post in
+                    
                     Marker(post.title, coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude))
                         .tag(post)
                         .tint(.black)
+                    
                 }
                 
                 UserAnnotation()
@@ -74,18 +75,18 @@ struct MapView: View {
             }
             .tint(.blue)
             .overlay{
-                if showSearch && !searchText.isEmpty {
+                if showSearch {
                     ScrollView{
                         LazyVStack(alignment: .leading, spacing: 10){
                             ForEach(searchResults, id:\.id){ post in
                                 Button {
                                     searchText = ""
-                                    showSearch = false
                                     UIApplication.shared.endEditing(true)
                                     withAnimation(.snappy){
                                         cameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude), latitudinalMeters: 500, longitudinalMeters: 500))
                                         mapSelection = post
                                     }
+                                    showSearch = false
                                 } label: {
                                     Text(post.title)
                                         .padding(.vertical, 3)
@@ -124,7 +125,17 @@ struct MapView: View {
                     reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
                         address = result
                     }
-
+                    
+                    withAnimation(.linear) {
+                        selectedPost = post
+                        showPostView = true
+                    }
+                    
+                } else {
+                    withAnimation(.linear) {
+                        showPostView = false
+                    }
+                    
                 }
             })
             .onSubmit(of: .search) {
@@ -141,27 +152,28 @@ struct MapView: View {
             FilterView(filterViewModel: filterViewModel)
         }
         .overlay(alignment:.bottom) {
-            if let post = mapSelection{
+            if showPostView && !showSearch {
                 Button {
                     print("Clicked")
                     showPostView = false
                     postsViewModel.showDetailsPage = true
-                    postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: post) ?? 0
+                    postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: selectedPost) ?? 0
                 } label: {
-                    EventMapPreview(post: post, address: address)
+                    EventMapPreview(post: selectedPost, address: address)
                 }
                 .frame(height: 170)
                 .frame(maxWidth: UIScreen.main.bounds.width, alignment: .leading)
                 .background(.bar)
                 .cornerRadius(20)
                 .padding(8)
-                .transition(.slide)
+                .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .move(edge: .bottom)))
                 .onAppear(){
-                    reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
+                    reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: selectedPost.location.latitude, longitude: selectedPost.location.longitude)) { result in
                         address = result
                     }
                 }
             }
+            
             
         }
     }
