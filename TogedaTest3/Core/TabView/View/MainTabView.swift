@@ -14,6 +14,7 @@ struct MainTabView: View {
     @StateObject var postsViewModel = PostsViewModel()
     @StateObject var userViewModel = UserViewModel()
     @EnvironmentObject var locationManager: LocationManager
+    let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     
     var body: some View {
         NavigationView{
@@ -45,7 +46,7 @@ struct MainTabView: View {
                     .tabItem {
                         Image(systemName: "plus.square")
                     }
-                    TestView()
+                    Text("Messenger")
                         .tag(Screen.message)
                         .tabItem {
                             Image(systemName: "message")
@@ -88,6 +89,12 @@ struct MainTabView: View {
                     
                     Button("Report") {
                         postsViewModel.selectedOption = "Report"
+                    }
+                    
+                    if let user = postsViewModel.posts[postsViewModel.clickedPostIndex].user, user.id == userId {
+                        Button("Delete") {
+                            postsViewModel.selectedOption = "Delete"
+                        }
                     }
                 }
                 .presentationDetents([.fraction(0.4)])

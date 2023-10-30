@@ -21,6 +21,7 @@ struct EventView: View {
     
     @State private var address: String?
     @State var showPostOptions = false
+    let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     
     var body: some View {
         
@@ -289,48 +290,94 @@ struct EventView: View {
                     Divider()
                     
                     HStack{
-                        Button {
-                            viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
-                        } label: {
-                            HStack(spacing:2){
-                                if post.peopleIn.contains(userViewModel.user.id) {
-                                    Image(systemName:"checkmark")
-                                    Text("Joined")
-                                         .fontWeight(.semibold)
-                                } else {
-                                    Text("Join")
+                        if post.date <= Date() {
+                            if let user = post.user, user.id == userId {
+                                Button {
+                                    
+                                } label: {
+                                    Text("Stop the Event")
                                         .fontWeight(.semibold)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 60)
+                                        .background(Color("blackAndWhite"))
+                                        .foregroundColor(Color("testColor"))
+                                        .cornerRadius(10)
+                                }
+                            } else {
+                                Button {
+                                    viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
+                                } label: {
+                                    HStack(spacing:2){
+                                        if post.peopleIn.contains(userViewModel.user.id) {
+                                            Image(systemName:"checkmark")
+                                            Text("Joined")
+                                                .fontWeight(.semibold)
+                                        } else {
+                                            Text("Join")
+                                                .fontWeight(.semibold)
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
                                 }
                             }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
-                        }
-                        
-                        Button {
-                            print("Join")
-                        } label: {
-                            Image(systemName:"paperplane")
-                                .resizable()
-                                .scaledToFit()
-                                .padding()
-                                .frame(width: 60, height: 60)
-                                .background(Color("secondaryColor"))
-                                .cornerRadius(10)
-                        }
-                        
-                        Button {
-                            userViewModel.savePost(postId: post.id)
-                        } label: {
-                            Image(systemName: userViewModel.user.savedPosts.contains(post.id) ? "bookmark.fill" : "bookmark")
-                                .resizable()
-                                .scaledToFit()
-                                .padding()
-                                .frame(width: 60, height: 60)
-                                .background(Color("secondaryColor"))
-                                .cornerRadius(10)
+                            
+                            Button {
+                                print("Join")
+                            } label: {
+                                Image(systemName:"paperplane")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .padding()
+                                    .frame(width: 60, height: 60)
+                                    .background(Color("secondaryColor"))
+                                    .cornerRadius(10)
+                            }
+                            
+                            Button {
+                                userViewModel.savePost(postId: post.id)
+                            } label: {
+                                Image(systemName: userViewModel.user.savedPosts.contains(post.id) ? "bookmark.fill" : "bookmark")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .padding()
+                                    .frame(width: 60, height: 60)
+                                    .background(Color("secondaryColor"))
+                                    .cornerRadius(10)
+                            }
+                        } else {
+                            if let user = post.user, user.id == userId {
+                                Button {
+                                    
+                                } label: {
+                                    HStack(spacing:2){
+                                        Text("End the event")
+                                            .fontWeight(.semibold)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                                }
+                            } else {
+                                Button {
+                                    
+                                } label: {
+                                    HStack(spacing:2){
+                                        Text("Ongoing Event")
+                                            .fontWeight(.semibold)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                                }
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -362,6 +409,13 @@ struct EventView: View {
                 
                 Button("Report") {
                     viewModel.selectedOption = "Report"
+                }
+                
+                
+                if let user = post.user, user.id == userId {
+                    Button("Delete") {
+                        viewModel.selectedOption = "Delete"
+                    }
                 }
             }
             .presentationDetents([.fraction(0.4)])

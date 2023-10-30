@@ -201,6 +201,6 @@ struct CropPhotoView: View {
 
 struct CropPhotoView_Previews: PreviewProvider {
     static var previews: some View {
-        CropPhotoView(finalImage: .constant(UIImage(systemName: "luffy")), crop: .custom(CGSize(width: 300, height: 500)))
+        CropPhotoView(finalImage: .constant(UIImage(named: "person_1")), crop: .custom(CGSize(width: 300, height: 500)))
     }
 }
