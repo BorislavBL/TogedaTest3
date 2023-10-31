@@ -11,6 +11,7 @@ import WrappingHStack
 import PhotosUI
 
 struct CompletedEventView: View {
+    @StateObject var photoPickerVM = PhotoPickerViewModel()
     @ObservedObject var viewModel: PostsViewModel
     var post: Post
     
@@ -299,7 +300,7 @@ struct CompletedEventView: View {
                     
                     HStack{
                         Button {
-                            
+                            photoPickerVM.showPhotosPicker = true
                         } label: {
                             HStack{
                                 Image(systemName: "photo")
@@ -332,7 +333,7 @@ struct CompletedEventView: View {
                     .rotationEffect(.degrees(90))
             })
             )
-//            .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imageselection, matching: .images)
+            .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imagesSelection, matching: .images)
         }
         .sheet(isPresented: $showPostOptions, content: {
             List {

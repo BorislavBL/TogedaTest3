@@ -22,7 +22,14 @@ class PhotoPickerViewModel: ObservableObject {
             setImage(from: imageselection)
         }
     }
-
+    
+    
+    @Published var eventSelectedImages: [UIImage] = []
+    @Published var imagesSelection: [PhotosPickerItem] = [] {
+        didSet {
+            setImages(from: imagesSelection)
+        }
+    }
     
     private func setImage(from selection: PhotosPickerItem?){
         guard let selection else {return}
@@ -53,6 +60,22 @@ class PhotoPickerViewModel: ObservableObject {
             }
         }
     }
+    
+    private func setImages(from selections: [PhotosPickerItem]){
+        Task{
+            var images: [UIImage] = []
+            for selection in selections {
+                if let data = try? await selection.loadTransferable(type: Data.self) {
+                    if let uiImage = UIImage(data: data){
+                        images.append(uiImage)
+                        return
+                    }
+                }
+            }
+            eventSelectedImages = images
+        }
+    }
+    
 }
 
 
