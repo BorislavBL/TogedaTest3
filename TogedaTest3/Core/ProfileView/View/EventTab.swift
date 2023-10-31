@@ -25,7 +25,7 @@ struct EventTab: View {
             
             HStack(alignment: .center, spacing: 5) {
                 
-                ForEach(["All", "Current", "Past"], id:\.self) {filter in
+                ForEach(["All", "Participated", "Created"], id:\.self) {filter in
                     Button {
                         selectedFilter = filter
                     } label: {
@@ -50,7 +50,7 @@ struct EventTab: View {
                 }
             }
             
-            NavigationLink(destination: UserTabViews(title: "Events", filters: ["All", "Current", "Past"])) {
+            NavigationLink(destination: UserTabViews(title: "Events", filters: ["All", "Participated", "Created"])) {
                 Text("View All")
                     .normalTagTextStyle()
                     .frame(maxWidth: .infinity)

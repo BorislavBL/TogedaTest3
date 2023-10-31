@@ -34,18 +34,18 @@ class PostsViewModel: ObservableObject {
     }
     
     func likePost(postID: String, userID: String, user: User) {
+        let miniUser = MiniUser(id: user.id, username: user.username,profileImageUrl: user.profileImageUrl, from: user.from ,fullname: user.fullname, title: user.title)
         if let index = posts.firstIndex(where: { $0.id == postID }) {
             if !posts[index].peopleIn.contains(userID){
                 posts[index].peopleIn.append(userID)
             } else {
                 posts[index].peopleIn.removeAll(where: { $0 == userID })
-
             }
             
-            if !posts[index].participants.contains(user){
-                posts[index].participants.append(user)
+            if !posts[index].participants.contains(miniUser){
+                posts[index].participants.append(miniUser)
             } else {
-                posts[index].participants.removeAll(where: { $0 == user })
+                posts[index].participants.removeAll(where: { $0 == miniUser })
             }
         }
         

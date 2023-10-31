@@ -15,7 +15,7 @@ struct EventMapPreview: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0){
             HStack(alignment:.top, spacing: 10){
-                Image(post.imageUrl)
+                Image(post.imageUrl[0])
                     .resizable()
                     .scaledToFill()
                     .frame(width: 80, height:80)

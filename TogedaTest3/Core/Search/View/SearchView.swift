@@ -23,7 +23,7 @@ struct SearchView: View {
                             postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: post) ?? 0
                         } label: {
                             HStack(alignment:.center, spacing: 10){
-                                Image(post.imageUrl)
+                                Image(post.imageUrl[0])
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 80, height: 80)

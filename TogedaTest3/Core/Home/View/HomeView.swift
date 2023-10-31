@@ -134,8 +134,8 @@ struct HomeView: View {
                 EventView(viewModel: postsViewModel, post: post, userViewModel: userViewModel)
                 //.toolbar(.hidden, for: .tabBar)
             }
-            .navigationDestination(for: User.self) { user in
-                UserProfileView(user: user)
+            .navigationDestination(for: MiniUser.self) { user in
+                UserProfileView(miniUser: user)
             }
         }
         

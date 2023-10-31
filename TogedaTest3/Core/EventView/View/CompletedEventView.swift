@@ -1,42 +1,49 @@
 //
-//  EventTestView.swift
+//  CompletedEventView.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 15.09.23.
+//  Created by Borislav Lorinkov on 31.10.23.
 //
 
 import SwiftUI
 import MapKit
 import WrappingHStack
+import PhotosUI
 
-struct EventTestView: View {
+struct CompletedEventView: View {
     @ObservedObject var viewModel: PostsViewModel
     var post: Post
     
-    @ObservedObject var userViewModel = UserViewModel()
+    @ObservedObject var userViewModel: UserViewModel
     
     @Environment(\.dismiss) private var dismiss
     
     @State private var peopleIn: Int = 0
-
-    let location = Location(coordinate: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194))
-    
     
     @State private var address: String?
+    @State var showPostOptions = false
+    let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     
     var body: some View {
-        NavigationView {
-            
+        
+        NavigationView{
             ZStack(alignment: .bottom) {
                 
                 ScrollView{
                     LazyVStack(alignment: .leading, spacing: 15) {
                         
-                        Image(post.imageUrl[0])
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 500)
-                            .clipped()
+                        TabView {
+                            ForEach(post.imageUrl, id: \.self) { image in
+                                Image(image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .clipped()
+                                
+                            }
+                            
+                        }
+                        .tabViewStyle(PageTabViewStyle())
+                        .frame(height: 500)
                         
                         Group{
                             
@@ -104,14 +111,21 @@ struct EventTestView: View {
                                         .imageScale(.large)
                                     
                                     VStack(alignment: .leading, spacing: 5) {
-                                        Text("Bulgaria, Sofia")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
                                         
-                                        Text("St. Georg Washington")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
+                                        if post.peopleIn.contains(userViewModel.user.id) || post.accessability == .Public{
+                                            Text("Bulgaria, Sofia")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                            
+                                            Text("St. Georg Washington")
+                                                .font(.footnote)
+                                                .foregroundColor(.gray)
+                                                .fontWeight(.bold)
+                                        } else {
+                                            Text("The exact location will be revealed upon joining.")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                        }
                                     }
                                 }
                                 
@@ -172,7 +186,7 @@ struct EventTestView: View {
                                         .imageScale(.large)
                                     
                                     VStack(alignment: .leading, spacing: 5) {
-                                        Text(post.type.capitalized)
+                                        Text(post.accessability.value.capitalized)
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                         
@@ -235,16 +249,26 @@ struct EventTestView: View {
                                 .fontWeight(.bold)
                                 .padding(.vertical, 8)
                             
-                            Text(address ?? "-/--")
-                                .normalTagTextStyle()
-                                .normalTagCapsuleStyle()
-                                .onAppear{
-                                    reverseGeocode(coordinate: location.coordinate) { result in
-                                        address = result
+                            if post.peopleIn.contains(userViewModel.user.id) || post.accessability == .Public{
+                                
+                                Text(address ?? "-/--")
+                                    .normalTagTextStyle()
+                                    .normalTagCapsuleStyle()
+                                    .onAppear{
+                                        reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
+                                            address = result
+                                        }
                                     }
-                                }
-                            
-//                            MapSlot(name:post.title, location: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude))
+                                
+                                MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
+                                
+                            } else {
+                                Text("The location will be revealed upon joining.")
+                                    .lineSpacing(8.0)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.gray)
+                                    .padding(.bottom, 8)
+                            }
                             
                             Text("Interests")
                                 .font(.title3)
@@ -275,39 +299,21 @@ struct EventTestView: View {
                     
                     HStack{
                         Button {
-                            viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
+                            
                         } label: {
-                            Text("Join")
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 60)
-                                .background(Color("blackAndWhite"))
-                                .foregroundColor(Color("testColor"))
-                                .cornerRadius(10)
-                                .fontWeight(.semibold)
-                        }
-                        
-                        Button {
-                            print("Join")
-                        } label: {
-                            Image(systemName:"paperplane")
-                                .resizable()
-                                .scaledToFit()
-                                .padding()
-                                .frame(width: 60, height: 60)
-                                .background(Color("secondaryColor"))
-                                .cornerRadius(10)
-                        }
-                        
-                        Button {
-                            userViewModel.savePost(postId: post.id)
-                        } label: {
-                            Image(systemName: userViewModel.user.savedPosts.contains(post.id) ? "bookmark.fill" : "bookmark")
-                                .resizable()
-                                .scaledToFit()
-                                .padding()
-                                .frame(width: 60, height: 60)
-                                .background(Color("secondaryColor"))
-                                .cornerRadius(10)
+                            HStack{
+                                Image(systemName: "photo")
+                                    .foregroundColor(Color("testColor"))
+                                
+                                Text("Add Images")
+                                    
+                            }
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .cornerRadius(10)
                         }
                     }
                     .padding(.horizontal)
@@ -318,10 +324,31 @@ struct EventTestView: View {
             .navigationBarBackButtonHidden(true)
             .navigationBarItems(leading:Button(action: {dismiss()}) {
                 Image(systemName: "chevron.left")
-            }, trailing:Image(systemName: "ellipsis")
-                .rotationEffect(.degrees(90))
+            }, trailing:Button(action: {
+                showPostOptions = true
+                viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
+            }, label: {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+            })
             )
+//            .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imageselection, matching: .images)
         }
+        .sheet(isPresented: $showPostOptions, content: {
+            List {
+                Button("Report") {
+                    viewModel.selectedOption = "Report"
+                }
+                
+                if let user = post.user, user.id == userId {
+                    Button("Delete") {
+                        viewModel.selectedOption = "Delete"
+                    }
+                }
+            }
+            .presentationDetents([.fraction(0.2)])
+            .presentationDragIndicator(.visible)
+        })
         .onAppear {
             self.peopleIn = post.peopleIn.count
         }
@@ -329,225 +356,6 @@ struct EventTestView: View {
     
 }
 
-
-struct EventTestView_Previews: PreviewProvider {
-    static var previews: some View {
-        EventTestView(viewModel: PostsViewModel(), post: Post.MOCK_POSTS[0], userViewModel: UserViewModel())
-    }
+#Preview {
+    CompletedEventView(viewModel: PostsViewModel(), post: Post.MOCK_POSTS[0], userViewModel: UserViewModel())
 }
-
-
-//{
-//    var post: Post
-//    @Environment(\.dismiss) private var dismiss
-//
-//    @StateObject var postViewModel = PostsViewModel()
-//
-//    let locations = [
-//        Location(coordinate: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194))
-//    ]
-//
-//    @State private var address: String?
-//
-//    var body: some View {
-//        ZStack(alignment: .bottom){
-//            ScrollView {
-//                ZStack(alignment: .top){
-//                    ZStack(alignment: .bottom) {
-//                        // The Image
-//                        Image(post.imageUrl)
-//                            .resizable()
-//                            .scaledToFill()
-//                            .frame(height: 500)
-//                            .clipped()
-//
-//                        LinearGradient(gradient: Gradient(colors: [Color("testColor").opacity(0), Color("testColor").opacity(1)]),
-//                                       startPoint: .top,
-//                                       endPoint: .bottom)
-//                        .frame(height: 70)
-//                    }
-//
-//                    //this Vstack
-//                    VStack {
-//                        Color.clear
-//                            .frame(height: 400)
-//
-//                        VStack (alignment: .leading, spacing: 15) {
-//                            Text(post.category)
-//                                .font(.body)
-//                                .fontWeight(.semibold)
-//                                .foregroundColor(.gray)
-//
-//                            Text(post.title)
-//                                .font(.title)
-//                                .fontWeight(.bold)
-//
-//                            HStack(alignment: .top){
-//                                VStack(alignment:.leading){
-//                                    HStack(spacing: 3) {
-//                                        Image(systemName: "calendar")
-//                                        Text(postViewModel.separateDateAndTime(from: post.date).date)
-//                                            .normalTagTextStyle()
-//                                    }
-//                                    .normalTagCapsuleStyle()
-//
-//                                    VStack(alignment: .leading){
-//                                        Text("Organizer")
-//                                            .font(.body)
-//                                            .fontWeight(.semibold)
-//
-//                                        HStack{
-//                                            Image("person_1")
-//                                                .resizable()
-//                                                .scaledToFill()
-//                                                .frame(width: 40, height: 40)
-//                                                .clipped()
-//                                                .cornerRadius(100)
-//
-//                                            Text("Alison Hogwards")
-//                                                .font(.footnote)
-//                                                .foregroundColor(Color("textColor"))
-//                                                .fontWeight(.bold)
-//                                        }
-//                                    }
-//                                    .normalTagRectangleStyle()
-//
-//                                }
-//
-//                                VStack(alignment:.leading){
-//                                    HStack(spacing: 3) {
-//                                        Image(systemName: "clock")
-//                                        Text(postViewModel.separateDateAndTime(from: post.date).time)
-//                                            .normalTagTextStyle()
-//                                    }
-//                                    .normalTagCapsuleStyle()
-//
-//                                    VStack(alignment: .leading){
-//                                        Text("Participants (\(post.peopleIn.count)/\(post.maximumPeople))")
-//                                            .font(.body)
-//                                            .fontWeight(.semibold)
-//
-//                                        ZStack{
-//                                            ForEach(0..<5, id: \.self){ number in
-//                                                Image("person_1")
-//                                                    .resizable()
-//                                                    .scaledToFill()
-//                                                    .frame(width: 40, height: 40)
-//                                                    .clipped()
-//                                                    .cornerRadius(100)
-//                                                    .overlay(
-//                                                        Circle()
-//                                                            .stroke(Color("secondaryColor"), lineWidth: 2)
-//                                                    )
-//                                                    .offset(x:CGFloat(20 * number))
-//
-//                                            }
-//                                        }
-//                                    }
-//                                    .normalTagRectangleStyle()
-//                                }
-//                            }
-//
-//                            Text("Description")
-//                                .font(.title3)
-//                                .fontWeight(.bold)
-//                                .padding(.vertical, 8)
-//
-//                            ExpandableText(post.description, lineLimit: 4)
-//                                .lineSpacing(8.0)
-//                                .fontWeight(.medium)
-//                                .foregroundColor(.gray)
-//                                .padding(.bottom, 8)
-//
-//                            Text("Location")
-//                                .font(.title3)
-//                                .fontWeight(.bold)
-//                                .padding(.vertical, 8)
-//
-//                            Text(address ?? "-/--")
-//                                .normalTagTextStyle()
-//                                .normalTagCapsuleStyle()
-//                                .onAppear{
-//                                    postViewModel.reverseGeocode(coordinate: locations[0].coordinate) { result in
-//                                        address = result
-//                                    }
-//                                }
-//
-//                            MapView(locations: locations)
-//
-//                            Text("Interests")
-//                                .font(.title3)
-//                                .fontWeight(.bold)
-//                                .padding(.vertical, 8)
-//
-//                            WrappingHStack(alignment: .leading, horizontalSpacing: 5){
-//                                ForEach(post.interests, id:\.self){ interest in
-//                                    Text(interest)
-//                                        .normalTagTextStyle()
-//                                        .normalTagCapsuleStyle()
-//                                }
-//                            }
-//
-//                        }
-//                        .frame(minWidth: 0, maxWidth: .infinity)
-//                        .padding()
-//                        .padding(.vertical)
-//                        .padding(.bottom, 60)
-//                        .background(.bar)
-//                        .cornerRadius(30)
-//                    }
-//                }
-//            }
-//            .frame(minWidth: 0, maxWidth: .infinity)
-//            .edgesIgnoringSafeArea(.top)
-//            .background(Color("testColor"))
-//            .scrollIndicators(.hidden)
-//            .navigationBarBackButtonHidden(true)
-//            .navigationBarItems(leading:Button(action: {dismiss()}) {
-//                Image(systemName: "chevron.left")
-//            }, trailing:Image(systemName: "ellipsis")
-//                .rotationEffect(.degrees(90))
-//            )
-//
-//            HStack{
-//                Button {
-//                    print("Join")
-//                } label: {
-//                    Text("Join")
-//                        .frame(maxWidth: .infinity)
-//                        .frame(height: 60)
-//                        .background(Color("blackAndWhite"))
-//                        .foregroundColor(Color("testColor"))
-//                        .cornerRadius(10)
-//                        .fontWeight(.semibold)
-//                }
-//
-//                Button {
-//                    print("Join")
-//                } label: {
-//                    Image(systemName:"paperplane")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .padding()
-//                        .frame(width: 60, height: 60)
-//                        .background(Color("secondaryColor"))
-//                        .cornerRadius(10)
-//                }
-//
-//                Button {
-//                   dismiss()
-//                } label: {
-//                    Image(systemName:"bookmark")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .padding()
-//                        .frame(width: 60, height: 60)
-//                        .background(Color("secondaryColor"))
-//                        .cornerRadius(10)
-//                }
-//            }
-//            .padding(.horizontal)
-//        }
-//    }
-//
-//}

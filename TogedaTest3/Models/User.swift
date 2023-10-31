@@ -24,6 +24,15 @@ struct User: Identifiable, Codable, Hashable {
     var rating: Int
 }
 
+struct MiniUser: Identifiable, Codable, Hashable {
+    let id: String
+    var username: String
+    var profileImageUrl: [String]?
+    var from: String?
+    var fullname: String
+    let title: String?
+}
+
 struct Rating {
     let id: String
     let userId: String
@@ -40,6 +49,10 @@ let events: [String] = []
 let friends = ["1", "2", "3"]
 
 extension User {
+    static func findUser(byId id: String) -> User? {
+        return MOCK_USERS.first(where: { $0.id == id })
+    }
+    
     static var MOCK_USERS: [User] = [
         .init(id: NSUUID().uuidString, username: "alison", profileImageUrl: ["person_1", "person_2", "person_3"], from: "United Kingdom, Leeds", fullname: "Alison Hogwards", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: "Graphic Designer", friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90),
         .init(id: NSUUID().uuidString, username: "Emma", profileImageUrl: ["person_2"], from: "United Kingdom, Leeds", fullname: "Emma W", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: "Programmer", friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90),
@@ -48,5 +61,18 @@ extension User {
         .init(id: NSUUID().uuidString, username: "Batman5", profileImageUrl: ["person_3"], from: "United Kingdom, Leeds", fullname: "Bruce Wayne", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: nil, friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90),
         .init(id: NSUUID().uuidString, username: "Emma2", profileImageUrl: ["person_2"], from: "United Kingdom, Leeds", fullname: "Emma L", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: "I just got here", friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90)
     ]
+}
+
+extension MiniUser {
+    static var MOCK_MINIUSERS: [MiniUser] = User.MOCK_USERS.map { user in
+        return MiniUser(
+            id: user.id,
+            username: user.username,
+            profileImageUrl: user.profileImageUrl,
+            from: user.from,
+            fullname: user.fullname,
+            title: user.title
+        )
+    }
 }
 

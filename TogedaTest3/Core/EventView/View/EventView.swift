@@ -31,11 +31,24 @@ struct EventView: View {
                 ScrollView{
                     LazyVStack(alignment: .leading, spacing: 15) {
                         
-                        Image(post.imageUrl)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 500)
-                            .clipped()
+                        TabView {
+                            ForEach(post.imageUrl, id: \.self) { image in
+                                Image(image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .clipped()
+                                
+                            }
+                            
+                        }
+                        .tabViewStyle(PageTabViewStyle())
+                        .frame(height: 500)
+//
+//                        Image(post.imageUrl[0])
+//                            .resizable()
+//                            .scaledToFill()
+//                            .frame(height: 500)
+//                            .clipped()
                         
                         Group{
                             

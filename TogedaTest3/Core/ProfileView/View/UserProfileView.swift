@@ -10,7 +10,10 @@ import SwiftUI
 struct UserProfileView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.dismiss) private var dismiss
-    var user: User
+    var miniUser: MiniUser
+    var user: User? {
+        User.findUser(byId: miniUser.id)
+    }
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     @StateObject var viewModel = ProfileViewModel()
     @State private var showImageSet = false
@@ -18,7 +21,7 @@ struct UserProfileView: View {
     var body: some View {
         ScrollView(showsIndicators: false){
             VStack(alignment: .center) {
-                if let profileImages = user.profileImageUrl {
+                if let profileImages = miniUser.profileImageUrl {
                     if showImageSet {
                         TabView {
                             ForEach(profileImages, id: \.self) { image in
@@ -61,7 +64,7 @@ struct UserProfileView: View {
                 }
                 
                 VStack(spacing: 10) {
-                    Text(user.fullname)
+                    Text(miniUser.fullname)
                         .font(.title2)
                         .fontWeight(.bold)
                     
@@ -74,7 +77,7 @@ struct UserProfileView: View {
                     }
                     .foregroundColor(.gray)
                     
-                    if let from = user.from{
+                    if let from = miniUser.from{
                         HStack(spacing: 5){
                             Image(systemName: "mappin.circle")
                             
@@ -88,7 +91,7 @@ struct UserProfileView: View {
                     }
                 }.padding(.vertical)
                 
-                if user.id != userId{
+                if miniUser.id != userId{
                     HStack(alignment:.center, spacing: 10) {
                         Button {
                             
@@ -110,11 +113,11 @@ struct UserProfileView: View {
                 }
                 
                 HStack(alignment: .top, spacing: 30) {
-                    UserStats(value: String(user.friendIDs.count), title: "Friends")
+                    UserStats(value: String(user?.friendIDs.count ?? 0), title: "Friends")
                     Divider()
-                    UserStats(value: String(user.eventIDs.count), title: "Events")
+                    UserStats(value: String(user?.eventIDs.count ?? 0), title: "Events")
                     Divider()
-                    UserStats(value: "\(user.rating)%", title: "Rating")
+                    UserStats(value: "\(user?.rating ?? 0)%", title: "Rating")
                 }
                 .padding(.vertical)
                 
@@ -127,10 +130,12 @@ struct UserProfileView: View {
             .cornerRadius(10)
             
             BadgesTab()
-            AboutTab(user: user)
+            if let user = user {
+                AboutTab(user: user)
+            }
             EventTab()
             ClubsTab()
-            if user.id == userId {
+            if miniUser.id == userId {
                 CalendarTab()
             }
             
@@ -141,7 +146,7 @@ struct UserProfileView: View {
         .background(Color("testColor"))
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            if user.id == userId {
+            if miniUser.id == userId {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 5) { // adjust the spacing value as needed
                         Button {
@@ -171,5 +176,5 @@ struct UserProfileView: View {
 }
 
 #Preview {
-    UserProfileView(user: User.MOCK_USERS[0])
+    UserProfileView(miniUser: MiniUser.MOCK_MINIUSERS[0])
 }

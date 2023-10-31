@@ -89,7 +89,7 @@ struct PostCell: View {
                     viewModel.showDetailsPage = true
                     viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
                 }, label: {
-                    Image(post.imageUrl)
+                    Image(post.imageUrl[0])
                         .resizable()
                         .scaledToFill()
                         .frame(maxHeight: 400)
