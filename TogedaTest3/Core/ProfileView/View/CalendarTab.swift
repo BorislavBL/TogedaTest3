@@ -15,6 +15,7 @@ struct CalendarTab: View {
         .init(.flexible(), spacing: 2),
         .init(.flexible(), spacing: 2),
     ]
+    @State var posts: [Post] = Post.MOCK_POSTS
     
     var body: some View {
         VStack (alignment: .leading, spacing: 20) {
@@ -44,8 +45,8 @@ struct CalendarTab: View {
 
             
             LazyVGrid(columns: gridItems, spacing: 10) {
-                ForEach(0..<6, id: \.self){abouts in
-                    EventComponent()
+                ForEach(0..<6, id: \.self){index in
+                    EventComponent(post: posts[index])
                 }
             }
             

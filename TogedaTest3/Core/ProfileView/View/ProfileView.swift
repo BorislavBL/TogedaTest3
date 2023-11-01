@@ -14,6 +14,8 @@ struct ProfileView: View {
     
     @StateObject var viewModel = ProfileViewModel()
     @State private var showImageSet = false
+    @State var selectedPost: Post = Post.MOCK_POSTS[0]
+    @State private var showCompletedEvent = false
     
     var body: some View {
         NavigationStack{
@@ -127,7 +129,7 @@ struct ProfileView: View {
                 
                 BadgesTab()
                 AboutTab(user: user)
-                EventTab()
+                EventTab(selectedPost: $selectedPost, showCompletedView: $showCompletedEvent)
                 ClubsTab()
                 CalendarTab()
                 
@@ -154,6 +156,9 @@ struct ProfileView: View {
                     }
                 }
             }
+            .fullScreenCover(isPresented: $showCompletedEvent, content: {
+                CompletedEventView(viewModel: PostsViewModel(), post: selectedPost, userViewModel: UserViewModel())
+            })
         }
     }
 }

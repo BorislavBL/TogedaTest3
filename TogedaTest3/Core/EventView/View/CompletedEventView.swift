@@ -24,6 +24,9 @@ struct CompletedEventView: View {
     @State private var address: String?
     @State var showPostOptions = false
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
+    let images: [String] = ["event_1", "event_2", "event_3", "event_4"]
+    @State var showImageViewer: Bool = false
+    @State var selectedImage: Int = 0
     
     var body: some View {
         
@@ -90,7 +93,6 @@ struct CompletedEventView: View {
                             
                             
                             Group{
-                                
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "calendar")
                                         .imageScale(.large)
@@ -198,37 +200,6 @@ struct CompletedEventView: View {
                                     }
                                 }
                                 
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "wallet.pass")
-                                    //                                    .resizable()
-                                    //                                    .scaledToFit()
-                                    //                                    .frame(width: 25, height: 25)
-                                        .imageScale(.large)
-                                    
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        
-                                        if post.payment <= 0 {
-                                            Text("Free")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            Text("No payment required")
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        } else {
-                                            Text("Paid")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            Text("$ \(String(format: "%.2f", post.payment)) per person")
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        }
-                                    }
-                                }
-                                
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                             .normalTagRectangleStyle()
@@ -245,13 +216,19 @@ struct CompletedEventView: View {
                                 .foregroundColor(.gray)
                                 .padding(.bottom, 8)
                             
+                            Text("Memories")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .padding(.vertical, 8)
+                            
+                           MemoriesTab(images: images, selectedImage: $selectedImage, showImagesViewer: $showImageViewer)
+                            
                             Text("Location")
                                 .font(.title3)
                                 .fontWeight(.bold)
                                 .padding(.vertical, 8)
                             
-                            if post.peopleIn.contains(userViewModel.user.id) || post.accessability == .Public{
-                                
+    
                                 Text(address ?? "-/--")
                                     .normalTagTextStyle()
                                     .normalTagCapsuleStyle()
@@ -263,13 +240,6 @@ struct CompletedEventView: View {
                                 
                                 MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
                                 
-                            } else {
-                                Text("The location will be revealed upon joining.")
-                                    .lineSpacing(8.0)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.gray)
-                                    .padding(.bottom, 8)
-                            }
                             
                             Text("Interests")
                                 .font(.title3)
@@ -349,6 +319,9 @@ struct CompletedEventView: View {
             }
             .presentationDetents([.fraction(0.2)])
             .presentationDragIndicator(.visible)
+        })
+        .fullScreenCover(isPresented: $showImageViewer, content: {
+            ImageViewer(images: images, selectedImage: selectedImage)
         })
         .onAppear {
             self.peopleIn = post.peopleIn.count

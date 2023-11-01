@@ -17,6 +17,8 @@ struct UserProfileView: View {
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     @StateObject var viewModel = ProfileViewModel()
     @State private var showImageSet = false
+    @State var selectedPost: Post = Post.MOCK_POSTS[0]
+    @State private var showCompletedEvent = false
     
     var body: some View {
         ScrollView(showsIndicators: false){
@@ -133,7 +135,7 @@ struct UserProfileView: View {
             if let user = user {
                 AboutTab(user: user)
             }
-            EventTab()
+            EventTab(selectedPost: $selectedPost, showCompletedView: $showCompletedEvent)
             ClubsTab()
             if miniUser.id == userId {
                 CalendarTab()
@@ -172,6 +174,9 @@ struct UserProfileView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $showCompletedEvent, content: {
+            CompletedEventView(viewModel: PostsViewModel(), post: selectedPost, userViewModel: UserViewModel())
+        })
     }
 }
 

@@ -8,23 +8,24 @@
 import SwiftUI
 
 struct EventComponent: View {
-    
+    var post: Post
     private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 3) - 18
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            Image("event_1")
+            Image(post.imageUrl[0])
                 .resizable()
                 .scaledToFill()
                 .frame(width: imageDimension, height: imageDimension * 1.3)
                 .clipped()
             
             VStack{
-                Text("Hiking in the mountain")
+                Text(post.title)
                     .font(.footnote)
                     .foregroundColor(.white)
                     .fontWeight(.bold)
             }
+            .padding(.horizontal, 8)
             .frame(maxWidth: imageDimension)
             .frame(height: imageDimension * 0.4)
             .background(Color(.black).opacity(0.3))
@@ -35,6 +36,6 @@ struct EventComponent: View {
 
 struct EventComponent_Previews: PreviewProvider {
     static var previews: some View {
-        EventComponent()
+        EventComponent(post: Post.MOCK_POSTS[0])
     }
 }
