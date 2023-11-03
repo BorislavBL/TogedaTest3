@@ -13,20 +13,17 @@ struct ProfileView: View {
     var user: User
     
     @StateObject var viewModel = ProfileViewModel()
-    @State private var showImageSet = false
-    @State var selectedPost: Post = Post.MOCK_POSTS[0]
-    @State private var showCompletedEvent = false
     
     var body: some View {
-        NavigationStack{
+        NavigationView{
             ScrollView(showsIndicators: false){
                 VStack(alignment: .center) {
                     if let profileImages = user.profileImageUrl {
-                        if showImageSet {
+                        if viewModel.showImageSet {
                             TabView {
                                 ForEach(profileImages, id: \.self) { image in
                                     Button{
-                                        showImageSet = false
+                                        viewModel.showImageSet = false
                                     } label:{
                                         Image(image)
                                             .resizable()
@@ -44,7 +41,7 @@ struct ProfileView: View {
                         } else {
                             
                             Button{
-                                showImageSet = true
+                                viewModel.showImageSet = true
                             }label:{
                                 Image(profileImages[0])
                                     .resizable()
@@ -91,25 +88,6 @@ struct ProfileView: View {
                         }
                     }.padding(.vertical)
                     
-                    //                    HStack(alignment:.center, spacing: 10) {
-                    //                        Button {
-                    //
-                    //                        } label: {
-                    //                            Text("Add Friend")
-                    //                                .normalTagTextStyle()
-                    //                                .frame(width: UIScreen.main.bounds.width/2 - 60)
-                    //                                .normalTagRectangleStyle()
-                    //                        }
-                    //                        Button {
-                    //
-                    //                        } label: {
-                    //                            Text("Message")
-                    //                                .normalTagTextStyle()
-                    //                                .frame(width: UIScreen.main.bounds.width/2 - 60)
-                    //                                .normalTagRectangleStyle()
-                    //                        }
-                    //                    }
-                    
                     HStack(alignment: .top, spacing: 30) {
                         UserStats(value: String(user.friendIDs.count), title: "Friends")
                         Divider()
@@ -129,7 +107,7 @@ struct ProfileView: View {
                 
                 BadgesTab()
                 AboutTab(user: user)
-                EventTab(selectedPost: $selectedPost, showCompletedView: $showCompletedEvent)
+                EventTab(vm: viewModel)
                 ClubsTab()
                 CalendarTab()
                 
@@ -156,8 +134,8 @@ struct ProfileView: View {
                     }
                 }
             }
-            .fullScreenCover(isPresented: $showCompletedEvent, content: {
-                CompletedEventView(viewModel: PostsViewModel(), post: selectedPost, userViewModel: UserViewModel())
+            .fullScreenCover(isPresented: $viewModel.showCompletedEvent, content: {
+                CompletedEventView(viewModel: PostsViewModel(), post: viewModel.selectedPost, userViewModel: UserViewModel())
             })
         }
     }

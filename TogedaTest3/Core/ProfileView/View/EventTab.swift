@@ -16,8 +16,7 @@ struct EventTab: View {
         .init(.flexible(), spacing: 2),
         .init(.flexible(), spacing: 2),
     ]
-    @Binding var selectedPost: Post
-    @Binding var showCompletedView: Bool
+    @ObservedObject var vm: ProfileViewModel
     @State var posts: [Post] = Post.MOCK_POSTS
     
     var body: some View {
@@ -50,8 +49,8 @@ struct EventTab: View {
             LazyVGrid(columns: gridItems, spacing: 10) {
                 ForEach(0..<6, id: \.self){ index in
                     Button{
-                        selectedPost = posts[index]
-                        showCompletedView = true
+                        vm.selectedPost = posts[index]
+                        vm.showCompletedEvent = true
                     }label:{
                         EventComponent(post: posts[index])
                     }
@@ -77,7 +76,7 @@ struct EventTab: View {
 
 struct EventTab_Previews: PreviewProvider {
     static var previews: some View {
-        EventTab(selectedPost: .constant(Post.MOCK_POSTS[0]), showCompletedView: .constant(true))
+        EventTab(vm: ProfileViewModel())
 
     }
 }

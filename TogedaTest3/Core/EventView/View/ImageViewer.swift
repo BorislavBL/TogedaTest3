@@ -10,7 +10,7 @@ import SwiftUI
 struct ImageViewer: View {
     @Environment(\.dismiss) private var dismiss
     @State var images: [String]
-    @State var selectedImage: Int = 0
+    @Binding var selectedImage: Int
     
     @State var scale = 1.0
     
@@ -55,5 +55,5 @@ struct ImageViewer: View {
 }
 
 #Preview {
-    ImageViewer(images: ["event_1", "event_2", "event_3", "event_4"])
+    ImageViewer(images: ["event_1", "event_2", "event_3", "event_4"], selectedImage: .constant(0))
 }

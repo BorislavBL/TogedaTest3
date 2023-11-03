@@ -14,17 +14,12 @@ struct ContentView: View {
     var body: some View {
         Group {
             if let user = viewModel.currentUser{
-               MainTabView(user: user)
+                MainTabView(user: user)
                     .environmentObject(locationManager)
-           } else {
-               Text("IDK")
-           }
+            } else {
+                Text("IDK")
+            }
         }
-//        .alert("Please enable your Location", isPresented: $locationManager.showLocationServicesAlert){
-//            Button("OK"){
-//                UIApplication.shared.open(URL(string:UIApplication.openSettingsURLString)!)
-//            }
-//        }
     }
 }
 

@@ -41,7 +41,7 @@ struct CustomNavBar: View {
                             Image(systemName: "magnifyingglass")
                         }
                         
-                        NavigationLink(destination: TestView()) {
+                        NavigationLink(destination: NotificationView()) {
                             Image(systemName: "bell")
                         }
                         

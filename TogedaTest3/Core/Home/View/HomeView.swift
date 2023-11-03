@@ -21,7 +21,6 @@ struct HomeView: View {
     @State private var refreshingHeight:CGFloat = 0.0
     
     var body: some View {
-        NavigationStack {
             ZStack{
                 Color("testColor")
                     .edgesIgnoringSafeArea(.vertical)
@@ -130,16 +129,9 @@ struct HomeView: View {
             .sheet(isPresented: $filterViewModel.filterIsSelected) {
                 FilterView(filterViewModel: filterViewModel)
             }
-            .navigationDestination(for: Post.self) { post in
-                EventView(viewModel: postsViewModel, post: post, userViewModel: userViewModel)
-                //.toolbar(.hidden, for: .tabBar)
-            }
-            .navigationDestination(for: MiniUser.self) { user in
-                UserProfileView(miniUser: user)
-            }
+
         }
         
-    }
 }
 
 

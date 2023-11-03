@@ -79,6 +79,12 @@
 		14BFB4502AF2896800500190 /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFB44F2AF2896800500190 /* ImageViewer.swift */; };
 		14BFD2E22AE00599006A26F9 /* Crop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFD2E12AE00599006A26F9 /* Crop.swift */; };
 		14C1498C2AC477AF00F28463 /* LocationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C1498B2AC477AF00F28463 /* LocationHelpers.swift */; };
+		14D7E4352AF52AE600A76D09 /* CompletedEventUsersList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4342AF52AE600A76D09 /* CompletedEventUsersList.swift */; };
+		14D7E4372AF5349000A76D09 /* Test2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4362AF5349000A76D09 /* Test2View.swift */; };
+		14D7E43B2AF53E8000A76D09 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E43A2AF53E8000A76D09 /* NotificationView.swift */; };
+		14F8F7C42AF3EF7F005BBC92 /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */; };
+		14F8F7C62AF3F80F005BBC92 /* UsersListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F8F7C52AF3F80F005BBC92 /* UsersListView.swift */; };
+		14F8F7C82AF3FEA6005BBC92 /* NavigationControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F8F7C72AF3FEA6005BBC92 /* NavigationControllerExtension.swift */; };
 		14FB720A2ABF4BA000A2852D /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FB72092ABF4BA000A2852D /* MapViewModel.swift */; };
 		14FB720D2AC1B99000A2852D /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FB720C2AC1B99000A2852D /* LocationManager.swift */; };
 /* End PBXBuildFile section */
@@ -158,6 +164,12 @@
 		14BFB44F2AF2896800500190 /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
 		14BFD2E12AE00599006A26F9 /* Crop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crop.swift; sourceTree = "<group>"; };
 		14C1498B2AC477AF00F28463 /* LocationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationHelpers.swift; sourceTree = "<group>"; };
+		14D7E4342AF52AE600A76D09 /* CompletedEventUsersList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedEventUsersList.swift; sourceTree = "<group>"; };
+		14D7E4362AF5349000A76D09 /* Test2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test2View.swift; sourceTree = "<group>"; };
+		14D7E43A2AF53E8000A76D09 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingView.swift; sourceTree = "<group>"; };
+		14F8F7C52AF3F80F005BBC92 /* UsersListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersListView.swift; sourceTree = "<group>"; };
+		14F8F7C72AF3FEA6005BBC92 /* NavigationControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControllerExtension.swift; sourceTree = "<group>"; };
 		14FB72092ABF4BA000A2852D /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		14FB720C2AC1B99000A2852D /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -261,6 +273,7 @@
 				14807A1C2AB4BA9400716A17 /* TagStyle.swift */,
 				14807A1E2AB4BAA000716A17 /* SafeArea.swift */,
 				14807A202AB4BAAF00716A17 /* MathFunctions.swift */,
+				14F8F7C72AF3FEA6005BBC92 /* NavigationControllerExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -277,6 +290,7 @@
 		14807A062AB4B94200716A17 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				14D7E4382AF53E6200A76D09 /* NotificationView */,
 				145D72332ABA06EF005934E2 /* MapView */,
 				14807A6C2AB4C22A00716A17 /* CreateEventView */,
 				14807A152AB4B9B700716A17 /* ProfileView */,
@@ -325,6 +339,7 @@
 			isa = PBXGroup;
 			children = (
 				14807A642AB4C19400716A17 /* TestView.swift */,
+				14D7E4362AF5349000A76D09 /* Test2View.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -407,6 +422,7 @@
 				145D72382ABA07B0005934E2 /* MapSlot.swift */,
 				14BFB44D2AF2781F00500190 /* MemoriesTab.swift */,
 				14BFB44F2AF2896800500190 /* ImageViewer.swift */,
+				14D7E4342AF52AE600A76D09 /* CompletedEventUsersList.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -461,6 +477,8 @@
 				14807A342AB4BC2600716A17 /* ExpandableText.swift */,
 				142814162ACCA1140046886B /* CustomSearchBar.swift */,
 				14519D652ACDABCB00173624 /* FilterView.swift */,
+				14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */,
+				14F8F7C52AF3F80F005BBC92 /* UsersListView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -526,6 +544,22 @@
 				14C1498B2AC477AF00F28463 /* LocationHelpers.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		14D7E4382AF53E6200A76D09 /* NotificationView */ = {
+			isa = PBXGroup;
+			children = (
+				14D7E4392AF53E7500A76D09 /* View */,
+			);
+			path = NotificationView;
+			sourceTree = "<group>";
+		};
+		14D7E4392AF53E7500A76D09 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				14D7E43A2AF53E8000A76D09 /* NotificationView.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		14FB720B2AC1B97F00A2852D /* Managers */ = {
@@ -615,6 +649,7 @@
 				14807A312AB4BBB200716A17 /* FilterOptions.swift in Sources */,
 				14807A592AB4C0EA00716A17 /* Filters.swift in Sources */,
 				148079F42AB4B8B800716A17 /* ContentView.swift in Sources */,
+				14F8F7C42AF3EF7F005BBC92 /* RatingView.swift in Sources */,
 				14807A352AB4BC2600716A17 /* ExpandableText.swift in Sources */,
 				14519D662ACDABCB00173624 /* FilterView.swift in Sources */,
 				14807A2F2AB4BB7E00716A17 /* Location.swift in Sources */,
@@ -655,6 +690,7 @@
 				14807A692AB4C1DA00716A17 /* MainTabView.swift in Sources */,
 				14807A292AB4BB4000716A17 /* Filter.swift in Sources */,
 				14BFD2E22AE00599006A26F9 /* Crop.swift in Sources */,
+				14F8F7C62AF3F80F005BBC92 /* UsersListView.swift in Sources */,
 				14807A372AB4BC9500716A17 /* ProfileViewModel.swift in Sources */,
 				14807A3F2AB4BF4700716A17 /* ClubsTab.swift in Sources */,
 				14807A612AB4C11D00716A17 /* PostTags.swift in Sources */,
@@ -665,12 +701,15 @@
 				14807A452AB4BFBB00716A17 /* EventTab.swift in Sources */,
 				14807A712AB4C25800716A17 /* CreateEventView.swift in Sources */,
 				142814152ACC7F8F0046886B /* EventMapPreview.swift in Sources */,
+				14F8F7C82AF3FEA6005BBC92 /* NavigationControllerExtension.swift in Sources */,
 				145D62F72ADD7AD100941BC3 /* PhotoPickerView.swift in Sources */,
 				14807A492AB4BFE900716A17 /* ProfileView.swift in Sources */,
+				14D7E43B2AF53E8000A76D09 /* NotificationView.swift in Sources */,
 				14807A3B2AB4BF0200716A17 /* CalendarTab.swift in Sources */,
 				14807A2B2AB4BB5400716A17 /* Post.swift in Sources */,
 				14519D642ACDA12C00173624 /* MapNavBar.swift in Sources */,
 				14807A532AB4C09000716A17 /* FilterViewModel.swift in Sources */,
+				14D7E4352AF52AE600A76D09 /* CompletedEventUsersList.swift in Sources */,
 				14807A232AB4BB0400716A17 /* UserServices.swift in Sources */,
 				14807A512AB4C08200716A17 /* HomeViewModel.swift in Sources */,
 				14807A2D2AB4BB6100716A17 /* User.swift in Sources */,
@@ -679,6 +718,7 @@
 				14807A652AB4C19400716A17 /* TestView.swift in Sources */,
 				14807A672AB4C1C500716A17 /* MainTabViewModel.swift in Sources */,
 				1446962B2AE0239600F29BB7 /* UserProfileView.swift in Sources */,
+				14D7E4372AF5349000A76D09 /* Test2View.swift in Sources */,
 				14807A332AB4BBF900716A17 /* BackButton.swift in Sources */,
 				14ADEAAE2AD6ECFA00626D86 /* LocationPickerViewModel.swift in Sources */,
 				14807A3D2AB4BF1E00716A17 /* EventComponent.swift in Sources */,

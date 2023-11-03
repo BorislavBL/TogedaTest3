@@ -56,37 +56,41 @@ struct CompletedEventView: View {
                                 .fontWeight(.bold)
                             
                             
-                            HStack(alignment: .center, spacing: 10) {
-                                
-                                
-                                if let image = post.user?.profileImageUrl {
-                                    Image(image[0])
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 60, height: 60)
-                                        .clipped()
-                                        .cornerRadius(15)
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 5) {
-                                    
-                                    if let fullName = post.user?.fullname{
+                            if let user = post.user {
+                                NavigationLink(destination: UserProfileView(miniUser: user)){
+                                    HStack(alignment: .center, spacing: 10) {
                                         
-                                        Text(fullName)
-                                            .font(.body)
-                                            .fontWeight(.semibold)
-                                    }
-                                    
-                                    if let title = post.user?.title {
-                                        Text(title)
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
-                                    } else if let from = post.user?.from{
-                                        Text(from)
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
+                                        
+                                        if let image = post.user?.profileImageUrl {
+                                            Image(image[0])
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 60, height: 60)
+                                                .clipped()
+                                                .cornerRadius(15)
+                                        }
+                                        
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            
+                                            if let fullName = post.user?.fullname{
+                                                
+                                                Text(fullName)
+                                                    .font(.body)
+                                                    .fontWeight(.semibold)
+                                            }
+                                            
+                                            if let title = post.user?.title {
+                                                Text(title)
+                                                    .font(.footnote)
+                                                    .foregroundColor(.gray)
+                                                    .fontWeight(.bold)
+                                            } else if let from = post.user?.from{
+                                                Text(from)
+                                                    .font(.footnote)
+                                                    .foregroundColor(.gray)
+                                                    .fontWeight(.bold)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -115,70 +119,68 @@ struct CompletedEventView: View {
                                     
                                     VStack(alignment: .leading, spacing: 5) {
                                         
-                                        if post.peopleIn.contains(userViewModel.user.id) || post.accessability == .Public{
-                                            Text("Bulgaria, Sofia")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            Text("St. Georg Washington")
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        } else {
-                                            Text("The exact location will be revealed upon joining.")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                        }
-                                    }
-                                }
-                                
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "person.3")
-                                        .imageScale(.large)
-                                    
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text("Participants \(post.peopleIn.count)/\(post.maximumPeople)")
+                                        
+                                        Text("Bulgaria, Sofia")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                         
+                                        Text("St. Georg Washington")
+                                            .font(.footnote)
+                                            .foregroundColor(.gray)
+                                            .fontWeight(.bold)
+                                    }
+                                }
+                                
+                                
+                                NavigationLink(destination: CompletedEventUsersList(users: post.participants)){
+                                    HStack(alignment: .center, spacing: 10) {
+                                        Image(systemName: "person.3")
+                                            .imageScale(.large)
                                         
-                                        if post.participants.count > 0 {
-                                            ZStack{
-                                                ForEach(0..<post.participants.count, id: \.self){ number in
-                                                    
-                                                    if let image = post.participants[number].profileImageUrl {
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            Text("Participants \(post.peopleIn.count)/\(post.maximumPeople)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                            
+                                            
+                                            if post.participants.count > 0 {
+                                                ZStack{
+                                                    ForEach(0..<post.participants.count, id: \.self){ number in
                                                         
-                                                        Image(image[0])
-                                                            .resizable()
-                                                            .scaledToFill()
-                                                            .frame(width: 40, height: 40)
-                                                            .clipped()
-                                                            .cornerRadius(100)
-                                                            .overlay(
-                                                                Circle()
-                                                                    .stroke(Color("secondaryColor"), lineWidth: 2)
-                                                            )
-                                                            .offset(x:CGFloat(20 * number))
+                                                        if let image = post.participants[number].profileImageUrl {
+                                                            
+                                                            Image(image[0])
+                                                                .resizable()
+                                                                .scaledToFill()
+                                                                .frame(width: 40, height: 40)
+                                                                .clipped()
+                                                                .cornerRadius(100)
+                                                                .overlay(
+                                                                    Circle()
+                                                                        .stroke(Color("secondaryColor"), lineWidth: 2)
+                                                                )
+                                                                .offset(x:CGFloat(20 * number))
+                                                        }
                                                     }
                                                 }
-                                            }
-                                            
-                                            if post.peopleIn.count >= 4 {
                                                 
-                                                Circle()
-                                                    .fill(.gray)
-                                                    .frame(width: 40, height: 40)
-                                                    .overlay(
-                                                        ZStack(alignment:.center){
-                                                            Text("\(post.peopleIn.count - 4)")
-                                                                .font(.caption2)
-                                                                .fontWeight(.semibold)
-                                                                .foregroundColor(.white)
-                                                            Circle()
-                                                                .stroke(Color("secondaryColor"), lineWidth: 2)
-                                                        }
-                                                    )
-                                                    .offset(x:CGFloat(20 * 4))
+                                                if post.peopleIn.count >= 4 {
+                                                    
+                                                    Circle()
+                                                        .fill(.gray)
+                                                        .frame(width: 40, height: 40)
+                                                        .overlay(
+                                                            ZStack(alignment:.center){
+                                                                Text("\(post.peopleIn.count - 4)")
+                                                                    .font(.caption2)
+                                                                    .fontWeight(.semibold)
+                                                                    .foregroundColor(.white)
+                                                                Circle()
+                                                                    .stroke(Color("secondaryColor"), lineWidth: 2)
+                                                            }
+                                                        )
+                                                        .offset(x:CGFloat(20 * 4))
+                                                }
                                             }
                                         }
                                     }
@@ -200,9 +202,25 @@ struct CompletedEventView: View {
                                     }
                                 }
                                 
+                                if post.hasEnded, let rating = post.rating {
+                                    HStack(alignment: .center, spacing: 10) {
+                                        Image(systemName: "star")
+                                            .imageScale(.large)
+                                        
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            Text("Rating \(rating, specifier: "%.2f")")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                            
+                                            RatingView(rating: .constant(Int(round(rating))))
+                                        }
+                                    }
+                                }
+                                
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                             .normalTagRectangleStyle()
+                            
                             
                             
                             Text("Description")
@@ -221,25 +239,20 @@ struct CompletedEventView: View {
                                 .fontWeight(.bold)
                                 .padding(.vertical, 8)
                             
-                           MemoriesTab(images: images, selectedImage: $selectedImage, showImagesViewer: $showImageViewer)
+                            MemoriesTab(images: images, selectedImage: $selectedImage, showImagesViewer: $showImageViewer)
                             
                             Text("Location")
                                 .font(.title3)
                                 .fontWeight(.bold)
                                 .padding(.vertical, 8)
                             
-    
-                                Text(address ?? "-/--")
-                                    .normalTagTextStyle()
-                                    .normalTagCapsuleStyle()
-                                    .onAppear{
-                                        reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
-                                            address = result
-                                        }
-                                    }
-                                
-                                MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
-                                
+                            
+                            Text(address ?? "-/--")
+                                .normalTagTextStyle()
+                                .normalTagCapsuleStyle()
+                            
+                            MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
+                            
                             
                             Text("Interests")
                                 .font(.title3)
@@ -277,7 +290,7 @@ struct CompletedEventView: View {
                                     .foregroundColor(Color("testColor"))
                                 
                                 Text("Add Images")
-                                    
+                                
                             }
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
@@ -321,10 +334,13 @@ struct CompletedEventView: View {
             .presentationDragIndicator(.visible)
         })
         .fullScreenCover(isPresented: $showImageViewer, content: {
-            ImageViewer(images: images, selectedImage: selectedImage)
+            ImageViewer(images: images, selectedImage: $selectedImage)
         })
         .onAppear {
             self.peopleIn = post.peopleIn.count
+            reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
+                address = result
+            }
         }
     }
     

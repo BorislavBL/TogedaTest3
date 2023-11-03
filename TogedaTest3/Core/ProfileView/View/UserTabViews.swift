@@ -19,14 +19,14 @@ struct UserTabViews: View {
         .init(.flexible(), spacing: 2),
         .init(.flexible(), spacing: 2),
     ]
+    
+    @State var selectedPost: Post = Post.MOCK_POSTS[0]
+    @State var showCompletedEvent: Bool = false
     @State var posts: [Post] = Post.MOCK_POSTS
     var body: some View {
         
         ScrollView{
             VStack (alignment: .leading, spacing: 20) {
-                Text(title)
-                    .font(.body)
-                    .fontWeight(.bold)
                 
                 HStack(alignment: .center, spacing: 5) {
                     
@@ -51,7 +51,12 @@ struct UserTabViews: View {
                 
                 LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(0..<6, id: \.self){ index in
-                        EventComponent(post: posts[index])
+                        Button{
+                            selectedPost = posts[index]
+                            showCompletedEvent = true
+                        }label:{
+                            EventComponent(post: posts[index])
+                        }
                     }
                 }
             }
@@ -62,6 +67,7 @@ struct UserTabViews: View {
         }
         .background(.bar)
         .navigationBarBackButtonHidden(true)
+        .navigationTitle(title)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
@@ -70,6 +76,9 @@ struct UserTabViews: View {
                 .clipShape(Circle())
         }
         )
+        .fullScreenCover(isPresented: $showCompletedEvent, content: {
+            CompletedEventView(viewModel: PostsViewModel(), post: selectedPost, userViewModel: UserViewModel())
+        })
         
     }
 }

@@ -29,6 +29,7 @@ extension View {
             .background{Color("secondaryColor")}
             .cornerRadius(10)
     }
+    
 }
 
 extension Text {

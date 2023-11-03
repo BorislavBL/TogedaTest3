@@ -20,7 +20,7 @@ class PostsViewModel: ObservableObject {
     @Published var selectedOption = "None"
     @Published var showJoinRequest = false
     @Published var isLoading: Bool = false
-    
+
     func fetchPosts() {
         DispatchQueue.main.async {
             for post in self.posts {

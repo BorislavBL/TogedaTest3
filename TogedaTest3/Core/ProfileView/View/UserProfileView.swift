@@ -16,19 +16,16 @@ struct UserProfileView: View {
     }
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     @StateObject var viewModel = ProfileViewModel()
-    @State private var showImageSet = false
-    @State var selectedPost: Post = Post.MOCK_POSTS[0]
-    @State private var showCompletedEvent = false
     
     var body: some View {
         ScrollView(showsIndicators: false){
             VStack(alignment: .center) {
                 if let profileImages = miniUser.profileImageUrl {
-                    if showImageSet {
+                    if viewModel.showImageSet {
                         TabView {
                             ForEach(profileImages, id: \.self) { image in
                                 Button{
-                                    showImageSet = false
+                                    viewModel.showImageSet = false
                                 } label:{
                                     Image(image)
                                         .resizable()
@@ -46,7 +43,7 @@ struct UserProfileView: View {
                     } else {
                         
                         Button{
-                            showImageSet = true
+                            viewModel.showImageSet = true
                         }label:{
                             Image(profileImages[0])
                                 .resizable()
@@ -135,7 +132,7 @@ struct UserProfileView: View {
             if let user = user {
                 AboutTab(user: user)
             }
-            EventTab(selectedPost: $selectedPost, showCompletedView: $showCompletedEvent)
+            EventTab(vm: viewModel)
             ClubsTab()
             if miniUser.id == userId {
                 CalendarTab()
@@ -174,8 +171,8 @@ struct UserProfileView: View {
                 }
             }
         }
-        .fullScreenCover(isPresented: $showCompletedEvent, content: {
-            CompletedEventView(viewModel: PostsViewModel(), post: selectedPost, userViewModel: UserViewModel())
+        .fullScreenCover(isPresented: $viewModel.showCompletedEvent, content: {
+            CompletedEventView(viewModel: PostsViewModel(), post: viewModel.selectedPost, userViewModel: UserViewModel())
         })
     }
 }

@@ -17,7 +17,7 @@ struct MainTabView: View {
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     
     var body: some View {
-        NavigationView{
+        NavigationStack{
             TabView(selection: $router.screen) {
                 Group {
                     if locationManager.showLocationServicesView{
@@ -46,7 +46,7 @@ struct MainTabView: View {
                     .tabItem {
                         Image(systemName: "plus.square")
                     }
-                    Text("Messenger")
+                    TestView()
                         .tag(Screen.message)
                         .tabItem {
                             Image(systemName: "message")
@@ -100,6 +100,13 @@ struct MainTabView: View {
                 .presentationDetents([.fraction(0.4)])
                 .presentationDragIndicator(.visible)
             })
+            .navigationDestination(for: Post.self) { post in
+                EventView(viewModel: postsViewModel, post: post, userViewModel: userViewModel)
+                //.toolbar(.hidden, for: .tabBar)
+            }
+            .navigationDestination(for: MiniUser.self) { user in
+                UserProfileView(miniUser: user)
+            }
             .fullScreenCover(isPresented: $postsViewModel.showDetailsPage, content: {
                 EventView(viewModel: postsViewModel, post: postsViewModel.posts[postsViewModel.clickedPostIndex], userViewModel: userViewModel)
             })
