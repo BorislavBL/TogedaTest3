@@ -68,6 +68,7 @@ struct UserTabViews: View {
         .background(.bar)
         .navigationBarBackButtonHidden(true)
         .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)

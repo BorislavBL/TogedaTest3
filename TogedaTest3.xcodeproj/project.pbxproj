@@ -82,6 +82,13 @@
 		14D7E4352AF52AE600A76D09 /* CompletedEventUsersList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4342AF52AE600A76D09 /* CompletedEventUsersList.swift */; };
 		14D7E4372AF5349000A76D09 /* Test2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4362AF5349000A76D09 /* Test2View.swift */; };
 		14D7E43B2AF53E8000A76D09 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E43A2AF53E8000A76D09 /* NotificationView.swift */; };
+		14D7E43D2AF924E500A76D09 /* FriendRequestPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E43C2AF924E500A76D09 /* FriendRequestPageView.swift */; };
+		14D7E43F2AF9253500A76D09 /* FriendRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E43E2AF9253500A76D09 /* FriendRequestView.swift */; };
+		14D7E4412AF9256100A76D09 /* FriendRequestPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4402AF9256100A76D09 /* FriendRequestPage.swift */; };
+		14D7E4432AF9263300A76D09 /* AddedMemoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4422AF9263300A76D09 /* AddedMemoryView.swift */; };
+		14D7E4452AF9288200A76D09 /* ParticipantsEventReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4442AF9288200A76D09 /* ParticipantsEventReview.swift */; };
+		14D7E4472AF937CA00A76D09 /* EventReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4462AF937CA00A76D09 /* EventReviewView.swift */; };
+		14D7E4492AF9469100A76D09 /* RatingButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4482AF9469100A76D09 /* RatingButtonView.swift */; };
 		14F8F7C42AF3EF7F005BBC92 /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */; };
 		14F8F7C62AF3F80F005BBC92 /* UsersListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F8F7C52AF3F80F005BBC92 /* UsersListView.swift */; };
 		14F8F7C82AF3FEA6005BBC92 /* NavigationControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F8F7C72AF3FEA6005BBC92 /* NavigationControllerExtension.swift */; };
@@ -167,6 +174,13 @@
 		14D7E4342AF52AE600A76D09 /* CompletedEventUsersList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedEventUsersList.swift; sourceTree = "<group>"; };
 		14D7E4362AF5349000A76D09 /* Test2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test2View.swift; sourceTree = "<group>"; };
 		14D7E43A2AF53E8000A76D09 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		14D7E43C2AF924E500A76D09 /* FriendRequestPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestPageView.swift; sourceTree = "<group>"; };
+		14D7E43E2AF9253500A76D09 /* FriendRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestView.swift; sourceTree = "<group>"; };
+		14D7E4402AF9256100A76D09 /* FriendRequestPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestPage.swift; sourceTree = "<group>"; };
+		14D7E4422AF9263300A76D09 /* AddedMemoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedMemoryView.swift; sourceTree = "<group>"; };
+		14D7E4442AF9288200A76D09 /* ParticipantsEventReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantsEventReview.swift; sourceTree = "<group>"; };
+		14D7E4462AF937CA00A76D09 /* EventReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventReviewView.swift; sourceTree = "<group>"; };
+		14D7E4482AF9469100A76D09 /* RatingButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingButtonView.swift; sourceTree = "<group>"; };
 		14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingView.swift; sourceTree = "<group>"; };
 		14F8F7C52AF3F80F005BBC92 /* UsersListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersListView.swift; sourceTree = "<group>"; };
 		14F8F7C72AF3FEA6005BBC92 /* NavigationControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControllerExtension.swift; sourceTree = "<group>"; };
@@ -479,6 +493,7 @@
 				14519D652ACDABCB00173624 /* FilterView.swift */,
 				14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */,
 				14F8F7C52AF3F80F005BBC92 /* UsersListView.swift */,
+				14D7E4482AF9469100A76D09 /* RatingButtonView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -558,6 +573,12 @@
 			isa = PBXGroup;
 			children = (
 				14D7E43A2AF53E8000A76D09 /* NotificationView.swift */,
+				14D7E43C2AF924E500A76D09 /* FriendRequestPageView.swift */,
+				14D7E43E2AF9253500A76D09 /* FriendRequestView.swift */,
+				14D7E4402AF9256100A76D09 /* FriendRequestPage.swift */,
+				14D7E4422AF9263300A76D09 /* AddedMemoryView.swift */,
+				14D7E4442AF9288200A76D09 /* ParticipantsEventReview.swift */,
+				14D7E4462AF937CA00A76D09 /* EventReviewView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -670,9 +691,11 @@
 				14807A5B2AB4C0FC00716A17 /* CustomNavBar.swift in Sources */,
 				14807A5F2AB4C11600716A17 /* PostCell.swift in Sources */,
 				14807A4B2AB4C01700716A17 /* EventView.swift in Sources */,
+				14D7E4452AF9288200A76D09 /* ParticipantsEventReview.swift in Sources */,
 				143A6EA02AB89DDF00BDDA87 /* CategoryView.swift in Sources */,
 				14807A432AB4BFA200716A17 /* ProfileTabs.swift in Sources */,
 				145D62FB2ADDC2C100941BC3 /* CropPhotoView.swift in Sources */,
+				14D7E43F2AF9253500A76D09 /* FriendRequestView.swift in Sources */,
 				14807A6B2AB4C20600716A17 /* ContentViewModel.swift in Sources */,
 				143CD66E2AEFF7900020DE0A /* AllowLocationView.swift in Sources */,
 				143A6E9E2AB88A7500BDDA87 /* AccesabilityView.swift in Sources */,
@@ -683,10 +706,13 @@
 				14651BD92AE9378A0091FECE /* JoinRequestView.swift in Sources */,
 				14807A1D2AB4BA9400716A17 /* TagStyle.swift in Sources */,
 				14FB720A2ABF4BA000A2852D /* MapViewModel.swift in Sources */,
+				14D7E43D2AF924E500A76D09 /* FriendRequestPageView.swift in Sources */,
 				145D62F12ADAE72800941BC3 /* CreateEventViewModel.swift in Sources */,
 				145D62F92ADD7AE500941BC3 /* PhotoPickerViewModel.swift in Sources */,
 				145FEB452AE95AB3002301D1 /* UserTabViews.swift in Sources */,
 				145D72392ABA07B0005934E2 /* MapSlot.swift in Sources */,
+				14D7E4432AF9263300A76D09 /* AddedMemoryView.swift in Sources */,
+				14D7E4492AF9469100A76D09 /* RatingButtonView.swift in Sources */,
 				14807A692AB4C1DA00716A17 /* MainTabView.swift in Sources */,
 				14807A292AB4BB4000716A17 /* Filter.swift in Sources */,
 				14BFD2E22AE00599006A26F9 /* Crop.swift in Sources */,
@@ -699,6 +725,7 @@
 				140A2BE12ACED10B00623446 /* SearchFilters.swift in Sources */,
 				14FB720D2AC1B99000A2852D /* LocationManager.swift in Sources */,
 				14807A452AB4BFBB00716A17 /* EventTab.swift in Sources */,
+				14D7E4472AF937CA00A76D09 /* EventReviewView.swift in Sources */,
 				14807A712AB4C25800716A17 /* CreateEventView.swift in Sources */,
 				142814152ACC7F8F0046886B /* EventMapPreview.swift in Sources */,
 				14F8F7C82AF3FEA6005BBC92 /* NavigationControllerExtension.swift in Sources */,
@@ -708,6 +735,7 @@
 				14807A3B2AB4BF0200716A17 /* CalendarTab.swift in Sources */,
 				14807A2B2AB4BB5400716A17 /* Post.swift in Sources */,
 				14519D642ACDA12C00173624 /* MapNavBar.swift in Sources */,
+				14D7E4412AF9256100A76D09 /* FriendRequestPage.swift in Sources */,
 				14807A532AB4C09000716A17 /* FilterViewModel.swift in Sources */,
 				14D7E4352AF52AE600A76D09 /* CompletedEventUsersList.swift in Sources */,
 				14807A232AB4BB0400716A17 /* UserServices.swift in Sources */,

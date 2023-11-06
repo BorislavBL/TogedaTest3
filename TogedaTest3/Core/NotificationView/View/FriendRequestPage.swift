@@ -1,0 +1,87 @@
+//
+//  FriendRequestPage.swift
+//  TogedaTest3
+//
+//  Created by Borislav Lorinkov on 6.11.23.
+//
+
+import SwiftUI
+
+struct FriendRequestPage: View {
+    let size: ImageSize = .medium
+    var users: [MiniUser] = MiniUser.MOCK_MINIUSERS
+    var body: some View {
+        VStack{
+            NavigationLink(destination: FriendRequestPageView()){
+                HStack{
+                    ZStack(alignment:.top){
+                        if let images = users[0].profileImageUrl {
+                            Image(images[0])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: size.dimension, height: size.dimension)
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color("secondaryColor"), lineWidth: 2)
+                                )
+                                
+                        } else {
+                            Image(systemName: "person.crop.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .foregroundColor(.gray)
+                                .frame(width: size.dimension, height: size.dimension)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color("secondaryColor"), lineWidth: 2)
+                                )
+                        }
+                        if let images = users[1].profileImageUrl {
+                            Image(images[0])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: size.dimension, height: size.dimension)
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color("secondaryColor"), lineWidth: 2)
+                                )
+                                .offset(x:size.dimension/2)
+                        } else {
+                            Image(systemName: "person.crop.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .foregroundColor(.gray)
+                                .frame(width: size.dimension, height: size.dimension)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color("secondaryColor"), lineWidth: 2)
+                                )
+                                .offset(x:size.dimension/2)
+                        }
+
+                    }
+                    .padding(.trailing, size.dimension/2)
+                    
+                    VStack(alignment: .leading){
+                        Text("View Friend Requests.")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                        
+                        Text("\(users[0].fullname) & \(users.count) more ")
+                            .font(.footnote)
+                            .foregroundStyle(.gray)
+                    }
+                    Spacer(minLength: 0)
+                    
+                    Image(systemName: "chevron.right")
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    FriendRequestPage()
+}

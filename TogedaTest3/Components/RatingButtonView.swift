@@ -1,13 +1,13 @@
 //
-//  RatingView.swift
+//  RatingButtonView.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 2.11.23.
+//  Created by Borislav Lorinkov on 6.11.23.
 //
 
 import SwiftUI
 
-struct RatingView: View {
+struct RatingButtonView: View {
     @Binding var rating: Int
     
     var label = ""
@@ -29,11 +29,15 @@ struct RatingView: View {
             }
             
             ForEach(1..<maximumRating + 1, id:\.self){number in
-                image(for: number)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: dimension, height: dimension)
-                    .foregroundStyle(number > rating ? offColor : onColor)
+                Button{
+                    rating = number
+                } label:{
+                    image(for: number)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: dimension, height: dimension)
+                        .foregroundStyle(number > rating ? offColor : onColor)
+                }
             }
         }
     }
@@ -47,6 +51,7 @@ struct RatingView: View {
     }
 }
 
+
 #Preview {
-    RatingView(rating: .constant(4))
+    RatingButtonView(rating: .constant(4))
 }
