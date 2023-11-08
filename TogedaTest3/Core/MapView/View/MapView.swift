@@ -153,12 +153,15 @@ struct MapView: View {
         }
         .overlay(alignment:.bottom) {
             if showPostView && !showSearch {
-                Button {
-                    print("Clicked")
-                    showPostView = false
-                    postsViewModel.showDetailsPage = true
-                    postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: selectedPost) ?? 0
-                } label: {
+//                Button {
+//                    print("Clicked")
+//                    showPostView = false
+//                    postsViewModel.showDetailsPage = true
+//                    postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: selectedPost) ?? 0
+//                } label: {
+//                    EventMapPreview(post: selectedPost, address: address)
+//                }
+                NavigationLink(value: selectedPost){
                     EventMapPreview(post: selectedPost, address: address)
                 }
                 .frame(height: 170)

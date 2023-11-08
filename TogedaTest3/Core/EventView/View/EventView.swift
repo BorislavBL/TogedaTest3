@@ -25,7 +25,6 @@ struct EventView: View {
     
     var body: some View {
         
-        NavigationView{
             ZStack(alignment: .bottom) {
                 
                 ScrollView{
@@ -409,7 +408,6 @@ struct EventView: View {
                     .rotationEffect(.degrees(90))
             })
             )
-        }
         .sheet(isPresented: $showPostOptions, content: {
             List {
                 Button("Save") {

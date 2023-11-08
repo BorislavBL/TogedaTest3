@@ -48,10 +48,11 @@ struct EventTab: View {
             
             LazyVGrid(columns: gridItems, spacing: 10) {
                 ForEach(0..<6, id: \.self){ index in
-                    Button{
-                        vm.selectedPost = posts[index]
-                        vm.showCompletedEvent = true
-                    }label:{
+//                    Button{
+//                        vm.selectedPost = posts[index]
+//                        vm.showCompletedEvent = true
+//                    }label:{
+                    NavigationLink(destination: CompletedEventView(viewModel: PostsViewModel(), post: posts[index], userViewModel: UserViewModel())){
                         EventComponent(post: posts[index])
                     }
                 }

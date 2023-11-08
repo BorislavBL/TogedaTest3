@@ -34,6 +34,8 @@ struct NotificationView: View {
                 FriendRequestView()
                 AddedMemoryView()
                 ParticipantsEventReview()
+                EventAcceptance()
+                GroupAcceptanceView()
             }
             .padding(.horizontal)
         }

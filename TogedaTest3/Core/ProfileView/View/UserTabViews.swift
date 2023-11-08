@@ -50,12 +50,15 @@ struct UserTabViews: View {
                 
                 
                 LazyVGrid(columns: gridItems, spacing: 10) {
-                    ForEach(0..<6, id: \.self){ index in
-                        Button{
-                            selectedPost = posts[index]
-                            showCompletedEvent = true
-                        }label:{
-                            EventComponent(post: posts[index])
+                    ForEach(posts, id: \.self){ post in
+//                        Button{
+//                            selectedPost = posts[index]
+//                            showCompletedEvent = true
+//                        }label:{
+//                            EventComponent(post: posts[index])
+//                        }
+                        NavigationLink(destination: CompletedEventView(viewModel: PostsViewModel(), post: post, userViewModel: UserViewModel())){
+                            EventComponent(post: post)
                         }
                     }
                 }
@@ -77,9 +80,9 @@ struct UserTabViews: View {
                 .clipShape(Circle())
         }
         )
-        .fullScreenCover(isPresented: $showCompletedEvent, content: {
-            CompletedEventView(viewModel: PostsViewModel(), post: selectedPost, userViewModel: UserViewModel())
-        })
+//        .fullScreenCover(isPresented: $showCompletedEvent, content: {
+//            CompletedEventView(viewModel: PostsViewModel(), post: selectedPost, userViewModel: UserViewModel())
+//        })
         
     }
 }

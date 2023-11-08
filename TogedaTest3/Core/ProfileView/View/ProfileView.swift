@@ -134,9 +134,9 @@ struct ProfileView: View {
                     }
                 }
             }
-            .fullScreenCover(isPresented: $viewModel.showCompletedEvent, content: {
-                CompletedEventView(viewModel: PostsViewModel(), post: viewModel.selectedPost, userViewModel: UserViewModel())
-            })
+//            .fullScreenCover(isPresented: $viewModel.showCompletedEvent, content: {
+//                CompletedEventView(viewModel: PostsViewModel(), post: viewModel.selectedPost, userViewModel: UserViewModel())
+//            })
         }
     }
 }

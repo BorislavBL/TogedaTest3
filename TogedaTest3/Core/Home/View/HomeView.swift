@@ -100,12 +100,12 @@ struct HomeView: View {
                             viewModel.searchPostResults = Post.MOCK_POSTS.filter{ result in
                                 result.title.lowercased().contains(viewModel.searchText.lowercased())
                             }
-                            viewModel.searchUserResults = User.MOCK_USERS.filter{result in
+                            viewModel.searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
                                 result.fullname.lowercased().contains(viewModel.searchText.lowercased())
                             }
                         } else {
                             viewModel.searchPostResults = Post.MOCK_POSTS
-                            viewModel.searchUserResults = User.MOCK_USERS
+                            viewModel.searchUserResults = MiniUser.MOCK_MINIUSERS
                         }
                     }
                     CustomNavBar(showFilter: $showFilter, viewModel: filterViewModel, postViewModel: postsViewModel, userViewModel: userViewModel, homeViewModel: viewModel)

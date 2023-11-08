@@ -107,9 +107,9 @@ struct MainTabView: View {
             .navigationDestination(for: MiniUser.self) { user in
                 UserProfileView(miniUser: user)
             }
-            .fullScreenCover(isPresented: $postsViewModel.showDetailsPage, content: {
-                EventView(viewModel: postsViewModel, post: postsViewModel.posts[postsViewModel.clickedPostIndex], userViewModel: userViewModel)
-            })
+//            .fullScreenCover(isPresented: $postsViewModel.showDetailsPage, content: {
+//                EventView(viewModel: postsViewModel, post: postsViewModel.posts[postsViewModel.clickedPostIndex], userViewModel: userViewModel)
+//            })
         }
     }
 }

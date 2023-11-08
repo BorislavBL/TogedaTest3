@@ -17,7 +17,7 @@ struct RatingView: View {
     var onImage = Image(systemName: "star.fill")
     
     var offColor = Color.gray
-    var onColor = Color.black
+    var onColor = Color("blackAndWhite")
     
     var dimension: CGFloat = 16
     var spacing: CGFloat = 2

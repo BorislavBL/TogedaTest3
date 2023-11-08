@@ -61,18 +61,39 @@ class PhotoPickerViewModel: ObservableObject {
         }
     }
     
+//    private func setImages(from selections: [PhotosPickerItem]){
+//        Task{
+//            var images: [UIImage] = []
+//            for selection in selections {
+//                if let data = try? await selection.loadTransferable(type: Data.self) {
+//                    if let uiImage = UIImage(data: data){
+//                        images.append(uiImage)
+//                        return
+//                    }
+//                }
+//            }
+//            eventSelectedImages = images
+//        }
+//    }
+ 
     private func setImages(from selections: [PhotosPickerItem]){
-        Task{
+        Task {
             var images: [UIImage] = []
             for selection in selections {
-                if let data = try? await selection.loadTransferable(type: Data.self) {
-                    if let uiImage = UIImage(data: data){
-                        images.append(uiImage)
-                        return
+                do {
+                    if let data = try await selection.loadTransferable(type: Data.self) {
+                        if let uiImage = UIImage(data: data){
+                            images.append(uiImage)
+                        }
                     }
+                } catch {
+                    print("Error loading image: \(error)")
                 }
             }
-            eventSelectedImages = images
+            // After all images are loaded, then update your published property
+            DispatchQueue.main.async {
+                self.eventSelectedImages = images
+            }
         }
     }
     

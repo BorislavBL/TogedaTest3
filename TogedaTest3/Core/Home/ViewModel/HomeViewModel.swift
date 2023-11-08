@@ -16,7 +16,7 @@ class HomeViewModel: ObservableObject {
     
     @Published var selectedFilter = searchFilters[0]
     @Published var searchPostResults: [Post] = Post.MOCK_POSTS
-    @Published var searchUserResults: [User] = User.MOCK_USERS
+    @Published var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
     
 }
 

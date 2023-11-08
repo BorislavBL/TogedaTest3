@@ -9,15 +9,30 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var locationManager = LocationManager()
+    @StateObject var networkManager = NetworkManager()
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @StateObject var viewModel = ContentViewModel()
     var body: some View {
         Group {
-            if let user = viewModel.currentUser{
-                MainTabView(user: user)
-                    .environmentObject(locationManager)
-            } else {
-                Text("IDK")
+            ZStack(alignment:.top){
+                if let user = viewModel.currentUser{
+                    MainTabView(user: user)
+                        .environmentObject(locationManager)
+                } else {
+                    Text("IDK")
+                }
+                
+                if !networkManager.isConnected {
+                    Text("No Internet Connction")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                        .padding(.vertical)
+                        .padding(.horizontal, 30)
+                        .background(.red)
+                        .cornerRadius(50)
+                        .padding(.top)
+                }
             }
         }
     }

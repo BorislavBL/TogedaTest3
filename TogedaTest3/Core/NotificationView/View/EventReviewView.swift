@@ -14,7 +14,7 @@ struct EventReviewView: View {
     var post: Post = Post.MOCK_POSTS[0]
     @State var description: String = ""
     
-    let placeholder = "Describe the purpose of your event. What activities are you planning? Mention any special guests who might be attending. Will there be food and drinks? Help attendees know what to expect."
+    let placeholder = "Share your experience...\nTell us what you thought about the event. What was the highlight for you? Was there anything that could be improved? Your feedback helps others decide which events to attend and assists organizers in making future events even better. Whether it’s the atmosphere, the music, the people, or the venue, let us know your thoughts! \nRemember to keep your review respectful and constructive – everyone reads these!"
     
     var body: some View {
         ZStack(alignment:.bottom){
@@ -51,9 +51,7 @@ struct EventReviewView: View {
             VStack(){
                 Divider()
                 
-                Button {
-
-                } label: {
+                NavigationLink(destination: ReviewMemoriesView()) {
                     HStack(spacing:2){
                         
                             Text("Next")
@@ -79,6 +77,7 @@ struct EventReviewView: View {
         })
     }
 }
+
 
 #Preview {
     EventReviewView()

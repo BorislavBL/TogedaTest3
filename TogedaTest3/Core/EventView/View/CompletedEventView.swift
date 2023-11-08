@@ -30,7 +30,6 @@ struct CompletedEventView: View {
     
     var body: some View {
         
-        NavigationView{
             ZStack(alignment: .bottom) {
                 
                 ScrollView{
@@ -317,7 +316,6 @@ struct CompletedEventView: View {
             })
             )
             .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imagesSelection, matching: .images)
-        }
         .sheet(isPresented: $showPostOptions, content: {
             List {
                 Button("Report") {

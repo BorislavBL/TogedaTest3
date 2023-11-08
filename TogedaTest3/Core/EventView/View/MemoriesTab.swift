@@ -70,34 +70,35 @@ struct MemoriesTab: View {
                             .clipped()
                     }
                     
-                    if images.count == 4 {
-                        ZStack{
+                    if images.count >= 4 {
+                        
                             Button{
                                 selectedImage = 3
                                 showImagesViewer = true
                             } label: {
-                                Image(images[3])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(height: 200)
-                                    .frame(minWidth: 0)
-                                    .cornerRadius(10)
-                                    .clipped()
-                                
-                                
-                                if images.count > 4 {
-                                    Rectangle()
-                                        .foregroundStyle(.black.opacity(0.5))
+                                ZStack{
+                                    Image(images[3])
+                                        .resizable()
+                                        .scaledToFill()
                                         .frame(height: 200)
                                         .frame(minWidth: 0)
                                         .cornerRadius(10)
-                                    Text("+\(images.count - 4) >")
-                                        .foregroundStyle(.white)
-                                        .fontWeight(.bold)
-                                        .font(.title2)
+                                        .clipped()
+                                    
+                                    
+                                    if images.count > 4 {
+                                        Rectangle()
+                                            .foregroundStyle(.black.opacity(0.5))
+                                            .frame(height: 200)
+                                            .frame(minWidth: 0)
+                                            .cornerRadius(10)
+                                        Text("+\(images.count - 4) >")
+                                            .foregroundStyle(.white)
+                                            .fontWeight(.bold)
+                                            .font(.title2)
+                                    }
                                 }
                             }
-                        }
 
                     }
                 }

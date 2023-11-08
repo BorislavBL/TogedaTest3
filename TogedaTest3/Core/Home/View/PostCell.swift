@@ -85,24 +85,24 @@ struct PostCell: View {
 //                }
                 
                 
-                Button(action: {
-                    viewModel.showDetailsPage = true
-                    viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
-                }, label: {
+//                Button(action: {
+//                    viewModel.showDetailsPage = true
+//                    viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
+//                }, label: {
+//                    Image(post.imageUrl[0])
+//                        .resizable()
+//                        .scaledToFill()
+//                        .frame(maxHeight: 400)
+//                        .cornerRadius(10)
+//                })
+                
+                NavigationLink(value: post) {
                     Image(post.imageUrl[0])
                         .resizable()
                         .scaledToFill()
                         .frame(maxHeight: 400)
                         .cornerRadius(10)
-                })
-                
-//                NavigationLink(value: post) {
-//                    Image(post.imageUrl)
-//                        .resizable()
-//                        .scaledToFill()
-//                        .frame(maxHeight: 400)
-//                        .cornerRadius(10)
-//                }
+                }
 
                 //MARK: - Buttons
                 

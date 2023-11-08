@@ -18,10 +18,11 @@ struct SearchView: View {
                 
                 if viewModel.selectedFilter == "Events"{
                     ForEach(viewModel.searchPostResults, id:\.id){ post in
-                        Button {
-                            postsViewModel.showDetailsPage = true
-                            postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: post) ?? 0
-                        } label: {
+//                        Button {
+//                            postsViewModel.showDetailsPage = true
+//                            postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: post) ?? 0
+//                        } label: {
+                        NavigationLink(value: post){
                             HStack(alignment:.center, spacing: 10){
                                 Image(post.imageUrl[0])
                                     .resizable()
@@ -55,12 +56,10 @@ struct SearchView: View {
                     }
                 } else if viewModel.selectedFilter == "People" {
                     ForEach(viewModel.searchUserResults, id: \.id) { user in
-                        Button {
-
-                        } label: {
+                        NavigationLink(value: user){
                             HStack(alignment:.center, spacing: 10){
                                 if let image = user.profileImageUrl {
-                                    Image(image[0 ])
+                                    Image(image[0])
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 80, height: 80)
@@ -86,9 +85,9 @@ struct SearchView: View {
                 }
             }
             .padding()
+            .padding(.top, 94)
             
         }
-        .padding(.top, 94)
         .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: UIScreen.main.bounds.height)
         .background()
     }
