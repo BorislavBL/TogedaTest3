@@ -8,20 +8,72 @@
 import SwiftUI
 
 struct Test2View: View {
-    @Environment(\.dismiss) var dismiss
+    let maxImageSize: CGFloat = 240
+    let minImageSize: CGFloat = 60
+    @State private var MinY: CGFloat = 0
+    @State private var iMinY: CGFloat = 0
+    @State private var showFilter: Bool = true
     var body: some View {
-        VStack{
-            Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ScrollView {
+            LazyVStack(alignment: .center){
+                    VStack(alignment: .center){
+                        Text("\(MinY)")
+                        if showFilter {
+                            TabView {
+                                ForEach(0..<5, id: \.self) { image in
+
+                                        Image("event_1")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .clipped()
+                                    
+                                    
+                                }
+                                
+                            }
+                            .tabViewStyle(PageTabViewStyle())
+                            .cornerRadius(10)
+                            .frame(height: 400)
+                        } else {
+                            Image("event_1")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 300, height: 300)
+                        }
+                    }
+            }
+            .padding(.top, 59)
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .frame(width: 0, height: 0)
+                        .onAppear(){
+                            iMinY = geo.frame(in: .global).minY
+                        }
+                        .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
+                            MinY = newMinY
+                            if newMinY > 0 {
+                                showFilter = true
+                            } else if newMinY < -55 {
+                                showFilter = false
+                            }
+                        }
+                }
+            )
         }
-        .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading:Button(action: {dismiss()}) {
-            Image(systemName: "chevron.left")
-                .imageScale(.medium)
-                .padding(.all, 8)
-                .background(Color("secondaryColor"))
-                .clipShape(Circle())
-        }
-        )
+        .edgesIgnoringSafeArea(.top)
+        
+    }
+    
+    func scaleForImage(geometry: GeometryProxy) -> CGFloat {
+        let offset = geometry.frame(in: .global).minY
+        let size = max(minImageSize, maxImageSize - offset)
+        return size / maxImageSize
+    }
+    
+    func sizeForImage(geometry: GeometryProxy) -> CGFloat {
+        let offset = geometry.frame(in: .global).minY
+        return max(minImageSize, maxImageSize - offset)
     }
 }
 

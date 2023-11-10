@@ -30,292 +30,292 @@ struct CompletedEventView: View {
     
     var body: some View {
         
-            ZStack(alignment: .bottom) {
-                
-                ScrollView{
-                    LazyVStack(alignment: .leading, spacing: 15) {
-                        
-                        TabView {
-                            ForEach(post.imageUrl, id: \.self) { image in
-                                Image(image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .clipped()
-                                
-                            }
+        ZStack(alignment: .bottom) {
+            
+            ScrollView{
+                LazyVStack(alignment: .leading, spacing: 15) {
+                    
+                    TabView {
+                        ForEach(post.imageUrl, id: \.self) { image in
+                            Image(image)
+                                .resizable()
+                                .scaledToFill()
+                                .clipped()
                             
                         }
-                        .tabViewStyle(PageTabViewStyle())
-                        .frame(height: 500)
-                        
-                        Group{
-                            
-                            Text(post.title)
-                                .font(.title)
-                                .fontWeight(.bold)
-                            
-                            
-                            if let user = post.user {
-                                NavigationLink(destination: UserProfileView(miniUser: user)){
-                                    HStack(alignment: .center, spacing: 10) {
-                                        
-                                        
-                                        if let image = post.user?.profileImageUrl {
-                                            Image(image[0])
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(width: 60, height: 60)
-                                                .clipped()
-                                                .cornerRadius(15)
-                                        }
-                                        
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            
-                                            if let fullName = post.user?.fullname{
-                                                
-                                                Text(fullName)
-                                                    .font(.body)
-                                                    .fontWeight(.semibold)
-                                            }
-                                            
-                                            if let title = post.user?.title {
-                                                Text(title)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.gray)
-                                                    .fontWeight(.bold)
-                                            } else if let from = post.user?.from{
-                                                Text(from)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.gray)
-                                                    .fontWeight(.bold)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            
-                            Group{
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "calendar")
-                                        .imageScale(.large)
-                                    
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text("\(separateDateAndTime(from: post.date).weekday), \(separateDateAndTime(from: post.date).date)")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                        
-                                        Text(separateDateAndTime(from: post.date).time)
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
-                                    }
-                                }
-                                
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "mappin.circle")
-                                        .imageScale(.large)
-                                    
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        
-                                        
-                                        Text("Bulgaria, Sofia")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                        
-                                        Text("St. Georg Washington")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
-                                    }
-                                }
-                                
-                                
-                                NavigationLink(destination: CompletedEventUsersList(users: post.participants)){
-                                    HStack(alignment: .center, spacing: 10) {
-                                        Image(systemName: "person.3")
-                                            .imageScale(.large)
-                                        
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            Text("Participants \(post.peopleIn.count)/\(post.maximumPeople)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            
-                                            if post.participants.count > 0 {
-                                                ZStack{
-                                                    ForEach(0..<post.participants.count, id: \.self){ number in
-                                                        
-                                                        if let image = post.participants[number].profileImageUrl {
-                                                            
-                                                            Image(image[0])
-                                                                .resizable()
-                                                                .scaledToFill()
-                                                                .frame(width: 40, height: 40)
-                                                                .clipped()
-                                                                .cornerRadius(100)
-                                                                .overlay(
-                                                                    Circle()
-                                                                        .stroke(Color("secondaryColor"), lineWidth: 2)
-                                                                )
-                                                                .offset(x:CGFloat(20 * number))
-                                                        }
-                                                    }
-                                                }
-                                                
-                                                if post.peopleIn.count >= 4 {
-                                                    
-                                                    Circle()
-                                                        .fill(.gray)
-                                                        .frame(width: 40, height: 40)
-                                                        .overlay(
-                                                            ZStack(alignment:.center){
-                                                                Text("\(post.peopleIn.count - 4)")
-                                                                    .font(.caption2)
-                                                                    .fontWeight(.semibold)
-                                                                    .foregroundColor(.white)
-                                                                Circle()
-                                                                    .stroke(Color("secondaryColor"), lineWidth: 2)
-                                                            }
-                                                        )
-                                                        .offset(x:CGFloat(20 * 4))
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "globe.europe.africa.fill")
-                                        .imageScale(.large)
-                                    
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text(post.accessability.value.capitalized)
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                        
-                                        Text("Everyone can join the event")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
-                                    }
-                                }
-                                
-                                if post.hasEnded, let rating = post.rating {
-                                    HStack(alignment: .center, spacing: 10) {
-                                        Image(systemName: "star")
-                                            .imageScale(.large)
-                                        
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            Text("Rating \(rating, specifier: "%.2f")")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            RatingView(rating: .constant(Int(round(rating))))
-                                        }
-                                    }
-                                }
-                                
-                            }
-                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                            .normalTagRectangleStyle()
-                            
-                            
-                            
-                            Text("Description")
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .padding(.vertical, 8)
-                            
-                            ExpandableText(post.description, lineLimit: 4)
-                                .lineSpacing(8.0)
-                                .fontWeight(.medium)
-                                .foregroundColor(.gray)
-                                .padding(.bottom, 8)
-                            
-                            Text("Memories")
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .padding(.vertical, 8)
-                            
-                            MemoriesTab(images: images, selectedImage: $selectedImage, showImagesViewer: $showImageViewer)
-                            
-                            Text("Location")
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .padding(.vertical, 8)
-                            
-                            
-                            Text(address ?? "-/--")
-                                .normalTagTextStyle()
-                                .normalTagCapsuleStyle()
-                            
-                            MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
-                            
-                            
-                            Text("Interests")
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .padding(.vertical, 8)
-                            
-                            WrappingHStack(alignment: .leading, horizontalSpacing: 5){
-                                ForEach(post.interests, id:\.self){ interest in
-                                    Text(interest)
-                                        .normalTagTextStyle()
-                                        .normalTagCapsuleStyle()
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
                         
                     }
-                    .padding(.bottom, 100)
-                    .background(.bar)
-                }
-                .background(Color("testColor"))
-                .scrollIndicators(.hidden)
-                .edgesIgnoringSafeArea(.top)
-                
-                VStack{
+                    .tabViewStyle(PageTabViewStyle())
+                    .frame(height: 500)
                     
-                    Divider()
-                    
-                    HStack{
-                        Button {
-                            photoPickerVM.showPhotosPicker = true
-                        } label: {
-                            HStack{
-                                Image(systemName: "photo")
-                                    .foregroundColor(Color("testColor"))
-                                
-                                Text("Add Images")
-                                
+                    Group{
+                        
+                        Text(post.title)
+                            .font(.title)
+                            .fontWeight(.bold)
+                        
+                        
+                        if let user = post.user {
+                            NavigationLink(destination: UserProfileView(miniUser: user)){
+                                HStack(alignment: .center, spacing: 10) {
+                                    
+                                    
+                                    if let image = post.user?.profileImageUrl {
+                                        Image(image[0])
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 60, height: 60)
+                                            .clipped()
+                                            .cornerRadius(15)
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        
+                                        if let fullName = post.user?.fullname{
+                                            
+                                            Text(fullName)
+                                                .font(.body)
+                                                .fontWeight(.semibold)
+                                        }
+                                        
+                                        if let title = post.user?.title {
+                                            Text(title)
+                                                .font(.footnote)
+                                                .foregroundColor(.gray)
+                                                .fontWeight(.bold)
+                                        } else if let from = post.user?.from{
+                                            Text(from)
+                                                .font(.footnote)
+                                                .foregroundColor(.gray)
+                                                .fontWeight(.bold)
+                                        }
+                                    }
+                                }
                             }
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
+                        }
+                        
+                        
+                        Group{
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "calendar")
+                                    .imageScale(.large)
+                                
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("\(separateDateAndTime(from: post.date).weekday), \(separateDateAndTime(from: post.date).date)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                    
+                                    Text(separateDateAndTime(from: post.date).time)
+                                        .font(.footnote)
+                                        .foregroundColor(.gray)
+                                        .fontWeight(.bold)
+                                }
+                            }
+                            
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "mappin.circle")
+                                    .imageScale(.large)
+                                
+                                VStack(alignment: .leading, spacing: 5) {
+                                    
+                                    
+                                    Text("Bulgaria, Sofia")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                    
+                                    Text("St. Georg Washington")
+                                        .font(.footnote)
+                                        .foregroundColor(.gray)
+                                        .fontWeight(.bold)
+                                }
+                            }
+                            
+                            
+                            NavigationLink(destination: CompletedEventUsersList(users: post.participants)){
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "person.3")
+                                        .imageScale(.large)
+                                    
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        Text("Participants \(post.peopleIn.count)/\(post.maximumPeople)")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                        
+                                        
+                                        if post.participants.count > 0 {
+                                            ZStack{
+                                                ForEach(0..<post.participants.count, id: \.self){ number in
+                                                    
+                                                    
+                                                    
+                                                    Image(post.participants[number].profileImageUrl[0])
+                                                        .resizable()
+                                                        .scaledToFill()
+                                                        .frame(width: 40, height: 40)
+                                                        .clipped()
+                                                        .cornerRadius(100)
+                                                        .overlay(
+                                                            Circle()
+                                                                .stroke(Color("secondaryColor"), lineWidth: 2)
+                                                        )
+                                                        .offset(x:CGFloat(20 * number))
+                                                    
+                                                }
+                                            }
+                                            
+                                            if post.peopleIn.count >= 4 {
+                                                
+                                                Circle()
+                                                    .fill(.gray)
+                                                    .frame(width: 40, height: 40)
+                                                    .overlay(
+                                                        ZStack(alignment:.center){
+                                                            Text("\(post.peopleIn.count - 4)")
+                                                                .font(.caption2)
+                                                                .fontWeight(.semibold)
+                                                                .foregroundColor(.white)
+                                                            Circle()
+                                                                .stroke(Color("secondaryColor"), lineWidth: 2)
+                                                        }
+                                                    )
+                                                    .offset(x:CGFloat(20 * 4))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "globe.europe.africa.fill")
+                                    .imageScale(.large)
+                                
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text(post.accessability.value.capitalized)
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                    
+                                    Text("Everyone can join the event")
+                                        .font(.footnote)
+                                        .foregroundColor(.gray)
+                                        .fontWeight(.bold)
+                                }
+                            }
+                            
+                            if post.hasEnded, let rating = post.rating {
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "star")
+                                        .imageScale(.large)
+                                    
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        Text("Rating \(rating, specifier: "%.2f")")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                        
+                                        RatingView(rating: .constant(Int(round(rating))))
+                                    }
+                                }
+                            }
+                            
+                        }
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                        .normalTagRectangleStyle()
+                        
+                        
+                        
+                        Text("Description")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 8)
+                        
+                        ExpandableText(post.description, lineLimit: 4)
+                            .lineSpacing(8.0)
+                            .fontWeight(.medium)
+                            .foregroundColor(.gray)
+                            .padding(.bottom, 8)
+                        
+                        Text("Memories")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 8)
+                        
+                        MemoriesTab(images: images, selectedImage: $selectedImage, showImagesViewer: $showImageViewer)
+                        
+                        Text("Location")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 8)
+                        
+                        
+                        Text(address ?? "-/--")
+                            .normalTagTextStyle()
+                            .normalTagCapsuleStyle()
+                        
+                        MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
+                        
+                        
+                        Text("Interests")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 8)
+                        
+                        WrappingHStack(alignment: .leading, horizontalSpacing: 5){
+                            ForEach(post.interests, id:\.self){ interest in
+                                Text(interest)
+                                    .normalTagTextStyle()
+                                    .normalTagCapsuleStyle()
+                            }
                         }
                     }
                     .padding(.horizontal)
                     
                 }
+                .padding(.bottom, 100)
                 .background(.bar)
             }
-            .navigationBarBackButtonHidden(true)
-            .navigationBarItems(leading:Button(action: {dismiss()}) {
-                Image(systemName: "chevron.left")
-            }, trailing:Button(action: {
-                showPostOptions = true
-                viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
-            }, label: {
-                Image(systemName: "ellipsis")
-                    .rotationEffect(.degrees(90))
-            })
-            )
-            .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imagesSelection, matching: .images)
+            .background(Color("testColor"))
+            .scrollIndicators(.hidden)
+            .edgesIgnoringSafeArea(.top)
+            
+            VStack{
+                
+                Divider()
+                
+                HStack{
+                    Button {
+                        photoPickerVM.showPhotosPicker = true
+                    } label: {
+                        HStack{
+                            Image(systemName: "photo")
+                                .foregroundColor(Color("testColor"))
+                            
+                            Text("Add Images")
+                            
+                        }
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                    }
+                }
+                .padding(.horizontal)
+                
+            }
+            .background(.bar)
+        }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading:Button(action: {dismiss()}) {
+            Image(systemName: "chevron.left")
+        }, trailing:Button(action: {
+            showPostOptions = true
+            viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
+        }, label: {
+            Image(systemName: "ellipsis")
+                .rotationEffect(.degrees(90))
+        })
+        )
+        .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imagesSelection, matching: .images)
         .sheet(isPresented: $showPostOptions, content: {
             List {
                 Button("Report") {

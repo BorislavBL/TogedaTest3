@@ -23,7 +23,7 @@ struct ContentView: View {
                 }
                 
                 if !networkManager.isConnected {
-                    Text("No Internet Connction")
+                    Text("No Internet Connection")
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)

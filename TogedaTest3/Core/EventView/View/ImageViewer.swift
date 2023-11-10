@@ -11,22 +11,7 @@ struct ImageViewer: View {
     @Environment(\.dismiss) private var dismiss
     @State var images: [String]
     @Binding var selectedImage: Int
-    
-    @State var scale = 1.0
-    
-    var magnification: some Gesture {
-        MagnificationGesture()
-            .onChanged { state in
-                withAnimation(.snappy) {
-                    scale = state
-                }
-            }
-            .onEnded { state in
-                withAnimation(.snappy) {
-                    scale = 1.0
-                }
-            }
-    }
+
     
     var body: some View {
         NavigationView{
@@ -36,8 +21,7 @@ struct ImageViewer: View {
                     .resizable()
                     .scaledToFit()
                     .tag(index)
-                    .scaleEffect(scale)
-                    .gesture(magnification)
+                    .pinchToZoom()
             }
         }
         .background(.black)

@@ -10,7 +10,7 @@ import Foundation
 struct User: Identifiable, Codable, Hashable {
     let id: String
     var username: String
-    var profileImageUrl: [String]?
+    var profileImageUrl: [String]
     var from: String?
     var fullname: String
     var description: String?
@@ -27,7 +27,7 @@ struct User: Identifiable, Codable, Hashable {
 struct MiniUser: Identifiable, Codable, Hashable {
     let id: String
     var username: String
-    var profileImageUrl: [String]?
+    var profileImageUrl: [String]
     var from: String?
     var fullname: String
     let title: String?

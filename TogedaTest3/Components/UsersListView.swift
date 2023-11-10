@@ -16,19 +16,12 @@ struct UsersListView: View {
                 ForEach(users, id:\.id) { user in
                     NavigationLink(destination: UserProfileView(miniUser: user)){
                         HStack{
-                            if let images = user.profileImageUrl {
-                                Image(images[0])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 45, height: 45)
-                                    .clipShape(Circle())
-                            } else {
-                                Image(systemName: "person.crop.circle")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .foregroundColor(.gray)
-                                    .frame(width: 45, height: 45)
-                            }
+                            Image(user.profileImageUrl[0])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 45, height: 45)
+                                .clipShape(Circle())
+                            
                             
                             Text(user.fullname)
                                 .fontWeight(.semibold)

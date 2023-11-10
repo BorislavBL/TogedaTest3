@@ -15,8 +15,8 @@ struct FriendRequestPage: View {
             NavigationLink(destination: FriendRequestPageView()){
                 HStack{
                     ZStack(alignment:.top){
-                        if let images = users[0].profileImageUrl {
-                            Image(images[0])
+                       
+                            Image(users[0].profileImageUrl[0])
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: size.dimension, height: size.dimension)
@@ -26,19 +26,7 @@ struct FriendRequestPage: View {
                                         .stroke(Color("secondaryColor"), lineWidth: 2)
                                 )
                                 
-                        } else {
-                            Image(systemName: "person.crop.circle")
-                                .resizable()
-                                .scaledToFit()
-                                .foregroundColor(.gray)
-                                .frame(width: size.dimension, height: size.dimension)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color("secondaryColor"), lineWidth: 2)
-                                )
-                        }
-                        if let images = users[1].profileImageUrl {
-                            Image(images[0])
+                            Image(users[1].profileImageUrl[0])
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: size.dimension, height: size.dimension)
@@ -48,18 +36,6 @@ struct FriendRequestPage: View {
                                         .stroke(Color("secondaryColor"), lineWidth: 2)
                                 )
                                 .offset(x:size.dimension/2)
-                        } else {
-                            Image(systemName: "person.crop.circle")
-                                .resizable()
-                                .scaledToFit()
-                                .foregroundColor(.gray)
-                                .frame(width: size.dimension, height: size.dimension)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color("secondaryColor"), lineWidth: 2)
-                                )
-                                .offset(x:size.dimension/2)
-                        }
 
                     }
                     .padding(.trailing, size.dimension/2)

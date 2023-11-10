@@ -17,21 +17,21 @@ struct UserProfileView: View {
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     @StateObject var viewModel = ProfileViewModel()
     
+    @State var minYValue: CGFloat = 0
+    @State private var showImageSet: Bool = true
+    
     var body: some View {
         ScrollView(showsIndicators: false){
             VStack(alignment: .center) {
-                if let profileImages = miniUser.profileImageUrl {
-                    if viewModel.showImageSet {
+                    if showImageSet {
                         TabView {
-                            ForEach(profileImages, id: \.self) { image in
-                                Button{
-                                    viewModel.showImageSet = false
-                                } label:{
+                            ForEach(miniUser.profileImageUrl, id: \.self) { image in
+
                                     Image(image)
                                         .resizable()
                                         .scaledToFill()
                                         .clipped()
-                                }
+                                
                                 
                             }
                             
@@ -43,9 +43,10 @@ struct UserProfileView: View {
                     } else {
                         
                         Button{
-                            viewModel.showImageSet = true
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            showImageSet = true
                         }label:{
-                            Image(profileImages[0])
+                            Image(miniUser.profileImageUrl[0])
                                 .resizable()
                                 .scaledToFill()
                                 .background(.gray)
@@ -54,13 +55,7 @@ struct UserProfileView: View {
                                 .clipped()
                         }
                     }
-                } else {
-                    Image(systemName: "person.crop.circle")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 110, height: 110)
-                        .foregroundColor(.gray)
-                }
+                
                 
                 VStack(spacing: 10) {
                     Text(miniUser.fullname)
@@ -127,6 +122,22 @@ struct UserProfileView: View {
             .frame(width: UIScreen.main.bounds.width)
             .background(.bar)
             .cornerRadius(10)
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .frame(width: 0, height: 0)
+                        .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
+                            minYValue = newMinY
+                            if newMinY >= 45 && !showImageSet{
+                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                showImageSet = true
+                            } else if newMinY < -15 && showImageSet{
+                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                showImageSet = false
+                            }
+                        }
+                }
+            )
             
             BadgesTab()
             if let user = user {

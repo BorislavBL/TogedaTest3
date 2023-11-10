@@ -46,7 +46,7 @@ struct MainTabView: View {
                     .tabItem {
                         Image(systemName: "plus.square")
                     }
-                    TestView()
+                    InboxView()
                         .tag(Screen.message)
                         .tabItem {
                             Image(systemName: "message")

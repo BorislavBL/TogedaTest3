@@ -14,19 +14,11 @@ struct AddedMemoryView: View {
         VStack {
             NavigationLink(destination: UserProfileView(miniUser: user)){
                 HStack(alignment:.top){
-                    if let images = user.profileImageUrl {
-                        Image(images[0])
+                        Image(user.profileImageUrl[0])
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
                             .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.crop.circle")
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundColor(.gray)
-                            .frame(width: size.dimension, height: size.dimension)
-                    }
                     
                 }
                 VStack(alignment:.leading){

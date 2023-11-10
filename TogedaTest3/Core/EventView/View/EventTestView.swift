@@ -128,10 +128,8 @@ struct EventTestView: View {
                                         if post.participants.count > 0 {
                                             ZStack{
                                                 ForEach(0..<post.participants.count, id: \.self){ number in
-                                                    
-                                                    if let image = post.participants[number].profileImageUrl {
                                                         
-                                                        Image(image[0])
+                                                        Image(post.participants[number].profileImageUrl[0])
                                                             .resizable()
                                                             .scaledToFill()
                                                             .frame(width: 40, height: 40)
@@ -142,7 +140,7 @@ struct EventTestView: View {
                                                                     .stroke(Color("secondaryColor"), lineWidth: 2)
                                                             )
                                                             .offset(x:CGFloat(20 * number))
-                                                    }
+                                                    
                                                 }
                                             }
                                             

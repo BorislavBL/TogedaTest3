@@ -13,23 +13,22 @@ struct ProfileView: View {
     var user: User
     
     @StateObject var viewModel = ProfileViewModel()
+    @State var minYValue: CGFloat = 0
+    @State private var showImageSet: Bool = true
     
     var body: some View {
         NavigationView{
             ScrollView(showsIndicators: false){
                 VStack(alignment: .center) {
-                    if let profileImages = user.profileImageUrl {
-                        if viewModel.showImageSet {
+                    //                        Text("\(initialMinYValue), \(minYValue)")
+                    
+                        if showImageSet {
                             TabView {
-                                ForEach(profileImages, id: \.self) { image in
-                                    Button{
-                                        viewModel.showImageSet = false
-                                    } label:{
-                                        Image(image)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .clipped()
-                                    }
+                                ForEach(user.profileImageUrl, id: \.self) { image in
+                                    Image(image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .clipped()
                                     
                                 }
                                 
@@ -41,9 +40,10 @@ struct ProfileView: View {
                         } else {
                             
                             Button{
-                                viewModel.showImageSet = true
+                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                showImageSet = true
                             }label:{
-                                Image(profileImages[0])
+                                Image(user.profileImageUrl[0])
                                     .resizable()
                                     .scaledToFill()
                                     .background(.gray)
@@ -52,13 +52,8 @@ struct ProfileView: View {
                                     .clipped()
                             }
                         }
-                    } else {
-                        Image(systemName: "person.crop.circle")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 110, height: 110)
-                            .foregroundColor(.gray)
-                    }
+                    
+                    
                     
                     VStack(spacing: 10) {
                         Text(user.fullname)
@@ -98,13 +93,28 @@ struct ProfileView: View {
                     .padding(.vertical)
                     
                 }
-                .padding(.top, safeAreaInsets.top + 50)
+                .padding(.top, safeAreaInsets.top + 50) // if you move this part you might break the geomrty reader
                 .padding(.horizontal)
                 .padding(.bottom)
                 .frame(width: UIScreen.main.bounds.width)
                 .background(.bar)
                 .cornerRadius(10)
-                
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .frame(width: 0, height: 0)
+                            .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
+                                minYValue = newMinY
+                                if newMinY >= 45 && !showImageSet{
+                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                    showImageSet = true
+                                } else if newMinY < -15 && showImageSet{
+                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                    showImageSet = false
+                                }
+                            }
+                    }
+                )
                 BadgesTab()
                 AboutTab(user: user)
                 EventTab(vm: viewModel)
@@ -134,9 +144,9 @@ struct ProfileView: View {
                     }
                 }
             }
-//            .fullScreenCover(isPresented: $viewModel.showCompletedEvent, content: {
-//                CompletedEventView(viewModel: PostsViewModel(), post: viewModel.selectedPost, userViewModel: UserViewModel())
-//            })
+            //            .fullScreenCover(isPresented: $viewModel.showCompletedEvent, content: {
+            //                CompletedEventView(viewModel: PostsViewModel(), post: viewModel.selectedPost, userViewModel: UserViewModel())
+            //            })
         }
     }
 }

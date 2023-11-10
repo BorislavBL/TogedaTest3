@@ -58,14 +58,12 @@ struct SearchView: View {
                     ForEach(viewModel.searchUserResults, id: \.id) { user in
                         NavigationLink(value: user){
                             HStack(alignment:.center, spacing: 10){
-                                if let image = user.profileImageUrl {
-                                    Image(image[0])
+                                    Image(user.profileImageUrl[0])
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 80, height: 80)
                                         .clipped()
                                         .cornerRadius(10)
-                                }
                                 VStack(alignment: .leading, spacing: 10) {
                                     Text(user.fullname)
                                         .multilineTextAlignment(.leading)

@@ -19,19 +19,12 @@ struct CompletedEventUsersList: View {
                 ForEach(users, id:\.id) { user in
                         HStack{
                             NavigationLink(destination: UserProfileView(miniUser: user)){
-                                if let images = user.profileImageUrl {
-                                    Image(images[0])
+                                    Image(user.profileImageUrl[0])
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 45, height: 45)
                                         .clipShape(Circle())
-                                } else {
-                                    Image(systemName: "person.crop.circle")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .foregroundColor(.gray)
-                                        .frame(width: 45, height: 45)
-                                }
+ 
                                 
                                 Text(user.fullname)
                                     .fontWeight(.semibold)
