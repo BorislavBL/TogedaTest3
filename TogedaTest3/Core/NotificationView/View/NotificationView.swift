@@ -7,23 +7,6 @@
 
 import SwiftUI
 
-enum ImageSize {
-    case small
-    case medium
-    case large
-    
-    var dimension: CGFloat {
-        switch self {
-        case .small:
-            return 40
-        case .medium:
-            return 60
-        case .large:
-            return 120
-        }
-    }
-}
-
 struct NotificationView: View {
     @Environment(\.dismiss) var dismiss
     

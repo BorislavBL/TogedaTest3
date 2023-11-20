@@ -12,6 +12,7 @@ struct ContentView: View {
     @StateObject var networkManager = NetworkManager()
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @StateObject var viewModel = ContentViewModel()
+    
     var body: some View {
         Group {
             ZStack(alignment:.top){

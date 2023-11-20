@@ -59,6 +59,8 @@ struct MainTabView: View {
                 }
                 
             }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .onAppear {
                 let tabBarAppearance = UITabBarAppearance()
                 tabBarAppearance.configureWithDefaultBackground()
@@ -100,8 +102,8 @@ struct MainTabView: View {
                 .presentationDetents([.fraction(0.4)])
                 .presentationDragIndicator(.visible)
             })
-            .navigationDestination(for: Post.self) { post in
-                EventView(viewModel: postsViewModel, post: post, userViewModel: userViewModel)
+            .navigationDestination(for: Int.self) { index in
+                EventView(viewModel: postsViewModel, post: postsViewModel.posts[index], userViewModel: userViewModel)
                 //.toolbar(.hidden, for: .tabBar)
             }
             .navigationDestination(for: MiniUser.self) { user in

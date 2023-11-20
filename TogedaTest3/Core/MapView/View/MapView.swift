@@ -12,7 +12,11 @@ struct MapView: View {
     //    @State private var mapRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 41.89, longitude: 12.49), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
     
     @EnvironmentObject var locationManager: LocationManager
-    @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic) /*.region(.myRegion)*/
+//    @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 34.052235, longitude: -118.243683),
+        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+    ))
     @State private var mapSelection: Post?
     @State private var showPostView: Bool = false
     @State private var selectedPost: Post = Post.MOCK_POSTS[0]
@@ -31,6 +35,7 @@ struct MapView: View {
     
     @StateObject var filterViewModel = FilterViewModel()
     //    @StateObject var viewModel = MapViewModel()
+    @State private var isInitialLocationSet = false
     
     var body: some View {
         //        UIMap()
@@ -51,6 +56,12 @@ struct MapView: View {
             }
             .onMapCameraChange { context in
                 visibleRegion = context.region
+            }
+            .onAppear(){
+                if !isInitialLocationSet {
+                    setLocation(cameraPosition: $cameraPosition, span: 0.1)
+                    isInitialLocationSet = true
+                }
             }
             .overlay(alignment: .bottomTrailing) {
                 VStack(spacing: 15){
@@ -161,7 +172,7 @@ struct MapView: View {
 //                } label: {
 //                    EventMapPreview(post: selectedPost, address: address)
 //                }
-                NavigationLink(value: selectedPost){
+                NavigationLink(value: postsViewModel.posts.firstIndex(of: selectedPost) ?? 0){
                     EventMapPreview(post: selectedPost, address: address)
                 }
                 .frame(height: 170)
@@ -180,6 +191,20 @@ struct MapView: View {
             
         }
     }
+    
+    func setLocation(cameraPosition: Binding<MapCameraPosition>, span: CLLocationDegrees) {
+        let locationManager = CLLocationManager()
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+
+        if let userLocation = locationManager.location?.coordinate {
+            cameraPosition.wrappedValue = .region(MKCoordinateRegion(
+                center: userLocation,
+                span: MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)
+            ))
+        }
+    }
+
     
 }
 

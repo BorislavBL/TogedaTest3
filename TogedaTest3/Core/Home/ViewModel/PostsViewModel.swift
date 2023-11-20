@@ -33,6 +33,7 @@ class PostsViewModel: ObservableObject {
         expandedTags[postId]?.toggle()
     }
     
+    
     func likePost(postID: String, userID: String, user: User) {
         let miniUser = MiniUser(id: user.id, username: user.username,profileImageUrl: user.profileImageUrl, from: user.from ,fullname: user.fullname, title: user.title)
         if let index = posts.firstIndex(where: { $0.id == postID }) {

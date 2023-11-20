@@ -13,6 +13,7 @@ struct CompletedEventUsersList: View {
     @State var selectedUserId: String = ""
     @State var showOptions: Bool = false
     @State var selectedOption: String?
+    let size: ImageSize = .medium
     var body: some View {
         ScrollView{
             LazyVStack(alignment:.leading){
@@ -22,7 +23,7 @@ struct CompletedEventUsersList: View {
                                     Image(user.profileImageUrl[0])
                                         .resizable()
                                         .scaledToFill()
-                                        .frame(width: 45, height: 45)
+                                        .frame(width: size.dimension, height: size.dimension)
                                         .clipShape(Circle())
  
                                 

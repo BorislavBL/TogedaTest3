@@ -9,6 +9,7 @@ import SwiftUI
 
 struct UsersListView: View {
     @Environment(\.dismiss) private var dismiss
+    let size: ImageSize = .medium
     var users: [MiniUser]
     var body: some View {
         ScrollView{
@@ -19,7 +20,7 @@ struct UsersListView: View {
                             Image(user.profileImageUrl[0])
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 45, height: 45)
+                                .frame(width: size.dimension, height: size.dimension)
                                 .clipShape(Circle())
                             
                             

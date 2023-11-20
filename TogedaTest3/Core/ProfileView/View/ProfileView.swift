@@ -148,6 +148,7 @@ struct ProfileView: View {
             //                CompletedEventView(viewModel: PostsViewModel(), post: viewModel.selectedPost, userViewModel: UserViewModel())
             //            })
         }
+        .navigationViewStyle(.stack)
     }
 }
 

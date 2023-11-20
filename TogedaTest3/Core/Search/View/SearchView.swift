@@ -11,38 +11,40 @@ struct SearchView: View {
     @ObservedObject var viewModel: HomeViewModel
     @ObservedObject var postsViewModel: PostsViewModel
     @ObservedObject var userViewModel: UserViewModel
+    let size: ImageSize = .medium
     
     var body: some View {
         ScrollView{
-            LazyVStack(alignment: .leading, spacing: 10){
+            LazyVStack(alignment: .leading, spacing: 15){
                 
                 if viewModel.selectedFilter == "Events"{
                     ForEach(viewModel.searchPostResults, id:\.id){ post in
-//                        Button {
-//                            postsViewModel.showDetailsPage = true
-//                            postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: post) ?? 0
-//                        } label: {
-                        NavigationLink(value: post){
+                        //                        Button {
+                        //                            postsViewModel.showDetailsPage = true
+                        //                            postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: post) ?? 0
+                        //                        } label: {
+                        NavigationLink(value: postsViewModel.posts.firstIndex(of: post) ?? 0){
                             HStack(alignment:.center, spacing: 10){
                                 Image(post.imageUrl[0])
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: 80, height: 80)
+                                    .frame(width: size.dimension, height: size.dimension)
                                     .clipped()
                                     .cornerRadius(10)
                                 
-                                VStack(alignment: .leading, spacing: 10) {
+                                VStack(alignment: .leading, spacing: 5) {
                                     Text(post.title)
                                         .multilineTextAlignment(.leading)
+                                        .lineLimit(2)
                                         .font(.body)
-                                        .fontWeight(.bold)
+                                        .fontWeight(.semibold)
                                     
                                     if let fullname = post.user?.fullname {
                                         Text(fullname)
                                             .multilineTextAlignment(.leading)
                                             .foregroundColor(.gray)
                                             .fontWeight(.semibold)
-                                            .font(.callout)
+                                            .font(.footnote)
                                     }
                                 }
                                 Spacer()
@@ -51,33 +53,29 @@ struct SearchView: View {
                                     .padding(.trailing, 10)
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                            .normalTagRectangleStyle()
                         }
                     }
                 } else if viewModel.selectedFilter == "People" {
                     ForEach(viewModel.searchUserResults, id: \.id) { user in
                         NavigationLink(value: user){
                             HStack(alignment:.center, spacing: 10){
-                                    Image(user.profileImageUrl[0])
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 80, height: 80)
-                                        .clipped()
-                                        .cornerRadius(10)
-                                VStack(alignment: .leading, spacing: 10) {
-                                    Text(user.fullname)
-                                        .multilineTextAlignment(.leading)
-                                        .font(.body)
-                                        .fontWeight(.bold)
-                                    
-                                }
+                                Image(user.profileImageUrl[0])
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: size.dimension, height: size.dimension)
+                                    .clipShape(Circle())
+                                
+                                Text(user.fullname)
+                                    .multilineTextAlignment(.leading)
+                                    .fontWeight(.semibold)
+                                    .fontWeight(.bold)
+                                
                                 Spacer()
                                 
                                 Image(systemName: "chevron.right")
                                     .padding(.trailing, 10)
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                            .normalTagRectangleStyle()
                         }
                     }
                 }

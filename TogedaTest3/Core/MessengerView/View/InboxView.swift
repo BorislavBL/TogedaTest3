@@ -14,26 +14,32 @@ struct InboxView: View {
         NavigationView{
             List{
                 ForEach(messages){ message in
-                    InboxRowView(message: message)
+                    ZStack{
+                        NavigationLink(destination: ChatView(user: message.user ?? MiniUser.MOCK_MINIUSERS[0])){
+                            EmptyView()
+                        }
+                        .opacity(0)
+                        InboxRowView(message: message)
+                    }
+                    
                 }
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets())
-                .padding(.bottom)
-                .padding(.horizontal, 8)
+                .padding(.top)
+                .padding(.horizontal)
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search")
             .listStyle(PlainListStyle())
-            .navigationTitle("Chats")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Image(systemName: "square.and.pencil.circle.fill")
-                        .resizable()
-                        .frame(width: 28, height: 28)
-                        .foregroundStyle(Color(.systemGray5))
-                }
-            }
+            .navigationTitle("Chats")
+            .scrollIndicators(.hidden)
+//            .toolbar {
+//                ToolbarItem(placement: .navigationBarTrailing) {
+//                    Image(systemName: "square.and.pencil")
+//                }
+//            }
         }
+        .navigationViewStyle(.stack)
     }
 }
 
@@ -62,7 +68,7 @@ struct InboxRowView: View {
                     
                     Text("\(message.timestamp.formatted())")
                         .font(.footnote)
-                        .foregroundColor(message.read ? Color(.systemBlue) : .gray)
+                        .foregroundColor(!message.read ? Color(.systemBlue) : .gray)
                         .lineLimit(2)
                 }
                 
@@ -72,7 +78,7 @@ struct InboxRowView: View {
                         .foregroundColor(.gray)
                         .lineLimit(2)
                     
-                    if message.read{
+                    if !message.read{
                         Spacer(minLength: 10)
                         
                         Circle()

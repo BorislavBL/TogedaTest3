@@ -146,8 +146,6 @@ struct CompletedEventView: View {
                                             ZStack{
                                                 ForEach(0..<post.participants.count, id: \.self){ number in
                                                     
-                                                    
-                                                    
                                                     Image(post.participants[number].profileImageUrl[0])
                                                         .resizable()
                                                         .scaledToFill()
@@ -161,25 +159,27 @@ struct CompletedEventView: View {
                                                         .offset(x:CGFloat(20 * number))
                                                     
                                                 }
+                                                
+                                                if post.peopleIn.count >= 4 {
+                                                    
+                                                    Circle()
+                                                        .fill(.gray)
+                                                        .frame(width: 40, height: 40)
+                                                        .overlay(
+                                                            ZStack(alignment:.center){
+                                                                Text("+\(post.peopleIn.count - 3)")
+                                                                    .font(.caption2)
+                                                                    .fontWeight(.semibold)
+                                                                    .foregroundColor(.white)
+                                                                Circle()
+                                                                    .stroke(Color("secondaryColor"), lineWidth: 2)
+                                                            }
+                                                        )
+                                                        .offset(x:CGFloat(20 * 4))
+                                                }
                                             }
                                             
-                                            if post.peopleIn.count >= 4 {
-                                                
-                                                Circle()
-                                                    .fill(.gray)
-                                                    .frame(width: 40, height: 40)
-                                                    .overlay(
-                                                        ZStack(alignment:.center){
-                                                            Text("\(post.peopleIn.count - 4)")
-                                                                .font(.caption2)
-                                                                .fontWeight(.semibold)
-                                                                .foregroundColor(.white)
-                                                            Circle()
-                                                                .stroke(Color("secondaryColor"), lineWidth: 2)
-                                                        }
-                                                    )
-                                                    .offset(x:CGFloat(20 * 4))
-                                            }
+
                                         }
                                     }
                                 }

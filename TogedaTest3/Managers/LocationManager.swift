@@ -5,7 +5,7 @@
 //  Created by Borislav Lorinkov on 25.09.23.
 //
 
-import Foundation
+import SwiftUI
 import MapKit
 
 class LocationManager: NSObject, ObservableObject {
@@ -61,6 +61,19 @@ class LocationManager: NSObject, ObservableObject {
        }
         locationManager.startUpdatingLocation()
    }
+    
+    func setLocation(cameraPosition: Binding<MapCameraPosition>, span: CLLocationDegrees) {
+        let locationManager = CLLocationManager()
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+
+        if let userLocation = locationManager.location?.coordinate {
+            cameraPosition.wrappedValue = .region(MKCoordinateRegion(
+                center: userLocation,
+                span: MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)
+            ))
+        }
+    }
     
 }
 

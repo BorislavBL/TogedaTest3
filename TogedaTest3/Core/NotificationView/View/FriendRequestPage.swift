@@ -23,7 +23,7 @@ struct FriendRequestPage: View {
                                 .clipShape(Circle())
                                 .overlay(
                                     Circle()
-                                        .stroke(Color("secondaryColor"), lineWidth: 2)
+                                        .stroke(Color("base"), lineWidth: 2)
                                 )
                                 
                             Image(users[1].profileImageUrl[0])
@@ -33,7 +33,7 @@ struct FriendRequestPage: View {
                                 .clipShape(Circle())
                                 .overlay(
                                     Circle()
-                                        .stroke(Color("secondaryColor"), lineWidth: 2)
+                                        .stroke(Color("base"), lineWidth: 2)
                                 )
                                 .offset(x:size.dimension/2)
 

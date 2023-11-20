@@ -9,12 +9,38 @@ import SwiftUI
 import MapKit
 
 struct TestView: View {
+    @State var region = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 34.052235, longitude: -118.243683),
+        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+    )
     
+    @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 34.052235, longitude: -118.243683),
+        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+    ))
+
     var body: some View {
-        VStack{
-            NavigationLink(destination: Test2View()) {
-                Text("click")
+        Map(position: $cameraPosition){
+            UserAnnotation()
+        }
+        .mapControls{
+            MapUserLocationButton()
+        }
+        .onAppear {
+                locateUser()
             }
+    }
+
+    private func locateUser() {
+        let locationManager = CLLocationManager()
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+
+        if let userLocation = locationManager.location?.coordinate {
+            cameraPosition = .region(MKCoordinateRegion(
+                center: userLocation,
+                span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+            ))
         }
     }
 }
