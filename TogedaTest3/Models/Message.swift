@@ -11,12 +11,14 @@ enum MessageSendType {
     case text(String)
     case image(UIImage)
     case link(String)
+    case post(String)
 }
 
 enum ContentType {
     case text(String)
     case image(String)
     case link(String)
+    case post(String)
 }
 
 struct Message: Identifiable, Codable, Hashable {
@@ -28,6 +30,7 @@ struct Message: Identifiable, Codable, Hashable {
     var user: MiniUser?
     var read: Bool
     var imageUrl: String?
+    var post: String?
     
     var id: String {
         return messageId ?? NSUUID().uuidString
@@ -54,6 +57,10 @@ struct Message: Identifiable, Codable, Hashable {
             return .link(text)
         }
         
+        if let postID = post {
+            return .post(postID)
+        }
+        
         return .text(text)
     }
 }
@@ -62,8 +69,9 @@ extension Message {
     static var MOCK_MESSAGES: [Message] = [
         .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "hey bbbbbbitchh", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true),
         .init(fromId: MiniUser.MOCK_MINIUSERS[1].id, toId: MiniUser.MOCK_MINIUSERS[0].id, text: "https://www.youtube.com/watch?v=x237rufnzNA&t=8s djbasiudbhiuasbdiuabshdiub", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true),
-        .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "https://www.youtube.com/watch?v=x237rufnzNA&t=8s", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true),
+        .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "https://www.hackingwithswift.com/articles/237/complete-guide-to-sf-symbols mumbojumbo sajodjoiasjdioa nduashdiuahs https://www.youtube.com/watch?v=x237rufnzNA&t=8s", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true),
         .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "heyyyy", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true, imageUrl: "event_1"),
+        .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true, post: Post.MOCK_POSTS[1].id),
         .init(fromId: MiniUser.MOCK_MINIUSERS[2].id, toId: MiniUser.MOCK_MINIUSERS[0].id, text: "hey bbbbbbitch", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[2], read: false)
     ]
 }

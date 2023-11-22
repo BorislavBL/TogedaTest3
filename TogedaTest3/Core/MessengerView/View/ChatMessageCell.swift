@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WrappingHStack
 
 struct ChatMessageCell: View {
     let message: Message
@@ -53,10 +54,10 @@ struct ChatMessageCell: View {
                             Text(message.text)
                                 .font(.subheadline)
                                 .padding(12)
-                                .frame(maxWidth: UIScreen.main.bounds.width / 1.5, alignment: .leading)
                                 .background(Color(.systemBlue))
                                 .foregroundColor(.white)
                                 .clipShape(ChatBubble(isFromCurrentUser: true, shouldRoundAllCorners: false))
+                                .frame(maxWidth: UIScreen.main.bounds.width / 1.5, alignment: .trailing)
                                 .padding(.horizontal)
                         }
                     }
@@ -65,7 +66,9 @@ struct ChatMessageCell: View {
                         LinkPreview(urlString: urlString)
                             .padding(.vertical, 12)
 
-                        Text(message.text)
+                        textWithLinks(text: message.text)
+                            .foregroundColor(.white)
+                            .tint(.white)
                             .font(.subheadline)
                             .padding(12)
                             .frame(maxWidth: UIScreen.main.bounds.width / 1.5, alignment: .leading)
@@ -75,6 +78,9 @@ struct ChatMessageCell: View {
                     }
                     .padding(.horizontal, 12)
                         
+                case .post(let postID):
+                    MessagePostPreview(postID: postID)
+                        .padding(.horizontal)
                 }
             } else {
                 HStack(alignment: .bottom, spacing: 8){
@@ -111,10 +117,10 @@ struct ChatMessageCell: View {
                                 Text(message.text)
                                     .font(.subheadline)
                                     .padding(12)
-                                    .frame(maxWidth: UIScreen.main.bounds.width / 1.5, alignment: .leading)
                                     .background(Color(.systemGray6))
                                     .foregroundColor(Color("blackAndWhite"))
                                     .clipShape(ChatBubble(isFromCurrentUser: false, shouldRoundAllCorners: !shouldShowChatPartnerImage))
+                                    .frame(maxWidth: UIScreen.main.bounds.width / 1.75, alignment: .leading)
                                     .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
                             }
                         }
@@ -123,16 +129,20 @@ struct ChatMessageCell: View {
                             LinkPreview(urlString: urlString)
                                 .padding(.vertical, 12)
                             
-                            Text(message.text)
+                            textWithLinks(text: message.text)
+                                .foregroundColor(Color("blackAndWhite"))
                                 .font(.subheadline)
                                 .padding(12)
                                 .frame(maxWidth: UIScreen.main.bounds.width / 1.5, alignment: .leading)
                                 .background(Color(.systemGray6))
-                                .foregroundColor(Color("blackAndWhite"))
+                                
                                 .clipShape(ChatBubble(isFromCurrentUser: false, shouldRoundAllCorners: !shouldShowChatPartnerImage))
                                 .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
                         }
                         .padding(.horizontal, 12)
+                    case .post(let postID):
+                        MessagePostPreview(postID: postID)
+                            .padding(.horizontal)
                     }
                     
 
@@ -143,7 +153,10 @@ struct ChatMessageCell: View {
         }
 
     }
+    
+    
 }
+
 
 
 #Preview {

@@ -18,10 +18,10 @@ struct LinkPreview: View {
         VStack{
             if let metadata = viewModel.metadata {
                 LPLinkViewRepresented(metadata: metadata)
-                    .frame(width: UIScreen.main.bounds.width - 100, height: 250)
+                    .frame(maxWidth: UIScreen.main.bounds.width - 120, maxHeight: 250)
             } else {
                 ProgressView()
-                    .frame(width: UIScreen.main.bounds.width - 100, height: 250)
+                    .frame(width: UIScreen.main.bounds.width - 120, height: 250)
             }
         }
     }

@@ -8,34 +8,6 @@
 import Foundation
 import MapKit
 
-func separateDateAndTime(from inputDate: Date) -> (date: String, time: String, weekday: String) {
-    let calendar = Calendar.current
-
-    // Check if the date is today or tomorrow
-    let date: String
-    if calendar.isDateInToday(inputDate) {
-        date = "Today"
-    } else if calendar.isDateInTomorrow(inputDate) {
-        date = "Tomorrow"
-    } else {
-        // If not today or tomorrow, format the date as you desire
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy"
-        date = dateFormatter.string(from: inputDate)
-    }
-
-    // Format the time
-    let timeFormatter = DateFormatter()
-    timeFormatter.dateFormat = "HH:mm"
-    let time = timeFormatter.string(from: inputDate)
-
-    // Get the weekday
-    let weekdayFormatter = DateFormatter()
-    weekdayFormatter.dateFormat = "EEEE"
-    let weekday = weekdayFormatter.string(from: inputDate)
-
-    return (date, time, weekday)
-}
 
 //func reverseGeocode(coordinate: CLLocationCoordinate2D, completion: @escaping (String?) -> Void) {
 //    let geocoder = CLGeocoder()

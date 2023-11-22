@@ -89,6 +89,10 @@
 		14ADEAAC2AD6ECE200626D86 /* LocationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ADEAAB2AD6ECE200626D86 /* LocationPicker.swift */; };
 		14ADEAAE2AD6ECFA00626D86 /* LocationPickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ADEAAD2AD6ECFA00626D86 /* LocationPickerViewModel.swift */; };
 		14ADEAB02AD6ED2300626D86 /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ADEAAF2AD6ED2300626D86 /* Place.swift */; };
+		14B677022B0D3D3100823FCA /* MessageReadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B677012B0D3D3100823FCA /* MessageReadView.swift */; };
+		14B677042B0D40C900823FCA /* DateHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B677032B0D40C900823FCA /* DateHelpers.swift */; };
+		14B677062B0E55F600823FCA /* MessagePostPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B677052B0E55F600823FCA /* MessagePostPreview.swift */; };
+		14B677082B0E5F6900823FCA /* ChatSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B677072B0E5F6900823FCA /* ChatSearchView.swift */; };
 		14BEC1712AFA8BB100DDCD63 /* ReviewMemoriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BEC1702AFA8BB100DDCD63 /* ReviewMemoriesView.swift */; };
 		14BEC1772AFBCD0400DDCD63 /* EventAcceptance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BEC1762AFBCD0400DDCD63 /* EventAcceptance.swift */; };
 		14BEC1792AFBCFFA00DDCD63 /* GroupAcceptanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BEC1782AFBCFFA00DDCD63 /* GroupAcceptanceView.swift */; };
@@ -199,6 +203,10 @@
 		14ADEAAB2AD6ECE200626D86 /* LocationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPicker.swift; sourceTree = "<group>"; };
 		14ADEAAD2AD6ECFA00626D86 /* LocationPickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPickerViewModel.swift; sourceTree = "<group>"; };
 		14ADEAAF2AD6ED2300626D86 /* Place.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Place.swift; sourceTree = "<group>"; };
+		14B677012B0D3D3100823FCA /* MessageReadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReadView.swift; sourceTree = "<group>"; };
+		14B677032B0D40C900823FCA /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
+		14B677052B0E55F600823FCA /* MessagePostPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagePostPreview.swift; sourceTree = "<group>"; };
+		14B677072B0E5F6900823FCA /* ChatSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSearchView.swift; sourceTree = "<group>"; };
 		14BEC1702AFA8BB100DDCD63 /* ReviewMemoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewMemoriesView.swift; sourceTree = "<group>"; };
 		14BEC1762AFBCD0400DDCD63 /* EventAcceptance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventAcceptance.swift; sourceTree = "<group>"; };
 		14BEC1782AFBCFFA00DDCD63 /* GroupAcceptanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupAcceptanceView.swift; sourceTree = "<group>"; };
@@ -279,6 +287,9 @@
 				141DF3562B053ED400CE94F5 /* MessageInputView.swift */,
 				141DF35A2B090EF000CE94F5 /* ChatMessageCell.swift */,
 				141DF35C2B090EFB00CE94F5 /* ChatBubble.swift */,
+				14B677012B0D3D3100823FCA /* MessageReadView.swift */,
+				14B677052B0E55F600823FCA /* MessagePostPreview.swift */,
+				14B677072B0E5F6900823FCA /* ChatSearchView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -655,6 +666,7 @@
 			isa = PBXGroup;
 			children = (
 				14C1498B2AC477AF00F28463 /* LocationHelpers.swift */,
+				14B677032B0D40C900823FCA /* DateHelpers.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -790,6 +802,7 @@
 				14ADEAAC2AD6ECE200626D86 /* LocationPicker.swift in Sources */,
 				14807A272AB4BB2C00716A17 /* PostService.swift in Sources */,
 				14807A4D2AB4C02000716A17 /* EventTestView.swift in Sources */,
+				14B677042B0D40C900823FCA /* DateHelpers.swift in Sources */,
 				1445A20D2AFE88C20057613B /* Message.swift in Sources */,
 				14BFB44E2AF2781F00500190 /* MemoriesTab.swift in Sources */,
 				148079F22AB4B8B800716A17 /* TogedaTest3App.swift in Sources */,
@@ -821,10 +834,12 @@
 				14D7E43D2AF924E500A76D09 /* FriendRequestPageView.swift in Sources */,
 				1445A20B2AFE79D60057613B /* ProfileImageView.swift in Sources */,
 				141DF35D2B090EFB00CE94F5 /* ChatBubble.swift in Sources */,
+				14B677062B0E55F600823FCA /* MessagePostPreview.swift in Sources */,
 				145D62F12ADAE72800941BC3 /* CreateEventViewModel.swift in Sources */,
 				145D62F92ADD7AE500941BC3 /* PhotoPickerViewModel.swift in Sources */,
 				145FEB452AE95AB3002301D1 /* UserTabViews.swift in Sources */,
 				145D72392ABA07B0005934E2 /* MapSlot.swift in Sources */,
+				14B677082B0E5F6900823FCA /* ChatSearchView.swift in Sources */,
 				14D7E4432AF9263300A76D09 /* AddedMemoryView.swift in Sources */,
 				14D7E4492AF9469100A76D09 /* RatingButtonView.swift in Sources */,
 				14807A692AB4C1DA00716A17 /* MainTabView.swift in Sources */,
@@ -834,6 +849,7 @@
 				14807A372AB4BC9500716A17 /* ProfileViewModel.swift in Sources */,
 				14807A3F2AB4BF4700716A17 /* ClubsTab.swift in Sources */,
 				14807A612AB4C11D00716A17 /* PostTags.swift in Sources */,
+				14B677022B0D3D3100823FCA /* MessageReadView.swift in Sources */,
 				14807A632AB4C16F00716A17 /* SearchView.swift in Sources */,
 				14ADEAB02AD6ED2300626D86 /* Place.swift in Sources */,
 				140A2BE12ACED10B00623446 /* SearchFilters.swift in Sources */,
