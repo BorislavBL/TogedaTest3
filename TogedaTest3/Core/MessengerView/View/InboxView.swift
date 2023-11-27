@@ -8,8 +8,13 @@
 import SwiftUI
 
 struct InboxView: View {
+    @ObservedObject var chatVM: ChatViewModel
+    @State private var showNewMessageView = false
     @State var searchText: String = ""
     @State var messages: [Message] = Message.MOCK_MESSAGES
+    @State var isSearching: Bool = false
+    @State var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
+    
     var body: some View {
         NavigationView{
             List{
@@ -18,6 +23,7 @@ struct InboxView: View {
                         NavigationLink(destination: ChatView(user: message.user ?? MiniUser.MOCK_MINIUSERS[0])){
                             EmptyView()
                         }
+
                         .opacity(0)
                         InboxRowView(message: message)
                     }
@@ -28,16 +34,40 @@ struct InboxView: View {
                 .padding(.top)
                 .padding(.horizontal)
             }
-            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search")
+            .searchable(text: $searchText, isPresented: $isSearching, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search")
             .listStyle(PlainListStyle())
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("Chats")
             .scrollIndicators(.hidden)
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    Image(systemName: "square.and.pencil")
-//                }
-//            }
+            .overlay{
+                if isSearching {
+                    ChatSearchView()
+                }
+            }
+            .onChange(of: searchText){
+                if !searchText.isEmpty {
+                    searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
+                        result.fullname.lowercased().contains(searchText.lowercased())
+                    }
+                } else {
+                    searchUserResults = MiniUser.MOCK_MINIUSERS
+                }
+            }
+            .fullScreenCover(isPresented: $showNewMessageView, content: {
+                NewMessageView(chatVM: chatVM)
+            })
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Image(systemName: "square.and.pencil.circle.fill")
+                        .resizable()
+                        .frame(width: 28, height: 28)
+                        .foregroundStyle(Color.black, Color(.systemGray5))
+                        .onTapGesture {
+                            showNewMessageView.toggle()
+                            chatVM.selectedUser = nil
+                        }
+                }
+            }
         }
         .navigationViewStyle(.stack)
     }
@@ -93,5 +123,5 @@ struct InboxRowView: View {
 }
 
 #Preview {
-    InboxView()
+    InboxView(chatVM: ChatViewModel())
 }

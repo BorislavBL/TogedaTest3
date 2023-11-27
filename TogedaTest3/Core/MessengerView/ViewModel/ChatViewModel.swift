@@ -10,6 +10,8 @@ import PhotosUI
 import SwiftUI
 
 class ChatViewModel: ObservableObject {
+    @Published var showChat = false
+    @Published var selectedUser: MiniUser?
     @Published var messages: [Message] = Message.MOCK_MESSAGES
     @Published var messageImage: Image?
     @Published var selectedItem: PhotosPickerItem? = nil {

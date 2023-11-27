@@ -94,7 +94,7 @@ struct MapView: View {
                                     searchText = ""
                                     UIApplication.shared.endEditing(true)
                                     withAnimation(.snappy){
-                                        cameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude), latitudinalMeters: 500, longitudinalMeters: 500))
+                                        cameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude), latitudinalMeters: 5000, longitudinalMeters: 5000))
                                         mapSelection = post
                                     }
                                     showSearch = false
@@ -172,7 +172,7 @@ struct MapView: View {
 //                } label: {
 //                    EventMapPreview(post: selectedPost, address: address)
 //                }
-                NavigationLink(value: postsViewModel.posts.firstIndex(of: selectedPost) ?? 0){
+                NavigationLink(value: selectedPost.id){
                     EventMapPreview(post: selectedPost, address: address)
                 }
                 .frame(height: 170)

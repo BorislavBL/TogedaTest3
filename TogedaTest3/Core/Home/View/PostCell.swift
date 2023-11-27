@@ -96,7 +96,7 @@ struct PostCell: View {
                 //                        .cornerRadius(10)
                 //                })
                 
-                NavigationLink(value: viewModel.posts.firstIndex(of: post) ?? 0) {
+                NavigationLink(value: post.id) {
                     Image(post.imageUrl[0])
                         .resizable()
                         .scaledToFill()

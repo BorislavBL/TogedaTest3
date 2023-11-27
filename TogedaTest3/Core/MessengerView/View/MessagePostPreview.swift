@@ -13,6 +13,7 @@ struct MessagePostPreview: View {
         let posts = Post.MOCK_POSTS
         return posts.first{ $0.id == postID}
     }
+    
     var body: some View {
 
         VStack(alignment: .leading){

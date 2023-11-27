@@ -12,8 +12,8 @@ struct ChatSearchView: View {
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 15){
-                ForEach(User.MOCK_USERS, id: \.id) { user in
-                    NavigationLink(value: user){
+                ForEach(MiniUser.MOCK_MINIUSERS, id: \.id) { user in
+                    NavigationLink(destination: ChatView(user: user)){
                         HStack(alignment:.center, spacing: 10){
                             Image(user.profileImageUrl[0])
                                 .resizable()
@@ -35,7 +35,10 @@ struct ChatSearchView: View {
                     }
                 }
             }
+            .padding()
         }
+        .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: UIScreen.main.bounds.height)
+        .background()
     }
 }
 

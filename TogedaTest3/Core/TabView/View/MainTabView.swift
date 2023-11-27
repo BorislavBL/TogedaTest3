@@ -16,6 +16,8 @@ struct MainTabView: View {
     @EnvironmentObject var locationManager: LocationManager
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     
+    @StateObject var chatVM = ChatViewModel()
+    
     var body: some View {
         NavigationStack{
             TabView(selection: $router.screen) {
@@ -46,7 +48,7 @@ struct MainTabView: View {
                     .tabItem {
                         Image(systemName: "plus.square")
                     }
-                    InboxView()
+                    InboxView(chatVM: chatVM)
                         .tag(Screen.message)
                         .tabItem {
                             Image(systemName: "message")
@@ -102,8 +104,15 @@ struct MainTabView: View {
                 .presentationDetents([.fraction(0.4)])
                 .presentationDragIndicator(.visible)
             })
-            .navigationDestination(for: Int.self) { index in
-                EventView(viewModel: postsViewModel, post: postsViewModel.posts[index], userViewModel: userViewModel)
+            .navigationDestination(isPresented: $chatVM.showChat, destination: {
+                if let user = chatVM.selectedUser {
+                    ChatView(viewModel: chatVM, user: user)
+                }
+            })
+            .navigationDestination(for: String.self) { id in
+                if let post = postsViewModel.posts.first(where: {$0.id == id}){
+                    EventView(viewModel: postsViewModel, post: post, userViewModel: userViewModel)
+                }
                 //.toolbar(.hidden, for: .tabBar)
             }
             .navigationDestination(for: MiniUser.self) { user in
