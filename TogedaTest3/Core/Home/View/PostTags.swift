@@ -11,7 +11,7 @@ import WrappingHStack
 struct PostTags: View {
     @State private var showMoreTags = false
     
-    @ObservedObject var viewModel: PostsViewModel
+    @EnvironmentObject var viewModel: PostsViewModel
     var post: Post
     
     var body: some View {
@@ -107,7 +107,8 @@ struct PostTags: View {
 
 struct PostTags_Previews: PreviewProvider {
     static var previews: some View {
-        PostTags(viewModel: PostsViewModel(), post: Post.MOCK_POSTS[0])
+        PostTags(post: Post.MOCK_POSTS[0])
+            .environmentObject(PostsViewModel())
     }
 }
 

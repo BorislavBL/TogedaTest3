@@ -57,7 +57,7 @@ struct UserTabViews: View {
 //                        }label:{
 //                            EventComponent(post: posts[index])
 //                        }
-                        NavigationLink(destination: CompletedEventView(viewModel: PostsViewModel(), post: post, userViewModel: UserViewModel())){
+                        NavigationLink(destination: CompletedEventView(postID: post.id)){
                             EventComponent(post: post)
                         }
                     }

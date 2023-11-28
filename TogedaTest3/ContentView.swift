@@ -13,12 +13,17 @@ struct ContentView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @StateObject var viewModel = ContentViewModel()
     
+    @StateObject var postsViewModel = PostsViewModel()
+    @StateObject var userViewModel = UserViewModel()
+    
     var body: some View {
         Group {
             ZStack(alignment:.top){
                 if let user = viewModel.currentUser{
                     MainTabView(user: user)
                         .environmentObject(locationManager)
+                        .environmentObject(postsViewModel)
+                        .environmentObject(userViewModel)
                 } else {
                     Text("IDK")
                 }

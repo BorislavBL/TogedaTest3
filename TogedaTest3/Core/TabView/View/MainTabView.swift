@@ -11,8 +11,8 @@ struct MainTabView: View {
     @StateObject var router = TabRouter()
     var user: User
     
-    @StateObject var postsViewModel = PostsViewModel()
-    @StateObject var userViewModel = UserViewModel()
+    @EnvironmentObject var postsViewModel: PostsViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var locationManager: LocationManager
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     
@@ -29,13 +29,13 @@ struct MainTabView: View {
                                 Image(systemName: "house")
                             }
                     } else {
-                        HomeView(postsViewModel: postsViewModel, userViewModel: userViewModel)
+                        HomeView()
                             .tag(Screen.home)
                             .tabItem {
                                 Image(systemName: "house")
                             }
                     }
-                    MapView(postsViewModel: postsViewModel, userViewModel: userViewModel)
+                    MapView()
                         .tag(Screen.map)
                         .tabItem {
                             Image(systemName: "map.fill")
@@ -110,9 +110,7 @@ struct MainTabView: View {
                 }
             })
             .navigationDestination(for: String.self) { id in
-                if let post = postsViewModel.posts.first(where: {$0.id == id}){
-                    EventView(viewModel: postsViewModel, post: post, userViewModel: userViewModel)
-                }
+                    EventView(postID: id)
                 //.toolbar(.hidden, for: .tabBar)
             }
             .navigationDestination(for: MiniUser.self) { user in
@@ -132,5 +130,7 @@ struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {
         MainTabView(user: User.MOCK_USERS[1])
             .environmentObject(LocationManager())
+            .environmentObject(PostsViewModel())
+            .environmentObject(UserViewModel())
     }
 }

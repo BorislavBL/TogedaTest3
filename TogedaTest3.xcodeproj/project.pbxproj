@@ -112,6 +112,7 @@
 		14D7E4452AF9288200A76D09 /* ParticipantsEventReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4442AF9288200A76D09 /* ParticipantsEventReview.swift */; };
 		14D7E4472AF937CA00A76D09 /* EventReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4462AF937CA00A76D09 /* EventReviewView.swift */; };
 		14D7E4492AF9469100A76D09 /* RatingButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D7E4482AF9469100A76D09 /* RatingButtonView.swift */; };
+		14DC6F192B16765F0078C6D7 /* NewGroupChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DC6F182B16765F0078C6D7 /* NewGroupChatView.swift */; };
 		14F8F7C42AF3EF7F005BBC92 /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */; };
 		14F8F7C62AF3F80F005BBC92 /* UsersListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F8F7C52AF3F80F005BBC92 /* UsersListView.swift */; };
 		14F8F7C82AF3FEA6005BBC92 /* NavigationControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F8F7C72AF3FEA6005BBC92 /* NavigationControllerExtension.swift */; };
@@ -227,6 +228,7 @@
 		14D7E4442AF9288200A76D09 /* ParticipantsEventReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantsEventReview.swift; sourceTree = "<group>"; };
 		14D7E4462AF937CA00A76D09 /* EventReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventReviewView.swift; sourceTree = "<group>"; };
 		14D7E4482AF9469100A76D09 /* RatingButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingButtonView.swift; sourceTree = "<group>"; };
+		14DC6F182B16765F0078C6D7 /* NewGroupChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGroupChatView.swift; sourceTree = "<group>"; };
 		14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingView.swift; sourceTree = "<group>"; };
 		14F8F7C52AF3F80F005BBC92 /* UsersListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersListView.swift; sourceTree = "<group>"; };
 		14F8F7C72AF3FEA6005BBC92 /* NavigationControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControllerExtension.swift; sourceTree = "<group>"; };
@@ -293,6 +295,7 @@
 				14B677052B0E55F600823FCA /* MessagePostPreview.swift */,
 				14B677072B0E5F6900823FCA /* ChatSearchView.swift */,
 				141B8B5A2B10E7EF00FAE127 /* NewMessageView.swift */,
+				14DC6F182B16765F0078C6D7 /* NewGroupChatView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -847,6 +850,7 @@
 				14D7E4432AF9263300A76D09 /* AddedMemoryView.swift in Sources */,
 				14D7E4492AF9469100A76D09 /* RatingButtonView.swift in Sources */,
 				14807A692AB4C1DA00716A17 /* MainTabView.swift in Sources */,
+				14DC6F192B16765F0078C6D7 /* NewGroupChatView.swift in Sources */,
 				14807A292AB4BB4000716A17 /* Filter.swift in Sources */,
 				14BFD2E22AE00599006A26F9 /* Crop.swift in Sources */,
 				14F8F7C62AF3F80F005BBC92 /* UsersListView.swift in Sources */,

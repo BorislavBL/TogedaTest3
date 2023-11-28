@@ -13,16 +13,13 @@ struct NewMessageView: View {
     @ObservedObject var chatVM: ChatViewModel
 //    @Binding var selectedUser: MiniUser?
     let size: ImageSize = .small
+    @State var showGroupChat = false
+    @State var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
 
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                TextField("To: ", text: $searchText)
-                    .frame(height: 44)
-                    .padding(.leading)
-                    .background(Color(.systemGroupedBackground))
-                
                 Text("CONTACTS")
                     .foregroundColor(.gray)
                     .font(.footnote)
@@ -30,7 +27,7 @@ struct NewMessageView: View {
                     .padding()
                 
                 LazyVStack {
-                    ForEach(MiniUser.MOCK_MINIUSERS) { user in
+                    ForEach(searchUserResults) { user in
                         VStack {
                             HStack {
                                 Image(user.profileImageUrl[0])
@@ -58,12 +55,30 @@ struct NewMessageView: View {
                     }
                 }
             }
+            .onChange(of: searchText){
+                if !searchText.isEmpty {
+                    searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
+                        result.fullname.lowercased().contains(searchText.lowercased())
+                    }
+                } else {
+                    searchUserResults = MiniUser.MOCK_MINIUSERS
+                }
+            }
+            .searchable(text: $searchText)
             .navigationTitle("New Message")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(isPresented: $showGroupChat){
+                NewGroupChatView()
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
                         dismiss()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Make Group") {
+                        showGroupChat = true
                     }
                 }
             }

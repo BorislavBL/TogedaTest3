@@ -12,7 +12,7 @@ struct GroupAcceptanceView: View {
     var post: Post = Post.MOCK_POSTS[0]
     var body: some View {
         VStack {
-            NavigationLink(destination: EventView(viewModel: PostsViewModel(), post: post, userViewModel: UserViewModel())){
+            NavigationLink(destination: EventView(postID: post.id)){
                 HStack(alignment:.top){
                         Image(post.imageUrl[0])
                             .resizable()

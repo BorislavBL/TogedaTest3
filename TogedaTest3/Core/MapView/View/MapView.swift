@@ -29,8 +29,8 @@ struct MapView: View {
     
     @State private var address: String?
     
-    @ObservedObject var postsViewModel: PostsViewModel
-    @ObservedObject var userViewModel: UserViewModel
+    @EnvironmentObject var postsViewModel: PostsViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     @State var mapPosts: [Post] = Post.MOCK_POSTS.filter{$0.accessability == Visabilities.Public}
     
     @StateObject var filterViewModel = FilterViewModel()
@@ -222,6 +222,8 @@ extension MKCoordinateRegion {
 
 struct MapView_Previews: PreviewProvider {
     static var previews: some View {
-        MapView(postsViewModel: PostsViewModel(), userViewModel: UserViewModel())
+        MapView()
+            .environmentObject(PostsViewModel())
+            .environmentObject(UserViewModel())
     }
 }

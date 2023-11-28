@@ -9,10 +9,10 @@ import SwiftUI
 import WrappingHStack
 
 struct PostCell: View {
-    @ObservedObject var viewModel: PostsViewModel
+    @EnvironmentObject var viewModel: PostsViewModel
     var post: Post
     
-    @ObservedObject var userViewModel: UserViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     
     var body: some View {
         VStack {
@@ -109,7 +109,7 @@ struct PostCell: View {
                 HStack(alignment: .center, spacing: 20){
                     Button {
                         //                        viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
-                        viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
+                        viewModel.clickedPostID = post.id
                         viewModel.showJoinRequest = true
                     } label: {
                         Image(systemName: post.peopleIn.contains(userViewModel.user.id) ? "person.2.circle.fill" : "person.2.circle")
@@ -164,7 +164,7 @@ struct PostCell: View {
                 .foregroundColor(Color("textColor"))
                 
                 //MARK: - Tags
-                PostTags(viewModel: viewModel, post: post)
+                PostTags(post: post)
             }
             
         }
@@ -178,6 +178,8 @@ struct PostCell: View {
 
 struct PostCell_Previews: PreviewProvider {
     static var previews: some View {
-        PostCell(viewModel: PostsViewModel(), post: Post.MOCK_POSTS[0], userViewModel: UserViewModel())
+        PostCell(post: Post.MOCK_POSTS[1])
+            .environmentObject(PostsViewModel())
+            .environmentObject(UserViewModel())
     }
 }

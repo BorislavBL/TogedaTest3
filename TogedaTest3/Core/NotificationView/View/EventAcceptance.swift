@@ -9,42 +9,44 @@ import SwiftUI
 
 struct EventAcceptance: View {
     let size: ImageSize = .medium
-    var post: Post = Post.MOCK_POSTS[0]
+    var post: Post = Post.MOCK_POSTS[2]
+    @EnvironmentObject var postsVM: PostsViewModel
     var body: some View {
-        VStack {
-            NavigationLink(destination: EventView(viewModel: PostsViewModel(), post: post, userViewModel: UserViewModel())){
-                HStack(alignment:.top){
+            VStack {
+                NavigationLink(destination: EventView(postID: post.id)){
+                    HStack(alignment:.top){
                         Image(post.imageUrl[0])
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
                             .cornerRadius(10)
                             .clipped()
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 5){
+                        Text(post.title)
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                        
+                        Text("You got accepted. Visit the event page for more details.")
+                            .font(.footnote) +
+                        
+                        Text(" 1 min ago")
+                            .foregroundStyle(.gray)
+                            .font(.footnote)
+                        
+                        
+                    }
+                    .multilineTextAlignment(.leading)
+                    Spacer(minLength: 0)
+                    
                 }
                 
-                VStack(alignment: .leading, spacing: 5){
-                    Text(post.title)
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                    
-                    Text("You got accepted. Visit the event page for more details.")
-                        .font(.footnote) +
-                    
-                    Text(" 1 min ago")
-                        .foregroundStyle(.gray)
-                        .font(.footnote)
-                    
-                    
-                }
-                .multilineTextAlignment(.leading)
-                Spacer(minLength: 0)
-            
             }
-            
-        }
     }
 }
 
 #Preview {
     EventAcceptance()
+        .environmentObject(PostsViewModel())
 }

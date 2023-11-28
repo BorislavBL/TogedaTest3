@@ -9,8 +9,8 @@ import SwiftUI
 
 struct SearchView: View {
     @ObservedObject var viewModel: HomeViewModel
-    @ObservedObject var postsViewModel: PostsViewModel
-    @ObservedObject var userViewModel: UserViewModel
+    @EnvironmentObject var postsViewModel: PostsViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     let size: ImageSize = .medium
     
     var body: some View {
@@ -92,7 +92,9 @@ struct SearchView: View {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchView(viewModel: HomeViewModel(), postsViewModel: PostsViewModel(), userViewModel: UserViewModel())
+        SearchView(viewModel: HomeViewModel())
+            .environmentObject(PostsViewModel())
+            .environmentObject(UserViewModel())
     }
 }
 

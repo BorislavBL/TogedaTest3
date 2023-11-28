@@ -9,16 +9,16 @@ import SwiftUI
 
 struct MessagePostPreview: View {
     let postID: String
+    @EnvironmentObject var postVM: PostsViewModel
     var post: Post? {
-        let posts = Post.MOCK_POSTS
-        return posts.first{ $0.id == postID}
+        return postVM.posts.first(where: { $0.id == postID})
     }
     
     var body: some View {
 
         VStack(alignment: .leading){
             if let post = post {
-                NavigationLink(destination:EventView(viewModel: PostsViewModel(), post: post, userViewModel: UserViewModel())) {
+                NavigationLink(destination:EventView(postID: post.id)) {
                     VStack(alignment: .leading){
                         Image(post.imageUrl[0])
                             .resizable()
@@ -54,4 +54,5 @@ struct MessagePostPreview: View {
 
 #Preview {
     MessagePostPreview(postID: Post.MOCK_POSTS[1].id)
+        .environmentObject(PostsViewModel())
 }

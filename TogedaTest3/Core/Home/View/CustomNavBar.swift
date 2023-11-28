@@ -11,8 +11,8 @@ struct CustomNavBar: View {
     @Binding var showFilter: Bool
     
     @ObservedObject var viewModel: FilterViewModel
-    @ObservedObject var postViewModel: PostsViewModel
-    @ObservedObject var userViewModel: UserViewModel
+    @EnvironmentObject var postViewModel: PostsViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     @ObservedObject var homeViewModel: HomeViewModel
     
     var body: some View {
@@ -81,6 +81,8 @@ struct CustomNavBar: View {
 struct CustomNavBar_Previews: PreviewProvider {
     @State static var showFilterPreview = true
     static var previews: some View {
-        CustomNavBar(showFilter: $showFilterPreview, viewModel: FilterViewModel(), postViewModel: PostsViewModel(), userViewModel: UserViewModel(), homeViewModel: HomeViewModel())
+        CustomNavBar(showFilter: $showFilterPreview, viewModel: FilterViewModel(), homeViewModel: HomeViewModel())
+            .environmentObject(PostsViewModel())
+            .environmentObject(UserViewModel())
     }
 }

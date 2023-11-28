@@ -14,6 +14,7 @@ class PostsViewModel: ObservableObject {
     @Published var expandedTags: [String: Bool] = [:] // Local state for tags expansion
 
     @Published var clickedPostIndex: Int = 0
+    @Published var clickedPostID: String = Post.MOCK_POSTS[1].id
     
     @Published var showDetailsPage = false
     @Published var showPostOptions = false

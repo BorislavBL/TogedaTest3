@@ -52,7 +52,7 @@ struct EventTab: View {
 //                        vm.selectedPost = posts[index]
 //                        vm.showCompletedEvent = true
 //                    }label:{
-                    NavigationLink(destination: CompletedEventView(viewModel: PostsViewModel(), post: posts[index], userViewModel: UserViewModel())){
+                    NavigationLink(destination: CompletedEventView(postID: posts[index].id)){
                         EventComponent(post: posts[index])
                     }
                 }

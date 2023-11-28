@@ -15,8 +15,8 @@ struct HomeView: View {
     
     @StateObject var viewModel = HomeViewModel()
     @StateObject var filterViewModel = FilterViewModel()
-    @ObservedObject var postsViewModel: PostsViewModel
-    @ObservedObject var userViewModel: UserViewModel
+    @EnvironmentObject var postsViewModel: PostsViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     
     @State private var refreshingHeight:CGFloat = 0.0
     
@@ -34,7 +34,7 @@ struct HomeView: View {
                         ScrollView(.vertical, showsIndicators: false){
                             LazyVStack (spacing: 10){
                                 ForEach(postsViewModel.posts, id: \.id) { post in
-                                    PostCell(viewModel: postsViewModel, post: post, userViewModel: userViewModel)
+                                    PostCell(post: post)
                                 }
                                 
                                 if postsViewModel.isLoading {
@@ -92,7 +92,7 @@ struct HomeView: View {
                     }
                     .overlay{
                         if viewModel.showCancelButton {
-                            SearchView(viewModel: viewModel, postsViewModel: postsViewModel, userViewModel: userViewModel)
+                            SearchView(viewModel: viewModel)
                         }
                     }
                     .onChange(of: viewModel.searchText){
@@ -108,7 +108,7 @@ struct HomeView: View {
                             viewModel.searchUserResults = MiniUser.MOCK_MINIUSERS
                         }
                     }
-                    CustomNavBar(showFilter: $showFilter, viewModel: filterViewModel, postViewModel: postsViewModel, userViewModel: userViewModel, homeViewModel: viewModel)
+                    CustomNavBar(showFilter: $showFilter, viewModel: filterViewModel, homeViewModel: viewModel)
                         .anchorPreference(key:HeaderBoundsKey.self, value:.bounds) {$0}
                         .overlayPreferenceValue(HeaderBoundsKey.self) { value in
                             GeometryReader{proxy in
@@ -124,7 +124,7 @@ struct HomeView: View {
                 
             }
             .sheet(isPresented: $postsViewModel.showJoinRequest){
-                JoinRequestView(postsViewModel: postsViewModel, userViewModel: userViewModel)
+                    JoinRequestView()
             }
             .sheet(isPresented: $filterViewModel.filterIsSelected) {
                 FilterView(filterViewModel: filterViewModel)
@@ -137,7 +137,9 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView(postsViewModel: PostsViewModel(), userViewModel: UserViewModel())
+        HomeView()
+            .environmentObject(PostsViewModel())
+            .environmentObject(UserViewModel())
     }
 }
 

@@ -12,13 +12,6 @@ struct ChatMessageCell: View {
     let message: Message
     var nextMessage: Message?
     let size: ImageSize = .xxSmall
-    var message1: AttributedString {
-        var result = AttributedString("Learn Swift here")
-        result.font = .largeTitle
-        result.link = URL(string: "https://www.hackingwithswift.com")
-        return result
-    }
-
     
     private var shouldShowChatPartnerImage: Bool {
         if nextMessage == nil && !message.isFromCurrentUser { return true }
@@ -79,8 +72,9 @@ struct ChatMessageCell: View {
                     .padding(.horizontal, 12)
                         
                 case .post(let postID):
-                    MessagePostPreview(postID: postID)
-                        .padding(.horizontal)
+                    Text("\(postID)")
+//                    MessagePostPreview(postID: postID)
+//                        .padding(.horizontal)
                 }
             } else {
                 HStack(alignment: .bottom, spacing: 8){
@@ -141,8 +135,9 @@ struct ChatMessageCell: View {
                         }
                         .padding(.horizontal, 12)
                     case .post(let postID):
-                        MessagePostPreview(postID: postID)
-                            .padding(.horizontal)
+                        Text("\(postID)")
+//                        MessagePostPreview(postID: postID)
+//                            .padding(.horizontal)
                     }
                     
 
