@@ -39,7 +39,7 @@ struct ReviewMemoriesView: View {
                         } label: {
                             ZStack {
                                 Rectangle()
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(Color(.tertiarySystemFill))
                                     .frame(height: 200)
                                     .frame(minWidth: 0)
                                     .cornerRadius(10)

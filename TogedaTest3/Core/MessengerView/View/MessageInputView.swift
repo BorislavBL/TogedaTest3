@@ -12,15 +12,14 @@ struct MessageInputView: View {
     @Binding var messageText: String
     @ObservedObject var viewModel: ChatViewModel
     var body: some View {
-        ZStack(alignment: .trailing){
-            HStack{
+            HStack(alignment: .top){
                 if let image = viewModel.messageImage {
                     ZStack(alignment: .topTrailing) {
                         image
                             .resizable()
                             .scaledToFill()
                             .clipped()
-                            .frame(width: 80, height: 140)
+                            .frame(width: 100, height: 140)
                             .cornerRadius(10)
                         
                         Button(action: {
@@ -35,6 +34,7 @@ struct MessageInputView: View {
                         .background(Color(.gray))
                         .foregroundColor(.white)
                         .clipShape(Circle())
+                        .padding(5)
                     }
                     .padding(8)
                     
@@ -49,30 +49,28 @@ struct MessageInputView: View {
                     }
                     
                     TextField("Message..", text: $messageText, axis: .vertical)
-                        .padding(12)
                         .padding(.leading, 4)
-                        .padding(.trailing, 48)
-                        .background(Color("SecondaryBackground"))
-                        .clipShape(Capsule())
                         .font(.subheadline)
                 }
-            }
-            
-            Button {
-                Task {
-                    messageText = ""
+                
+                Button {
+                    Task {
+                        messageText = ""
+                    }
+                } label: {
+                    Text("Send")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.blue)
                 }
-            } label: {
-                Text("Send")
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.blue)
+                .padding(.horizontal, 8)
+                
             }
-            .padding(.horizontal)
-
-        }
-        .overlay {
+            .padding(12)
+            .background(Color("SecondaryBackground"))
+            .cornerRadius(20)
+            .overlay {
             if viewModel.messageImage != nil {
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 20)
                     .stroke(Color(.systemGray4), lineWidth: 1)
             }
         }

@@ -57,8 +57,9 @@ struct DateView: View {
                     
                     Picker("Choose Time", selection: $timeSettings) {
                         Text("Anytime").tag(0)
-                        Text("Range").tag(1)
-                        Text("Exact Time").tag(2)
+                        Text("Exact Time").tag(1)
+                        Text("Range").tag(2)
+                        
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
@@ -69,7 +70,7 @@ struct DateView: View {
                             .padding(.horizontal)
                             .fontWeight(.semibold)
                         
-                        if timeSettings == 1 {
+                        if timeSettings == 2 {
                             DatePicker("To", selection: $to, displayedComponents: .hourAndMinute)
                                 .datePickerStyle(.graphical)
                                 .padding(.horizontal)

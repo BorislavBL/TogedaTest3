@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CustomNavBar: View {
     @Binding var showFilter: Bool
-    
     @ObservedObject var viewModel: FilterViewModel
     @EnvironmentObject var postViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
@@ -35,11 +34,21 @@ struct CustomNavBar: View {
                         
                         Button{
                             withAnimation{
+                                viewModel.showAllFilter = true
+                            }
+                        } label:{
+                            Image(systemName: "slider.horizontal.3")
+
+                        }
+                        
+                        Button{
+                            withAnimation{
                                 homeViewModel.showCancelButton = true
                             }
                         } label:{
                             Image(systemName: "magnifyingglass")
                         }
+                        
                         
                         NavigationLink(destination: NotificationView()) {
                             Image(systemName: "bell")

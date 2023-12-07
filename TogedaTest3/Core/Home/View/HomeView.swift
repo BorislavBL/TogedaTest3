@@ -129,6 +129,10 @@ struct HomeView: View {
             .sheet(isPresented: $filterViewModel.filterIsSelected) {
                 FilterView(filterViewModel: filterViewModel)
             }
+            .sheet(isPresented: $filterViewModel.showAllFilter, content: {
+                AllInOneFilterView()
+                    .presentationDetents([.fraction(0.99)])
+            })
 
         }
         
@@ -138,6 +142,7 @@ struct HomeView: View {
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
+            .environmentObject(LocationManager())
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
     }

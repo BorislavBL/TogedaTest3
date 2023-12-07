@@ -61,7 +61,7 @@ struct InboxView: View {
                     Image(systemName: "square.and.pencil.circle.fill")
                         .resizable()
                         .frame(width: 28, height: 28)
-                        .foregroundStyle(Color.black, Color(.systemGray5))
+                        .foregroundStyle(Color("blackAndWhite"), Color(.systemGray5))
                         .onTapGesture {
                             showNewMessageView.toggle()
                             chatVM.selectedUser = nil

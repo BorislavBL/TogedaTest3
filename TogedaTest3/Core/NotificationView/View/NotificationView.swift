@@ -19,6 +19,7 @@ struct NotificationView: View {
                 ParticipantsEventReview()
                 EventAcceptance()
                 GroupAcceptanceView()
+                SystemNotificationView()
             }
             .padding(.horizontal)
         }

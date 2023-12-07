@@ -1,25 +1,25 @@
 //
-//  ChatViewModel.swift
+//  NewChatViewModel.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 15.11.23.
+//  Created by Borislav Lorinkov on 29.11.23.
 //
 
 import Foundation
 import PhotosUI
 import SwiftUI
 
-
-class ChatViewModel: ObservableObject {
-    @Published var showChat = false
-    @Published var selectedUser: MiniUser?
-    @Published var messages: [Message] = Message.MOCK_MESSAGES
-    @Published var messageImage: Image?
+class NewChatViewModel: ObservableObject {
+    @Published var participants: [MiniUser] = []
+    @Published var groupName: String = ""
+    @Published var groupImage: Image?
+    @Published var showPhotosPicker = false
     @Published var selectedItem: PhotosPickerItem? = nil {
         didSet {
             setImage(from: selectedItem)
         }
     }
+    
     
     func setImage(from selection: PhotosPickerItem?){
         guard let selection else {return}
@@ -33,7 +33,7 @@ class ChatViewModel: ObservableObject {
                 }
                 
                 await MainActor.run {
-                    messageImage = Image(uiImage: uiImage)
+                    groupImage = Image(uiImage: uiImage)
                 }
                 
             } catch {
@@ -42,8 +42,4 @@ class ChatViewModel: ObservableObject {
         }
     }
     
-    func nextMessage(forIndex index: Int) -> Message? {
-        return index != messages.count - 1 ? messages[index + 1] : nil
-    }
 }
-

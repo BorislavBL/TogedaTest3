@@ -13,7 +13,7 @@ import PhotosUI
 class PhotoPickerViewModel: ObservableObject {
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
-    @Published var selectedImages: [UIImage?] = [nil, nil, nil, nil, nil, nil]
+    @Published var selectedImages: [Image?] = [nil, nil, nil, nil, nil, nil]
     @Published var selectedImage: UIImage?
     @Published var showCropView = false
     

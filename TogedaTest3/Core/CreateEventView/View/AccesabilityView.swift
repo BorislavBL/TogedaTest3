@@ -22,15 +22,17 @@ enum Visabilities: Hashable, Codable {
     }
 }
 
-struct AccesabilityView: View {
+struct AccessibilityView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedVisability: Visabilities
     
     var body: some View {
         List {
-            Text("Accessability")
+            Text("Accessibility")
                 .font(.title3)
                 .fontWeight(.bold)
+                .listRowSeparator(.hidden)
+
             
             Picker("", selection: $selectedVisability) {
                 Text("Public").tag(Visabilities.Public)
@@ -52,6 +54,7 @@ struct AccesabilityView: View {
             }
             .font(.callout)
             .foregroundColor(.gray)
+            .listRowSeparator(.hidden)
         }
         .listStyle(.plain)
         .padding(.vertical)
@@ -70,8 +73,8 @@ struct AccesabilityView: View {
 }
 
 
-struct AccesabilityView_Previews: PreviewProvider {
+struct AccessibilityView_Previews: PreviewProvider {
     static var previews: some View {
-        AccesabilityView(selectedVisability: .constant(.Public))
+        AccessibilityView(selectedVisability: .constant(.Public))
     }
 }

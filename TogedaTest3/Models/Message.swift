@@ -67,14 +67,15 @@ struct Message: Identifiable, Codable, Hashable {
 
 extension Message {
     static var MOCK_MESSAGES: [Message] = [
-        .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "hey bbbbbbitchh", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true),
+        .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "hey", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true),
         .init(fromId: MiniUser.MOCK_MINIUSERS[1].id, toId: MiniUser.MOCK_MINIUSERS[0].id, text: "https://www.youtube.com/watch?v=x237rufnzNA&t=8s djbasiudbhiuasbdiuabshdiub", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true),
         .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "https://www.hackingwithswift.com/articles/237/complete-guide-to-sf-symbols mumbojumbo sajodjoiasjdioa nduashdiuahs https://www.youtube.com/watch?v=x237rufnzNA&t=8s", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true),
         .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "heyyyy", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true, imageUrl: "event_1"),
         .init(fromId: MiniUser.MOCK_MINIUSERS[0].id, toId: MiniUser.MOCK_MINIUSERS[1].id, text: "", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[1], read: true, post: Post.MOCK_POSTS[1].id),
-        .init(fromId: MiniUser.MOCK_MINIUSERS[2].id, toId: MiniUser.MOCK_MINIUSERS[0].id, text: "hey bbbbbbitch", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[2], read: false)
+        .init(fromId: MiniUser.MOCK_MINIUSERS[2].id, toId: MiniUser.MOCK_MINIUSERS[0].id, text: "test test ALERT-BG", timestamp: Date(), user: MiniUser.MOCK_MINIUSERS[2], read: false)
     ]
 }
+
 
 struct Conversation: Identifiable, Hashable, Codable {
     var conversationId: String?
@@ -85,6 +86,7 @@ struct Conversation: Identifiable, Hashable, Codable {
         return conversationId ?? NSUUID().uuidString
     }
 }
+
 
 extension Conversation {
     static var MOCK_CONVERSATIONS: [Conversation] = [

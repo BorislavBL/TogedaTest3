@@ -9,7 +9,7 @@ import SwiftUI
 import WrappingHStack
 
 struct CategoryView: View {
-    @Binding var selectedCategory: String
+    @Binding var selectedCategory: String?
     @Binding var selectedInterests: [String]
     @Environment(\.dismiss) private var dismiss
     let categories = CategoryOptions.dropLast()
@@ -80,8 +80,8 @@ struct CategoryView: View {
                 }
                 .padding(.horizontal)
             }
+            .padding(.vertical)
         }
-        .padding(.vertical)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

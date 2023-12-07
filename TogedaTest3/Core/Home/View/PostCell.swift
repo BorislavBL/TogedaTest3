@@ -57,7 +57,7 @@ struct PostCell: View {
                     
                     Button {
                         viewModel.showPostOptions = true
-                        viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
+                        viewModel.clickedPostID = post.id
                     } label: {
                         Image(systemName: "ellipsis")
                             .rotationEffect(.degrees(90))
@@ -140,7 +140,8 @@ struct PostCell: View {
                     }
                     
                     Button {
-                        print("Send")
+                        viewModel.clickedPostID = post.id
+                        viewModel.showSharePostSheet = true
                     } label: {
                         
                         Image(systemName: "paperplane")

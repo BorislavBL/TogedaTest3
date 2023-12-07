@@ -1,18 +1,15 @@
 //
-//  LocationPickerViewModel.swift
+//  AllInOneFilterViewModel.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 11.10.23.
+//  Created by Borislav Lorinkov on 6.12.23.
 //
 
-import Foundation
-
-import SwiftUI
 import MapKit
 import Combine
+import SwiftUI
 
-@MainActor
-class LocationPickerViewModel: ObservableObject {
+class AllInOneFilterViewModel: ObservableObject {
     @Published var places: [Place] = []
     @Published var searchText: String = ""
     
@@ -26,16 +23,17 @@ class LocationPickerViewModel: ObservableObject {
             .removeDuplicates()
             .sink(receiveValue: { value in
                 if !value.isEmpty {
-                    self.searchTest(text: value)
+                    self.searchFilter(text: value)
                 } else {
                     self.places = []
                 }
             })
     }
     
-    func searchTest(text: String){
+    func searchFilter(text: String){
         let searchRequest = MKLocalSearch.Request()
         searchRequest.naturalLanguageQuery = text
+//        searchRequest.resultTypes = .address
         let search = MKLocalSearch(request: searchRequest)
         
         search.start { response, error in
@@ -44,7 +42,10 @@ class LocationPickerViewModel: ObservableObject {
                 return
             }
             
-            self.places = response.mapItems.map(Place.init)
+            self.places = response.mapItems.filter { item in
+                (item.placemark.country != nil || item.placemark.locality != nil ) && item.placemark.subThoroughfare == nil
+                && (item.name == item.placemark.country || item.name == item.placemark.locality || item.name == item.placemark.administrativeArea || item.name == item.placemark.thoroughfare)
+            }.map(Place.init)
         }
     }
     
@@ -65,45 +66,6 @@ class LocationPickerViewModel: ObservableObject {
             } else {
                 print("else")
             }
-        }
-    }
-    
-//    extension CLLocation {
-//        func placemark(completion: @escaping (_ placemark: CLPlacemark?, _ error: Error?) -> ()) {
-//            CLGeocoder().reverseGeocodeLocation(self) { completion($0?.first, $1) }
-//        }
-//    }
-    
-    func searchFilter(text: String){
-        let searchRequest = MKLocalSearch.Request()
-        searchRequest.naturalLanguageQuery = text
-        let search = MKLocalSearch(request: searchRequest)
-        
-        search.start { response, error in
-            guard let response = response else {
-                print(":( ERROR: \(error?.localizedDescription ?? "Uknown Error")")
-                return
-            }
-            
-            self.places = response.mapItems.filter { item in
-                (item.placemark.locality != nil || item.placemark.country != nil) && item.placemark.subThoroughfare == nil
-            }.map(Place.init)
-        }
-    }
-    
-    func search(text: String, region: MKCoordinateRegion){
-        let searchRequest = MKLocalSearch.Request()
-        searchRequest.naturalLanguageQuery = text
-        searchRequest.region = region
-        let search = MKLocalSearch(request: searchRequest)
-        
-        search.start { response, error in
-            guard let response = response else {
-                print(":( ERROR: \(error?.localizedDescription ?? "Uknown Error")")
-                return
-            }
-            
-            self.places = response.mapItems.map(Place.init)
         }
     }
 }

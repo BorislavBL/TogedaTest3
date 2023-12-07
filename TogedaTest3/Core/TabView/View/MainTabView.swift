@@ -104,6 +104,11 @@ struct MainTabView: View {
                 .presentationDetents([.fraction(0.4)])
                 .presentationDragIndicator(.visible)
             })
+            .sheet(isPresented: $postsViewModel.showSharePostSheet) {
+                SharePostView()
+                    .presentationDetents([.fraction(0.8), .fraction(1) ])
+                    .presentationDragIndicator(.visible)
+            }
             .navigationDestination(isPresented: $chatVM.showChat, destination: {
                 if let user = chatVM.selectedUser {
                     ChatView(viewModel: chatVM, user: user)

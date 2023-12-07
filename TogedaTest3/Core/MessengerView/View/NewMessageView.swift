@@ -11,6 +11,7 @@ struct NewMessageView: View {
     @Environment(\.dismiss) var dismiss
     @State var searchText: String = ""
     @ObservedObject var chatVM: ChatViewModel
+    @StateObject var newChatVM = NewChatViewModel()
 //    @Binding var selectedUser: MiniUser?
     let size: ImageSize = .small
     @State var showGroupChat = false
@@ -68,7 +69,7 @@ struct NewMessageView: View {
             .navigationTitle("New Message")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showGroupChat){
-                NewGroupChatView()
+                NewGroupChatView(newChatVM: newChatVM)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

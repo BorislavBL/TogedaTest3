@@ -1,29 +1,27 @@
 //
-//  NewGroupChatView.swift
+//  SharePostView.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 28.11.23.
+//  Created by Borislav Lorinkov on 4.12.23.
 //
 
 import SwiftUI
 import WrappingHStack
 
-struct NewGroupChatView: View {
+struct SharePostView: View {
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var newChatVM: NewChatViewModel
     @State var searchText: String = ""
     let size: ImageSize = .small
     @State var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
     @State var selectedUsers: [MiniUser] = []
+    @State var showCancelButton: Bool = false
     
     var body: some View {
+        VStack {
+            CustomSearchBar(searchText: $searchText, showCancelButton: $showCancelButton)
+                .padding()
+            
             ScrollView {
-//                TextField("To: ", text: $searchText)
-//                    .frame(height: 44)
-//                    .padding(.leading)
-//                //                    .background(Color(.systemGroupedBackground))
-//                    .background(Color(.tertiarySystemFill))
-                
                 if selectedUsers.count > 0{
                     ScrollView{
                         WrappingHStack(alignment: .topLeading){
@@ -37,13 +35,6 @@ struct NewGroupChatView: View {
                     .padding()
                     .frame(maxHeight: 100)
                 }
-                
-                Text("CONTACTS")
-                    .foregroundColor(.gray)
-                    .font(.footnote)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                
                 
                 LazyVStack {
                     ForEach(searchUserResults) { user in
@@ -87,7 +78,6 @@ struct NewGroupChatView: View {
                     }
                 }
             }
-            
             .onChange(of: searchText){
                 if !searchText.isEmpty {
                     searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
@@ -97,31 +87,30 @@ struct NewGroupChatView: View {
                     searchUserResults = MiniUser.MOCK_MINIUSERS
                 }
             }
-            .navigationTitle("New Group")
-            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button{
-                        dismiss()
-                    } label:{
-                        Image(systemName: "chevron.left")
+            
+            if selectedUsers.count > 0{
+                VStack{
+                    Button{}  label: {
+                        Text("Send")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .fontWeight(.semibold)
+                        
                     }
+                    .cornerRadius(10)
+                    .padding(.top)
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    if selectedUsers.count > 0 {
-                        NavigationLink(destination: NewGroupChatCreateView(newChatVM: newChatVM)){Text("Next")}
-                    } else {
-                        Text("Next")
-                            .foregroundStyle(.gray)
-                    }
-                }
+                .padding(.horizontal)
             }
+            
+
         }
+    }
 }
 
-struct ParticipantsChatTags: View {
+struct ReceiverTags: View {
     var user: MiniUser
     let size: ImageSize = .xxSmall
     @State var clicked = false
@@ -132,11 +121,11 @@ struct ParticipantsChatTags: View {
                 HStack{
                     Image(systemName: "xmark")
                         .imageScale(.medium)
-                        
+                    
                     
                     Text(user.fullname)
                         .font(.subheadline)
-
+                    
                 }
                 .frame(height: size.dimension)
                 .padding(.horizontal, 8)
@@ -165,6 +154,5 @@ struct ParticipantsChatTags: View {
 }
 
 #Preview {
-    NewGroupChatView(newChatVM: NewChatViewModel())
+    SharePostView()
 }
-

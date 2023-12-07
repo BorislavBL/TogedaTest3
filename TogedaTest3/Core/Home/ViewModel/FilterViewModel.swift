@@ -26,6 +26,9 @@ class FilterViewModel: ObservableObject {
     func updateFilterSheetPresentation() {
         filterIsSelected = filters.contains(where: { $0.isSelected })
     }
+    
+    @Published var showAllFilter: Bool = false
+    
 //    var filterIsSelected: Bool {
 //        return filters.contains(where: { $0.isSelected })
 //    }

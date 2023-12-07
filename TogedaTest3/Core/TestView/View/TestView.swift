@@ -6,10 +6,38 @@
 //
 
 import SwiftUI
+import PhotosUI
+
+struct listTest {
+    var text: String
+    var clicked: Bool
+}
 
 struct TestView: View {
+    @State var searchText:String = ""
+    @State var array: [listTest] = []
+    
     var body: some View {
-        Text("hello")
+        VStack{
+            TextField("hello", text: $searchText).onSubmit {
+                if !searchText.isEmpty{
+                    array.append(listTest(text: searchText, clicked: false))
+                }
+            }
+            
+            ForEach(array.indices, id:\.self) { index in
+                Button{
+                    array[index].clicked.toggle()
+                } label:{
+                    HStack{
+                        if array[index].clicked {
+                            Image(systemName: "checkmark")
+                        }
+                        Text(array[index].text)
+                    }
+                }
+            }
+        }
     }
 }
 
