@@ -15,8 +15,6 @@ class LocationManager: NSObject, ObservableObject {
     @Published var authorizationStatus: CLAuthorizationStatus
     @Published var showLocationServicesView: Bool = false
     
-    @Published var currentLocationPlace: Place = Place(mapItem: MKMapItem())
-    
     private let locationManager = CLLocationManager()
     
     override init() {
@@ -77,27 +75,6 @@ class LocationManager: NSObject, ObservableObject {
         }
     }
     
-    //current location place function
-    func mapItem(from placemark: CLPlacemark) -> MKMapItem {
-        let mkPlacemark = MKPlacemark(placemark: placemark)
-        return MKMapItem(placemark: mkPlacemark)
-    }
-    
-    func findLocationDetails(location: CLLocation?) {
-        guard let location = location else { return }
-        let geocoder = CLGeocoder()
-        geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
-            if let error = error {
-                print("Error reverse geocoding: \(error.localizedDescription)")
-                
-            } else if let firstPlacemark = placemarks?.first {
-                self.currentLocationPlace = Place(mapItem: self.mapItem(from: firstPlacemark))
-            } else {
-                print("else")
-            }
-        }
-    }
-    
 }
 
 extension LocationManager: CLLocationManagerDelegate{
@@ -107,8 +84,5 @@ extension LocationManager: CLLocationManagerDelegate{
         self.location = location
         self.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 5000, longitudinalMeters: 5000)
 //        locationManager.stopUpdatingLocation()
-        
-        //current location place function
-        findLocationDetails(location: location)
     }
 }

@@ -92,4 +92,5 @@ struct ChatView: View {
 
 #Preview {
     ChatView(viewModel: ChatViewModel(), user: MiniUser.MOCK_MINIUSERS[0])
+        .environmentObject(PostsViewModel())
 }

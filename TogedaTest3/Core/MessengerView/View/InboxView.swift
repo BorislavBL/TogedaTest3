@@ -124,4 +124,5 @@ struct InboxRowView: View {
 
 #Preview {
     InboxView(chatVM: ChatViewModel())
+        .environmentObject(PostsViewModel())
 }

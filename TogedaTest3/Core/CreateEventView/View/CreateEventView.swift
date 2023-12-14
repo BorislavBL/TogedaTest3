@@ -55,9 +55,9 @@ struct CreateEventView: View {
                     .padding(.top)
                     
                     if titleEmpty {
-                        warningComponent(text: "Please write a title.")
+                        WarningTextComponent(text: "Please write a title.")
                     } else if titleChartLimit {
-                        warningComponent(text: "The title has to be more than 5 characters long.")
+                        WarningTextComponent(text: "The title has to be more than 5 characters long.")
                     }
                     
 
@@ -114,7 +114,7 @@ struct CreateEventView: View {
                     }
                     
                     if noPhotos {
-                        warningComponent(text: "Please add photos.")
+                        WarningTextComponent(text: "Please add photos.")
                         
                     }
                     
@@ -144,7 +144,7 @@ struct CreateEventView: View {
                     }
                     
                     if noLocation {
-                        warningComponent(text: "Please select a location.")
+                        WarningTextComponent(text: "Please select a location.")
                         
                     }
                     
@@ -178,7 +178,7 @@ struct CreateEventView: View {
                     }
                     
                     if noCategory {
-                        warningComponent(text: "Please select a category.")
+                        WarningTextComponent(text: "Please select a category.")
                         
                     }
                     
@@ -381,16 +381,6 @@ struct CreateEventView: View {
             onCloseTab()
         })
         .resignKeyboardOnDragGesture()
-    }
-    
-    @ViewBuilder
-    func warningComponent(text: String)-> some View {
-        HStack(alignment: .center){
-            Image(systemName: "exclamationmark.circle")
-            Text(text)
-        }
-        .foregroundStyle(.red)
-        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
     }
     
     func onCloseTab() -> some View {

@@ -72,9 +72,9 @@ struct ChatMessageCell: View {
                     .padding(.horizontal, 12)
                         
                 case .post(let postID):
-                    Text("\(postID)")
-//                    MessagePostPreview(postID: postID)
-//                        .padding(.horizontal)
+//                    Text("\(postID)")
+                    MessagePostPreview(postID: postID)
+                        .padding(.horizontal)
                 }
             } else {
                 HStack(alignment: .bottom, spacing: 8){
@@ -135,9 +135,9 @@ struct ChatMessageCell: View {
                         }
                         .padding(.horizontal, 12)
                     case .post(let postID):
-                        Text("\(postID)")
-//                        MessagePostPreview(postID: postID)
-//                            .padding(.horizontal)
+//                        Text("\(postID)")
+                        MessagePostPreview(postID: postID)
+                            .padding(.horizontal)
                     }
                     
 

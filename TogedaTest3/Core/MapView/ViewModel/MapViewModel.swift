@@ -11,10 +11,22 @@ import SwiftUI
 import MapKit
 
 class MapViewModel: ObservableObject{
-    @Published var searchText: String = ""
-    @Published var address: String?
+    @Published var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 34.052235, longitude: -118.243683),
+        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+    ))
+    
     @Published var mapSelection: Post?
     @Published var showPostView: Bool = false
+    @Published var selectedPost: Post = Post.MOCK_POSTS[0]
+    
+    @Published var visibleRegion: MKCoordinateRegion?
+    
+    @Published var searchText: String = ""
+    @Published var searchResults: [Post] = Post.MOCK_POSTS.filter{$0.accessability == Visabilities.Public}
+    
+    @Published var mapPosts: [Post] = Post.MOCK_POSTS.filter{$0.accessability == Visabilities.Public}
+    
 }
 
 //

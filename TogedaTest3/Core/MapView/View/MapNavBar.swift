@@ -15,11 +15,29 @@ struct MapNavBar: View {
     
     var body: some View {
         VStack(){
-            CustomSearchBar(searchText: $searchText, showCancelButton: $showSearch)
-                .padding(.vertical, 8)
-                .padding(.horizontal)
-            Filters(viewModel: viewModel)
-                .transition(.move(edge: .top).combined(with: .opacity))
+            HStack{
+                CustomSearchBar(searchText: $searchText, showCancelButton: $showSearch)
+                
+                if !showSearch {
+                    Button{
+                        withAnimation{
+                            viewModel.showAllFilter = true
+                        }
+                    } label:{
+                        Image(systemName: "slider.horizontal.3")
+                            .foregroundColor(Color("textColor"))
+                            .frame(width: 35, height: 35)
+                            .background(Color(.tertiarySystemFill))
+                            .clipShape(Circle())
+                        
+                    }
+                }
+
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal)
+            
+            
             Divider()
         }
         .background(.bar)

@@ -5,32 +5,27 @@
 //  Created by Borislav Lorinkov on 15.09.23.
 //
 
-import Foundation
+import MapKit
 
 class FilterViewModel: ObservableObject {
-    @Published var filters: [Filter] = [
-        .init(id: NSUUID().uuidString, categoryName: "Time", isSelected: false, selectingCategory: "Any", selectedCategory: "Any",
-              options: TimeOptions),
-        .init(id: NSUUID().uuidString, categoryName: "Category", isSelected: false, selectingCategory: "Any", selectedCategory: "Any",
-              options: CategoryOptions),
-        .init(id: NSUUID().uuidString, categoryName: "Distance", isSelected: false, selectingCategory: "Any", selectedCategory: "Any",
-              options: DistanceOptions),
-        .init(id: NSUUID().uuidString, categoryName: "Type", isSelected: false, selectingCategory: "Any", selectedCategory: "Any",
-              options: TypeOptions)
-    ]
-    
-    @Published var selectedFilter: Filter?
-    @Published var filterIsSelected: Bool = false
-    @Published var selectedFilterIndex: Int = 0
-    
-    func updateFilterSheetPresentation() {
-        filterIsSelected = filters.contains(where: { $0.isSelected })
-    }
-    
     @Published var showAllFilter: Bool = false
+    @Published var searchText: String = ""
+    @Published var returnedPlace = Place(mapItem: MKMapItem())
+    @Published var isCurrentLocation = true
     
-//    var filterIsSelected: Bool {
-//        return filters.contains(where: { $0.isSelected })
-//    }
+    @Published var selectedTimeFilter: String = "Anytime"
+    var timeFilterOptions: [String] = ["Now", "Today", "This Week", "This Month", "Next 6 Months", "This Year", "Anytime"]
+    
+    @Published var selectedSortFilter: String = "Personalised"
+    var sortFilterOptions: [String] = ["Personalised", "Trending", "Newest", "Oldest"]
+    
+    @Published var sliderValue: Int = 300
+    
+    @Published var selectedCategories: [String] = []
+    var categories: [String] = ["🏃‍♂️ Sport", "Adventure", "Educational", "Social", "Casual", "Indoor", "Outdoor", "Grand", "Other"]
+    
+    @Published var selectedType = "All"
+    let types: [String] = ["All", "Events", "Groups", "Challenges", "Friends"]
+    
 
 }

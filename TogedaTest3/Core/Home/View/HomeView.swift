@@ -108,7 +108,7 @@ struct HomeView: View {
                             viewModel.searchUserResults = MiniUser.MOCK_MINIUSERS
                         }
                     }
-                    CustomNavBar(showFilter: $showFilter, viewModel: filterViewModel, homeViewModel: viewModel)
+                    CustomNavBar(showFilter: $showFilter, filterVM: filterViewModel, homeViewModel: viewModel)
                         .anchorPreference(key:HeaderBoundsKey.self, value:.bounds) {$0}
                         .overlayPreferenceValue(HeaderBoundsKey.self) { value in
                             GeometryReader{proxy in
@@ -126,12 +126,10 @@ struct HomeView: View {
             .sheet(isPresented: $postsViewModel.showJoinRequest){
                     JoinRequestView()
             }
-            .sheet(isPresented: $filterViewModel.filterIsSelected) {
-                FilterView(filterViewModel: filterViewModel)
-            }
             .sheet(isPresented: $filterViewModel.showAllFilter, content: {
                 AllInOneFilterView()
                     .presentationDetents([.fraction(0.99)])
+                    .presentationDragIndicator(.visible)
             })
 
         }

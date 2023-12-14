@@ -11,19 +11,7 @@ import WrappingHStack
 
 struct AllInOneFilterView: View {
     @Environment(\.dismiss) var dismiss
-    @State var searchText: String = ""
-    @State var returnedPlace = Place(mapItem: MKMapItem())
-    
-    @State var selectedTimeFilter: String = "Anytime"
-    var timeFilterOptions: [String] = ["Now", "Today", "This Week", "This Month", "Next 6 Months", "This Year", "Anytime"]
-    
-    @State var selectedSortFilter: String = "Personalised"
-    var sortFilterOptions: [String] = ["Personalised", "Trending", "Newest", "Oldest", "Friends"]
-    
-    @State var sliderValue : Int = 300
-    
-    @State var selectedCategories: [String] = []
-    var categories: [String] = ["🏃‍♂️ Sport", "Adventure", "Educational", "Social", "Casual", "Indoor", "Outdoor", "Grand", "Other"]
+    @StateObject var filterVM = FilterViewModel()
     
     var body: some View {
         ScrollView{
@@ -38,7 +26,7 @@ struct AllInOneFilterView: View {
                         .font(.body)
                         .bold()
                     
-                    LocationPickerFilterView(returnedPlace: $returnedPlace)
+                    LocationPickerFilterView(returnedPlace: $filterVM.returnedPlace, isCurrentLocation: $filterVM.isCurrentLocation)
                     
                 }
                 .padding(.top, 6)
@@ -48,7 +36,7 @@ struct AllInOneFilterView: View {
                         .font(.body)
                         .bold()
                     
-                    StandartFilterView(selectedFilter: $selectedTimeFilter, filterOptions: timeFilterOptions, image: Image(systemName: "calendar"))
+                    StandartFilterView(selectedFilter: $filterVM.selectedTimeFilter, filterOptions: filterVM.timeFilterOptions, image: Image(systemName: "calendar"))
                 }
                 
                 VStack(alignment: .leading, spacing: 16){
@@ -56,7 +44,7 @@ struct AllInOneFilterView: View {
                         .font(.body)
                         .bold()
                     
-                    StandartFilterView(selectedFilter: $selectedSortFilter, filterOptions: sortFilterOptions, image: Image(systemName: "list.bullet"))
+                    StandartFilterView(selectedFilter: $filterVM.selectedSortFilter, filterOptions: filterVM.sortFilterOptions, image: Image(systemName: "list.bullet"))
                 }
                 
                 VStack(alignment: .leading, spacing: 16){
@@ -67,7 +55,7 @@ struct AllInOneFilterView: View {
                             
                         Spacer()
                         
-                        Text("\(sliderValue) km")
+                        Text("\(filterVM.sliderValue) km")
                             .font(.callout)
                             .fontWeight(.semibold)
                             .foregroundStyle(.gray)
@@ -78,7 +66,7 @@ struct AllInOneFilterView: View {
                     SwiftUISlider(
                       thumbColor: UIColor(Color("blackAndWhite")),
                       minTrackColor: UIColor(Color("blackAndWhite")),
-                      value: $sliderValue
+                      value: $filterVM.sliderValue
                     )
  
                 }
@@ -91,14 +79,14 @@ struct AllInOneFilterView: View {
                             
                         Spacer()
                         
-                        Text("\(selectedCategories.count) selected")
+                        Text("\(filterVM.selectedCategories.count) selected")
                             .font(.callout)
                             .fontWeight(.semibold)
                             .foregroundStyle(.gray)
 
                     }
                     
-                    CategoryFilterView(selectedCategories: $selectedCategories, categories: categories)
+                    CategoryFilterView(selectedCategories: $filterVM.selectedCategories, categories: filterVM.categories)
                     
                 }
                 
@@ -116,6 +104,25 @@ struct AllInOneFilterView: View {
                 .cornerRadius(10)
                 .padding(.top, 8)
                 
+                Button{
+                    filterVM.searchText = ""
+                    filterVM.isCurrentLocation = true
+                    filterVM.returnedPlace = Place(mapItem: MKMapItem())
+                    
+                    filterVM.selectedTimeFilter = "Anytime"
+                    
+                    filterVM.sliderValue = 300
+                    
+                    filterVM.selectedSortFilter = "Personalised"
+                    
+                    filterVM.selectedCategories = []
+                } label: {
+                    Text("Reset")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.blue)
+                        .frame(maxWidth: .infinity, alignment: .center )
+                }
+                
             }
             .padding()
         }
@@ -129,8 +136,7 @@ struct LocationPickerFilterView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var returnedPlace: Place
     @State var showCancelButton: Bool = false
-    @State private var placemark: CLPlacemark?
-    @State private var isCurrentLocation: Bool = true
+    @Binding var isCurrentLocation: Bool
     
     var body: some View {
         VStack(spacing: 20) {
@@ -216,7 +222,6 @@ struct LocationPickerFilterView: View {
                             allInOneVM.searchText = ""
                             showCancelButton = false
                             returnedPlace = place
-                            dismiss()
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading )

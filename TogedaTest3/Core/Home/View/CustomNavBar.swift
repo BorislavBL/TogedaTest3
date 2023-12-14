@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CustomNavBar: View {
     @Binding var showFilter: Bool
-    @ObservedObject var viewModel: FilterViewModel
+    @ObservedObject var filterVM: FilterViewModel
     @EnvironmentObject var postViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     @ObservedObject var homeViewModel: HomeViewModel
@@ -34,7 +34,7 @@ struct CustomNavBar: View {
                         
                         Button{
                             withAnimation{
-                                viewModel.showAllFilter = true
+                                filterVM.showAllFilter = true
                             }
                         } label:{
                             Image(systemName: "slider.horizontal.3")
@@ -56,7 +56,8 @@ struct CustomNavBar: View {
                         
                     }
                     .foregroundColor(Color("textColor"))
-                    .padding(8)
+//                    .padding(8)
+                    .frame(width: 35, height: 35)
                     .background(Color("secondaryColor"))
                     .clipShape(Circle())
                     
@@ -64,7 +65,8 @@ struct CustomNavBar: View {
                 .padding(.horizontal)
                 
                 if showFilter{
-                    Filters(viewModel: viewModel)
+//                    Filters(viewModel: viewModel)
+                    TypeFilters(filterVM: filterVM)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
             } else {
@@ -90,7 +92,7 @@ struct CustomNavBar: View {
 struct CustomNavBar_Previews: PreviewProvider {
     @State static var showFilterPreview = true
     static var previews: some View {
-        CustomNavBar(showFilter: $showFilterPreview, viewModel: FilterViewModel(), homeViewModel: HomeViewModel())
+        CustomNavBar(showFilter: $showFilterPreview, filterVM: FilterViewModel(), homeViewModel: HomeViewModel())
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
     }

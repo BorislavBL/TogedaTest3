@@ -11,30 +11,19 @@ import MapKit
 struct MapView: View {
     //    @State private var mapRegion: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 41.89, longitude: 12.49), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
     
-    @EnvironmentObject var locationManager: LocationManager
-//    @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
-    @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 34.052235, longitude: -118.243683),
-        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-    ))
-    @State private var mapSelection: Post?
-    @State private var showPostView: Bool = false
-    @State private var selectedPost: Post = Post.MOCK_POSTS[0]
-    @Namespace private var locationSpace
-    @State private var visibleRegion: MKCoordinateRegion?
+    //    @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     
-    @State private var searchText: String = ""
-    @State private var searchResults: [Post] = Post.MOCK_POSTS.filter{$0.accessability == Visabilities.Public}
+    @StateObject var viewModel = MapViewModel()
+    @EnvironmentObject var locationManager: LocationManager
+
+    @Namespace private var locationSpace
+
     @State var showSearch: Bool = false
     
     @State private var address: String?
     
-    @EnvironmentObject var postsViewModel: PostsViewModel
-    @EnvironmentObject var userViewModel: UserViewModel
-    @State var mapPosts: [Post] = Post.MOCK_POSTS.filter{$0.accessability == Visabilities.Public}
-    
     @StateObject var filterViewModel = FilterViewModel()
-    //    @StateObject var viewModel = MapViewModel()
+    
     @State private var isInitialLocationSet = false
     
     var body: some View {
@@ -42,9 +31,9 @@ struct MapView: View {
         //            .edgesIgnoringSafeArea(.top)
         
         ZStack(alignment: .top){
-            Map(position: $cameraPosition, interactionModes: [.zoom, .pan], selection: $mapSelection, scope: locationSpace) {
+            Map(position: $viewModel.cameraPosition, interactionModes: [.zoom, .pan], selection: $viewModel.mapSelection, scope: locationSpace) {
                 
-                ForEach(mapPosts, id: \.id) { post in
+                ForEach(viewModel.mapPosts, id: \.id) { post in
                     
                     Marker(post.title, coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude))
                         .tag(post)
@@ -55,11 +44,11 @@ struct MapView: View {
                 UserAnnotation()
             }
             .onMapCameraChange { context in
-                visibleRegion = context.region
+                viewModel.visibleRegion = context.region
             }
             .onAppear(){
                 if !isInitialLocationSet {
-                    setLocation(cameraPosition: $cameraPosition, span: 0.1)
+                    setLocation(cameraPosition: $viewModel.cameraPosition, span: 0.1)
                     isInitialLocationSet = true
                 }
             }
@@ -68,8 +57,8 @@ struct MapView: View {
                     MapCompass(scope: locationSpace)
                     //                    MapPitchToggle(scope: locationSpace)
                     Button {
-                        if let region = visibleRegion {
-                            mapPosts = self.postsViewModel.posts.filter{
+                        if let region = viewModel.visibleRegion {
+                            viewModel.mapPosts = Post.MOCK_POSTS.filter{
                                 isLocationInsideVisibleRegion(latitude: $0.location.latitude, longitude: $0.location.longitude, region: region)
                             }
                         }
@@ -89,13 +78,13 @@ struct MapView: View {
                 if showSearch {
                     ScrollView{
                         LazyVStack(alignment: .leading, spacing: 10){
-                            ForEach(searchResults, id:\.id){ post in
+                            ForEach(viewModel.searchResults, id:\.id){ post in
                                 Button {
-                                    searchText = ""
+                                    viewModel.searchText = ""
                                     UIApplication.shared.endEditing(true)
                                     withAnimation(.snappy){
-                                        cameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude), latitudinalMeters: 5000, longitudinalMeters: 5000))
-                                        mapSelection = post
+                                        viewModel.cameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude), latitudinalMeters: 5000, longitudinalMeters: 5000))
+                                        viewModel.mapSelection = post
                                     }
                                     showSearch = false
                                 } label: {
@@ -109,7 +98,7 @@ struct MapView: View {
                         }
                         
                     }
-                    .padding(.top, 95)
+                    .padding(.top, 60)
                     .padding(.vertical)
                     .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: UIScreen.main.bounds.height)
                     .background()
@@ -121,59 +110,53 @@ struct MapView: View {
             //            .navigationTitle("Map")
             //            .navigationBarTitleDisplayMode(.inline)
             //            .searchable(text: $searchText, isPresented: $showSearch, placement: .navigationBarDrawer(displayMode: .always))
-            .onChange(of: searchText){
-                if !searchText.isEmpty {
-                    mapSelection = nil
-                    searchResults = mapPosts.filter{ result in
-                        result.title.lowercased().contains(searchText.lowercased())
+            .onChange(of: viewModel.searchText){
+                if !viewModel.searchText.isEmpty {
+                    viewModel.mapSelection = nil
+                    viewModel.searchResults = viewModel.mapPosts.filter{ result in
+                        result.title.lowercased().contains(viewModel.searchText.lowercased())
                     }
                 } else {
-                    searchResults = mapPosts
+                    viewModel.searchResults = viewModel.mapPosts
                 }
             }
-            .onChange(of: mapSelection, { oldValue, newValue in
+            .onChange(of: viewModel.mapSelection, { oldValue, newValue in
                 if let post = newValue {
                     reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
                         address = result
                     }
                     
                     withAnimation(.linear) {
-                        selectedPost = post
-                        showPostView = true
+                        viewModel.selectedPost = post
+                        viewModel.showPostView = true
                     }
                     
                 } else {
                     withAnimation(.linear) {
-                        showPostView = false
+                        viewModel.showPostView = false
                     }
                     
                 }
             })
             .onSubmit(of: .search) {
                 Task {
-                    guard !searchText.isEmpty else {return}
+                    guard !viewModel.searchText.isEmpty else {return}
                     print("submit")
                 }
             }
             
             
-            MapNavBar(searchText: $searchText, showSearch: $showSearch, viewModel: filterViewModel)
+            MapNavBar(searchText: $viewModel.searchText, showSearch: $showSearch, viewModel: filterViewModel)
         }
-        .sheet(isPresented: $filterViewModel.filterIsSelected) {
-            FilterView(filterViewModel: filterViewModel)
+        .sheet(isPresented: $filterViewModel.showAllFilter){
+            AllInOneFilterView()
+                .presentationDetents([.fraction(0.99)])
+                .presentationDragIndicator(.visible)
         }
         .overlay(alignment:.bottom) {
-            if showPostView && !showSearch {
-//                Button {
-//                    print("Clicked")
-//                    showPostView = false
-//                    postsViewModel.showDetailsPage = true
-//                    postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: selectedPost) ?? 0
-//                } label: {
-//                    EventMapPreview(post: selectedPost, address: address)
-//                }
-                NavigationLink(value: selectedPost.id){
-                    EventMapPreview(post: selectedPost, address: address)
+            if viewModel.showPostView && !showSearch {
+                NavigationLink(value: viewModel.selectedPost.id){
+                    EventMapPreview(post: viewModel.selectedPost, address: address)
                 }
                 .frame(height: 170)
                 .frame(maxWidth: UIScreen.main.bounds.width, alignment: .leading)
@@ -182,7 +165,7 @@ struct MapView: View {
                 .padding(8)
                 .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .move(edge: .bottom)))
                 .onAppear(){
-                    reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: selectedPost.location.latitude, longitude: selectedPost.location.longitude)) { result in
+                    reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: viewModel.selectedPost.location.latitude, longitude: viewModel.selectedPost.location.longitude)) { result in
                         address = result
                     }
                 }
@@ -208,17 +191,6 @@ struct MapView: View {
     
 }
 
-extension CLLocationCoordinate2D {
-    static var myLocation: CLLocationCoordinate2D {
-        return .init(latitude: 42.697463, longitude: 23.320301)
-    }
-}
-
-extension MKCoordinateRegion {
-    static var myRegion: MKCoordinateRegion {
-        return .init(center: .myLocation, latitudinalMeters: 10000, longitudinalMeters: 10000)
-    }
-}
 
 struct MapView_Previews: PreviewProvider {
     static var previews: some View {
