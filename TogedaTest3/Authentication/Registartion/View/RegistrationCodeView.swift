@@ -12,6 +12,7 @@ struct RegistrationCodeView: View {
     @FocusState private var keyIsFocused: Bool
     @Environment(\.dismiss) var dismiss
     @State var code: String = ""
+    @State private var displayError: Bool = false
     var body: some View {
         VStack {
             Text("Please enter the code you receive.")
@@ -39,6 +40,11 @@ struct RegistrationCodeView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 15)
             
+            if displayError {
+                WarningTextComponent(text: "Please enter the code. If you haven't received it chlick on the resend button.")
+                    .padding(.bottom, 15)
+            }
+            
             Button{
                 code = ""
             } label: {
@@ -63,6 +69,11 @@ struct RegistrationCodeView: View {
                     .fontWeight(.semibold)
             }
             .disableWithOpacity(code.count < 4)
+            .onTapGesture {
+                if code.count < 4 {
+                    displayError.toggle()
+                }
+            }
             
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)

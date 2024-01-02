@@ -75,9 +75,9 @@ struct RegistrationFullNameView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(firstName.count < 3 && lastName.count < 3)
+            .disableWithOpacity((firstName.count < 3 || lastName.count < 3))
             .onTapGesture {
-                if firstName.count < 3 && lastName.count < 3 {
+                if firstName.count < 3 || lastName.count < 3 {
                     displayError.toggle()
                 }
             }

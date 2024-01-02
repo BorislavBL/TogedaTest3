@@ -20,43 +20,23 @@ struct ProfileView: View {
         NavigationView{
             ScrollView(showsIndicators: false){
                 VStack(alignment: .center) {
-                    //                        Text("\(initialMinYValue), \(minYValue)")
-                    
-                        if showImageSet {
-                            TabView {
-                                ForEach(user.profileImageUrl, id: \.self) { image in
-                                    Image(image)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .clipped()
-                                    
-                                }
-                                
-                            }
-                            .tabViewStyle(PageTabViewStyle())
-                            .cornerRadius(10)
-                            .frame(height: 400)
+                    TabView {
+                        ForEach(user.profileImageUrl, id: \.self) { image in
+                            Image(image)
+                                .resizable()
+                                .scaledToFill()
+                                .clipped()
                             
-                        } else {
-                            
-                            Button{
-                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                showImageSet = true
-                            }label:{
-                                Image(user.profileImageUrl[0])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .background(.gray)
-                                    .frame(width: 120, height: 120)
-                                    .cornerRadius(20)
-                                    .clipped()
-                            }
                         }
-                    
+                        
+                    }
+                    .tabViewStyle(PageTabViewStyle())
+                    .cornerRadius(10)
+                    .frame(height: 400)
                     
                     
                     VStack(spacing: 10) {
-                        Text(user.fullname)
+                        Text(user.fullName)
                             .font(.title2)
                             .fontWeight(.bold)
                         
@@ -69,26 +49,26 @@ struct ProfileView: View {
                         }
                         .foregroundColor(.gray)
                         
-                        if let from = user.from{
-                            HStack(spacing: 5){
-                                Image(systemName: "mappin.circle")
-                                
-                                Text(from)
-                                    .font(.footnote)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.gray)
-                            }
-                            .foregroundColor(.gray)
+                        
+                        HStack(spacing: 5){
+                            Image(systemName: "mappin.circle")
                             
+                            Text(user.baseLocation.name)
+                                .font(.footnote)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.gray)
                         }
+                        .foregroundColor(.gray)
+                        
+                        
                     }.padding(.vertical)
                     
                     HStack(alignment: .top, spacing: 30) {
                         UserStats(value: String(user.friendIDs.count), title: "Friends")
                         Divider()
-                        UserStats(value: String(user.eventIDs.count), title: "Events")
+                        UserStats(value: String(user.createdEventIDs.count), title: "Events")
                         Divider()
-                        UserStats(value: "\(user.rating)%", title: "Rating")
+                        UserStats(value: "\(10)%", title: "Rating")
                     }
                     .padding(.vertical)
                     
@@ -105,21 +85,14 @@ struct ProfileView: View {
                             .frame(width: 0, height: 0)
                             .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
                                 minYValue = newMinY
-                                if newMinY >= 45 && !showImageSet{
-                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                    showImageSet = true
-                                } else if newMinY < -15 && showImageSet{
-                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                    showImageSet = false
-                                }
+                                
                             }
                     }
                 )
                 BadgesTab()
                 AboutTab(user: user)
-                EventTab(vm: viewModel)
-                ClubsTab()
-                CalendarTab()
+                EventTab(userID: user.id)
+                ClubsTab(userID: user.id)
                 
             }
             .edgesIgnoringSafeArea(.top)
@@ -144,9 +117,6 @@ struct ProfileView: View {
                     }
                 }
             }
-            //            .fullScreenCover(isPresented: $viewModel.showCompletedEvent, content: {
-            //                CompletedEventView(viewModel: PostsViewModel(), post: viewModel.selectedPost, userViewModel: UserViewModel())
-            //            })
         }
         .navigationViewStyle(.stack)
     }
@@ -156,5 +126,7 @@ struct ProfileView: View {
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView(user: User.MOCK_USERS[0])
+            .environmentObject(UserViewModel())
+            .environmentObject(PostsViewModel())
     }
 }

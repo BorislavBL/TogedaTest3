@@ -19,6 +19,7 @@ struct CountryNumbersView: View {
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var keyIsFocused: Bool
     @Environment(\.dismiss) var dismiss
+    @State private var displayError: Bool = false
     
     var currentDestination: AnyView
     let counrties: [CPData] = Bundle.main.decode("CountryNumbers.json")
@@ -58,9 +59,15 @@ struct CountryNumbersView: View {
                     .padding(10)
                     .frame(minWidth: 80, minHeight: 47)
                     .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            
             }
             .padding(.top, 20)
             .padding(.bottom, 15)
+            
+            if displayError {
+                WarningTextComponent(text: "Please enter a valid number.")
+                    .padding(.bottom, 15)
+            }
             
             Spacer()
             
@@ -74,6 +81,11 @@ struct CountryNumbersView: View {
                     .fontWeight(.semibold)
             }
             .disableWithOpacity(mobPhoneNumber.count < 5)
+            .onTapGesture {
+                if mobPhoneNumber.count < 5 {
+                    displayError.toggle()
+                }
+            }
             
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)

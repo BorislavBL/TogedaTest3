@@ -47,7 +47,7 @@ struct InboxView: View {
             .onChange(of: searchText){
                 if !searchText.isEmpty {
                     searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                        result.fullname.lowercased().contains(searchText.lowercased())
+                        result.fullName.lowercased().contains(searchText.lowercased())
                     }
                 } else {
                     searchUserResults = MiniUser.MOCK_MINIUSERS
@@ -89,7 +89,7 @@ struct InboxRowView: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack{
                     if let user = message.user{
-                        Text(user.fullname)
+                        Text(user.fullName)
                             .font(.subheadline)
                             .fontWeight(.semibold)
                     }

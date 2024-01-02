@@ -17,7 +17,7 @@ struct EventReviewView: View {
     let placeholder = "Share your experience...\nTell us what you thought about the event. What was the highlight for you? Was there anything that could be improved? Your feedback helps others decide which events to attend and assists organizers in making future events even better. Whether it’s the atmosphere, the music, the people, or the venue, let us know your thoughts! \nRemember to keep your review respectful and constructive – everyone reads these!"
     
     var body: some View {
-        ZStack(alignment:.bottom){
+        VStack(){
             ScrollView{
                 LazyVStack(alignment:.center, spacing: 30){
                     Image(post.imageUrl[0])

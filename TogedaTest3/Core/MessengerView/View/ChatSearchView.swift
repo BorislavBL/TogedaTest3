@@ -21,7 +21,7 @@ struct ChatSearchView: View {
                                 .frame(width: size.dimension, height: size.dimension)
                                 .clipShape(Circle())
                             
-                            Text(user.fullname)
+                            Text(user.fullName)
                                 .multilineTextAlignment(.leading)
                                 .fontWeight(.semibold)
                                 .fontWeight(.bold)

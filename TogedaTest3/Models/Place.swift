@@ -64,6 +64,29 @@ struct Place:Identifiable {
         return locationComponents.joined(separator: ", ")
     }
     
+    var addressCity: String {
+        let placemark = self.mapItem.placemark
+        var locationComponents = [String]()
+
+        if let street = placemark.thoroughfare {
+            locationComponents.append(street)
+        }
+        
+        if let city = placemark.locality {
+            locationComponents.append(city)
+        }
+        
+        if let state = placemark.administrativeArea {
+            locationComponents.append(state)
+        }
+
+        if let country = placemark.country {
+            locationComponents.append(country)
+        }
+        
+        return locationComponents.joined(separator: ", ")
+    }
+    
     var latitude: Double {
         self.mapItem.placemark.coordinate.latitude
     }

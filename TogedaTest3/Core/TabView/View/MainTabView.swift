@@ -22,19 +22,12 @@ struct MainTabView: View {
         NavigationStack{
             TabView(selection: $router.screen) {
                 Group {
-                    if locationManager.showLocationServicesView{
-                        AllowLocationView()
-                            .tag(Screen.home)
-                            .tabItem {
-                                Image(systemName: "house")
-                            }
-                    } else {
-                        HomeView()
-                            .tag(Screen.home)
-                            .tabItem {
-                                Image(systemName: "house")
-                            }
-                    }
+                    
+                    HomeView()
+                        .tag(Screen.home)
+                        .tabItem {
+                            Image(systemName: "house")
+                        }
                     MapView()
                         .tag(Screen.map)
                         .tabItem {
@@ -78,9 +71,12 @@ struct MainTabView: View {
             }
             .fullScreenCover(isPresented: $router.isPresenting) {
                 CreateEventView()
-//                    .presentationDragIndicator(.hidden)
-//                    .interactiveDismissDisabled(true)
+                //                    .presentationDragIndicator(.hidden)
+                //                    .interactiveDismissDisabled(true)
             }
+            .fullScreenCover(isPresented: $locationManager.showLocationServicesView, content: {
+                AllowLocationView()
+            })
             .sheet(isPresented: $postsViewModel.showPostOptions, content: {
                 List {
                     Button("Save") {
@@ -115,15 +111,15 @@ struct MainTabView: View {
                 }
             })
             .navigationDestination(for: String.self) { id in
-                    EventView(postID: id)
+                EventView(postID: id)
                 //.toolbar(.hidden, for: .tabBar)
             }
             .navigationDestination(for: MiniUser.self) { user in
                 UserProfileView(miniUser: user)
             }
-//            .fullScreenCover(isPresented: $postsViewModel.showDetailsPage, content: {
-//                EventView(viewModel: postsViewModel, post: postsViewModel.posts[postsViewModel.clickedPostIndex], userViewModel: userViewModel)
-//            })
+            //            .fullScreenCover(isPresented: $postsViewModel.showDetailsPage, content: {
+            //                EventView(viewModel: postsViewModel, post: postsViewModel.posts[postsViewModel.clickedPostIndex], userViewModel: userViewModel)
+            //            })
         }
     }
 }

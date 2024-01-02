@@ -37,7 +37,7 @@ struct NewMessageView: View {
                                     .frame(width: size.dimension, height: size.dimension)
                                     .clipShape(Circle())
 
-                                Text(user.fullname)
+                                Text(user.fullName)
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
 
@@ -59,7 +59,7 @@ struct NewMessageView: View {
             .onChange(of: searchText){
                 if !searchText.isEmpty {
                     searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                        result.fullname.lowercased().contains(searchText.lowercased())
+                        result.fullName.lowercased().contains(searchText.lowercased())
                     }
                 } else {
                     searchUserResults = MiniUser.MOCK_MINIUSERS

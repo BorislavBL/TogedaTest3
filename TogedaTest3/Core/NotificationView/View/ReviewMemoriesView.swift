@@ -15,7 +15,7 @@ struct ReviewMemoriesView: View {
     @State var showImagesViewer: Bool = false
     @Environment(\.dismiss) var dismiss
     var body: some View {
-        ZStack(alignment:.bottom){
+        VStack{
             ScrollView{
                 LazyVStack(alignment:.center, spacing: 80){
                     Text("Share with your friends some of the memories you have captured during the event.")

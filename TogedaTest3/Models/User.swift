@@ -8,36 +8,56 @@
 import Foundation
 
 struct User: Identifiable, Codable, Hashable {
-    let id: String
-    var username: String
+    var id: String
     var profileImageUrl: [String]
-    var from: String?
-    var fullname: String
-    var description: String?
-    let email: String
-    var savedPosts: [String]
-    let title: String?
-    var friendIDs: [String]
-    var eventIDs: [String]
-    let abouts: [String]
+    var firstName: String
+    var lastName: String
+    var bio: String?
+    var email: String
+    let phoneNumber: String
+    var birthDay: birthDay
+    var occipation: String
+    var baseLocation: baseLocation
+    var gender: String
     let interests: [String]
-    var rating: Int
+    var education: String?
+    var workout: String?
+    var personalityType: String?
+    var instagarm: String?
+    var savedPosts: [String]
+    var friendIDs: [String]
+    var createdEventIDs: [String]
+    var participatedEventIDs: [String]
+    
+    var fullName: String {
+        return "\(firstName) \(lastName)"
+    }
 }
+
+struct birthDay: Hashable, Codable{
+    var day: String
+    var month: String
+    var year: String
+}
+
+struct baseLocation: Hashable, Codable {
+    var name: String
+    var latitude: Double
+    var longitude: Double
+}
+
 
 struct MiniUser: Identifiable, Codable, Hashable {
     let id: String
-    var username: String
+    var firstName: String
+    var lastName: String
     var profileImageUrl: [String]
-    var from: String?
-    var fullname: String
-    let title: String?
-}
-
-struct Rating {
-    let id: String
-    let userId: String
-    let comment: String?
-    let rating: Int
+    var occupation: String
+    var baseLocation: baseLocation
+    
+    var fullName: String {
+        return "\(firstName) \(lastName)"
+    }
 }
 
 let posts = Post.MOCK_POSTS
@@ -47,6 +67,8 @@ let mockAbouts = ["Designer", "ISFP", "Bachelor", "Single", "Non-smoker", "Drink
 let mockInterests = ["hiking", "chess", "gym", "anime", "sushi", "movies", "working out"]
 let events: [String] = []
 let friends = ["1", "2", "3"]
+let mockBirthday = birthDay(day: "12", month: "07", year: "2000")
+let mockLocation = baseLocation(name: "Sofia, Bulgaria", latitude: 42.697175, longitude: 23.322826)
 
 extension User {
     static func findUser(byId id: String) -> User? {
@@ -54,25 +76,20 @@ extension User {
     }
     
     static var MOCK_USERS: [User] = [
-        .init(id: NSUUID().uuidString, username: "alison", profileImageUrl: ["person_1", "person_2", "person_3"], from: "United Kingdom, Leeds", fullname: "Alison Hogwards", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: "Graphic Designer", friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90),
-        .init(id: NSUUID().uuidString, username: "Emma", profileImageUrl: ["person_2"], from: "United Kingdom, Leeds", fullname: "Emma W", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: "Programmer", friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90),
-        .init(id: NSUUID().uuidString, username: "Batman3", profileImageUrl: ["person_3"], from: "United Kingdom, Leeds", fullname: "Bruce Wayne", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: "Founder", friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90),
-        .init(id: NSUUID().uuidString, username: "alison2", profileImageUrl: ["person_1"], from: "United Kingdom, Leeds", fullname: "Alison Hogwards2", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: "Mechanic", friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90),
-        .init(id: NSUUID().uuidString, username: "Batman5", profileImageUrl: ["person_3"], from: "United Kingdom, Leeds", fullname: "Bruce Wayne", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: nil, friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90),
-        .init(id: NSUUID().uuidString, username: "Emma2", profileImageUrl: ["person_2"], from: "United Kingdom, Leeds", fullname: "Emma L", description:userDescription, email: "brucethewain@gmail.com", savedPosts: [], title: "I just got here", friendIDs: friends, eventIDs: events, abouts: mockAbouts, interests: mockInterests, rating: 90)
+        .init(id: NSUUID().uuidString, profileImageUrl: ["person_1", "person_2", "person_3"], firstName: "Alison", lastName: "Hogwards", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Graphic Designer", baseLocation: mockLocation, gender: "Woman", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events),
+        .init(id: NSUUID().uuidString, profileImageUrl: ["person_2"], firstName: "Emma", lastName: "W", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Programmer", baseLocation: mockLocation, gender: "Woman", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events),
+        .init(id: NSUUID().uuidString, profileImageUrl: ["person_3"], firstName: "Bruce", lastName: "Wayne", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Founder", baseLocation: mockLocation, gender: "Man", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ENTJ", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events),
+        .init(id: NSUUID().uuidString, profileImageUrl: ["person_2", "person_3"], firstName: "Alison", lastName: "Hogwards2", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Graphic Designer", baseLocation: mockLocation, gender: "Woman", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events),
+        .init(id: NSUUID().uuidString, profileImageUrl: ["person_3"], firstName: "B", lastName: "L", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Graphic Designer", baseLocation: mockLocation, gender: "Man", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events),
+        .init(id: NSUUID().uuidString, profileImageUrl: ["person_1", "person_3"], firstName: "Emma", lastName: "L", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Graphic Designer", baseLocation: mockLocation, gender: "Woman", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events),
     ]
 }
 
+
 extension MiniUser {
     static var MOCK_MINIUSERS: [MiniUser] = User.MOCK_USERS.map { user in
-        return MiniUser(
-            id: user.id,
-            username: user.username,
-            profileImageUrl: user.profileImageUrl,
-            from: user.from,
-            fullname: user.fullname,
-            title: user.title
-        )
+        return MiniUser(id: user.id, firstName: user.firstName, lastName: user.lastName, profileImageUrl: user.profileImageUrl, occupation: user.occipation, baseLocation: user.baseLocation)
     }
 }
+
 

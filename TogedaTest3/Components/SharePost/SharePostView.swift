@@ -63,7 +63,7 @@ struct SharePostView: View {
                                         .frame(width: size.dimension, height: size.dimension)
                                         .clipShape(Circle())
                                     
-                                    Text(user.fullname)
+                                    Text(user.fullName)
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                     
@@ -81,7 +81,7 @@ struct SharePostView: View {
             .onChange(of: searchText){
                 if !searchText.isEmpty {
                     searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                        result.fullname.lowercased().contains(searchText.lowercased())
+                        result.fullName.lowercased().contains(searchText.lowercased())
                     }
                 } else {
                     searchUserResults = MiniUser.MOCK_MINIUSERS
@@ -123,7 +123,7 @@ struct ReceiverTags: View {
                         .imageScale(.medium)
                     
                     
-                    Text(user.fullname)
+                    Text(user.fullName)
                         .font(.subheadline)
                     
                 }
@@ -133,7 +133,7 @@ struct ReceiverTags: View {
                 .clipShape(Capsule())
             }
         } else {
-            Button{clicked = true} label:{
+            Button { clicked = true } label:{
                 HStack{
                     Image(user.profileImageUrl[0])
                         .resizable()
@@ -141,7 +141,7 @@ struct ReceiverTags: View {
                         .frame(width: size.dimension, height: size.dimension)
                         .clipShape(Circle())
                     
-                    Text(user.fullname)
+                    Text(user.fullName)
                         .font(.subheadline)
                         .padding(.trailing, 8)
                 }

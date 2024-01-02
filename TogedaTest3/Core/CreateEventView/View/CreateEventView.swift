@@ -16,33 +16,17 @@ struct CreateEventView: View {
     
     //PhotoPicker
     @StateObject var photoPickerVM = PhotoPickerViewModel()
+    
+    let descriptionPlaceholder = "Describe the purpose of your event. What activities are you planning? Mention any special guests who might be attending. Will there be food and drinks? Help attendees know what to expect."
 
     var body: some View {
         NavigationStack {
             VStack{
                 ScrollView(showsIndicators: false){
-                    //                    TextField("What event would you like to make", text: $title, axis: .vertical)
-                    //                        .submitLabel(.done)
-                    //                        .focused($isTitle)
-                    //                        .onSubmit {
-                    //                            isTitle = false
-                    //                            print("ok")
-                    //                        }
-                    //                        .font(.headline)
-                    //                        .fontWeight(.bold)
-                    //                        .lineLimit(2, reservesSpace: true)
-                    //                        .padding(.vertical)
-                    //                        .onChange(of: title) { oldValue, newValue in
-                    //                            if title.count > 70 {
-                    //                                title = String(title.prefix(70))
-                    //                            }
-                    //                        }
-                    
-                    
                     VStack(alignment: .leading){
                         Text("Title:")
                             .foregroundStyle(.tint)
-                        TextField("What event would you like to make", text: $ceVM.title)
+                        TextField("What event would you like to make?", text: $ceVM.title)
                             .font(.headline)
                             .fontWeight(.bold)
                             .onChange(of: ceVM.title) { oldValue, newValue in
@@ -62,7 +46,7 @@ struct CreateEventView: View {
                     
 
                     NavigationLink {
-                        DescriptionView(description: $ceVM.description)
+                        DescriptionView(description: $ceVM.description, placeholder: descriptionPlaceholder)
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "square.and.pencil")
@@ -366,8 +350,13 @@ struct CreateEventView: View {
                 }
                 
             }
+            .onTapGesture {
+                hideKeyboard()
+            }
             .frame(maxHeight: UIScreen.main.bounds.height,alignment: .top)
             .navigationBarBackButtonHidden(true)
+            .navigationTitle("Create Event")
+            .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(trailing:Button(action: {showExitSheet = true}) {
                 Image(systemName: "xmark")
                     .imageScale(.medium)

@@ -101,7 +101,7 @@ struct HomeView: View {
                                 result.title.lowercased().contains(viewModel.searchText.lowercased())
                             }
                             viewModel.searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                                result.fullname.lowercased().contains(viewModel.searchText.lowercased())
+                                result.fullName.lowercased().contains(viewModel.searchText.lowercased())
                             }
                         } else {
                             viewModel.searchPostResults = Post.MOCK_POSTS

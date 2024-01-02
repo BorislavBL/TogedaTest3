@@ -8,90 +8,52 @@
 import SwiftUI
 
 struct ClubsTab: View {
-    @State var selectedFilter: String = "All"
+    var userID: String
     
-    private let gridItems: [GridItem] = [
-        .init(.flexible(), spacing: 2),
-        .init(.flexible(), spacing: 2),
-        .init(.flexible(), spacing: 2),
-    ]
-    @State var posts: [Post] = Post.MOCK_POSTS
     var body: some View {
         VStack (alignment: .leading, spacing: 20) {
-            Text("Clubs")
-                .font(.body)
-                .fontWeight(.bold)
-            
-            HStack(alignment: .center, spacing: 5) {
+            HStack{
+                Text("Clubs")
+                    .font(.body)
+                    .fontWeight(.bold)
                 
-                ForEach(["All", "Owner", "Member"], id:\.self) {filter in
-                    Button {
-                        selectedFilter = filter
-                    } label: {
-                        if selectedFilter == filter {
-                            Text(filter)
-                                .selectedTagTextStyle()
-                                .selectedTagCapsuleStyle()
-                        } else {
-                            Text(filter)
-                                .normalTagTextStyle()
-                                .normalTagCapsuleStyle()
-                        }
-                    }
+                    Text("\(30)")
+                        .foregroundStyle(.gray)
+                
+                
+                Spacer()
+                
+                NavigationLink(destination: AllUserGroupsView(userID: userID)){
+                    Text("View All")
+                        .fontWeight(.semibold)
+                    
                 }
                 
             }
+            .padding(.horizontal)
 
             
-            LazyVGrid(columns: gridItems, spacing: 10) {
-                ForEach(0..<6, id: \.self){ index in
-                    EventComponent(post: posts[index])
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack{
+                    ForEach(0..<6, id: \.self){ index in
+                        GroupComponent(userID: userID)
+                    }
                 }
+                .padding(.horizontal)
             }
-            
-            NavigationLink(destination: UserTabViews(title: "Clubs", filters: ["All", "Owner", "Member"])) {
-                Text("View All")
-                    .normalTagTextStyle()
-                    .frame(maxWidth: .infinity)
-                    .normalTagRectangleStyle()
-                    
-            }
+
         }
         .frame(minWidth: 0, maxWidth: .infinity)
-        .padding()
+        .padding(.vertical)
         .background(.bar)
         .cornerRadius(10)
     }
 }
 
-struct ClubComponent: View {
-    
-    private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 3) - 18
-    
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            Image("event_1")
-                .resizable()
-                .scaledToFill()
-                .frame(width: imageDimension, height: imageDimension + imageDimension * 0.3)
-                .clipped()
-            
-            VStack{
-                Text("Hiking in the mountain")
-                    .font(.footnote)
-                    .foregroundColor(.white)
-                    .fontWeight(.bold)
-            }
-            .frame(maxWidth: imageDimension)
-            .frame(height: imageDimension * 0.4)
-            .background(Color(.black).opacity(0.3))
-        }
-        .cornerRadius(20)
-    }
-}
+
 struct ClubsTab_Previews: PreviewProvider {
     static var previews: some View {
-        ClubsTab()
+        ClubsTab(userID: "")
     }
 }
 

@@ -52,6 +52,8 @@ struct TestCreateEventView: View {
     //PhotoPicker
     @StateObject var photoPickerVM = PhotoPickerViewModel()
     
+    let descriptionPlaceholder = "Describe the purpose of your event. What activities are you planning? Mention any special guests who might be attending. Will there be food and drinks? Help attendees know what to expect."
+    
     var body: some View {
         NavigationStack {
             VStack{
@@ -101,7 +103,7 @@ struct TestCreateEventView: View {
                     VStack(spacing: 10) {
                         
                         NavigationLink {
-                            DescriptionView(description: $description)
+                            DescriptionView(description: $description, placeholder: descriptionPlaceholder)
                         } label: {
                             HStack(alignment: .center, spacing: 10) {
                                 Image(systemName: "square.and.pencil")

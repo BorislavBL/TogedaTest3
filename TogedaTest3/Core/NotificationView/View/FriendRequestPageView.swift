@@ -25,7 +25,7 @@ struct FriendRequestPageView: View {
                             
                         }
                         VStack(alignment:.leading){
-                            Text(user.fullname)
+                            Text(user.fullName)
                                 .font(.footnote)
                                 .fontWeight(.semibold)
                             

@@ -237,7 +237,6 @@ struct LocationPickerFilterView: View {
                         allInOneVM.findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace)
                         UIApplication.shared.endEditing(true)
                         allInOneVM.searchText = ""
-                        returnedPlace = Place(mapItem: MKMapItem())
                         isCurrentLocation = true
                         
                     } label: {

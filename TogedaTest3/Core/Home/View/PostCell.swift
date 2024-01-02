@@ -41,7 +41,7 @@ struct PostCell: View {
                                     .truncationMode(.tail)
                                     .font(.body)
                                     .fontWeight(.semibold)
-                                Text(user.fullname)
+                                Text(user.fullName)
                                     .foregroundColor(.gray)
                                     .fontWeight(.semibold)
                                     .font(.footnote)

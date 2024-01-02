@@ -82,7 +82,7 @@ struct RegistartionAgeView: View {
             .padding(.bottom, 15)
             
             if displayError {
-                WarningTextComponent(text: "Just write your birthday, if it's conviniet for you?")
+                WarningTextComponent(text: "Please write a valid date.")
                     .padding(.bottom, 15)
             }
             
@@ -92,7 +92,7 @@ struct RegistartionAgeView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationEmailView()){
+            NavigationLink(destination: RegistrationGenderView()){
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -126,17 +126,6 @@ struct RegistartionAgeView: View {
         })
     }
     
-    func validDate(day: String, month: String, year: String) -> Bool{
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-
-        if dateFormatter.date(from:"\(year)-\(month)-\(day)") != nil && day.count == 2 && month.count == 2 && year.count == 4 {
-            return true
-        }
-        else {
-           return false
-        }
-    }
     
     var foregroundColor: Color {
         if colorScheme == .dark {

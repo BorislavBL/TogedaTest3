@@ -11,6 +11,8 @@ class ProfileViewModel: ObservableObject {
     @Published var showImageSet: Bool = false
     @Published var selectedPost: Post = Post.MOCK_POSTS[0]
     @Published var showCompletedEvent: Bool = false
+    
+    
 }
 
 

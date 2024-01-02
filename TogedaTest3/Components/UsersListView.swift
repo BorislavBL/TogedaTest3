@@ -24,7 +24,7 @@ struct UsersListView: View {
                                 .clipShape(Circle())
                             
                             
-                            Text(user.fullname)
+                            Text(user.fullName)
                                 .fontWeight(.semibold)
                             
                             Spacer()

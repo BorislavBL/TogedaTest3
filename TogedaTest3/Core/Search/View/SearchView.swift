@@ -39,13 +39,14 @@ struct SearchView: View {
                                         .font(.body)
                                         .fontWeight(.semibold)
                                     
-                                    if let fullname = post.user?.fullname {
-                                        Text(fullname)
+                                    if let user = post.user {
+                                        Text(user.fullName)
                                             .multilineTextAlignment(.leading)
                                             .foregroundColor(.gray)
                                             .fontWeight(.semibold)
                                             .font(.footnote)
                                     }
+                                    
                                 }
                                 Spacer()
                                 
@@ -65,7 +66,7 @@ struct SearchView: View {
                                     .frame(width: size.dimension, height: size.dimension)
                                     .clipShape(Circle())
                                 
-                                Text(user.fullname)
+                                Text(user.fullName)
                                     .multilineTextAlignment(.leading)
                                     .fontWeight(.semibold)
                                     .fontWeight(.bold)

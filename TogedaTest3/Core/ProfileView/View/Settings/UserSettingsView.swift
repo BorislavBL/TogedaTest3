@@ -12,7 +12,7 @@ struct UserSettingsView: View {
     var body: some View {
         List{
             Section(header: Text("Profile")){
-                NavigationLink(destination: TestView()){
+                NavigationLink(destination: EditProfileView()){
                     Text("Edit Profile")
                 }
                 NavigationLink(destination: TestView()){

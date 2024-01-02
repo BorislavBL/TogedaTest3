@@ -13,6 +13,7 @@ struct RegistrationEmailView: View {
     @Environment(\.dismiss) var dismiss
     @State var email: String = ""
     @State var isEmailListed: Bool = false
+    @State private var displayError: Bool = false
     var body: some View {
         VStack {
             Text("What's your email?")
@@ -35,6 +36,11 @@ struct RegistrationEmailView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 15)
             
+            
+            if displayError {
+                WarningTextComponent(text: "Please enter a valid email.")
+                    .padding(.bottom, 15)
+            }
             
             Button{
                 isEmailListed.toggle()
@@ -61,6 +67,11 @@ struct RegistrationEmailView: View {
                     .fontWeight(.semibold)
             }
             .disableWithOpacity(!isValidEmail(testStr: email))
+            .onTapGesture {
+                if !isValidEmail(testStr: email) {
+                    displayError.toggle()
+                }
+            }
             
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)
@@ -96,13 +107,7 @@ struct RegistrationEmailView: View {
         }
     }
     
-    func isValidEmail(testStr:String) -> Bool {
-            print("validate emilId: \(testStr)")
-            let emailRegEx = "^(?:(?:(?:(?: )*(?:(?:(?:\\t| )*\\r\\n)?(?:\\t| )+))+(?: )*)|(?: )+)?(?:(?:(?:[-A-Za-z0-9!#$%&’*+/=?^_'{|}~]+(?:\\.[-A-Za-z0-9!#$%&’*+/=?^_'{|}~]+)*)|(?:\"(?:(?:(?:(?: )*(?:(?:[!#-Z^-~]|\\[|\\])|(?:\\\\(?:\\t|[ -~]))))+(?: )*)|(?: )+)\"))(?:@)(?:(?:(?:[A-Za-z0-9](?:[-A-Za-z0-9]{0,61}[A-Za-z0-9])?)(?:\\.[A-Za-z0-9](?:[-A-Za-z0-9]{0,61}[A-Za-z0-9])?)*)|(?:\\[(?:(?:(?:(?:(?:[0-9]|(?:[1-9][0-9])|(?:1[0-9][0-9])|(?:2[0-4][0-9])|(?:25[0-5]))\\.){3}(?:[0-9]|(?:[1-9][0-9])|(?:1[0-9][0-9])|(?:2[0-4][0-9])|(?:25[0-5]))))|(?:(?:(?: )*[!-Z^-~])*(?: )*)|(?:[Vv][0-9A-Fa-f]+\\.[-A-Za-z0-9._~!$&'()*+,;=:]+))\\])))(?:(?:(?:(?: )*(?:(?:(?:\\t| )*\\r\\n)?(?:\\t| )+))+(?: )*)|(?: )+)?$"
-            let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-            let result = emailTest.evaluate(with: testStr)
-            return result
-        }
+
 }
 
 #Preview {

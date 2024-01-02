@@ -75,20 +75,13 @@ struct EventView: View {
                                         
                                         VStack(alignment: .leading, spacing: 5) {
                                             
-                                            if let fullName = post.user?.fullname{
+                                            if let user = post.user {
                                                 
-                                                Text(fullName)
+                                                Text(user.fullName)
                                                     .font(.body)
                                                     .fontWeight(.semibold)
-                                            }
-                                            
-                                            if let title = post.user?.title {
-                                                Text(title)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.gray)
-                                                    .fontWeight(.bold)
-                                            } else if let from = post.user?.from{
-                                                Text(from)
+                                                
+                                                Text(user.occupation)
                                                     .font(.footnote)
                                                     .foregroundColor(.gray)
                                                     .fontWeight(.bold)
@@ -327,7 +320,7 @@ struct EventView: View {
                                     }
                                 } else {
                                     Button {
-    //                                    viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
+                                        //                                    viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
                                         viewModel.clickedPostID = post.id
                                         showJoinRequest = true
                                     } label: {
@@ -412,16 +405,16 @@ struct EventView: View {
                 }
             }
             .navigationBarBackButtonHidden(true)
-//            .navigationBarItems(leading:Button(action: {dismiss()}) {
-//                Image(systemName: "chevron.left")
-//            }, trailing:Button(action: {
-//                showPostOptions = true
-//                viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
-//            }, label: {
-//                Image(systemName: "ellipsis")
-//                    .rotationEffect(.degrees(90))
-//            })
-//            )
+            //            .navigationBarItems(leading:Button(action: {dismiss()}) {
+            //                Image(systemName: "chevron.left")
+            //            }, trailing:Button(action: {
+            //                showPostOptions = true
+            //                viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
+            //            }, label: {
+            //                Image(systemName: "ellipsis")
+            //                    .rotationEffect(.degrees(90))
+            //            })
+            //            )
             .sheet(isPresented: $showPostOptions, content: {
                 List {
                     Button("Save") {

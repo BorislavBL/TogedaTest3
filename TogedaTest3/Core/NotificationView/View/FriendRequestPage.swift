@@ -45,7 +45,7 @@ struct FriendRequestPage: View {
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
-                        Text("\(users[0].fullname) & \(users.count) more ")
+                        Text("\(users[0].fullName) & \(users.count) more ")
                             .font(.footnote)
                             .foregroundStyle(.gray)
                     }

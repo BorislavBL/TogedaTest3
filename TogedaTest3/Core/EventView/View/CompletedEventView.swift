@@ -60,9 +60,7 @@ struct CompletedEventView: View {
                             
                             if let user = post.user {
                                 NavigationLink(destination: UserProfileView(miniUser: user)){
-                                    HStack(alignment: .center, spacing: 10) {
-                                        
-                                        
+                                    HStack(alignment: .center, spacing: 10) {                                        
                                         if let image = post.user?.profileImageUrl {
                                             Image(image[0])
                                                 .resizable()
@@ -74,23 +72,17 @@ struct CompletedEventView: View {
                                         
                                         VStack(alignment: .leading, spacing: 5) {
                                             
-                                            if let fullName = post.user?.fullname{
+                                            if let user = post.user{
                                                 
-                                                Text(fullName)
+                                                Text(user.fullName)
                                                     .font(.body)
                                                     .fontWeight(.semibold)
-                                            }
-                                            
-                                            if let title = post.user?.title {
-                                                Text(title)
+                                                
+                                                Text(user.occupation)
                                                     .font(.footnote)
                                                     .foregroundColor(.gray)
                                                     .fontWeight(.bold)
-                                            } else if let from = post.user?.from{
-                                                Text(from)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.gray)
-                                                    .fontWeight(.bold)
+                                                
                                             }
                                         }
                                     }
@@ -280,44 +272,39 @@ struct CompletedEventView: View {
                 .edgesIgnoringSafeArea(.top)
                 
                 VStack{
+                    navbar()
                     
-                    Divider()
+                    Spacer()
                     
-                    HStack{
-                        Button {
-                            photoPickerVM.showPhotosPicker = true
-                        } label: {
-                            HStack{
-                                Image(systemName: "photo")
-                                    .foregroundColor(Color("testColor"))
-                                
-                                Text("Add Images")
-                                
+                    VStack{
+                        Divider()
+                        
+                        HStack{
+                            Button {
+                                photoPickerVM.showPhotosPicker = true
+                            } label: {
+                                HStack{
+                                    Image(systemName: "photo")
+                                        .foregroundColor(Color("testColor"))
+                                    
+                                    Text("Add Images")
+                                    
+                                }
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
                             }
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
                         }
+                        .padding(.horizontal)
+                        
                     }
-                    .padding(.horizontal)
-                    
+                    .background(.bar)
                 }
-                .background(.bar)
             }
             .navigationBarBackButtonHidden(true)
-            .navigationBarItems(leading:Button(action: {dismiss()}) {
-                Image(systemName: "chevron.left")
-            }, trailing:Button(action: {
-                showPostOptions = true
-                viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
-            }, label: {
-                Image(systemName: "ellipsis")
-                    .rotationEffect(.degrees(90))
-            })
-            )
             .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imagesSelection, matching: .images)
             .sheet(isPresented: $showPostOptions, content: {
                 List {
@@ -346,8 +333,34 @@ struct CompletedEventView: View {
         }
     }
     
+    @ViewBuilder
+    func navbar() -> some View {
+        HStack(alignment: .center){
+            Button(action: {dismiss()}) {
+                Image(systemName: "chevron.left")
+                    .frame(width: 35, height: 35)
+                    .background(.bar)
+                    .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+            }
+            Spacer()
+            Button{
+                showPostOptions = true
+                viewModel.clickedPostID = postID
+            } label: {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 35, height: 35)
+                    .background(.bar)
+                    .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+            }
+        }
+        .padding(.horizontal)
+    }
+    
 }
 
 #Preview {
     CompletedEventView(postID: Post.MOCK_POSTS[0].id)
+        .environmentObject(UserViewModel())
+        .environmentObject(PostsViewModel())
 }

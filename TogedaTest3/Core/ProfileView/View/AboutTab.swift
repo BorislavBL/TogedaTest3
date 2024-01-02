@@ -18,11 +18,30 @@ struct AboutTab: View {
                 .font(.body)
                 .fontWeight(.bold)
             WrappingHStack(alignment: .leading){
-                ForEach(user.abouts, id: \.self){about in
-                    Text(about)
+                    Text(user.occipation)
+                        .normalTagTextStyle()
+                        .normalTagCapsuleStyle()
+                if let education = user.education {
+                    Text(education)
                         .normalTagTextStyle()
                         .normalTagCapsuleStyle()
                 }
+                if let workout = user.workout {
+                    Text(workout)
+                        .normalTagTextStyle()
+                        .normalTagCapsuleStyle()
+                }
+                if let personalityType = user.personalityType {
+                    Text(personalityType)
+                        .normalTagTextStyle()
+                        .normalTagCapsuleStyle()
+                }
+                if let instagarm = user.instagarm {
+                    Text(instagarm)
+                        .normalTagTextStyle()
+                        .normalTagCapsuleStyle()
+                }
+
             }.padding(.bottom, 30)
             Text("Interests")
                 .font(.body)
@@ -35,14 +54,14 @@ struct AboutTab: View {
                 }
             }.padding(.bottom, 30)
             
-            if let description = user.description {
+            if let bio = user.bio {
                 
                 Text("Description")
                     .font(.body)
                     .fontWeight(.bold)
                     .padding(.bottom, 5)
                 
-                ExpandableText(description, lineLimit: 4)
+                ExpandableText(bio, lineLimit: 4)
                     .lineSpacing(8.0)
                     .fontWeight(.medium)
                     .foregroundColor(.gray)

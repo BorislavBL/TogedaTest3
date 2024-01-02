@@ -72,7 +72,7 @@ struct NewGroupChatView: View {
                                         .frame(width: size.dimension, height: size.dimension)
                                         .clipShape(Circle())
                                     
-                                    Text(user.fullname)
+                                    Text(user.fullName)
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                     
@@ -91,7 +91,7 @@ struct NewGroupChatView: View {
             .onChange(of: searchText){
                 if !searchText.isEmpty {
                     searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                        result.fullname.lowercased().contains(searchText.lowercased())
+                        result.fullName.lowercased().contains(searchText.lowercased())
                     }
                 } else {
                     searchUserResults = MiniUser.MOCK_MINIUSERS
@@ -134,7 +134,7 @@ struct ParticipantsChatTags: View {
                         .imageScale(.medium)
                         
                     
-                    Text(user.fullname)
+                    Text(user.fullName)
                         .font(.subheadline)
 
                 }
@@ -152,7 +152,7 @@ struct ParticipantsChatTags: View {
                         .frame(width: size.dimension, height: size.dimension)
                         .clipShape(Circle())
                     
-                    Text(user.fullname)
+                    Text(user.fullName)
                         .font(.subheadline)
                         .padding(.trailing, 8)
                 }

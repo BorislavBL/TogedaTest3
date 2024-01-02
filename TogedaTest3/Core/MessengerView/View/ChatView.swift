@@ -15,7 +15,6 @@ struct ChatView: View {
     let user: MiniUser
     var body: some View {
         VStack{
-            
             ScrollView{
                 ScrollViewReader { proxy in
                     LazyVStack{
@@ -56,7 +55,6 @@ struct ChatView: View {
                         }
                     }
                     .padding(.vertical)
-                    
                     .onAppear(){
                         withAnimation(.spring()) {
                             proxy.scrollTo(viewModel.messages.count - 1)
@@ -80,13 +78,15 @@ struct ChatView: View {
             MessageInputView(messageText: $messageText, viewModel: viewModel)
             
         }
-        .navigationTitle(user.fullname)
+        .onTapGesture {
+            hideKeyboard()
+        }
+        .navigationTitle(user.fullName)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
         })
-        .resignKeyboardOnDragGesture()
     }
 }
 

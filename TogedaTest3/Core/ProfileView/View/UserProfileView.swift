@@ -23,7 +23,7 @@ struct UserProfileView: View {
     var body: some View {
         ScrollView(showsIndicators: false){
             VStack(alignment: .center) {
-                    if showImageSet {
+
                         TabView {
                             ForEach(miniUser.profileImageUrl, id: \.self) { image in
 
@@ -40,25 +40,11 @@ struct UserProfileView: View {
                         .cornerRadius(10)
                         .frame(height: 400)
                         
-                    } else {
-                        
-                        Button{
-                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                            showImageSet = true
-                        }label:{
-                            Image(miniUser.profileImageUrl[0])
-                                .resizable()
-                                .scaledToFill()
-                                .background(.gray)
-                                .frame(width: 120, height: 120)
-                                .cornerRadius(20)
-                                .clipped()
-                        }
-                    }
+
                 
                 
                 VStack(spacing: 10) {
-                    Text(miniUser.fullname)
+                    Text(miniUser.fullName)
                         .font(.title2)
                         .fontWeight(.bold)
                     
@@ -71,11 +57,11 @@ struct UserProfileView: View {
                     }
                     .foregroundColor(.gray)
                     
-                    if let from = miniUser.from{
+                    if let location = user?.baseLocation.name {
                         HStack(spacing: 5){
                             Image(systemName: "mappin.circle")
                             
-                            Text(from)
+                            Text(location)
                                 .font(.footnote)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.gray)
@@ -84,6 +70,15 @@ struct UserProfileView: View {
                         
                     }
                 }.padding(.vertical)
+                
+                HStack(alignment: .top, spacing: 30) {
+                    UserStats(value: String(user?.friendIDs.count ?? 0), title: "Friends")
+                    Divider()
+                    UserStats(value: String(user?.createdEventIDs.count ?? 0), title: "Events")
+                    Divider()
+                    UserStats(value: "\(10)%", title: "Rating")
+                }
+                .padding(.vertical)
                 
                 if miniUser.id != userId{
                     HStack(alignment:.center, spacing: 10) {
@@ -106,14 +101,6 @@ struct UserProfileView: View {
                     }
                 }
                 
-                HStack(alignment: .top, spacing: 30) {
-                    UserStats(value: String(user?.friendIDs.count ?? 0), title: "Friends")
-                    Divider()
-                    UserStats(value: String(user?.eventIDs.count ?? 0), title: "Events")
-                    Divider()
-                    UserStats(value: "\(user?.rating ?? 0)%", title: "Rating")
-                }
-                .padding(.vertical)
                 
             }
             .padding(.top, safeAreaInsets.top + 50)
@@ -128,13 +115,6 @@ struct UserProfileView: View {
                         .frame(width: 0, height: 0)
                         .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
                             minYValue = newMinY
-                            if newMinY >= 45 && !showImageSet{
-                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                showImageSet = true
-                            } else if newMinY < -15 && showImageSet{
-                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                showImageSet = false
-                            }
                         }
                 }
             )
@@ -143,13 +123,9 @@ struct UserProfileView: View {
             if let user = user {
                 AboutTab(user: user)
             }
-            EventTab(vm: viewModel)
-            ClubsTab()
-            if miniUser.id == userId {
-                CalendarTab()
-            }
-            
-            
+            EventTab(userID: miniUser.id)
+            ClubsTab(userID: miniUser.id)
+
         }
         .edgesIgnoringSafeArea(.top)
         .frame(maxWidth: .infinity)
