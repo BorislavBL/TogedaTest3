@@ -16,6 +16,10 @@ struct ProfileView: View {
     @State var minYValue: CGFloat = 0
     @State private var showImageSet: Bool = true
     
+    @State var showSheet: Bool = false
+    @State var showCreateEvent: Bool = false
+    @State var showCreateClub: Bool = false
+    
     var body: some View {
         NavigationView{
             ScrollView(showsIndicators: false){
@@ -102,7 +106,7 @@ struct ProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 5) { // adjust the spacing value as needed
                         Button {
-                            print("")
+                            showSheet = true
                         } label: {
                             Image(systemName: "plus.square")
                                 .imageScale(.large)
@@ -118,6 +122,15 @@ struct ProfileView: View {
                 }
             }
         }
+        .sheet(isPresented: $showSheet, content: {
+            CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
+        })
+        .fullScreenCover(isPresented: $showCreateClub, content: {
+            CreateGroupView()
+        })
+        .fullScreenCover(isPresented: $showCreateEvent, content: {
+            CreateEventView()
+        })
         .navigationViewStyle(.stack)
     }
 }

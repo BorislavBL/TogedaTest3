@@ -10,54 +10,111 @@ import SwiftUI
 enum Visabilities: Hashable, Codable {
     case Public
     case Private
-    case Ask_to_join
-    
+
     var value : String {
       switch self {
       // Use Internationalization, as appropriate.
       case .Public: return "Public"
       case .Private: return "Private"
-      case .Ask_to_join: return "Ask To Join"
       }
     }
 }
 
 struct AccessibilityView: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var selectedVisability: Visabilities
+    @Binding var selectedVisability: Visabilities?
+    @Binding var askToJoin: Bool
+    @EnvironmentObject var userVM: UserViewModel
     
     var body: some View {
-        List {
+        VStack(alignment: .leading, spacing: 20){
             Text("Accessibility")
                 .font(.title3)
                 .fontWeight(.bold)
                 .listRowSeparator(.hidden)
 
-            
-            Picker("", selection: $selectedVisability) {
-                Text("Public").tag(Visabilities.Public)
-                Text("Private").tag(Visabilities.Private)
-                Text("Ask To Join").tag(Visabilities.Ask_to_join)
-            }
-            .labelsHidden()
-            .pickerStyle(InlinePickerStyle())
-            
-            Group{
-                if selectedVisability == .Public {
-                    Text("Everyone will be able to join your event without any restrictions.")
+            VStack(alignment: .leading){
+                Button{
+                    selectedVisability = .Public
+                } label:{
+                    HStack {
+                        if selectedVisability == .Public{
+                            Image(systemName: "checkmark.circle.fill")
+                                .imageScale(.large)
+                                .foregroundStyle(.blue)
+                        } else {
+                            Image(systemName: "circle")
+                                .imageScale(.large)
+                                .foregroundStyle(.gray)
+                        }
+                        Text("Public").tag(Visabilities.Public)
+                    }
+                }
+                
+                HStack {
+                        Image(systemName: "circle")
+                            .imageScale(.large)
+                            .foregroundStyle(.gray.opacity(0))
                     
-                } else if selectedVisability == .Private {
-                    Text("Your event won't be visable on the feed page and people will be able to join it only if you personally invite them.")
-                } else if selectedVisability == .Ask_to_join {
-                    Text("Your event will be visable to evryone but people will have to request access in order to join.")
+                    Text("Everyone will be able see your event.")
+                        .font(.callout)
+                        .foregroundColor(.gray)
                 }
             }
-            .font(.callout)
-            .foregroundColor(.gray)
-            .listRowSeparator(.hidden)
+            
+            VStack(alignment: .leading){
+                
+                Button{
+                    selectedVisability = .Private
+                } label:{
+                    HStack{
+                        if selectedVisability == .Private{
+                            Image(systemName: "checkmark.circle.fill")
+                                .imageScale(.large)
+                                .foregroundStyle(.blue)
+                        } else {
+                            Image(systemName: "circle")
+                                .imageScale(.large)
+                                .foregroundStyle(.gray)
+                        }
+                        Text("Private").tag(Visabilities.Private)
+                    }
+                }
+                
+                HStack {
+                        Image(systemName: "circle")
+                            .imageScale(.large)
+                            .foregroundStyle(.gray.opacity(0))
+                    
+                    Text("Your event won't be visable for everyone. In this case you will eaither have to invite them or attach the event to a club so that only club members could see it.")
+                        .font(.callout)
+                        .foregroundColor(.gray)
+                }
+            }
+
+            VStack(alignment: .leading){
+                Toggle(isOn: $askToJoin) {
+                    Text("Ask for permission")
+                        .fontWeight(.semibold)
+                }
+                
+                Text("Each user will have to be approved by you in order to join.")
+                    .font(.callout)
+                    .foregroundColor(.gray)
+            }
+            
+            if userVM.user.clubIDs.count > 0 {
+                VStack(alignment: .leading){
+                    Text("Is this a personal or club event?")
+                        .fontWeight(.semibold)
+                    
+                    AccessibilityEventType(user: userVM.user)
+                }
+            }
+            
         }
-        .listStyle(.plain)
-        .padding(.vertical)
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
@@ -72,9 +129,83 @@ struct AccessibilityView: View {
     }
 }
 
+struct AccessibilityEventType: View {
+    var user: User
+    var clubs = Club.MOCK_CLUBS
+    var size: ImageSize = .small
+    @State var showOptions: Bool = false
+    @State var selectedClubID: String?
+    @State var selectedClub: Club?
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Button{
+                showOptions.toggle()
+            } label: {
+                HStack{
+                    if let club = selectedClub{
+                        Image(club.imagesUrl[0])
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: size.dimension, height: size.dimension)
+                            .cornerRadius(10)
+                            .clipped()
+                        Text(club.title)
+                            .fontWeight(.semibold)
+                    } else {
+                        Text("Personal Event")
+                            .fontWeight(.semibold)
+                    }
+                    Spacer()
+                    
+                    Image(systemName: showOptions ? "chevron.up" : "chevron.down")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            if showOptions{
+                ForEach(clubs, id: \.id) {club in
+                    Button{
+                        selectedClubID = club.id
+                        selectedClub = club
+                        showOptions = false
+                    } label:{
+                        Image(club.imagesUrl[0])
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: size.dimension, height: size.dimension)
+                            .cornerRadius(10)
+                            .clipped()
+                        
+                        Text(club.title)
+                            .fontWeight(.semibold)
+                    }
+                }
+                
+                Divider()
+                
+                Button{
+                    selectedClubID = nil
+                    selectedClub = nil
+                    showOptions = false
+                } label: {
+                    Text("Personal Event")
+                        .fontWeight(.semibold)
+                }
+                
+            }
+            
+        }
+        .frame(maxWidth: .infinity, alignment: .leading )
+        .padding(16)
+        .background(Color(.tertiarySystemFill))
+        .cornerRadius(10.0)
+        .frame(maxHeight: .infinity, alignment: .top )
+    }
+}
 
 struct AccessibilityView_Previews: PreviewProvider {
     static var previews: some View {
-        AccessibilityView(selectedVisability: .constant(.Public))
+        AccessibilityView(selectedVisability: .constant(.Public), askToJoin: .constant(true))
+            .environmentObject(UserViewModel())
     }
 }

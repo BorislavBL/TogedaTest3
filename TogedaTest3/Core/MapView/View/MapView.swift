@@ -25,7 +25,6 @@ struct MapView: View {
     @StateObject var filterViewModel = FilterViewModel()
     
     @State private var isInitialLocationSet = false
-    
     var body: some View {
         //        UIMap()
         //            .edgesIgnoringSafeArea(.top)
@@ -148,6 +147,7 @@ struct MapView: View {
             
             MapNavBar(searchText: $viewModel.searchText, showSearch: $showSearch, viewModel: filterViewModel)
         }
+        .animation(.easeInOut(duration: 0.6), value: showSearch)
         .sheet(isPresented: $filterViewModel.showAllFilter){
             AllInOneFilterView()
                 .presentationDetents([.fraction(0.99)])
@@ -155,7 +155,7 @@ struct MapView: View {
         }
         .overlay(alignment:.bottom) {
             if viewModel.showPostView && !showSearch {
-                NavigationLink(value: viewModel.selectedPost.id){
+                NavigationLink(value: viewModel.selectedPost){
                     EventMapPreview(post: viewModel.selectedPost, address: address)
                 }
                 .frame(height: 170)

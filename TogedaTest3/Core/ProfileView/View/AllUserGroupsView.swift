@@ -19,7 +19,7 @@ struct AllUserGroupsView: View {
         ScrollView{
             LazyVGrid(columns: columns){
                 ForEach(0..<6, id:\.self ){ index in
-                    GroupComponent(userID: userID)
+                    GroupComponent(userID: userID, club: Club.MOCK_CLUBS[0])
                 }
             }
             .padding(.horizontal, 8)

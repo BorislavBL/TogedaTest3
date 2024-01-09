@@ -26,7 +26,7 @@ struct LocationPicker: View {
                 if locationManager.authorizationStatus == .authorizedWhenInUse{
                     Button {
                         locationManager.requestAuthorization()
-                        placeVM.findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace)
+                        findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace)
                         UIApplication.shared.endEditing(true)
                         placeVM.searchText = ""
                         showCancelButton = false

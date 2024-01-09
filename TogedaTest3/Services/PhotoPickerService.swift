@@ -1,27 +1,15 @@
 //
-//  CreateGroupViewModel.swift
+//  PhotoPickerService.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 29.12.23.
+//  Created by Borislav Lorinkov on 5.01.24.
 //
 
+import Foundation
 import SwiftUI
 import PhotosUI
-import MapKit
 
-
-class CreateGroupViewModel: ObservableObject {
-    
-    @Published var title: String = ""
-    @Published var description: String = ""
-    @Published var returnedPlace = Place(mapItem: MKMapItem())
-    
-    @Published var selectedCategory: String?
-    @Published var selectedInterests: [String] = []
-    @Published var selectedVisability: Visabilities = .Public
-    @Published var askToJoin: Bool = false
-    @Published var selectedPermission: Permissions = .All_members
-    
+class PhotoPickerService: ObservableObject {
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
     @Published var selectedImages: [Image?] = [nil, nil, nil, nil, nil, nil]
@@ -34,10 +22,6 @@ class CreateGroupViewModel: ObservableObject {
         }
     }
     
-}
-
-// PhotoPicker
-extension CreateGroupViewModel {
     private func setImage(from selection: PhotosPickerItem?){
         guard let selection else {return}
         
@@ -47,7 +31,6 @@ extension CreateGroupViewModel {
                 guard let data, let uiImage = UIImage(data: data) else {
                     throw URLError(.badServerResponse)
                 }
-                
                 selectedImage = uiImage
                 showCropView = true
             } catch {

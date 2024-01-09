@@ -10,39 +10,88 @@ import SwiftUI
 struct GroupAccessibilityView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedVisability: Visabilities
-    
+    @Binding var askToJoin: Bool
+
     var body: some View {
-        List {
+        VStack(alignment: .leading, spacing: 20){
             Text("Accessibility")
                 .font(.title3)
                 .fontWeight(.bold)
                 .listRowSeparator(.hidden)
 
-            
-            Picker("", selection: $selectedVisability) {
-                Text("Public").tag(Visabilities.Public)
-                Text("Private").tag(Visabilities.Private)
-                Text("Ask To Join").tag(Visabilities.Ask_to_join)
-            }
-            .labelsHidden()
-            .pickerStyle(InlinePickerStyle())
-            
-            Group{
-                if selectedVisability == .Public {
-                    Text("Everyone will be able to join your group without any restrictions.")
+            VStack(alignment: .leading){
+                Button{
+                    selectedVisability = .Public
+                } label:{
+                    HStack {
+                        if selectedVisability == .Public{
+                            Image(systemName: "checkmark.circle.fill")
+                                .imageScale(.large)
+                                .foregroundStyle(.blue)
+                        } else {
+                            Image(systemName: "circle")
+                                .imageScale(.large)
+                                .foregroundStyle(.gray)
+                        }
+                        Text("Public").tag(Visabilities.Public)
+                    }
+                }
+                
+                HStack {
+                        Image(systemName: "circle")
+                            .imageScale(.large)
+                            .foregroundStyle(.gray.opacity(0))
                     
-                } else if selectedVisability == .Private {
-                    Text("Your group won't be visable on the feed page and people will be able to join it only if you personally invite them.")
-                } else if selectedVisability == .Ask_to_join {
-                    Text("Your group will be visable to everyone but people will have to request access in order to join.")
+                    Text("Everyone will be able to join your group without any restrictions.")
+                        .font(.callout)
+                        .foregroundColor(.gray)
                 }
             }
-            .font(.callout)
-            .foregroundColor(.gray)
-            .listRowSeparator(.hidden)
+            
+            VStack(alignment: .leading){
+                
+                Button{
+                    selectedVisability = .Private
+                } label:{
+                    HStack{
+                        if selectedVisability == .Private{
+                            Image(systemName: "checkmark.circle.fill")
+                                .imageScale(.large)
+                                .foregroundStyle(.blue)
+                        } else {
+                            Image(systemName: "circle")
+                                .imageScale(.large)
+                                .foregroundStyle(.gray)
+                        }
+                        Text("Private").tag(Visabilities.Private)
+                    }
+                }
+                
+                HStack {
+                        Image(systemName: "circle")
+                            .imageScale(.large)
+                            .foregroundStyle(.gray.opacity(0))
+                    
+                    Text("Your group won't be visable on the feed page and people will be able to join it only if you personally invite them.")
+                        .font(.callout)
+                        .foregroundColor(.gray)
+                }
+            }
+
+            VStack(alignment: .leading){
+                Toggle(isOn: $askToJoin) {
+                    Text("Ask for permission")
+                        .fontWeight(.semibold)
+                }
+                
+                Text("Each user will have to be approved by you in order to join.")
+                    .font(.callout)
+                    .foregroundColor(.gray)
+            }
+            
         }
-        .listStyle(.plain)
-        .padding(.vertical)
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
@@ -58,5 +107,7 @@ struct GroupAccessibilityView: View {
 }
 
 #Preview {
-    GroupAccessibilityView(selectedVisability: .constant(.Public))
+    GroupAccessibilityView(selectedVisability: .constant(.Public), askToJoin: .constant(true))
 }
+
+

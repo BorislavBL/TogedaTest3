@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ClubsTab: View {
     var userID: String
-    
+    @State var clubs = Club.MOCK_CLUBS
     var body: some View {
         VStack (alignment: .leading, spacing: 20) {
             HStack{
@@ -35,8 +35,10 @@ struct ClubsTab: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack{
-                    ForEach(0..<6, id: \.self){ index in
-                        GroupComponent(userID: userID)
+                    ForEach(clubs.indices, id: \.self){ index in
+                        NavigationLink( destination: GroupView(clubID: clubs[index].id)){
+                            GroupComponent(userID: userID, club: clubs[index])
+                        }
                     }
                 }
                 .padding(.horizontal)

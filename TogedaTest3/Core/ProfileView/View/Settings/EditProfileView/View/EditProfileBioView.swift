@@ -9,6 +9,7 @@ import SwiftUI
 
 struct EditProfileBioView: View {
     @Binding var text: String
+    var placeholder: String
     var body: some View {
         VStack(alignment:.trailing){
             TextField("Bio", text: $text, axis: .vertical)
@@ -31,5 +32,5 @@ struct EditProfileBioView: View {
 }
 
 #Preview {
-    EditProfileBioView(text: .constant(""))
+    EditProfileBioView(text: .constant(""), placeholder: "Bio")
 }

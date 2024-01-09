@@ -1,26 +1,37 @@
 //
-//  RegistrationViewModel.swift
+//  EditGroupViewModel.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 18.12.23.
+//  Created by Borislav Lorinkov on 5.01.24.
 //
 
 import SwiftUI
 import PhotosUI
-import MapKit
 import Combine
+import MapKit
 
-enum AccountType {
-    case personal, business
-}
-
-class RegistrationViewModel: ObservableObject {
+class EditGroupViewModel: ObservableObject {
+    
+    @Published var club: Club = .MOCK_CLUBS[0]
+    
+    @Published var title: String = ""
+    
+    @Published var location: baseLocation = mockLocation
+    
+    @Published var description: String = ""
+    @Published var category: String? = ""
+    @Published var interests: [String] = []
+    @Published var returnedPlace = Place(mapItem: MKMapItem()) {
+        didSet{
+            self.location = baseLocation(name: returnedPlace.name, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+        }
+    }
+    
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
     @Published var selectedImages: [Image?] = [nil, nil, nil, nil, nil, nil]
     @Published var selectedImage: UIImage?
     @Published var showCropView = false
-    @Published var interests: [String] = []
     
     @Published var imageselection: PhotosPickerItem? = nil {
         didSet {
@@ -29,13 +40,14 @@ class RegistrationViewModel: ObservableObject {
     }
     
     @Published var places: [Place] = []
-    @Published var searchText: String = ""
+    @Published var searchLocationText: String = ""
     
     var cancellable: AnyCancellable?
     @Published var fetchedPlaces: [CLPlacemark]?
     
     init() {
-        cancellable = $searchText
+        fetchGroupData()
+        cancellable = $searchLocationText
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink(receiveValue: { value in
@@ -47,11 +59,25 @@ class RegistrationViewModel: ObservableObject {
             })
     }
 
-
 }
 
+
 // Photo
-extension RegistrationViewModel {
+extension EditGroupViewModel {
+    private func fetchGroupData() {
+        category = club.category
+        description = club.description ?? ""
+        location = club.baseLocation
+        interests = club.interests
+        searchLocationText = club.baseLocation.name
+        
+        for i in club.imagesUrl.indices {
+            selectedImages[i] = Image(User.MOCK_USERS[0].profileImageUrl[i])
+        }
+    }
+    
+
+    
     private func setImage(from selection: PhotosPickerItem?){
         guard let selection else {return}
         
@@ -72,7 +98,7 @@ extension RegistrationViewModel {
 }
 
 // Location
-extension RegistrationViewModel {
+extension EditGroupViewModel {
     func searchFilter(text: String){
         let searchRequest = MKLocalSearch.Request()
         searchRequest.naturalLanguageQuery = text
@@ -87,4 +113,5 @@ extension RegistrationViewModel {
             self.places = response.mapItems.map(Place.init)
         }
     }
+    
 }

@@ -8,58 +8,112 @@
 import SwiftUI
 
 struct MainGroupView: View {
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
+    @ObservedObject var groupVM: GroupViewModel
+    @Binding var showShareSheet: Bool
+    var userID: String
+    
     var body: some View {
         VStack(alignment: .center) {
-            
             TabView {
-                ForEach(["event_1", "event_2"], id: \.self) { image in
-                    
+                ForEach(groupVM.club.imagesUrl, id: \.self) { image in
                     Image(image)
                         .resizable()
                         .scaledToFill()
                         .clipped()
-                    
-                    
                 }
-                
             }
             .tabViewStyle(PageTabViewStyle())
             .cornerRadius(10)
             .frame(height: 400)
             
-            
-            
-            
             VStack(spacing: 10) {
-                Text("Sky Diving Club Sofia")
+                Text(groupVM.club.title)
+                    .multilineTextAlignment(.center)
                     .font(.title2)
                     .fontWeight(.bold)
                 
-                HStack(spacing: 5){
-                    Image(systemName: "suitcase")
+                HStack{
+                    HStack(spacing: 5){
+                        Image(systemName: "eye")
+                        
+                        Text(groupVM.club.visability.value)
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.gray)
                     
-                    Text("Graphic Designer")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
+                    HStack(spacing: 5){
+                        Image(systemName: "square.grid.2x2")
+                        
+                        Text(groupVM.club.category)
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.gray)
                 }
-                .foregroundColor(.gray)
+                
                 
                 HStack(spacing: 5){
                     Image(systemName: "mappin.circle")
                     
-                    Text("Sofia Bulgaria")
+                    Text(groupVM.club.baseLocation.name)
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .foregroundColor(.gray)
                 }
                 .foregroundColor(.gray)
                 
-                
-            }.padding(.vertical)
+                HStack(alignment:.center, spacing: 10) {
+                    if groupVM.club.members.contains(where: { ClubMember in
+                        ClubMember.userID == userID
+                    }) {
+                        Button {
+                            
+                        } label: {
+                            Text("Joined")
+                                .normalTagTextStyle()
+                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                .normalTagRectangleStyle()
+                        }
+                        Button {
+                            showShareSheet = true
+                        } label: {
+                            Text("Invite")
+                                .normalTagTextStyle()
+                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                .normalTagRectangleStyle()
+                        }
+                    } else {
+                        Button {
+
+                        } label: {
+                            Text("Join")
+                                .normalTagTextStyle()
+                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                .normalTagRectangleStyle()
+                        }
+                        Button {
+                            showShareSheet = true
+                        } label: {
+                            Text("Share")
+                                .normalTagTextStyle()
+                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                .normalTagRectangleStyle()
+                        }
+                    }
+                }
+                .padding(.vertical)
+            }
+            .padding(.vertical)
         }
+        .padding(.horizontal)
+        .padding(.top, safeAreaInsets.top + 50)
+        .background(.bar)
+        .cornerRadius(10)
     }
 }
 
 #Preview {
-    MainGroupView()
+    MainGroupView(groupVM: GroupViewModel(), showShareSheet: .constant(false), userID: MiniUser.MOCK_MINIUSERS[0].id)
 }

@@ -35,7 +35,8 @@ class CreateEventViewModel: ObservableObject {
     @Published var description: String = ""
     
     //Accesability
-    @Published var selectedVisability: Visabilities = .Public
+    @Published var selectedVisability: Visabilities?
+    @Published var askToJoin: Bool = false
     
     //Category
     @Published var selectedCategory: String?

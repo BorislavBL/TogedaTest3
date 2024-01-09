@@ -18,7 +18,7 @@ struct CreateEventView: View {
     @StateObject var photoPickerVM = PhotoPickerViewModel()
     
     let descriptionPlaceholder = "Describe the purpose of your event. What activities are you planning? Mention any special guests who might be attending. Will there be food and drinks? Help attendees know what to expect."
-
+    
     var body: some View {
         NavigationStack {
             VStack{
@@ -44,7 +44,7 @@ struct CreateEventView: View {
                         WarningTextComponent(text: "The title has to be more than 5 characters long.")
                     }
                     
-
+                    
                     NavigationLink {
                         DescriptionView(description: $ceVM.description, placeholder: descriptionPlaceholder)
                     } label: {
@@ -129,6 +129,40 @@ struct CreateEventView: View {
                     
                     if noLocation {
                         WarningTextComponent(text: "Please select a location.")
+                        
+                    }
+                    
+                    NavigationLink {
+                        AccessibilityView(selectedVisability: $ceVM.selectedVisability, askToJoin: $ceVM.askToJoin)
+                    } label: {
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "eye.circle")
+                                .imageScale(.large)
+                            
+                            
+                            Text("Accessibility")
+                            
+                            Spacer()
+                            
+                            if let visability = ceVM.selectedVisability {
+                                Text(visability.value)
+                                    .foregroundColor(.gray)
+                            } else {
+                                Text("Select")
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Image(systemName: "chevron.right")
+                                .padding(.trailing, 10)
+                                .foregroundColor(.gray)
+                            
+                            
+                        }
+                        .createEventTabStyle()
+                    }
+                    
+                    if noVisability {
+                        WarningTextComponent(text: "Please select a visability type.")
                         
                     }
                     
@@ -294,30 +328,6 @@ struct CreateEventView: View {
                         }
                     }
                     .createEventTabStyle()
-                    
-                    NavigationLink {
-                        AccessibilityView(selectedVisability: $ceVM.selectedVisability)
-                    } label: {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "eye.circle")
-                                .imageScale(.large)
-                            
-                            
-                            Text("Accessibility")
-                            
-                            Spacer()
-                            
-                            Text(ceVM.selectedVisability.value)
-                                .foregroundColor(.gray)
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundColor(.gray)
-                            
-                            
-                        }
-                        .createEventTabStyle()
-                    }
                 }
                 .padding(.horizontal)
                 
@@ -427,6 +437,14 @@ struct CreateEventView: View {
         }
     }
     
+    var noVisability: Bool {
+        if ceVM.selectedVisability == nil && displayWarnings {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     var noCategory: Bool {
         if ceVM.selectedCategory == nil && displayWarnings {
             return true
@@ -436,7 +454,7 @@ struct CreateEventView: View {
     }
     
     var allRequirenments: Bool {
-        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }), ceVM.selectedCategory != nil {
+        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }), ceVM.selectedCategory != nil && ceVM.selectedVisability != nil {
             return true
         } else {
             return false
@@ -444,12 +462,10 @@ struct CreateEventView: View {
     }
 }
 
-struct CreateEventView_Previews: PreviewProvider {
-    static var previews: some View {
-        CreateEventView()
-            .environmentObject(UserViewModel())
-            .environmentObject(LocationManager())
-    }
+#Preview{
+    CreateEventView()
+        .environmentObject(UserViewModel())
+        .environmentObject(LocationManager())
 }
 
 extension View {

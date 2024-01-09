@@ -17,6 +17,14 @@ struct PostTags: View {
     var body: some View {
         WrappingHStack(alignment: .leading, horizontalSpacing: 5) {
             
+//            HStack(spacing: 3) {
+//                Image(systemName: "wallet.pass")
+//                Text("Event")
+//                    .normalTagTextStyle()
+//
+//            }
+//            .normalTagCapsuleStyle()
+            
             HStack(spacing: 3) {
                 Image(systemName: "wallet.pass")
                 if post.payment <= 0{
@@ -45,16 +53,21 @@ struct PostTags: View {
             
             HStack(spacing: 3) {
                 Image(systemName: "globe.europe.africa.fill")
-                Text(post.accessability.value)
-                    .normalTagTextStyle()
+                if post.askToJoin {
+                    Text("Ask to join")
+                        .normalTagTextStyle()
+                } else {
+                    Text(post.accessability.value)
+                        .normalTagTextStyle()
+                }
             }
             .normalTagCapsuleStyle()
             
-            if post.accessability.value != Visabilities.Ask_to_join.value {
+            if let city = post.location.city{
                 
                 HStack(spacing: 3) {
                     Image(systemName: "location")
-                    Text("10km")
+                    Text(city)
                         .normalTagTextStyle()
                 }
                 .normalTagCapsuleStyle()
@@ -73,33 +86,6 @@ struct PostTags: View {
                     .normalTagTextStyle()
             }
             .normalTagCapsuleStyle()
-            
-//            if(viewModel.expandedTags[post.id] == true){
-//                ForEach(post.interests, id: \.self) { interest in
-//                    Text(interest)
-//                        .normalTagTextStyle()
-//                        .normalTagCapsuleStyle()
-//                }
-//            }
-//            
-//            Button {
-//                DispatchQueue.main.async {
-//                    withAnimation {
-//                        viewModel.toggleTagsExpansion(for: post.id)
-//                    }
-//                }
-//                
-//            } label: {
-//                if(viewModel.expandedTags[post.id] == true){
-//                    Text("Less")
-//                        .selectedTagTextStyle()
-//                        .selectedTagCapsuleStyle()
-//                } else {
-//                    Text("More")
-//                        .normalTagTextStyle()
-//                        .normalTagCapsuleStyle()
-//                }
-//            }
 
         }
     }

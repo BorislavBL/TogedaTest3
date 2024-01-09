@@ -234,7 +234,7 @@ struct LocationPickerFilterView: View {
                     
                     Button {
                         locationManager.requestAuthorization()
-                        allInOneVM.findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace)
+                        findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace)
                         UIApplication.shared.endEditing(true)
                         allInOneVM.searchText = ""
                         isCurrentLocation = true

@@ -1,15 +1,14 @@
 //
-//  EventComponent2.swift
+//  GroupEventComponent.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 28.12.23.
+//  Created by Borislav Lorinkov on 3.01.24.
 //
 
 import SwiftUI
 import WrappingHStack
 
-struct EventComponent: View {
-    var userID: String
+struct GroupEventComponent: View {
     var post: Post
     let size: CGSize = CGSize(width: (UIScreen.main.bounds.width / 2) - 16, height: ((UIScreen.main.bounds.width / 2) - 16) * 1.5)
 
@@ -27,7 +26,7 @@ struct EventComponent: View {
             
             VStack(alignment: .leading){
                 
-                if let user = post.user, user.id == userID {
+                if let user = post.user{
 //                    Text("Hosted")
 //                        .font(.caption)
 //                        .fontWeight(.semibold)
@@ -107,5 +106,5 @@ struct EventComponent: View {
     }
 }
 #Preview {
-    EventComponent(userID: User.MOCK_USERS[0].id, post: Post.MOCK_POSTS[0])
+    GroupEventComponent(post: Post.MOCK_POSTS[0])
 }

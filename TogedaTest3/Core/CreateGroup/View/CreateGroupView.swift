@@ -116,6 +116,35 @@ struct CreateGroupView: View {
                     }
                     
                     NavigationLink {
+                        LocationPicker(returnedPlace: $createGroupVM.returnedPlace)
+                    } label: {
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "mappin.circle")
+                                .imageScale(.large)
+                            
+                            
+                            Text("Location")
+                            
+                            Spacer()
+                            
+                            Text("\(createGroupVM.returnedPlace.name == "Unknown Location" ? "Select": createGroupVM.returnedPlace.name)")
+                                .foregroundColor(.gray)
+                            
+                            Image(systemName: "chevron.right")
+                                .padding(.trailing, 10)
+                                .foregroundColor(.gray)
+                            
+                            
+                        }
+                        .createEventTabStyle()
+                    }
+                    
+                    if noLocation {
+                        WarningTextComponent(text: "Please select a location.")
+                        
+                    }
+                    
+                    NavigationLink {
                         CategoryView(selectedCategory: $createGroupVM.selectedCategory, selectedInterests: $createGroupVM.selectedInterests)
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
@@ -158,7 +187,7 @@ struct CreateGroupView: View {
                         .padding(.horizontal, 8)
                     
                     NavigationLink {
-                        GroupAccessibilityView(selectedVisability: $createGroupVM.selectedVisability)
+                        GroupAccessibilityView(selectedVisability: $createGroupVM.selectedVisability, askToJoin: $createGroupVM.askToJoin)
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "eye.circle")
@@ -303,13 +332,13 @@ struct CreateGroupView: View {
         }
     }
     
-//    var noLocation: Bool {
-//        if createGroupVM.returnedPlace.name == "Unknown Location" && displayWarnings {
-//            return true
-//        } else {
-//            return false
-//        }
-//    }
+    var noLocation: Bool {
+        if createGroupVM.returnedPlace.name == "Unknown Location" && displayWarnings {
+            return true
+        } else {
+            return false
+        }
+    }
     
     var noCategory: Bool {
         if createGroupVM.selectedCategory == nil && displayWarnings {
@@ -320,7 +349,7 @@ struct CreateGroupView: View {
     }
     
     var allRequirenments: Bool {
-        if createGroupVM.title.count >= 5, !createGroupVM.title.isEmpty, /*createGroupVM.returnedPlace.name != "Unknown Location",*/ createGroupVM.selectedImages.contains(where: { $0 != nil }), createGroupVM.selectedCategory != nil {
+        if createGroupVM.title.count >= 5, !createGroupVM.title.isEmpty, createGroupVM.returnedPlace.name != "Unknown Location", createGroupVM.selectedImages.contains(where: { $0 != nil }), createGroupVM.selectedCategory != nil {
             return true
         } else {
             return false
@@ -330,4 +359,5 @@ struct CreateGroupView: View {
 
 #Preview {
     CreateGroupView()
+        .environmentObject(LocationManager())
 }

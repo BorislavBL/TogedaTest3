@@ -23,7 +23,7 @@ struct SearchView: View {
                         //                            postsViewModel.showDetailsPage = true
                         //                            postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: post) ?? 0
                         //                        } label: {
-                        NavigationLink(value: post.id){
+                        NavigationLink(value: post){
                             HStack(alignment:.center, spacing: 10){
                                 Image(post.imageUrl[0])
                                     .resizable()

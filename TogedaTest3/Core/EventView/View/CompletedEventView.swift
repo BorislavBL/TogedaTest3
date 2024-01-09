@@ -31,6 +31,8 @@ struct CompletedEventView: View {
     @State var showImageViewer: Bool = false
     @State var selectedImage: Int = 0
     
+    let club = Club.MOCK_CLUBS[0]
+    
     var body: some View {
         if let post = post {
             ZStack(alignment: .bottom) {
@@ -51,7 +53,7 @@ struct CompletedEventView: View {
                         .tabViewStyle(PageTabViewStyle())
                         .frame(height: 500)
                         
-                        Group{
+                        VStack(alignment:.leading) {
                             
                             Text(post.title)
                                 .font(.title)
@@ -86,6 +88,31 @@ struct CompletedEventView: View {
                                             }
                                         }
                                     }
+                                }
+                            }
+                            
+                            if post.inClubID != nil {
+                                NavigationLink(destination: GroupView(clubID: club.id)){
+                                    HStack(alignment: .center, spacing: 10) {
+                                        Image(club.imagesUrl[0])
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 40, height: 40)
+                                            .clipShape(Circle())
+                                        
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            Text(club.title)
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                            
+                                            Text("Club Event")
+                                                .font(.footnote)
+                                                .foregroundColor(.gray)
+                                                .fontWeight(.bold)
+                                        }
+                                    }
+                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                                    .normalTagRectangleStyle()
                                 }
                             }
                             

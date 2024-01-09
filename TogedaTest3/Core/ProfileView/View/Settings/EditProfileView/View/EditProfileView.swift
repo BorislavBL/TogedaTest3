@@ -143,7 +143,7 @@ struct EditProfileView: View {
                         .createEventTabStyle()
                     }
                     
-                    EditProfileBioView(text: $editProfileVM.description)
+                    EditProfileBioView(text: $editProfileVM.description, placeholder: "Bio")
                 }
                 
                 VStack(alignment: .leading, spacing: 10){

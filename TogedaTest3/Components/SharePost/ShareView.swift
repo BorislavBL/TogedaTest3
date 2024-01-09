@@ -8,7 +8,7 @@
 import SwiftUI
 import WrappingHStack
 
-struct SharePostView: View {
+struct ShareView: View {
     @Environment(\.dismiss) var dismiss
     @State var searchText: String = ""
     let size: ImageSize = .small
@@ -154,5 +154,5 @@ struct ReceiverTags: View {
 }
 
 #Preview {
-    SharePostView()
+    ShareView()
 }

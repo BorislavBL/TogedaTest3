@@ -10,11 +10,12 @@ import WrappingHStack
 
 struct GroupComponent: View {
     var userID: String
+    var club: Club
     let size: CGSize = CGSize(width: (UIScreen.main.bounds.width / 2) - 16, height: ((UIScreen.main.bounds.width / 2) - 16) * 1.5)
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            Image("event_1")
+            Image(club.imagesUrl[0])
                 .resizable()
                 .scaledToFill()
                 .frame(size)
@@ -24,15 +25,21 @@ struct GroupComponent: View {
                 .opacity(0.95)
             
             VStack(alignment: .leading){
-                
-                    Text("Hosted")
+                if club.members.contains(where: { ClubMember in
+                    if ClubMember.status == "Admin" && ClubMember.userID == userID {
+                        return true
+                    } else {
+                        return false
+                    }
+                }) {
+                    Text("Admin")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(Color("lightGray"))
                         .padding(.bottom, 2)
+                }
                 
-                
-                Text("Skydiving club Sofia")
+                Text(club.title)
                     .font(.footnote)
                     .foregroundColor(.white)
                     .fontWeight(.bold)
@@ -46,11 +53,17 @@ struct GroupComponent: View {
                         Image(systemName: "eye")
                             .font(.caption)
                             .foregroundColor(Color("lightGray"))
-                        
-                        Text("Public")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color("lightGray"))
+                        if club.askToJoin {
+                            Text("Ask to join")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("lightGray"))
+                        } else {
+                            Text(club.visability.value)
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("lightGray"))
+                        }
                     }
                     
                     HStack{
@@ -58,7 +71,7 @@ struct GroupComponent: View {
                             .font(.caption)
                             .foregroundColor(Color("lightGray"))
                         
-                        Text("100k")
+                        Text("\(club.members.count)")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(Color("lightGray"))
@@ -74,7 +87,7 @@ struct GroupComponent: View {
                         .font(.caption)
                         .foregroundColor(Color("lightGray"))
                     
-                    Text("Sofia, Bulgaria")
+                    Text(club.baseLocation.name)
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(Color("lightGray"))
@@ -85,11 +98,6 @@ struct GroupComponent: View {
             .padding(.horizontal, 12)
             .padding(.vertical)
             .frame(maxWidth: size.width, maxHeight: size.height, alignment: .bottomLeading)
-//            .background {
-//                TransparentBlurView(removeAllFilters: true)
-//                    .blur(radius: 2, opaque: true)
-//                    .background(.black.opacity(0.35))
-//            }
  
         }
         .frame(size)
@@ -98,5 +106,5 @@ struct GroupComponent: View {
 }
 
 #Preview {
-    GroupComponent(userID: User.MOCK_USERS[0].id)
+    GroupComponent(userID: User.MOCK_USERS[0].id, club: Club.MOCK_CLUBS[0])
 }

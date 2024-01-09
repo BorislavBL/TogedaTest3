@@ -7,6 +7,7 @@
 
 import Foundation
 import MapKit
+import SwiftUI
 
 
 //func reverseGeocode(coordinate: CLLocationCoordinate2D, completion: @escaping (String?) -> Void) {
@@ -77,4 +78,24 @@ func isLocationInsideVisibleRegion(latitude: Double, longitude: Double, region: 
            latitude <= maxLatitude &&
            longitude >= minLongitude &&
            longitude <= maxLongitude
+}
+
+func mapItem(from placemark: CLPlacemark) -> MKMapItem {
+    let mkPlacemark = MKPlacemark(placemark: placemark)
+    return MKMapItem(placemark: mkPlacemark)
+}
+
+func findLocationDetails(location: CLLocation?, returnedPlace: Binding<Place>) {
+    guard let location = location else { return }
+    let geocoder = CLGeocoder()
+    geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+        if let error = error {
+            print("Error reverse geocoding: \(error.localizedDescription)")
+            
+        } else if let firstPlacemark = placemarks?.first {
+            returnedPlace.wrappedValue = Place(mapItem: mapItem(from: firstPlacemark))
+        } else {
+            print("else")
+        }
+    }
 }

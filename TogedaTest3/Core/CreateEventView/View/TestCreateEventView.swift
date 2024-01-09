@@ -43,7 +43,7 @@ struct TestCreateEventView: View {
     @State var description: String = ""
     
     //Accesability
-    @State var selectedVisability: Visabilities = .Public
+    @State var selectedVisability: Visabilities?
     
     //Category
     @State var selectedCategory: String?
@@ -319,7 +319,7 @@ struct TestCreateEventView: View {
                             .createEventTabStyle()
                             
                             NavigationLink {
-                                AccessibilityView(selectedVisability: $selectedVisability)
+                                AccessibilityView(selectedVisability: $selectedVisability, askToJoin: .constant(true))
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "eye.circle")
@@ -330,8 +330,10 @@ struct TestCreateEventView: View {
                                     
                                     Spacer()
                                     
-                                    Text(selectedVisability.value)
-                                        .foregroundColor(.gray)
+                                    if let v = selectedVisability {
+                                        Text(v.value)
+                                            .foregroundColor(.gray)
+                                    }
                                     
                                     Image(systemName: "chevron.right")
                                         .padding(.trailing, 10)

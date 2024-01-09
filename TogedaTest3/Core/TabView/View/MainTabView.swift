@@ -101,7 +101,7 @@ struct MainTabView: View {
                 .presentationDragIndicator(.visible)
             })
             .sheet(isPresented: $postsViewModel.showSharePostSheet) {
-                SharePostView()
+                ShareView()
                     .presentationDetents([.fraction(0.8), .fraction(1) ])
                     .presentationDragIndicator(.visible)
             }
@@ -110,8 +110,12 @@ struct MainTabView: View {
                     ChatView(viewModel: chatVM, user: user)
                 }
             })
-            .navigationDestination(for: String.self) { id in
-                EventView(postID: id)
+            .navigationDestination(for: Post.self) { post in
+                EventView(postID: post.id)
+                //.toolbar(.hidden, for: .tabBar)
+            }
+            .navigationDestination(for: Club.self) { club in
+                GroupView(clubID: club.id)
                 //.toolbar(.hidden, for: .tabBar)
             }
             .navigationDestination(for: MiniUser.self) { user in

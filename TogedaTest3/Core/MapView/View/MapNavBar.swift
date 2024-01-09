@@ -12,7 +12,6 @@ struct MapNavBar: View {
     @Binding var showSearch: Bool
     @ObservedObject var viewModel: FilterViewModel
     
-    
     var body: some View {
         VStack(){
             HStack{

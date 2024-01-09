@@ -20,29 +20,27 @@ struct UserProfileView: View {
     @State var minYValue: CGFloat = 0
     @State private var showImageSet: Bool = true
     
+    @State var showSheet: Bool = false
+    @State var showCreateEvent: Bool = false
+    @State var showCreateClub: Bool = false
+    
     var body: some View {
         ScrollView(showsIndicators: false){
             VStack(alignment: .center) {
+                TabView {
+                    ForEach(miniUser.profileImageUrl, id: \.self) { image in
+                        Image(image)
+                            .resizable()
+                            .scaledToFill()
+                            .clipped()
 
-                        TabView {
-                            ForEach(miniUser.profileImageUrl, id: \.self) { image in
+                    }
+                    
+                }
+                .tabViewStyle(PageTabViewStyle())
+                .cornerRadius(10)
+                .frame(height: 400)
 
-                                    Image(image)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .clipped()
-                                
-                                
-                            }
-                            
-                        }
-                        .tabViewStyle(PageTabViewStyle())
-                        .cornerRadius(10)
-                        .frame(height: 400)
-                        
-
-                
-                
                 VStack(spacing: 10) {
                     Text(miniUser.fullName)
                         .font(.title2)
@@ -125,8 +123,17 @@ struct UserProfileView: View {
             }
             EventTab(userID: miniUser.id)
             ClubsTab(userID: miniUser.id)
-
+            
         }
+        .sheet(isPresented: $showSheet, content: {
+            CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
+        })
+        .fullScreenCover(isPresented: $showCreateClub, content: {
+            CreateGroupView()
+        })
+        .fullScreenCover(isPresented: $showCreateEvent, content: {
+            CreateEventView()
+        })
         .edgesIgnoringSafeArea(.top)
         .frame(maxWidth: .infinity)
         .background(Color("testColor"))
@@ -136,7 +143,7 @@ struct UserProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 5) { // adjust the spacing value as needed
                         Button {
-                            print("")
+                            showSheet = true
                         } label: {
                             Image(systemName: "plus.square")
                                 .imageScale(.large)
@@ -158,9 +165,6 @@ struct UserProfileView: View {
                 }
             }
         }
-//        .fullScreenCover(isPresented: $viewModel.showCompletedEvent, content: {
-//            CompletedEventView(viewModel: PostsViewModel(), post: viewModel.selectedPost, userViewModel: UserViewModel())
-//        })
     }
 }
 

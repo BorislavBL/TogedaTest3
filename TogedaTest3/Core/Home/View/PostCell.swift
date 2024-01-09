@@ -21,7 +21,7 @@ struct PostCell: View {
                 //MARK: - Post Header
                 
                 HStack(alignment: .center) {
-                    HStack(alignment:.center) {
+
                         if let user = post.user{
                             NavigationLink(value: user) {
                                 
@@ -46,7 +46,7 @@ struct PostCell: View {
                                     .fontWeight(.semibold)
                                     .font(.footnote)
                             }
-                        }
+                        
                         
                         
                     }
@@ -96,7 +96,7 @@ struct PostCell: View {
                 //                        .cornerRadius(10)
                 //                })
                 
-                NavigationLink(value: post.id) {
+                NavigationLink(value: post) {
                     Image(post.imageUrl[0])
                         .resizable()
                         .scaledToFill()
@@ -118,7 +118,7 @@ struct PostCell: View {
                             .frame(width: 25, height: 25)
                     }
                     
-                    if post.peopleIn.contains(userViewModel.user.id) || post.accessability == .Public{
+                    if post.peopleIn.contains(userViewModel.user.id) || !post.askToJoin{
                         
                         Button{
                             let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)")

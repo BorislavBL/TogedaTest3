@@ -18,7 +18,9 @@ struct HomeView: View {
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     
-    @State private var refreshingHeight:CGFloat = 0.0
+    @State private var refreshingHeight: CGFloat = 0.0
+    
+    
     
     var body: some View {
             ZStack{
@@ -33,9 +35,20 @@ struct HomeView: View {
                         
                         ScrollView(.vertical, showsIndicators: false){
                             LazyVStack (spacing: 10){
+                                GroupCell()
                                 ForEach(postsViewModel.posts, id: \.id) { post in
                                     PostCell(post: post)
                                 }
+                                
+//                                ForEach(viewModel.feedItems, id:\.self) {item in
+//                                    switch item {
+//                                    case .event(let post):
+//                                        PostCell(post: post)
+//                                    case .group(let club):
+//                                        GroupCell(club: club)
+//                                    }
+//                                    
+//                                }
                                 
                                 if postsViewModel.isLoading {
                                     ProgressView() // Show spinner while loading
@@ -79,6 +92,7 @@ struct HomeView: View {
                         }
                         .onAppear{
                             postsViewModel.fetchPosts()
+                            viewModel.fetchFeed()
                         }
                         .refreshable {
                             print("feeling kinda refreshed")
