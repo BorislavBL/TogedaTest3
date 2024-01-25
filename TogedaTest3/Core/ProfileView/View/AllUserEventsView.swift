@@ -46,6 +46,12 @@ struct AllUserEventsView: View {
                     Image(systemName: "chevron.left")
                 }
             }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink(destination: BookmarkedEventsView(userID: userID, posts: posts)) {
+                    Image(systemName: "bookmark.fill")
+                }
+            }
         }
         .background(.bar)
     }

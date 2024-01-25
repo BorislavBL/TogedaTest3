@@ -11,14 +11,13 @@ struct RegistartionAgeView: View {
     enum FocusedField: Hashable{
         case day,month,year
     }
-    
+    @ObservedObject var vm: RegistrationViewModel
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var focus: FocusedField?
     @Environment(\.dismiss) var dismiss
-    @State var day: String = ""
-    @State var month: String = ""
-    @State var year: String = ""
+
     @State private var displayError: Bool = false
+    
     var body: some View {
         VStack {
             Text("What's your birthday?")
@@ -27,51 +26,51 @@ struct RegistartionAgeView: View {
                 .padding(.top, 20)
             
             HStack{
-                TextField("", text: $day)
-                    .placeholder(when: day.isEmpty) {
+                TextField("", text: $vm.day)
+                    .placeholder(when: vm.day.isEmpty) {
                         Text("DD")
                             .foregroundColor(.secondary)
                             .bold()
                     }
                     .bold()
                     .focused($focus, equals: .day)
-                    .onChange(of: day) {
-                        if day.count >= 2 {
-                            day = String(day.prefix(2))
+                    .onChange(of: vm.day) {
+                        if vm.day.count >= 2 {
+                            vm.day = String(vm.day.prefix(2))
                             focus = .month
                         }
                     }
                 
                 Text("/")
                 
-                TextField("", text: $month)
-                    .placeholder(when: month.isEmpty) {
+                TextField("", text: $vm.month)
+                    .placeholder(when: vm.month.isEmpty) {
                         Text("MM")
                             .foregroundColor(.secondary)
                             .bold()
                     }
                     .bold()
                     .focused($focus, equals: .month)
-                    .onChange(of: month) {
-                        if month.count >= 2 {
-                            month = String(month.prefix(2))
+                    .onChange(of: vm.month) {
+                        if vm.month.count >= 2 {
+                            vm.month = String(vm.month.prefix(2))
                             focus = .year
                         }
                     }
                 
                 Text("/")
                 
-                TextField("", text: $year)
-                    .placeholder(when: year.isEmpty) {
+                TextField("", text: $vm.year)
+                    .placeholder(when: vm.year.isEmpty) {
                         Text("YYYY")
                             .foregroundColor(.secondary)
                             .bold()
                     }
                     .bold()
                     .focused($focus, equals: .year)
-                    .onChange(of: year) {
-                        if year.count >= 4 {
-                            year = String(year.prefix(4))
+                    .onChange(of: vm.year) {
+                        if vm.year.count >= 4 {
+                            vm.year = String(vm.year.prefix(4))
                         }
                     }
 
@@ -92,7 +91,7 @@ struct RegistartionAgeView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationGenderView()){
+            NavigationLink(destination: RegistrationGenderView(vm: vm)){
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -101,9 +100,9 @@ struct RegistartionAgeView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(!validDate(day: day, month: month, year: year))
+            .disableWithOpacity(!validDate(day: vm.day, month: vm.month, year: vm.year))
             .onTapGesture {
-                if !validDate(day: day, month: month, year: year){
+                if !validDate(day: vm.day, month: vm.month, year: vm.year){
                     displayError.toggle()
                 }
             }
@@ -145,5 +144,5 @@ struct RegistartionAgeView: View {
 }
 
 #Preview {
-    RegistartionAgeView()
+    RegistartionAgeView(vm: RegistrationViewModel())
 }

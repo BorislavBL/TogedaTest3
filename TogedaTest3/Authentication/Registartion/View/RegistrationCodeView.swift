@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct RegistrationCodeView: View {
+    @ObservedObject var vm: RegistrationViewModel
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var keyIsFocused: Bool
     @Environment(\.dismiss) var dismiss
-    @State var code: String = ""
+    
     @State private var displayError: Bool = false
     var body: some View {
         VStack {
@@ -20,15 +21,15 @@ struct RegistrationCodeView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            TextField("", text: $code)
-                .placeholder(when: code.isEmpty) {
+            TextField("", text: $vm.code)
+                .placeholder(when: vm.code.isEmpty) {
                     Text("Code")
                         .foregroundColor(.secondary)
                         .bold()
                 }
-                .onChange(of: code) { oldValue, newValue in
-                    if code.count > 4 {
-                        code = String(code.prefix(4))
+                .onChange(of: vm.code) { oldValue, newValue in
+                    if vm.code.count > 4 {
+                        vm.code = String(vm.code.prefix(4))
                     }
                 }
                 .bold()
@@ -46,7 +47,7 @@ struct RegistrationCodeView: View {
             }
             
             Button{
-                code = ""
+                vm.code = ""
             } label: {
                 HStack(alignment: .top, content: {
                     Image(systemName: "gobackward")
@@ -60,7 +61,7 @@ struct RegistrationCodeView: View {
             Spacer()
             
             NavigationLink(destination: RegistrationEmailView()){
-                Text("Next")
+                Text("Complete")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
                     .background(Color("blackAndWhite"))
@@ -68,9 +69,9 @@ struct RegistrationCodeView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(code.count < 4)
+            .disableWithOpacity(vm.code.count < 4)
             .onTapGesture {
-                if code.count < 4 {
+                if vm.code.count < 4 {
                     displayError.toggle()
                 }
             }
@@ -111,5 +112,5 @@ struct RegistrationCodeView: View {
 }
 
 #Preview {
-    RegistrationCodeView()
+    RegistrationCodeView(vm: RegistrationViewModel())
 }

@@ -32,7 +32,7 @@ struct GroupAboutView: View {
             
             WrappingHStack(alignment: .leading){
                 ForEach(groupVM.club.interests, id: \.self){interest in
-                    Text(interest)
+                    Text("\(interest.icon) \(interest.name)")
                         .normalTagTextStyle()
                         .normalTagCapsuleStyle()
                 }

@@ -24,8 +24,11 @@ struct GroupEventsView: View {
                 
                 Spacer()
                 
-                Text("View All")
-                    .fontWeight(.semibold)
+                
+                NavigationLink(destination: AllGroupEventsView(posts: groupVM.club.events)){
+                    Text("View All")
+                        .fontWeight(.semibold)
+                }
                 
             }
             .padding(.horizontal)

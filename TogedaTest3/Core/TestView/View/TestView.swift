@@ -6,36 +6,16 @@
 //
 
 import SwiftUI
-import PhotosUI
-
-struct listTest {
-    var text: String
-    var clicked: Bool
-}
 
 struct TestView: View {
-    @State var searchText:String = ""
-    @State var array: [listTest] = []
+    let link = URL(string: "https://www.hackingwithswift.com")!
     
     var body: some View {
         VStack{
-            TextField("hello", text: $searchText).onSubmit {
-                if !searchText.isEmpty{
-                    array.append(listTest(text: searchText, clicked: false))
-                }
-            }
-            
-            ForEach(array.indices, id:\.self) { index in
-                Button{
-                    array[index].clicked.toggle()
-                } label:{
-                    HStack{
-                        if array[index].clicked {
-                            Image(systemName: "checkmark")
-                        }
-                        Text(array[index].text)
-                    }
-                }
+            ShareLink("", item: link)
+            ShareLink("Learn Swift here", item: link)
+            ShareLink(item: link) {
+                Label("Learn Swift here", systemImage: "swift")
             }
         }
     }

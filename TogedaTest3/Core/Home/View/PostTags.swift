@@ -16,15 +16,6 @@ struct PostTags: View {
     
     var body: some View {
         WrappingHStack(alignment: .leading, horizontalSpacing: 5) {
-            
-//            HStack(spacing: 3) {
-//                Image(systemName: "wallet.pass")
-//                Text("Event")
-//                    .normalTagTextStyle()
-//
-//            }
-//            .normalTagCapsuleStyle()
-            
             HStack(spacing: 3) {
                 Image(systemName: "wallet.pass")
                 if post.payment <= 0{
@@ -76,14 +67,13 @@ struct PostTags: View {
             
             HStack(spacing: 3) {
                 Image(systemName: "person.3")
-                Text("\(post.peopleIn.count)/\(post.maximumPeople)")
-                    .normalTagTextStyle()
-            }
-            .normalTagCapsuleStyle()
-            HStack(spacing: 3) {
-                Image(systemName: "square.grid.2x2")
-                Text(post.category)
-                    .normalTagTextStyle()
+                if let maxPeople = post.maximumPeople {
+                    Text("\(post.peopleIn.count)/\(maxPeople)")
+                        .normalTagTextStyle()
+                } else {
+                    Text("\(post.peopleIn.count)")
+                        .normalTagTextStyle()
+                }
             }
             .normalTagCapsuleStyle()
 

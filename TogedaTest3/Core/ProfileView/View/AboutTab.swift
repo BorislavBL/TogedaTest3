@@ -9,54 +9,41 @@ import SwiftUI
 import WrappingHStack
 
 struct AboutTab: View {
-    
     var user: User
-    
-    var body: some View{
+    var body: some View {
         VStack (alignment: .leading) {
             Text("About Me")
                 .font(.body)
                 .fontWeight(.bold)
             WrappingHStack(alignment: .leading){
-                    Text(user.occipation)
-                        .normalTagTextStyle()
-                        .normalTagCapsuleStyle()
                 if let education = user.education {
-                    Text(education)
-                        .normalTagTextStyle()
-                        .normalTagCapsuleStyle()
+                    aboutTag(img: Image(systemName: "graduationcap"), text: education)
                 }
                 if let workout = user.workout {
-                    Text(workout)
-                        .normalTagTextStyle()
-                        .normalTagCapsuleStyle()
+                    aboutTag(img: Image(systemName: "dumbbell"), text: workout)
                 }
                 if let personalityType = user.personalityType {
-                    Text(personalityType)
-                        .normalTagTextStyle()
-                        .normalTagCapsuleStyle()
+                    aboutTag(img: Image(systemName: "puzzlepiece.extension"), text: personalityType)
                 }
                 if let instagarm = user.instagarm {
-                    Text(instagarm)
-                        .normalTagTextStyle()
-                        .normalTagCapsuleStyle()
+                    aboutTag(img:Image("instagram"), text: instagarm)
                 }
-
+                
             }.padding(.bottom, 30)
+            
             Text("Interests")
                 .font(.body)
                 .fontWeight(.bold)
             WrappingHStack(alignment: .leading){
                 ForEach(user.interests, id: \.self){interest in
-                    Text(interest)
+                    Text("\(interest.icon) \(interest.name)")
                         .normalTagTextStyle()
                         .normalTagCapsuleStyle()
                 }
             }.padding(.bottom, 30)
             
             if let bio = user.bio {
-                
-                Text("Description")
+                Text("Bio")
                     .font(.body)
                     .fontWeight(.bold)
                     .padding(.bottom, 5)
@@ -74,6 +61,20 @@ struct AboutTab: View {
         .background(.bar)
         .cornerRadius(10)
     }
+    
+    @ViewBuilder
+    func aboutTag(img: Image, text: String) -> some View {
+        HStack{
+            img
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+            Text(text)
+                .normalTagTextStyle()
+        }
+        .normalTagCapsuleStyle()
+    }
+    
 }
 
 struct AboutTab_Previews: PreviewProvider {

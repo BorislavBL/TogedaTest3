@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RegistrationPhotosView: View {
-    @ObservedObject var registrationVM: RegistrationViewModel
+    @ObservedObject var vm: RegistrationViewModel
     private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 3) - 16
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) var colorScheme
@@ -25,7 +25,7 @@ struct RegistrationPhotosView: View {
                 GridRow {
                     ForEach(0..<3, id: \.self){ index in
                         ZStack{
-                            if let image = registrationVM.selectedImages[index]{
+                            if let image = vm.selectedImages[index]{
                                 image
                                     .resizable()
                                     .scaledToFill()
@@ -43,15 +43,15 @@ struct RegistrationPhotosView: View {
                             }
                         }
                         .onTapGesture {
-                            registrationVM.selectedImageIndex = index
-                            registrationVM.showPhotosPicker = true
+                            vm.selectedImageIndex = index
+                            vm.showPhotosPicker = true
                         }
                     }
                 }
                 GridRow {
                     ForEach(3..<6, id: \.self){ index in
                         ZStack{
-                            if let image = registrationVM.selectedImages[index]{
+                            if let image = vm.selectedImages[index]{
                                 image
                                     .resizable()
                                     .scaledToFill()
@@ -69,8 +69,8 @@ struct RegistrationPhotosView: View {
                             }
                         }
                         .onTapGesture {
-                            registrationVM.selectedImageIndex = index
-                            registrationVM.showPhotosPicker = true
+                            vm.selectedImageIndex = index
+                            vm.showPhotosPicker = true
                         }
                     }
                 }
@@ -85,7 +85,7 @@ struct RegistrationPhotosView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistartionInterestsView(selectedInterests: $registrationVM.interests)){
+            NavigationLink(destination: RegistartionInterestsView(vm: vm)){
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -94,9 +94,9 @@ struct RegistrationPhotosView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(registrationVM.selectedImages.allSatisfy({ $0 == nil }))
+            .disableWithOpacity(vm.selectedImages.allSatisfy({ $0 == nil }))
             .onTapGesture {
-                if registrationVM.selectedImages.allSatisfy({ $0 == nil }) {
+                if vm.selectedImages.allSatisfy({ $0 == nil }) {
                     displayError.toggle()
                 }
             }
@@ -104,9 +104,9 @@ struct RegistrationPhotosView: View {
         }
         .padding(.horizontal)
         
-        .photosPicker(isPresented: $registrationVM.showPhotosPicker, selection: $registrationVM.imageselection, matching: .images)
-        .fullScreenCover(isPresented: $registrationVM.showCropView, content: {
-            CropPhotoView(selectedImage:registrationVM.selectedImage, finalImage: $registrationVM.selectedImages[registrationVM.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
+        .photosPicker(isPresented: $vm.showPhotosPicker, selection: $vm.imageselection, matching: .images)
+        .fullScreenCover(isPresented: $vm.showCropView, content: {
+            CropPhotoView(selectedImage:vm.selectedImage, finalImage: $vm.selectedImages[vm.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
         })
         .padding(.vertical)
         .navigationBarBackButtonHidden(true)
@@ -137,5 +137,5 @@ struct RegistrationPhotosView: View {
 }
 
 #Preview {
-    RegistrationPhotosView(registrationVM: RegistrationViewModel())
+    RegistrationPhotosView(vm: RegistrationViewModel())
 }

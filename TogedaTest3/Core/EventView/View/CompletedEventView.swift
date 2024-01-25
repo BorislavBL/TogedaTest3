@@ -153,15 +153,20 @@ struct CompletedEventView: View {
                                 }
                                 
                                 
-                                NavigationLink(destination: CompletedEventUsersList(users: post.participants)){
+                                NavigationLink(destination: CompletedEventUsersList( users: post.participants)){
                                     HStack(alignment: .center, spacing: 10) {
                                         Image(systemName: "person.3")
                                             .imageScale(.large)
                                         
                                         VStack(alignment: .leading, spacing: 5) {
-                                            Text("Participants \(post.peopleIn.count)/\(post.maximumPeople)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
+                                            if let maxPeople = post.maximumPeople {
+                                                Text("Participants \(post.peopleIn.count)/\(maxPeople)")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.semibold)
+                                            } else {
+                                                Text("Participants \(post.peopleIn.count)")
+                                                    .font(.subheadline)
+                                            }
                                             
                                             
                                             if post.participants.count > 0 {
@@ -282,7 +287,7 @@ struct CompletedEventView: View {
                             
                             WrappingHStack(alignment: .leading, horizontalSpacing: 5){
                                 ForEach(post.interests, id:\.self){ interest in
-                                    Text(interest)
+                                    Text("\(interest.icon) \(interest.name)")
                                         .normalTagTextStyle()
                                         .normalTagCapsuleStyle()
                                 }

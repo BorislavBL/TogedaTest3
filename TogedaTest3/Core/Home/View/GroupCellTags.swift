@@ -40,13 +40,6 @@ struct GroupCellTags: View {
                     .normalTagTextStyle()
             }
             .normalTagCapsuleStyle()
-            
-            HStack(spacing: 3) {
-                Image(systemName: "square.grid.2x2")
-                Text(club.category)
-                    .normalTagTextStyle()
-            }
-            .normalTagCapsuleStyle()
 
         }
     }

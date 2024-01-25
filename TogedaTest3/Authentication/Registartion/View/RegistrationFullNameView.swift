@@ -12,11 +12,10 @@ struct RegistrationFullNameView: View {
         case first, last
     }
     
+    @ObservedObject var vm: RegistrationViewModel
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var focus: FocusedField?
     @Environment(\.dismiss) var dismiss
-    @State var firstName: String = ""
-    @State var lastName: String = ""
     @State private var displayError: Bool = false
     var body: some View {
         VStack {
@@ -25,8 +24,8 @@ struct RegistrationFullNameView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            TextField("", text: $firstName)
-                .placeholder(when: firstName.isEmpty) {
+            TextField("", text: $vm.firstName)
+                .placeholder(when: vm.firstName.isEmpty) {
                     Text("First Name")
                         .foregroundColor(.secondary)
                         .bold()
@@ -41,8 +40,8 @@ struct RegistrationFullNameView: View {
                 .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .padding(.top, 20)
             
-            TextField("", text: $lastName)
-                .placeholder(when: lastName.isEmpty) {
+            TextField("", text: $vm.lastName)
+                .placeholder(when: vm.lastName.isEmpty) {
                     Text("Last Name")
                         .foregroundColor(.secondary)
                         .bold()
@@ -66,7 +65,7 @@ struct RegistrationFullNameView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistartionAgeView()){
+            NavigationLink(destination: RegistartionAgeView(vm: vm)){
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -75,9 +74,9 @@ struct RegistrationFullNameView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity((firstName.count < 3 || lastName.count < 3))
+            .disableWithOpacity((vm.firstName.count < 3 || vm.lastName.count < 3))
             .onTapGesture {
-                if firstName.count < 3 || lastName.count < 3 {
+                if vm.firstName.count < 3 || vm.lastName.count < 3 {
                     displayError.toggle()
                 }
             }
@@ -119,5 +118,5 @@ struct RegistrationFullNameView: View {
 
 
 #Preview {
-    RegistrationFullNameView()
+    RegistrationFullNameView(vm: RegistrationViewModel())
 }

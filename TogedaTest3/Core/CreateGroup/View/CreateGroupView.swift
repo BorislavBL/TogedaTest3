@@ -145,21 +145,19 @@ struct CreateGroupView: View {
                     }
                     
                     NavigationLink {
-                        CategoryView(selectedCategory: $createGroupVM.selectedCategory, selectedInterests: $createGroupVM.selectedInterests)
-                    } label: {
+                        CategoryView(selectedInterests: $createGroupVM.selectedInterests, text: "Select at least one tag related to your group", minInterests: 0)
+                    } label:{
                         HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "square.grid.2x2")
+                            Image(systemName: "circle.grid.2x2")
                                 .imageScale(.large)
                             
-                            
-                            Text("Category")
-                            
-                            Spacer()
-                            
-                            if let category = createGroupVM.selectedCategory {
-                                Text(category)
-                                    .foregroundColor(.gray)
+                            if createGroupVM.selectedInterests.count > 0 {
+                                Text(interestsOrder(createGroupVM.selectedInterests))
+                                    .lineLimit(1)
+                                Spacer()
                             } else {
+                                Text("Interests")
+                                Spacer()
                                 Text("Select")
                                     .foregroundColor(.gray)
                             }
@@ -173,8 +171,8 @@ struct CreateGroupView: View {
                         .createEventTabStyle()
                     }
                     
-                    if noCategory {
-                        WarningTextComponent(text: "Please select a category.")
+                    if noTag {
+                        WarningTextComponent(text: "Please at least one interest.")
                         
                     }
                     
@@ -340,8 +338,8 @@ struct CreateGroupView: View {
         }
     }
     
-    var noCategory: Bool {
-        if createGroupVM.selectedCategory == nil && displayWarnings {
+    var noTag: Bool {
+        if createGroupVM.selectedInterests.count == 0 && displayWarnings {
             return true
         } else {
             return false
@@ -349,7 +347,7 @@ struct CreateGroupView: View {
     }
     
     var allRequirenments: Bool {
-        if createGroupVM.title.count >= 5, !createGroupVM.title.isEmpty, createGroupVM.returnedPlace.name != "Unknown Location", createGroupVM.selectedImages.contains(where: { $0 != nil }), createGroupVM.selectedCategory != nil {
+        if createGroupVM.title.count >= 5, !createGroupVM.title.isEmpty, createGroupVM.returnedPlace.name != "Unknown Location", createGroupVM.selectedImages.contains(where: { $0 != nil }), createGroupVM.selectedInterests.count > 0 {
             return true
         } else {
             return false

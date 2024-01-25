@@ -15,35 +15,62 @@ struct InboxView: View {
     @State var isSearching: Bool = false
     @State var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
     
+    @State var navHeight: CGFloat = .zero
+    
     var body: some View {
         NavigationView{
-            List{
-                ForEach(messages){ message in
-                    ZStack{
-                        NavigationLink(destination: ChatView(user: message.user ?? MiniUser.MOCK_MINIUSERS[0])){
-                            EmptyView()
-                        }
-
-                        .opacity(0)
-                        InboxRowView(message: message)
+            VStack(spacing: 0){
+                VStack{
+                    ZStack(alignment: .trailing){
+                        Text("Chats")
+                            .bold()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Image(systemName: "square.and.pencil.circle.fill")
+                            .resizable()
+                            .frame(width: 28, height: 28)
+                            .foregroundStyle(Color("blackAndWhite"), Color(.systemGray5))
+                            .onTapGesture {
+                                showNewMessageView.toggle()
+                                chatVM.selectedUser = nil
+                            }
                     }
+                    .padding(.horizontal)
                     
+                    CustomSearchBar(searchText: .constant(""), showCancelButton: $isSearching)
+                        .padding(.horizontal)
+                    
+                    Divider()
                 }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets())
-                .padding(.top)
-                .padding(.horizontal)
+                .background(.bar)
+                
+                List {
+                    ForEach(messages){ message in
+                        ZStack{
+                            NavigationLink(destination: ChatView(user: message.user ?? MiniUser.MOCK_MINIUSERS[0])){
+                                EmptyView()
+                            }
+                            
+                            .opacity(0)
+                            InboxRowView(message: message)
+                        }
+                        
+                    }
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+                    .padding(.top)
+                    .padding(.horizontal)
+                }
+                .overlay{
+                    if isSearching {
+                        ChatSearchView()
+                    }
+                }
             }
-            .searchable(text: $searchText, isPresented: $isSearching, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search")
+//            .searchable(text: $searchText, isPresented: $isSearching, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search")
             .listStyle(PlainListStyle())
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle("Chats")
+//            .navigationBarTitleDisplayMode(.inline)
+//            .navigationTitle("Chats")
             .scrollIndicators(.hidden)
-            .overlay{
-                if isSearching {
-                    ChatSearchView()
-                }
-            }
             .onChange(of: searchText){
                 if !searchText.isEmpty {
                     searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
@@ -56,18 +83,18 @@ struct InboxView: View {
             .fullScreenCover(isPresented: $showNewMessageView, content: {
                 NewMessageView(chatVM: chatVM)
             })
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Image(systemName: "square.and.pencil.circle.fill")
-                        .resizable()
-                        .frame(width: 28, height: 28)
-                        .foregroundStyle(Color("blackAndWhite"), Color(.systemGray5))
-                        .onTapGesture {
-                            showNewMessageView.toggle()
-                            chatVM.selectedUser = nil
-                        }
-                }
-            }
+//            .toolbar {
+//                ToolbarItem(placement: .navigationBarTrailing) {
+//                    Image(systemName: "square.and.pencil.circle.fill")
+//                        .resizable()
+//                        .frame(width: 28, height: 28)
+//                        .foregroundStyle(Color("blackAndWhite"), Color(.systemGray5))
+//                        .onTapGesture {
+//                            showNewMessageView.toggle()
+//                            chatVM.selectedUser = nil
+//                        }
+//                }
+//            }
         }
         .navigationViewStyle(.stack)
     }

@@ -345,7 +345,7 @@ struct TestCreateEventView: View {
                             }
                             
                             NavigationLink {
-                                CategoryView(selectedCategory: $selectedCategory, selectedInterests: $selectedInterests)
+//                                CategoryView(selectedCategory: $selectedCategory, selectedInterests: $selectedInterests)
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "square.grid.2x2")

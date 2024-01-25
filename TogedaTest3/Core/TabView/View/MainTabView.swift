@@ -83,8 +83,8 @@ struct MainTabView: View {
                         postsViewModel.selectedOption = "Save"
                     }
                     
-                    Button("Share via") {
-                        postsViewModel.selectedOption = "Share"
+                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                        Text("Share via")
                     }
                     
                     Button("Report") {
@@ -97,7 +97,7 @@ struct MainTabView: View {
                         }
                     }
                 }
-                .presentationDetents([.fraction(0.4)])
+                .presentationDetents([.fraction(0.25)])
                 .presentationDragIndicator(.visible)
             })
             .sheet(isPresented: $postsViewModel.showSharePostSheet) {

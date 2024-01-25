@@ -10,11 +10,12 @@ import Combine
 
 struct CountryNumbersView: View {
     @State var presentSheet = false
-    @Binding var countryCode : String
-    @Binding var countryFlag : String
-    @Binding var countryPattern : String
-    @Binding var countryLimit : Int
+    @Binding var countryCode: String
+    @Binding var countryFlag: String
+    @Binding var countryPattern: String
+    @Binding var countryLimit: Int
     @Binding var mobPhoneNumber: String
+    
     @State private var searchCountry: String = ""
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var keyIsFocused: Bool

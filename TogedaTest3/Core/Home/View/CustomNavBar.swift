@@ -55,11 +55,7 @@ struct CustomNavBar: View {
                         }
                         
                     }
-                    .foregroundColor(Color("textColor"))
-//                    .padding(8)
-                    .frame(width: 35, height: 35)
-                    .background(Color("secondaryColor"))
-                    .clipShape(Circle())
+                    .navButton1()
                     
                 }
                 .padding(.horizontal)

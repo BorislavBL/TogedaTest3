@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct RegistrationGenderView: View {
+    @ObservedObject var vm: RegistrationViewModel
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
-    @State var gender: String = ""
-    @State var showGender: Bool = true
+
     var body: some View {
         VStack {
             Text("What's your gender?")
@@ -31,10 +31,10 @@ struct RegistrationGenderView: View {
             }
             
             Button{
-                showGender.toggle()
+                vm.showGender.toggle()
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
-                    Image(systemName: showGender ? "checkmark.square.fill" : "square")
+                    Image(systemName: vm.showGender ? "checkmark.square.fill" : "square")
                     Text("Make my gender visisble to others.")
                         .multilineTextAlignment(.leading)
                         .bold()
@@ -45,7 +45,7 @@ struct RegistrationGenderView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationLocationView()){
+            NavigationLink(destination: RegistrationLocationView(vm: vm)){
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -54,9 +54,9 @@ struct RegistrationGenderView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(gender.isEmpty)
+            .disableWithOpacity(vm.gender.isEmpty)
             .onTapGesture {
-                if gender.isEmpty {
+                if vm.gender.isEmpty {
                     displayError.toggle()
                 }
             }
@@ -76,13 +76,13 @@ struct RegistrationGenderView: View {
     @ViewBuilder
     func genderButton(title: String) -> some View {
         Button{
-            gender = title
+            vm.gender = title
         } label:{
             Text(title)
                 .frame(maxWidth: .infinity)
                 .frame(height: 60)
-                .background(gender == title ? Color("blackAndWhite") : Color(.tertiarySystemFill))
-                .foregroundColor(gender == title ? Color("testColor") : .accentColor)
+                .background(vm.gender == title ? Color("blackAndWhite") : Color(.tertiarySystemFill))
+                .foregroundColor(vm.gender == title ? Color("testColor") : .accentColor)
                 .cornerRadius(10)
                 .fontWeight(.semibold)
         }
@@ -106,5 +106,5 @@ struct RegistrationGenderView: View {
 }
 
 #Preview {
-    RegistrationGenderView()
+    RegistrationGenderView(vm: RegistrationViewModel())
 }

@@ -34,7 +34,7 @@ class EditProfileViewModel: ObservableObject {
     @Published var personalityType: String?
     @Published var selectedType: ProfileTypes = .workout
     @Published var instagram: String = ""
-    @Published var interests: [String] = []
+    @Published var interests: [Interest] = []
     
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?

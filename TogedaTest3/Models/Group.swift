@@ -15,9 +15,8 @@ struct Club: Identifiable, Hashable, Codable {
     var members: [ClubMember]
     var visability: Visabilities
     var askToJoin: Bool
-    var category: String
     var description: String?
-    var interests: [String]
+    var interests: [Interest]
     var eventIDs: [String]
     var memories: [String]
     var joinRequestUsers: [String]
@@ -45,6 +44,6 @@ let groupDescription = "Lorem Ipsum is simply dummy text of the printing and typ
 
 extension Club {
     static var MOCK_CLUBS: [Club] = [
-        .init(id: NSUUID().uuidString, title: "Sky Diving Club Sofia", imagesUrl: ["event_1", "event_2"], baseLocation: mockLocation, members: mock_members, visability: .Public, askToJoin: false, category: "Sport", description: groupDescription, interests: mockInterests, eventIDs: [Post.MOCK_POSTS[0].id, Post.MOCK_POSTS[1].id], memories: ["event_1", "event_2", "event_3", "event_4"], joinRequestUsers: [Post.MOCK_POSTS[2].id], permissions: .All_members, events: [Post.MOCK_POSTS[0], Post.MOCK_POSTS[1]])
+        .init(id: NSUUID().uuidString, title: "Sky Diving Club Sofia", imagesUrl: ["event_1", "event_2"], baseLocation: mockLocation, members: mock_members, visability: .Public, askToJoin: true, description: groupDescription, interests: mockInterests, eventIDs: [Post.MOCK_POSTS[0].id, Post.MOCK_POSTS[1].id], memories: ["event_1", "event_2", "event_3", "event_4"], joinRequestUsers: [Post.MOCK_POSTS[2].id], permissions: .All_members, events: [Post.MOCK_POSTS[0], Post.MOCK_POSTS[1]])
     ]
 }

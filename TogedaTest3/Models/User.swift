@@ -19,7 +19,7 @@ struct User: Identifiable, Codable, Hashable {
     var occipation: String
     var baseLocation: baseLocation
     var gender: String
-    let interests: [String]
+    let interests: [Interest]
     var education: String?
     var workout: String?
     var personalityType: String?
@@ -65,7 +65,14 @@ let posts = Post.MOCK_POSTS
 
 let userDescription = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen"
 let mockAbouts = ["Designer", "ISFP", "Bachelor", "Single", "Non-smoker", "Drinks-often", "Workout-often"]
-let mockInterests = ["hiking", "chess", "gym", "anime", "sushi", "movies", "working out"]
+let mockInterests: [Interest] = [
+    .init(name: "Lifting", icon: "🏋️‍♀️", category: "sport"),
+    .init(name: "Fitness", icon: "👟", category: "sport"),
+    .init(name: "Football", icon: "⚽️", category: "sport"),
+    .init(name: "Basketball", icon: "🏀", category: "sport"),
+    .init(name: "Voleyball", icon: "🏐", category: "sport"),
+    .init(name: "Baseball", icon: "⚾️", category: "sport"),
+]
 let events: [String] = []
 let friends = ["1", "2", "3"]
 let mockBirthday = birthDay(day: "12", month: "07", year: "2000")

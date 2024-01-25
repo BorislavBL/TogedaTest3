@@ -304,8 +304,8 @@ struct StandartFilterView: View {
 }
 
 struct CategoryFilterView: View {
-    @Binding var selectedCategories: [String]
-    var categories: [String]
+    @Binding var selectedCategories: [Category]
+    var categories: [Category]
     
     var body: some View {
         WrappingHStack(alignment: .topLeading, horizontalSpacing: 10, verticalSpacing: 16){
@@ -318,11 +318,11 @@ struct CategoryFilterView: View {
                     }
                 } label: {
                     if selectedCategories.contains(category){
-                        Text(category)
+                        Text("\(category.icon) \(category.name)")
                             .selectedTagTextStyle()
                             .selectedTagCapsuleStyle()
                     } else {
-                        Text(category)
+                        Text("\(category.icon) \(category.name)")
                             .normalTagTextStyle()
                             .normalTagCapsuleStyle()
                     }

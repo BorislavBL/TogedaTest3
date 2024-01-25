@@ -68,14 +68,23 @@ struct EditGroupView: View {
                         .createEventTabStyle()
                     }
                     
-                    NavigationLink(destination:                       CategoryView(selectedCategory: $editGroupVM.category, selectedInterests: $editGroupVM.interests)){
+                    NavigationLink {
+                        CategoryView(selectedInterests: $editGroupVM.interests, text: "Select at least one tag related to your group", minInterests: 1)
+                    } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "circle.grid.2x2")
                                 .imageScale(.large)
                             
-                            Text(editGroupVM.category ?? "Select Category")
-                            
-                            Spacer()
+                            if $editGroupVM.interests.count > 0 {
+                                Text(interestsOrder(editGroupVM.interests))
+                                    .lineLimit(1)
+                                Spacer()
+                            } else {
+                                Text("Interests")
+                                Spacer()
+                                Text("Select")
+                                    .foregroundColor(.gray)
+                            }
                             
                             Image(systemName: "chevron.right")
                                 .padding(.trailing, 10)

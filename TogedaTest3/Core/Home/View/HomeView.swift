@@ -10,7 +10,6 @@ import SwiftUI
 struct HomeView: View {
     @State var showFilter: Bool = true
     @State private var previousMinY: CGFloat = 0
-    @State private var height: CGFloat = 94
     let navbarHeight: CGFloat = 94
     
     @StateObject var viewModel = HomeViewModel()
@@ -19,9 +18,7 @@ struct HomeView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     
     @State private var refreshingHeight: CGFloat = 0.0
-    
-    
-    
+
     var body: some View {
             ZStack{
                 Color("testColor")
@@ -35,10 +32,11 @@ struct HomeView: View {
                         
                         ScrollView(.vertical, showsIndicators: false){
                             LazyVStack (spacing: 10){
-                                GroupCell()
+                                
                                 ForEach(postsViewModel.posts, id: \.id) { post in
                                     PostCell(post: post)
                                 }
+                                GroupCell()
                                 
 //                                ForEach(viewModel.feedItems, id:\.self) {item in
 //                                    switch item {
@@ -91,7 +89,6 @@ struct HomeView: View {
                             )
                         }
                         .onAppear{
-                            postsViewModel.fetchPosts()
                             viewModel.fetchFeed()
                         }
                         .refreshable {
@@ -123,17 +120,6 @@ struct HomeView: View {
                         }
                     }
                     CustomNavBar(showFilter: $showFilter, filterVM: filterViewModel, homeViewModel: viewModel)
-                        .anchorPreference(key:HeaderBoundsKey.self, value:.bounds) {$0}
-                        .overlayPreferenceValue(HeaderBoundsKey.self) { value in
-                            GeometryReader{proxy in
-                                if let anchor = value {
-                                    Color.clear
-                                        .onAppear{
-                                            height = proxy[anchor].height
-                                        }
-                                }
-                            }
-                        }
                 }
                 
             }

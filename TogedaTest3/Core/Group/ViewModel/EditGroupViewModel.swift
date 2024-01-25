@@ -19,8 +19,7 @@ class EditGroupViewModel: ObservableObject {
     @Published var location: baseLocation = mockLocation
     
     @Published var description: String = ""
-    @Published var category: String? = ""
-    @Published var interests: [String] = []
+    @Published var interests: [Interest] = []
     @Published var returnedPlace = Place(mapItem: MKMapItem()) {
         didSet{
             self.location = baseLocation(name: returnedPlace.name, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
@@ -65,7 +64,6 @@ class EditGroupViewModel: ObservableObject {
 // Photo
 extension EditGroupViewModel {
     private func fetchGroupData() {
-        category = club.category
         description = club.description ?? ""
         location = club.baseLocation
         interests = club.interests

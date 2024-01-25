@@ -15,9 +15,8 @@ class CreateGroupViewModel: ObservableObject {
     @Published var title: String = ""
     @Published var description: String = ""
     @Published var returnedPlace = Place(mapItem: MKMapItem())
-    
-    @Published var selectedCategory: String?
-    @Published var selectedInterests: [String] = []
+
+    @Published var selectedInterests: [Interest] = []
     @Published var selectedVisability: Visabilities = .Public
     @Published var askToJoin: Bool = false
     @Published var selectedPermission: Permissions = .All_members

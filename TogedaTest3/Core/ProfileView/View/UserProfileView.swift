@@ -25,105 +25,112 @@ struct UserProfileView: View {
     @State var showCreateClub: Bool = false
     
     var body: some View {
-        ScrollView(showsIndicators: false){
-            VStack(alignment: .center) {
-                TabView {
-                    ForEach(miniUser.profileImageUrl, id: \.self) { image in
-                        Image(image)
-                            .resizable()
-                            .scaledToFill()
-                            .clipped()
-
-                    }
-                    
-                }
-                .tabViewStyle(PageTabViewStyle())
-                .cornerRadius(10)
-                .frame(height: 400)
-
-                VStack(spacing: 10) {
-                    Text(miniUser.fullName)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    HStack(spacing: 5){
-                        Image(systemName: "suitcase")
-                        
-                        Text("Graphic Designer")
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                    }
-                    .foregroundColor(.gray)
-                    
-                    if let location = user?.baseLocation.name {
-                        HStack(spacing: 5){
-                            Image(systemName: "mappin.circle")
+        ZStack(alignment: .top){
+            ScrollView(showsIndicators: false){
+                
+                VStack(alignment: .center) {
+                    TabView {
+                        ForEach(miniUser.profileImageUrl, id: \.self) { image in
+                            Image(image)
+                                .resizable()
+                                .scaledToFill()
+                                .clipped()
                             
-                            Text(location)
+                        }
+                        
+                    }
+                    .tabViewStyle(PageTabViewStyle())
+                    .frame(height: 500)
+                    
+                    VStack(spacing: 10) {
+                        Text(miniUser.fullName)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        HStack(spacing: 5){
+                            Image(systemName: "suitcase")
+                            
+                            Text("Graphic Designer")
                                 .font(.footnote)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.gray)
                         }
                         .foregroundColor(.gray)
                         
-                    }
-                }.padding(.vertical)
-                
-                HStack(alignment: .top, spacing: 30) {
-                    UserStats(value: String(user?.friendIDs.count ?? 0), title: "Friends")
-                    Divider()
-                    UserStats(value: String(user?.createdEventIDs.count ?? 0), title: "Events")
-                    Divider()
-                    UserStats(value: "\(10)%", title: "Rating")
-                }
-                .padding(.vertical)
-                
-                if miniUser.id != userId{
-                    HStack(alignment:.center, spacing: 10) {
-                        Button {
+                        if let location = user?.baseLocation.name {
+                            HStack(spacing: 5){
+                                Image(systemName: "mappin.circle")
+                                
+                                Text(location)
+                                    .font(.footnote)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.gray)
+                            }
+                            .foregroundColor(.gray)
                             
-                        } label: {
-                            Text("Add Friend")
-                                .normalTagTextStyle()
-                                .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                .normalTagRectangleStyle()
                         }
-                        Button {
-                            
-                        } label: {
-                            Text("Message")
-                                .normalTagTextStyle()
-                                .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                .normalTagRectangleStyle()
-                        }
+                    }.padding()
+                    
+                    HStack(alignment: .top, spacing: 30) {
+                        UserStats(value: String(user?.friendIDs.count ?? 0), title: "Friends")
+                        Divider()
+                        UserStats(value: String(user?.createdEventIDs.count ?? 0), title: "Events")
+                        Divider()
+                        UserStats(value: "\(10)%", title: "Rating")
                     }
+                    .padding()
+                    
+                    if miniUser.id != userId{
+                        HStack(alignment:.center, spacing: 10) {
+                            Button {
+                                
+                            } label: {
+                                Text("Add Friend")
+                                    .normalTagTextStyle()
+                                    .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                    .normalTagRectangleStyle()
+                            }
+                            Button {
+                                
+                            } label: {
+                                Text("Message")
+                                    .normalTagTextStyle()
+                                    .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                    .normalTagRectangleStyle()
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    
                 }
+                .padding(.bottom)
+                .frame(width: UIScreen.main.bounds.width)
+                .background(.bar)
+                .cornerRadius(10)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .frame(width: 0, height: 0)
+                            .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
+                                minYValue = newMinY
+                            }
+                    }
+                )
                 
+                BadgesTab()
+                if let user = user {
+                    AboutTab(user: user)
+                }
+                EventTab(userID: miniUser.id)
+                ClubsTab(userID: miniUser.id)
                 
             }
-            .padding(.top, safeAreaInsets.top + 50)
-            .padding(.horizontal)
-            .padding(.bottom)
-            .frame(width: UIScreen.main.bounds.width)
-            .background(.bar)
-            .cornerRadius(10)
-            .background(
-                GeometryReader { geo in
-                    Color.clear
-                        .frame(width: 0, height: 0)
-                        .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
-                            minYValue = newMinY
-                        }
-                }
-            )
+            .edgesIgnoringSafeArea(.top)
+            .frame(maxWidth: .infinity)
+            .background(Color("testColor"))
+            .navigationBarBackButtonHidden(true)
             
-            BadgesTab()
-            if let user = user {
-                AboutTab(user: user)
-            }
-            EventTab(userID: miniUser.id)
-            ClubsTab(userID: miniUser.id)
-            
+            navbar()
         }
         .sheet(isPresented: $showSheet, content: {
             CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
@@ -134,37 +141,39 @@ struct UserProfileView: View {
         .fullScreenCover(isPresented: $showCreateEvent, content: {
             CreateEventView()
         })
-        .edgesIgnoringSafeArea(.top)
-        .frame(maxWidth: .infinity)
-        .background(Color("testColor"))
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            if miniUser.id == userId {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: 5) { // adjust the spacing value as needed
-                        Button {
-                            showSheet = true
-                        } label: {
-                            Image(systemName: "plus.square")
-                                .imageScale(.large)
-                                .foregroundColor(.accentColor)
-                        }
-                        
-                        NavigationLink(destination: UserSettingsView()) {
-                            Image(systemName: "gear")
-                                .imageScale(.large)
-                                .foregroundColor(.accentColor)
-                        }
-                    }
-                }
+    }
+    
+    @ViewBuilder
+    func navbar() -> some View {
+        HStack(alignment: .center, spacing: 10) {
+            Button(action: {dismiss()}) {
+                Image(systemName: "chevron.left")
+                    .imageScale(.large)
+                    .foregroundColor(.accentColor)
+                    .navButton3()
             }
             
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {dismiss()}) {
-                    Image(systemName: "chevron.left")
+            Spacer()
+            // adjust the spacing value as needed
+            if miniUser.id == userId {
+                Button {
+                    showSheet = true
+                } label: {
+                    Image(systemName: "plus.square")
+                        .imageScale(.large)
+                        .foregroundColor(.accentColor)
+                        .navButton3()
+                }
+                
+                NavigationLink(destination: UserSettingsView()) {
+                    Image(systemName: "gear")
+                        .imageScale(.large)
+                        .foregroundColor(.accentColor)
+                        .navButton3()
                 }
             }
         }
+        .padding(.horizontal)
     }
 }
 

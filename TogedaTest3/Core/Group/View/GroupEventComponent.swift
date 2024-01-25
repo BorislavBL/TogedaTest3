@@ -11,7 +11,7 @@ import WrappingHStack
 struct GroupEventComponent: View {
     var post: Post
     let size: CGSize = CGSize(width: (UIScreen.main.bounds.width / 2) - 16, height: ((UIScreen.main.bounds.width / 2) - 16) * 1.5)
-
+    
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -27,18 +27,18 @@ struct GroupEventComponent: View {
             VStack(alignment: .leading){
                 
                 if let user = post.user{
-//                    Text("Hosted")
-//                        .font(.caption)
-//                        .fontWeight(.semibold)
-//                        .foregroundColor(Color("lightGray"))
-//                        .padding(.bottom, 2)
+                    //                    Text("Hosted")
+                    //                        .font(.caption)
+                    //                        .fontWeight(.semibold)
+                    //                        .foregroundColor(Color("lightGray"))
+                    //                        .padding(.bottom, 2)
                     
-                        Text(user.fullName)
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color("lightGray"))
-                            .padding(.bottom, 2)
-
+                    Text(user.fullName)
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color("lightGray"))
+                        .padding(.bottom, 2)
+                    
                 }
                 
                 
@@ -65,8 +65,9 @@ struct GroupEventComponent: View {
                         Image(systemName: "person.3.fill")
                             .font(.caption)
                             .foregroundColor(Color("lightGray"))
-                        if post.maximumPeople > 0 {
-                            Text("\(post.peopleIn.count)/\(post.maximumPeople)")
+                        
+                        if let maxPeople = post.maximumPeople {
+                            Text("\(post.peopleIn.count)/\(maxPeople)")
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("lightGray"))
@@ -79,7 +80,7 @@ struct GroupEventComponent: View {
                     }
                 }
                 .padding(.bottom, 2)
-
+                
                 if let country = post.location.country, let city = post.location.city {
                     HStack(alignment: .center){
                         Image(systemName: "location")
@@ -99,7 +100,7 @@ struct GroupEventComponent: View {
             .padding(.horizontal, 12)
             .padding(.vertical)
             .frame(maxWidth: size.width, maxHeight: size.height, alignment: .bottomLeading)
- 
+            
         }
         .frame(size)
         .cornerRadius(20)

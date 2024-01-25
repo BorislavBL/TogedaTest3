@@ -25,6 +25,8 @@ struct MapView: View {
     @StateObject var filterViewModel = FilterViewModel()
     
     @State private var isInitialLocationSet = false
+    
+    @State private var offset = CGSize.zero
     var body: some View {
         //        UIMap()
         //            .edgesIgnoringSafeArea(.top)
@@ -42,6 +44,7 @@ struct MapView: View {
                 
                 UserAnnotation()
             }
+//            .environment(\.colorScheme, .light)
             .onMapCameraChange { context in
                 viewModel.visibleRegion = context.region
             }
@@ -103,6 +106,7 @@ struct MapView: View {
                     .background()
                 }
             }
+            .ignoresSafeArea(.keyboard)
             .mapStyle(.standard(pointsOfInterest: .excludingAll))
             .mapControls{}
             .mapScope(locationSpace)
@@ -128,6 +132,7 @@ struct MapView: View {
                     withAnimation(.linear) {
                         viewModel.selectedPost = post
                         viewModel.showPostView = true
+                        
                     }
                     
                 } else {
@@ -146,8 +151,8 @@ struct MapView: View {
             
             
             MapNavBar(searchText: $viewModel.searchText, showSearch: $showSearch, viewModel: filterViewModel)
+
         }
-        .animation(.easeInOut(duration: 0.6), value: showSearch)
         .sheet(isPresented: $filterViewModel.showAllFilter){
             AllInOneFilterView()
                 .presentationDetents([.fraction(0.99)])
@@ -164,6 +169,24 @@ struct MapView: View {
                 .cornerRadius(20)
                 .padding(8)
                 .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .move(edge: .bottom)))
+                .offset(x:0, y: offset.height)
+                .highPriorityGesture(
+                    DragGesture()
+                        .onChanged {gesture in
+                            offset = gesture.translation
+                        }
+                        .onEnded({ _ in
+                            withAnimation{
+                                if offset.height > 85 {
+                                    viewModel.showPostView = false
+                                    offset = .zero
+                                    viewModel.mapSelection = nil
+                                } else {
+                                    offset = .zero
+                                }
+                            }
+                        })
+                )
                 .onAppear(){
                     reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: viewModel.selectedPost.location.latitude, longitude: viewModel.selectedPost.location.longitude)) { result in
                         address = result

@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct FriendRequestPageView: View {
-    let size: ImageSize = .medium
-    @Environment(\.dismiss) var dismiss
-    var users: [MiniUser] = MiniUser.MOCK_MINIUSERS
+struct UserRequestView: View {
+    private let size: ImageSize = .medium
+    @Environment(\.dismiss) private var dismiss
+    var users: [MiniUser]
     var body: some View {
         ScrollView{
             LazyVStack(spacing: 16){
@@ -68,5 +68,5 @@ struct FriendRequestPageView: View {
 }
 
 #Preview {
-    FriendRequestPageView()
+    UserRequestView( users: MiniUser.MOCK_MINIUSERS)
 }

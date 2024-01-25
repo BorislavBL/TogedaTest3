@@ -14,10 +14,8 @@ struct RegistrationLocationView: View {
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
     
-    @StateObject var registrationVM = RegistrationViewModel()
-    @State var returnedPlace: Place = Place(mapItem: MKMapItem())
-    @State var isCurrentLocation: Bool = true
-    
+    @ObservedObject var vm: RegistrationViewModel
+
     var body: some View {
         VStack {
             Text("Where are you from?")
@@ -29,7 +27,7 @@ struct RegistrationLocationView: View {
                     HStack {
                         Image(systemName: "magnifyingglass")
                         
-                        TextField("Search", text: $registrationVM.searchText)
+                        TextField("Search", text: $vm.searchText)
                             .foregroundColor(.primary)
                             .autocorrectionDisabled()
                             .focused($keyIsFocused)
@@ -40,9 +38,9 @@ struct RegistrationLocationView: View {
                 
                     
 
-                    if !registrationVM.searchText.isEmpty && keyIsFocused {
+                    if !vm.searchText.isEmpty && keyIsFocused {
                         
-                        ForEach(registrationVM.places, id: \.id){ place in
+                        ForEach(vm.places, id: \.id){ place in
                             VStack(alignment: .leading) {
                                 HStack{
                                     Image(systemName: "mappin.circle")
@@ -55,8 +53,8 @@ struct RegistrationLocationView: View {
                             }
                             .onTapGesture {
                                 UIApplication.shared.endEditing(true)
-                                registrationVM.searchText = place.addressCountry
-                                returnedPlace = place
+                                vm.searchText = place.addressCountry
+                                vm.returnedPlace = place
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading )
@@ -69,14 +67,14 @@ struct RegistrationLocationView: View {
             .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             .cornerRadius(10.0)
             
-            if displayError && returnedPlace.name == "Unknown Location" && registrationVM.searchText.isEmpty {
+            if displayError && vm.returnedPlace.name == "Unknown Location" && vm.searchText.isEmpty {
                 WarningTextComponent(text: "Plese enter a location before you proceed.")
                     .padding(.vertical, 15)
             }
             
             Spacer()
             
-            NavigationLink(destination: RegistrationOccupationView()){
+            NavigationLink(destination: RegistrationOccupationView(vm: vm)){
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -85,9 +83,9 @@ struct RegistrationLocationView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(returnedPlace.name == "Unknown Location" || registrationVM.searchText.isEmpty)
+            .disableWithOpacity(vm.returnedPlace.name == "Unknown Location" || vm.searchText.isEmpty)
             .onTapGesture {
-                if returnedPlace.name == "Unknown Location" || registrationVM.searchText.isEmpty {
+                if vm.returnedPlace.name == "Unknown Location" || vm.searchText.isEmpty {
                     displayError.toggle()
                 }
             }
@@ -129,5 +127,5 @@ struct RegistrationLocationView: View {
 
 
 #Preview {
-    RegistrationLocationView()
+    RegistrationLocationView(vm: RegistrationViewModel())
 }

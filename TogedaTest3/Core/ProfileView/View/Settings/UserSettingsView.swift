@@ -26,8 +26,19 @@ struct UserSettingsView: View {
                 NavigationLink(destination: TestView()){
                     Text("Website")
                 }
-                NavigationLink(destination: TestView()){
+                Button{
+                    if let url = URL(string: "https://www.instagram.com/togeda_net/") {
+                        UIApplication.shared.open(url)
+                    }
+                } label:{
                     Text("Instagram")
+                }
+                Button{
+                    if let url = URL(string: "https://discord.gg/e4uzckuK") {
+                        UIApplication.shared.open(url)
+                    }
+                } label:{
+                    Text("Discord")
                 }
                 NavigationLink(destination: TestView()){
                     Text("Linked in")

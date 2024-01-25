@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct RegistrationEmailView: View {
+    @StateObject var vm = RegistrationViewModel()
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var keyIsFocused: Bool
     @Environment(\.dismiss) var dismiss
-    @State var email: String = ""
-    @State var isEmailListed: Bool = false
+
     @State private var displayError: Bool = false
     var body: some View {
         VStack {
@@ -21,8 +21,8 @@ struct RegistrationEmailView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            TextField("", text: $email)
-                .placeholder(when: email.isEmpty) {
+            TextField("", text: $vm.email)
+                .placeholder(when: vm.email.isEmpty) {
                     Text("Email")
                         .foregroundColor(.secondary)
                         .bold()
@@ -43,10 +43,10 @@ struct RegistrationEmailView: View {
             }
             
             Button{
-                isEmailListed.toggle()
+                vm.isEmailListed.toggle()
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
-                    Image(systemName: isEmailListed ? "checkmark.square.fill" : "square")
+                    Image(systemName: vm.isEmailListed ? "checkmark.square.fill" : "square")
                     Text("Would you lie to receive news and updates From Togeda?")
                         .multilineTextAlignment(.leading)
                         .bold()
@@ -57,7 +57,7 @@ struct RegistrationEmailView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationFullNameView()){
+            NavigationLink(destination: RegistrationPasswordView(vm: vm)){
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -66,9 +66,9 @@ struct RegistrationEmailView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(!isValidEmail(testStr: email))
+            .disableWithOpacity(!isValidEmail(testStr: vm.email))
             .onTapGesture {
-                if !isValidEmail(testStr: email) {
+                if !isValidEmail(testStr: vm.email) {
                     displayError.toggle()
                 }
             }

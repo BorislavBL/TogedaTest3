@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct RegistrationOccupationView: View {
+    @ObservedObject var vm: RegistrationViewModel
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var keyIsFocused: Bool
     @Environment(\.dismiss) var dismiss
-    @State var occupation: String = ""
+    
     @State var isStudent: Bool = false
     @State private var displayError: Bool = false
     var body: some View {
@@ -21,8 +22,8 @@ struct RegistrationOccupationView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            TextField("", text: $occupation)
-                .placeholder(when: occupation.isEmpty) {
+            TextField("", text: $vm.occupation)
+                .placeholder(when: vm.occupation.isEmpty) {
                     Text("Occupation")
                         .foregroundColor(.secondary)
                         .bold()
@@ -45,9 +46,9 @@ struct RegistrationOccupationView: View {
             Button{
                 isStudent.toggle()
                 if isStudent {
-                    occupation = "Student"
+                    vm.occupation = "Student"
                 } else {
-                    occupation = ""
+                    vm.occupation = ""
                 }
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
@@ -62,7 +63,7 @@ struct RegistrationOccupationView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationPhotosView(registrationVM: RegistrationViewModel())){
+            NavigationLink(destination: RegistrationPhotosView(vm: RegistrationViewModel())){
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -115,5 +116,5 @@ struct RegistrationOccupationView: View {
 }
 
 #Preview {
-    RegistrationOccupationView()
+    RegistrationOccupationView(vm: RegistrationViewModel())
 }

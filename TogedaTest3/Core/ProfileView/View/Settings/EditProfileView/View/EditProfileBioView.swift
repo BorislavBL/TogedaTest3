@@ -12,7 +12,7 @@ struct EditProfileBioView: View {
     var placeholder: String
     var body: some View {
         VStack(alignment:.trailing){
-            TextField("Bio", text: $text, axis: .vertical)
+            TextField(placeholder, text: $text, axis: .vertical)
                 .fontWeight(.semibold)
                 .lineLimit(5, reservesSpace: true)
                 .onChange(of: text) { oldValue, newValue in

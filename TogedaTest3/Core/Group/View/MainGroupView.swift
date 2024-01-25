@@ -24,35 +24,13 @@ struct MainGroupView: View {
                 }
             }
             .tabViewStyle(PageTabViewStyle())
-            .cornerRadius(10)
-            .frame(height: 400)
+            .frame(height: 500)
             
             VStack(spacing: 10) {
                 Text(groupVM.club.title)
                     .multilineTextAlignment(.center)
                     .font(.title2)
                     .fontWeight(.bold)
-                
-                HStack{
-                    HStack(spacing: 5){
-                        Image(systemName: "eye")
-                        
-                        Text(groupVM.club.visability.value)
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                    }
-                    .foregroundColor(.gray)
-                    
-                    HStack(spacing: 5){
-                        Image(systemName: "square.grid.2x2")
-                        
-                        Text(groupVM.club.category)
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                    }
-                    .foregroundColor(.gray)
-                }
-                
                 
                 HStack(spacing: 5){
                     Image(systemName: "mappin.circle")
@@ -64,6 +42,15 @@ struct MainGroupView: View {
                 }
                 .foregroundColor(.gray)
                 
+                    HStack(spacing: 5){
+                        Image(systemName: "eye")
+                        
+                        Text(groupVM.club.visability.value)
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.gray)
+
                 HStack(alignment:.center, spacing: 10) {
                     if groupVM.club.members.contains(where: { ClubMember in
                         ClubMember.userID == userID
@@ -103,14 +90,13 @@ struct MainGroupView: View {
                         }
                     }
                 }
-                .padding(.vertical)
+                .padding()
             }
-            .padding(.vertical)
+            .padding()
         }
-        .padding(.horizontal)
-        .padding(.top, safeAreaInsets.top + 50)
         .background(.bar)
         .cornerRadius(10)
+        .edgesIgnoringSafeArea(.top)
     }
 }
 

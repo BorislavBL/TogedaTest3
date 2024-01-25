@@ -16,10 +16,19 @@ struct ShareView: View {
     @State var selectedUsers: [MiniUser] = []
     @State var showCancelButton: Bool = false
     
+    let testLink = URL(string: "https://www.linkedin.com/in/borislav-lorinkov-724300232/")!
+    
     var body: some View {
         VStack {
-            CustomSearchBar(searchText: $searchText, showCancelButton: $showCancelButton)
-                .padding()
+            HStack(spacing: 16){
+                CustomSearchBar(searchText: $searchText, showCancelButton: $showCancelButton)
+                    
+                
+                if !showCancelButton {
+                    ShareLink("", item: testLink)
+                }
+            }
+            .padding()
             
             ScrollView {
                 if selectedUsers.count > 0{

@@ -20,8 +20,10 @@ struct NotificationView: View {
                 EventAcceptance()
                 GroupAcceptanceView()
                 SystemNotificationView()
+                EventRequestPage()
+                GroupRequestPage()
             }
-            .padding(.horizontal)
+            .padding()
         }
         .navigationTitle("Notifications")
         .navigationBarTitleDisplayMode(.inline)
@@ -29,8 +31,11 @@ struct NotificationView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
-        })
-        .padding(.top)
+                .navButton3()
+        }
+                            
+        )
+        
     }
 }
 

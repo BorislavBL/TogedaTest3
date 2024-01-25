@@ -39,7 +39,7 @@ struct IntroView: View {
                                 .fontWeight(.semibold)
                         }
                         
-                        NavigationLink(destination: RegistrationView()){
+                        NavigationLink(destination: RegistrationEmailView()){
                             Text("Register")
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)

@@ -58,10 +58,17 @@ struct EventMapPreview: View {
                 HStack(spacing: 3) {
                     Image(systemName: "person.3")
                         .foregroundStyle(.gray)
-                    Text("\(post.peopleIn.count)/\(post.maximumPeople)")
-                        .font(.footnote)
-                        .foregroundStyle(.gray)
-                        .multilineTextAlignment(.leading)
+                    if let maxPeople = post.maximumPeople {
+                        Text("\(post.peopleIn.count)/\(maxPeople)")
+                            .font(.footnote)
+                            .foregroundStyle(.gray)
+                            .multilineTextAlignment(.leading)
+                    } else {
+                        Text("\(post.peopleIn.count)")
+                            .font(.footnote)
+                            .foregroundStyle(.gray)
+                            .multilineTextAlignment(.leading)
+                    }
                     
                 }
                 

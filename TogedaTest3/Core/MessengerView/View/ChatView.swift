@@ -15,8 +15,9 @@ struct ChatView: View {
     let user: MiniUser
     var body: some View {
         VStack{
-            ScrollView{
-                ScrollViewReader { proxy in
+            ScrollViewReader { proxy in
+                ScrollView{
+                    
                     LazyVStack{
                         ForEach(viewModel.messages.indices, id: \.self) { index in
                             VStack{
@@ -57,7 +58,7 @@ struct ChatView: View {
                     .padding(.vertical)
                     .onAppear(){
                         withAnimation(.spring()) {
-                            proxy.scrollTo(viewModel.messages.count - 1)
+                            proxy.scrollTo(viewModel.messages.count - 1, anchor:.bottom)
                         }
                     }
                     .onChange(of: viewModel.messages) { oldValue, newValue in
@@ -67,7 +68,7 @@ struct ChatView: View {
                         //                        proxy.scrollTo(lastMessage.id)
                         //                    }
                         withAnimation(.spring()) {
-                            proxy.scrollTo(viewModel.messages.count - 1)
+                            proxy.scrollTo(viewModel.messages.count - 1, anchor:.bottom)
                         }
                     }
                 }
@@ -84,7 +85,7 @@ struct ChatView: View {
         .navigationTitle(user.fullName)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading:Button(action: {dismiss()}) {
+        .navigationBarItems(leading: Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
         })
     }

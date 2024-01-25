@@ -14,7 +14,7 @@ struct RegistrationView: View {
     @State var countryLimit : Int = 17
     @State var mobPhoneNumber = ""
     var body: some View {
-        CountryNumbersView(countryCode: $countryCode, countryFlag: $countryFlag, countryPattern: $countryPattern, countryLimit: $countryLimit, mobPhoneNumber: $mobPhoneNumber, currentDestination: AnyView(RegistrationCodeView()))
+        CountryNumbersView(countryCode: $countryCode, countryFlag: $countryFlag, countryPattern: $countryPattern, countryLimit: $countryLimit, mobPhoneNumber: $mobPhoneNumber, currentDestination: AnyView(RegistrationCodeView(vm: RegistrationViewModel())))
     }
 }
 

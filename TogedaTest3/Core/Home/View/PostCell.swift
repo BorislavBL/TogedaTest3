@@ -31,8 +31,6 @@ struct PostCell: View {
                                     .frame(width: 50, height: 50)
                                     .background(.gray)
                                     .cornerRadius(15)
-                                
-                                
                             }
                             
                             VStack(alignment: .leading, spacing: 3){
@@ -62,40 +60,9 @@ struct PostCell: View {
                         Image(systemName: "ellipsis")
                             .rotationEffect(.degrees(90))
                     }
-                    
-                    
-                    
+   
                 }
-                
-                //                NavigationLink(value: post) {
-                //                    TabView {
-                //                        ForEach(1...3, id: \.self) { number in
-                //                            Image("event_\(number)")
-                //                                .resizable()
-                //                                .scaledToFill()
-                //                                .clipped()
-                //
-                //                        }
-                //
-                //                    }
-                //                    .background(.gray)
-                //                    .tabViewStyle(PageTabViewStyle())
-                //                    .cornerRadius(10)
-                //                    .frame(height: 300)
-                //                }
-                
-                
-                //                Button(action: {
-                //                    viewModel.showDetailsPage = true
-                //                    viewModel.clickedPostIndex = viewModel.posts.firstIndex(of: post) ?? 0
-                //                }, label: {
-                //                    Image(post.imageUrl[0])
-                //                        .resizable()
-                //                        .scaledToFill()
-                //                        .frame(maxHeight: 400)
-                //                        .cornerRadius(10)
-                //                })
-                
+ 
                 NavigationLink(value: post) {
                     Image(post.imageUrl[0])
                         .resizable()
@@ -108,7 +75,6 @@ struct PostCell: View {
                 
                 HStack(alignment: .center, spacing: 20){
                     Button {
-                        //                        viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
                         viewModel.clickedPostID = post.id
                         viewModel.showJoinRequest = true
                     } label: {

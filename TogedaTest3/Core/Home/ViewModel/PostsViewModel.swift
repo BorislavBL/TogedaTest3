@@ -10,8 +10,6 @@ import CoreLocation
 
 class PostsViewModel: ObservableObject {
     @Published var posts: [Post] = Post.MOCK_POSTS
-    
-    @Published var expandedTags: [String: Bool] = [:] // Local state for tags expansion
 
     @Published var clickedPostIndex: Int = 0
     @Published var clickedPostID: String = Post.MOCK_POSTS[1].id
@@ -23,18 +21,6 @@ class PostsViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     
     @Published var showSharePostSheet: Bool = false
-
-    func fetchPosts() {
-        DispatchQueue.main.async {
-            for post in self.posts {
-                self.expandedTags[post.id] = false
-            }
-        }
-    }
-    
-    func toggleTagsExpansion(for postId: String) {
-        expandedTags[postId]?.toggle()
-    }
     
     
     func likePost(postID: String, userID: String, user: User) {

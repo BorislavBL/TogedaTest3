@@ -130,9 +130,16 @@ struct EditProfileView: View {
                             Image(systemName: "circle.grid.2x2")
                                 .imageScale(.large)
                             
-                            Text("\(editProfileVM.interests[0]), \(editProfileVM.interests[1]), \(editProfileVM.interests[2])")
-                            
-                            Spacer()
+                            if editProfileVM.interests.count > 0 {
+                                Text(interestsOrder(editProfileVM.interests))
+                                    .lineLimit(1)
+                                Spacer()
+                            } else {
+                                Text("Interests")
+                                Spacer()
+                                Text("Select")
+                                    .foregroundColor(.gray)
+                            }
                             
                             Image(systemName: "chevron.right")
                                 .padding(.trailing, 10)

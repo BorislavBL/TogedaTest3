@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SystemNotificationView: View {
     let size: ImageSize = .medium
-    var message: String = "Your recent post was reported due to numerous reports"
+    var message: String = "Your recent event was banned due to numerous reports."
     var body: some View {
         NavigationLink(destination: TestView()){
             HStack(alignment:.top){

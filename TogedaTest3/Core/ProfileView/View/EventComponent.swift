@@ -66,8 +66,9 @@ struct EventComponent: View {
                         Image(systemName: "person.3.fill")
                             .font(.caption)
                             .foregroundColor(Color("lightGray"))
-                        if post.maximumPeople > 0 {
-                            Text("\(post.peopleIn.count)/\(post.maximumPeople)")
+                        
+                        if let maxPeople = post.maximumPeople {
+                            Text("\(post.peopleIn.count)/\(maxPeople)")
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("lightGray"))

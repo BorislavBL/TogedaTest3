@@ -15,6 +15,47 @@ enum AccountType {
 }
 
 class RegistrationViewModel: ObservableObject {
+    //Email
+    @Published var email: String = ""
+    @Published var isEmailListed: Bool = false
+    
+    //Password
+    @Published var password: String = ""
+    
+    //Full Name
+    @Published var firstName: String = ""
+    @Published var lastName: String = ""
+    
+    //Birthday
+    @Published var day: String = ""
+    @Published var month: String = ""
+    @Published var year: String = ""
+    
+    //Gender
+    @Published var gender: String = ""
+    @Published var showGender: Bool = true
+    
+    //Location
+    @Published var returnedPlace: Place = Place(mapItem: MKMapItem())
+    @Published var isCurrentLocation: Bool = true
+    
+    //Occupation
+    @Published var occupation: String = ""
+    
+    //Interests
+    @Published var selectedInterests: [Interest] = []
+    
+    //Number
+    @Published var countryCode: String = "+359"
+    @Published var countryFlag: String = "🇧🇬"
+    @Published var countryPattern: String = "#"
+    @Published var countryLimit: Int = 17
+    @Published var mobPhoneNumber: String = ""
+    
+    //Code
+    @Published var code: String = ""
+    
+    //Photos
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
     @Published var selectedImages: [Image?] = [nil, nil, nil, nil, nil, nil]

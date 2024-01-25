@@ -8,7 +8,7 @@
 import Foundation
 
 let timeStrings = ["Starting soon", "1h", "2h", "3h", "Today", "Tomorrow", "This week", "This month", "Any", "Choose a time"]
-let categoryStrings = ["Sport", "Adventure", "Educational", "Social", "Casual", "Indoor", "Outdoor", "Grand", "Any"]
+let categoryStrings = ["Sport", "Extreme", "Educational", "Social", "Casual"]
 let distanceStrings = ["100m", "500m", "1km", "3km", "5km", "10km", "100km", "Any Distance", "Choose a distance", "Any"]
 let typeStrings = ["Trending", "Newest", "Oldest", "Friends", "Any"]
 let interestStrings = [

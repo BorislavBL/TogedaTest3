@@ -167,21 +167,19 @@ struct CreateEventView: View {
                     }
                     
                     NavigationLink {
-                        CategoryView(selectedCategory: $ceVM.selectedCategory, selectedInterests: $ceVM.selectedInterests)
+                        CategoryView(selectedInterests: $ceVM.selectedInterests, text: "Select at least one tag related to your event", minInterests: 0)
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "square.grid.2x2")
+                            Image(systemName: "circle.grid.2x2")
                                 .imageScale(.large)
                             
-                            
-                            Text("Category")
-                            
-                            Spacer()
-                            
-                            if let category = ceVM.selectedCategory {
-                                Text(category)
-                                    .foregroundColor(.gray)
+                            if $ceVM.selectedInterests.count > 0 {
+                                Text(interestsOrder(ceVM.selectedInterests))
+                                    .lineLimit(1)
+                                Spacer()
                             } else {
+                                Text("Interests")
+                                Spacer()
                                 Text("Select")
                                     .foregroundColor(.gray)
                             }
@@ -195,8 +193,8 @@ struct CreateEventView: View {
                         .createEventTabStyle()
                     }
                     
-                    if noCategory {
-                        WarningTextComponent(text: "Please select a category.")
+                    if noTag {
+                        WarningTextComponent(text: "Please at least one interest.")
                         
                     }
                     
@@ -445,8 +443,8 @@ struct CreateEventView: View {
         }
     }
     
-    var noCategory: Bool {
-        if ceVM.selectedCategory == nil && displayWarnings {
+    var noTag: Bool {
+        if ceVM.selectedInterests.count == 0 && displayWarnings {
             return true
         } else {
             return false
@@ -454,7 +452,7 @@ struct CreateEventView: View {
     }
     
     var allRequirenments: Bool {
-        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }), ceVM.selectedCategory != nil && ceVM.selectedVisability != nil {
+        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }),ceVM.selectedInterests.count > 0 && ceVM.selectedVisability != nil {
             return true
         } else {
             return false

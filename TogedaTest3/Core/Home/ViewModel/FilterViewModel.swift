@@ -21,8 +21,8 @@ class FilterViewModel: ObservableObject {
     
     @Published var sliderValue: Int = 300
     
-    @Published var selectedCategories: [String] = []
-    var categories: [String] = ["🏃‍♂️ Sport", "Adventure", "Educational", "Social", "Casual", "Indoor", "Outdoor", "Grand", "Other"]
+    @Published var selectedCategories: [Category] = []
+    var categories: [Category] = Category.Categories
     
     @Published var selectedType = "All"
     let types: [String] = ["All", "Events", "Groups", "Challenges", "Friends"]

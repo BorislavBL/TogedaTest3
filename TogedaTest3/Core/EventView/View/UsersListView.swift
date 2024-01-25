@@ -11,9 +11,15 @@ struct UsersListView: View {
     @Environment(\.dismiss) private var dismiss
     let size: ImageSize = .medium
     var users: [MiniUser]
+    var post: Post
     var body: some View {
         ScrollView{
             LazyVStack(alignment:.leading){
+                if post.joinRequests.count > 0 && post.askToJoin{
+                    NavigationLink(destination: UserRequestView(users: users)){
+                        UserRequestTab(users: users)
+                    }
+                }
                 ForEach(users, id:\.id) { user in
                     NavigationLink(destination: UserProfileView(miniUser: user)){
                         HStack{
@@ -49,5 +55,5 @@ struct UsersListView: View {
 }
 
 #Preview {
-    UsersListView(users: MiniUser.MOCK_MINIUSERS)
+    UsersListView(users: MiniUser.MOCK_MINIUSERS, post: Post.MOCK_POSTS[4])
 }

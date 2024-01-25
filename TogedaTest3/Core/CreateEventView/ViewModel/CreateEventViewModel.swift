@@ -38,7 +38,6 @@ class CreateEventViewModel: ObservableObject {
     @Published var selectedVisability: Visabilities?
     @Published var askToJoin: Bool = false
     
-    //Category
-    @Published var selectedCategory: String?
-    @Published var selectedInterests: [String] = []
+    //Tag
+    @Published var selectedInterests: [Interest] = []
 }
