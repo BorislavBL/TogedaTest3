@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 extension UINavigationController: UIGestureRecognizerDelegate {
     open override func viewDidLoad() {
@@ -17,3 +18,6 @@ extension UINavigationController: UIGestureRecognizerDelegate {
         return viewControllers.count > 1
     }
 }
+
+//https://stackoverflow.com/questions/59921239/hide-navigation-bar-without-losing-swipe-back-gesture-in-swiftui
+

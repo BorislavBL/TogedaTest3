@@ -20,9 +20,9 @@ struct RegistrationGenderView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            genderButton(title: "Man")
+            genderButton(title: "Male")
                 .padding(.bottom, 4)
-            genderButton(title: "Woman")
+            genderButton(title: "Female")
                 .padding(.bottom, 15)
             
             if displayError {
@@ -31,10 +31,10 @@ struct RegistrationGenderView: View {
             }
             
             Button{
-                vm.showGender.toggle()
+                vm.createdUser.visibleGender.toggle()
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
-                    Image(systemName: vm.showGender ? "checkmark.square.fill" : "square")
+                    Image(systemName: vm.createdUser.visibleGender ? "checkmark.square.fill" : "square")
                     Text("Make my gender visisble to others.")
                         .multilineTextAlignment(.leading)
                         .bold()
@@ -54,9 +54,9 @@ struct RegistrationGenderView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(vm.gender.isEmpty)
+            .disableWithOpacity(vm.createdUser.gender.isEmpty)
             .onTapGesture {
-                if vm.gender.isEmpty {
+                if vm.createdUser.gender.isEmpty {
                     displayError.toggle()
                 }
             }
@@ -76,13 +76,13 @@ struct RegistrationGenderView: View {
     @ViewBuilder
     func genderButton(title: String) -> some View {
         Button{
-            vm.gender = title
+            vm.createdUser.gender = title.uppercased()
         } label:{
             Text(title)
                 .frame(maxWidth: .infinity)
                 .frame(height: 60)
-                .background(vm.gender == title ? Color("blackAndWhite") : Color(.tertiarySystemFill))
-                .foregroundColor(vm.gender == title ? Color("testColor") : .accentColor)
+                .background(vm.createdUser.gender == title.uppercased() ? Color("blackAndWhite") : Color(.tertiarySystemFill))
+                .foregroundColor(vm.createdUser.gender == title.uppercased() ? Color("testColor") : .accentColor)
                 .cornerRadius(10)
                 .fontWeight(.semibold)
         }

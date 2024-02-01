@@ -7,6 +7,22 @@
 
 import Foundation
 
+struct CreateUser: Codable, Hashable {
+    var profilePhotos: [String]
+    var firstName: String
+    var lastName: String
+    var email: String
+    var subToEmail: Bool
+    var password: String
+    var phoneNumber: String
+    var birthDate: String
+    var occupation: String
+    var location: baseLocation?
+    var gender: String
+    var visibleGender: Bool
+    var interests: [String]
+}
+
 struct User: Identifiable, Codable, Hashable {
     var id: String
     var profileImageUrl: [String]
@@ -36,17 +52,8 @@ struct User: Identifiable, Codable, Hashable {
 }
 
 struct birthDay: Hashable, Codable{
-    var day: String
-    var month: String
-    var year: String
+    var date: String
 }
-
-struct baseLocation: Hashable, Codable {
-    var name: String
-    var latitude: Double
-    var longitude: Double
-}
-
 
 struct MiniUser: Identifiable, Codable, Hashable {
     let id: String
@@ -75,8 +82,10 @@ let mockInterests: [Interest] = [
 ]
 let events: [String] = []
 let friends = ["1", "2", "3"]
-let mockBirthday = birthDay(day: "12", month: "07", year: "2000")
-let mockLocation = baseLocation(name: "Sofia, Bulgaria", latitude: 42.697175, longitude: 23.322826)
+let mockBirthday = birthDay(date: "2000-07-12")
+let mockLocation = baseLocation(name: "Sofia, Bulgaria", address: nil, city: "Sofia", state: nil, country: "Bulgaria", latitude: 42.697175, longitude: 23.322826)
+
+
 
 extension User {
     static func findUser(byId id: String) -> User? {

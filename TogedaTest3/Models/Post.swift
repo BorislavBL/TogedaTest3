@@ -17,7 +17,7 @@ struct Post: Identifiable, Codable, Hashable {
     var peopleIn: [String]
     var joinRequests: [String]
     let maximumPeople: Int?
-    let location: PostLocation
+    let location: baseLocation
     let date: Date
     let createdAt: Date
     var interests: [Interest]
@@ -33,26 +33,19 @@ struct Post: Identifiable, Codable, Hashable {
 }
 
 
-struct PostLocation: Hashable, Codable {
-    let name: String
-    let address: String?
-    let city: String?
-    let country: String?
-    let latitude: Double
-    let longitude: Double
-}
 
-let mockPostLocation = [
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.607442, longitude: 23.250461),
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.625011, longitude: 23.350787),
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.653954, longitude: 23.387198),
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.672200, longitude: 23.307418),
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.709127, longitude: 23.3037966),
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.633981, longitude: 23.333598),
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.742127, longitude: 23.298799),
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.736892, longitude: 23.359391),
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.675134, longitude: 23.373128),
-    PostLocation(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.700187, longitude: 23.290698)
+
+let mockPostLocation: [baseLocation] = [
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.607442, longitude: 23.250461),
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.625011, longitude: 23.350787),
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.653954, longitude: 23.387198),
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.672200, longitude: 23.307418),
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.709127, longitude: 23.3037966),
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.633981, longitude: 23.333598),
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.742127, longitude: 23.298799),
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.736892, longitude: 23.359391),
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.675134, longitude: 23.373128),
+    .init(name: "Sofia, Bulgaria", address: "st George Washington 41", city: "Sofia", country: "Bulgaria", latitude: 42.700187, longitude: 23.290698)
 ]
 
 let postDescription = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen"

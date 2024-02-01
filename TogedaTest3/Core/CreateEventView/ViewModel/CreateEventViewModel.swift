@@ -21,7 +21,13 @@ class CreateEventViewModel: ObservableObject {
     @Published var price: Double?
     
     //Location View
-    @Published var returnedPlace = Place(mapItem: MKMapItem())
+    @Published var location: baseLocation?
+    @Published var returnedPlace = Place(mapItem: MKMapItem()){
+        didSet{
+            self.location = baseLocation(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+        }
+    }
+
     
     //Date View
     @Published var date = Date()

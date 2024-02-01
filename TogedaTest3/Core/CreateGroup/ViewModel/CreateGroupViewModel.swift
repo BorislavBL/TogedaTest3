@@ -14,7 +14,12 @@ class CreateGroupViewModel: ObservableObject {
     
     @Published var title: String = ""
     @Published var description: String = ""
-    @Published var returnedPlace = Place(mapItem: MKMapItem())
+    @Published var returnedPlace = Place(mapItem: MKMapItem()){
+        didSet{
+            self.location = baseLocation(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+        }
+    }
+    @Published var location: baseLocation?
 
     @Published var selectedInterests: [Interest] = []
     @Published var selectedVisability: Visabilities = .Public
@@ -23,7 +28,7 @@ class CreateGroupViewModel: ObservableObject {
     
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
-    @Published var selectedImages: [Image?] = [nil, nil, nil, nil, nil, nil]
+    @Published var selectedImages: [UIImage?] = [nil, nil, nil, nil, nil, nil]
     @Published var selectedImage: UIImage?
     @Published var showCropView = false
     

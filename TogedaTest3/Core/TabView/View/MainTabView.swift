@@ -121,6 +121,7 @@ struct MainTabView: View {
             .navigationDestination(for: MiniUser.self) { user in
                 UserProfileView(miniUser: user)
             }
+            .navigationViewStyle(StackNavigationViewStyle())
             //            .fullScreenCover(isPresented: $postsViewModel.showDetailsPage, content: {
             //                EventView(viewModel: postsViewModel, post: postsViewModel.posts[postsViewModel.clickedPostIndex], userViewModel: userViewModel)
             //            })

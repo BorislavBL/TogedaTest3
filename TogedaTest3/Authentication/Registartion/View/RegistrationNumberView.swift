@@ -17,6 +17,10 @@ struct RegistrationNumberView: View {
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
     
+    @State private var isActive = false
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    
     let counrties: [CPData] = Bundle.main.decode("CountryNumbers.json")
     
     var body: some View {
@@ -32,7 +36,7 @@ struct RegistrationNumberView: View {
                     presentSheet = true
                     keyIsFocused = false
                 } label: {
-                    Text("\(vm.countryFlag) \(vm.countryCode)")
+                    Text("\(vm.countryFlag) +\(vm.countryCode)")
                         .padding(10)
                         .frame(minWidth: 80, minHeight: 47)
                         .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -61,16 +65,53 @@ struct RegistrationNumberView: View {
                     .padding(.bottom, 15)
             }
             
-            Spacer()
+            if let message = errorMessage {
+                WarningTextComponent(text: message)
+                    .padding(.bottom, 15)
+            }
             
-            NavigationLink(destination: RegistrationCodeView(vm: vm)){
-                Text("Next")
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color("blackAndWhite"))
-                    .foregroundColor(Color("testColor"))
-                    .cornerRadius(10)
-                    .fontWeight(.semibold)
+            Spacer()
+
+            Button{
+                isLoading = true
+                print(vm.createdUser)
+                
+                Task{
+                    defer { isLoading = false }
+                    do {
+                        vm.userId = try await AuthService().createUser(userData: vm.createdUser)
+                        isActive = true
+                    } catch GeneralError.encodingError{
+                        print("Data encoding error")
+                    } catch GeneralError.badRequest(details: let details){
+                        print(details)
+                        errorMessage = "Invalid phone number."
+                    } catch GeneralError.invalidURL {
+                        print("Invalid URL")
+                    } catch GeneralError.serverError(let statusCode, let details) {
+                        print("Status: \(statusCode) \n \(details)")
+                    } catch {
+                        print("Error message:", error)
+                    }
+                }
+            } label:{
+                if isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                        .fontWeight(.semibold)
+                } else {
+                    Text("Next")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                        .fontWeight(.semibold)
+                }
             }
             .disableWithOpacity(vm.mobPhoneNumber.count < 5)
             .onTapGesture {
@@ -94,7 +135,7 @@ struct RegistrationNumberView: View {
                         Text(country.name)
                             .font(.headline)
                         Spacer()
-                        Text(country.dial_code)
+                        Text("+\(country.dial_code)")
                             .foregroundColor(.secondary)
                     }
                     .onTapGesture {
@@ -111,6 +152,9 @@ struct RegistrationNumberView: View {
             }
             .presentationDetents([.large])
         }
+        .onAppear(){
+            keyIsFocused = true
+        }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
         .navigationBarBackButtonHidden(true)
@@ -120,6 +164,10 @@ struct RegistrationNumberView: View {
                 .background(Color(.tertiarySystemFill))
                 .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
         })
+        .navigationDestination(isPresented: $isActive, destination: {
+            RegistrationCodeView(vm: vm)
+        })
+
     }
     
     var filteredResorts: [CPData] {

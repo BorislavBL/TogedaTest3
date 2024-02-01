@@ -31,7 +31,7 @@ struct PhotoPickerView: View {
                         ForEach(0..<3, id: \.self){ index in
                             ZStack{
                                 if let image = photoPickerVM.selectedImages[index]{
-                                    image
+                                    Image(uiImage: image)
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width:imageDimension, height: imageDimension * 1.3)
@@ -57,7 +57,7 @@ struct PhotoPickerView: View {
                         ForEach(3..<6, id: \.self){ index in
                             ZStack{
                                 if let image = photoPickerVM.selectedImages[index]{
-                                    image
+                                    Image(uiImage: image)
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width:imageDimension, height: imageDimension * 1.3)
@@ -88,7 +88,7 @@ struct PhotoPickerView: View {
                         .foregroundStyle(.gray)
                     
                     Button {
-                        photoPickerVM.selectedImages[0] = Image( userViewModel.user.profileImageUrl[0])
+                        photoPickerVM.selectedImages[0] = UIImage(named: userViewModel.user.profileImageUrl[0])
                     } label:{
                         Image(userViewModel.user.profileImageUrl[0])
                             .resizable()

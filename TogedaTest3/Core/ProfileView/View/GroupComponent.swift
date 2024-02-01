@@ -87,7 +87,7 @@ struct GroupComponent: View {
                         .font(.caption)
                         .foregroundColor(Color("lightGray"))
                     
-                    Text(club.baseLocation.name)
+                    Text(locationCityAndCountry(club.baseLocation))
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(Color("lightGray"))

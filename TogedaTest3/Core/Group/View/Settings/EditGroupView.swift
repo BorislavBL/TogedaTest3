@@ -54,8 +54,11 @@ struct EditGroupView: View {
                             Image(systemName: "location.circle.fill")
                                 .imageScale(.large)
                             
-                            
-                            Text(editGroupVM.location.name.isEmpty ? "Select Location" : editGroupVM.location.name)
+                            if let location = editGroupVM.location {
+                                Text(location.name)
+                            } else {
+                                Text("Select Location")
+                            }
                             
                             Spacer()
                             

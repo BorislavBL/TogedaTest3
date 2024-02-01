@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct RegistrationEmailView: View {
-    @StateObject var vm = RegistrationViewModel()
+    @ObservedObject var vm: RegistrationViewModel
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var keyIsFocused: Bool
     @Environment(\.dismiss) var dismiss
 
     @State private var displayError: Bool = false
+    @State private var isActive: Bool = false
     var body: some View {
         VStack {
             Text("What's your email?")
@@ -21,8 +22,8 @@ struct RegistrationEmailView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            TextField("", text: $vm.email)
-                .placeholder(when: vm.email.isEmpty) {
+            TextField("", text: $vm.createdUser.email)
+                .placeholder(when: vm.createdUser.email.isEmpty) {
                     Text("Email")
                         .foregroundColor(.secondary)
                         .bold()
@@ -30,6 +31,14 @@ struct RegistrationEmailView: View {
                 .bold()
                 .focused($keyIsFocused)
                 .keyboardType(.emailAddress)
+                .submitLabel(.next)
+                .onSubmit {
+                    if !isValidEmail(testStr: vm.createdUser.email) {
+                        displayError.toggle()
+                    } else{
+                        isActive = true
+                    }
+                }
                 .padding(10)
                 .frame(minWidth: 80, minHeight: 47)
                 .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -43,12 +52,13 @@ struct RegistrationEmailView: View {
             }
             
             Button{
-                vm.isEmailListed.toggle()
+                vm.createdUser.subToEmail.toggle()
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
-                    Image(systemName: vm.isEmailListed ? "checkmark.square.fill" : "square")
-                    Text("Would you lie to receive news and updates From Togeda?")
+                    Image(systemName: vm.createdUser.subToEmail ? "checkmark.square.fill" : "square")
+                    Text("Would you like to receive news and updates from Togeda?")
                         .multilineTextAlignment(.leading)
+                        .font(.footnote)
                         .bold()
                     
                 })
@@ -57,7 +67,9 @@ struct RegistrationEmailView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationPasswordView(vm: vm)){
+            Button{
+                isActive = true
+            } label:{
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -66,9 +78,9 @@ struct RegistrationEmailView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(!isValidEmail(testStr: vm.email))
+            .disableWithOpacity(!isValidEmail(testStr: vm.createdUser.email))
             .onTapGesture {
-                if !isValidEmail(testStr: vm.email) {
+                if !isValidEmail(testStr: vm.createdUser.email) {
                     displayError.toggle()
                 }
             }
@@ -76,12 +88,17 @@ struct RegistrationEmailView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)
         .padding(.horizontal)
-        
         .onTapGesture {
             hideKeyboard()
         }
+        .onAppear(){
+            keyIsFocused = true
+        }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
+        .navigationDestination(isPresented: $isActive, destination: {
+            RegistrationPasswordView(vm: vm)
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
@@ -111,5 +128,5 @@ struct RegistrationEmailView: View {
 }
 
 #Preview {
-    RegistrationEmailView()
+    RegistrationEmailView(vm: RegistrationViewModel())
 }

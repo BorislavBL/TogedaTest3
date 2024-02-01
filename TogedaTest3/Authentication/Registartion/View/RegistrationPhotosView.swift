@@ -26,7 +26,7 @@ struct RegistrationPhotosView: View {
                     ForEach(0..<3, id: \.self){ index in
                         ZStack{
                             if let image = vm.selectedImages[index]{
-                                image
+                                Image(uiImage: image)
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width:imageDimension, height: imageDimension * 1.3)
@@ -52,7 +52,7 @@ struct RegistrationPhotosView: View {
                     ForEach(3..<6, id: \.self){ index in
                         ZStack{
                             if let image = vm.selectedImages[index]{
-                                image
+                                Image(uiImage: image)
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width:imageDimension, height: imageDimension * 1.3)

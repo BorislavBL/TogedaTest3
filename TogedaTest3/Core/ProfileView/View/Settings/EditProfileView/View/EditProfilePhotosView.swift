@@ -18,7 +18,7 @@ struct EditProfilePhotosView: View {
                 ForEach(0..<3, id: \.self){ index in
                     ZStack{
                         if let image = editProfileVM.selectedImages[index]{
-                            image
+                            Image(uiImage: image)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width:imageDimension, height: imageDimension * 1.3)
@@ -45,7 +45,7 @@ struct EditProfilePhotosView: View {
                 ForEach(3..<6, id: \.self){ index in
                     ZStack{
                         if let image = editProfileVM.selectedImages[index]{
-                            image
+                            Image(uiImage: image)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width:imageDimension, height: imageDimension * 1.3)

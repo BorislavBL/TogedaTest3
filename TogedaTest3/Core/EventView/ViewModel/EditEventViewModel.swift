@@ -12,7 +12,14 @@ import MapKit
 class EditEventViewModel: ObservableObject {
     @Published var title: String = ""
     @Published var description: String = ""
-    @Published var returnedPlace = Place(mapItem: MKMapItem())
+    
+    @Published var location: baseLocation?
+    @Published var returnedPlace = Place(mapItem: MKMapItem()){
+        didSet{
+            self.location = baseLocation(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+        }
+    }
+    
     @Published var selectedInterests: [Interest] = []
     
     //Participants View
@@ -30,7 +37,7 @@ class EditEventViewModel: ObservableObject {
     //Photos
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
-    @Published var selectedImages: [Image?] = [nil, nil, nil, nil, nil, nil]
+    @Published var selectedImages: [UIImage?] = [nil, nil, nil, nil, nil, nil]
     @Published var selectedImage: UIImage?
     @Published var showCropView = false
     
@@ -50,7 +57,7 @@ extension EditEventViewModel {
         participants = post.maximumPeople
         
         for i in post.imageUrl.indices {
-            selectedImages[i] = Image(User.MOCK_USERS[0].profileImageUrl[i])
+            selectedImages[i] = UIImage(named: User.MOCK_USERS[0].profileImageUrl[i])
         }
     }
 

@@ -115,8 +115,14 @@ struct CreateEventView: View {
                             
                             Spacer()
                             
-                            Text("\(ceVM.returnedPlace.name == "Unknown Location" ? "Select": ceVM.returnedPlace.name)")
-                                .foregroundColor(.gray)
+                            if let location = ceVM.location {
+                                Text(location.name)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(1)
+                            } else {
+                                Text("Select")
+                                    .foregroundColor(.gray)
+                            }
                             
                             Image(systemName: "chevron.right")
                                 .padding(.trailing, 10)

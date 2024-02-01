@@ -13,6 +13,7 @@ struct RegistrationLocationView: View {
     @FocusState private var keyIsFocused: Bool
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
+    @State private var isActive: Bool = false
     
     @ObservedObject var vm: RegistrationViewModel
 
@@ -31,6 +32,14 @@ struct RegistrationLocationView: View {
                             .foregroundColor(.primary)
                             .autocorrectionDisabled()
                             .focused($keyIsFocused)
+                            .submitLabel(.next)
+                            .onSubmit {
+                                if vm.returnedPlace.name == "Unknown Location" || vm.searchText.isEmpty {
+                                    displayError.toggle()
+                                } else {
+                                    isActive = true
+                                }
+                            }
                             .bold()
                         
                     }
@@ -74,7 +83,9 @@ struct RegistrationLocationView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationOccupationView(vm: vm)){
+            Button{
+                isActive = true
+            } label:{
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -97,8 +108,14 @@ struct RegistrationLocationView: View {
         .onTapGesture {
             hideKeyboard()
         }
+        .onAppear(){
+            keyIsFocused = true
+        }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
+        .navigationDestination(isPresented: $isActive, destination: {
+            RegistrationOccupationView(vm: vm)
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
@@ -128,4 +145,5 @@ struct RegistrationLocationView: View {
 
 #Preview {
     RegistrationLocationView(vm: RegistrationViewModel())
+    
 }

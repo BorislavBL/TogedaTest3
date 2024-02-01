@@ -16,7 +16,7 @@ extension View{
 
 struct CropPhotoView: View {
     @State var selectedImage: UIImage?
-    @Binding var finalImage: Image?
+    @Binding var finalImage: UIImage?
     @Environment(\.dismiss) private var dismiss
     
     var crop: Crop
@@ -51,7 +51,7 @@ struct CropPhotoView: View {
                             renderer.proposedSize = .init(crop.size())
                             if let image = renderer.uiImage{
 //                                onCrop(image,true)
-                                finalImage = Image(uiImage: image)
+                                finalImage = image
                             }else{
 //                                onCrop(nil,false)
                                 finalImage = nil
@@ -201,6 +201,6 @@ struct CropPhotoView: View {
 
 struct CropPhotoView_Previews: PreviewProvider {
     static var previews: some View {
-        CropPhotoView(finalImage: .constant(Image("person_1")), crop: .custom(CGSize(width: 300, height: 500)))
+        CropPhotoView(finalImage: .constant(UIImage(named:"person_1")), crop: .custom(CGSize(width: 300, height: 500)))
     }
 }

@@ -19,9 +19,9 @@ struct GroupLocationView: View {
                     .font(.body)
                     .fontWeight(.bold)
                 
-                Text(groupVM.club.baseLocation.name)
+                Text(locationAddress(groupVM.club.baseLocation))
                     .foregroundStyle(.gray)
-                
+                    .lineLimit(1)
             }
             
             MapSlot(name:  groupVM.club.title, latitude: groupVM.club.baseLocation.latitude, longitude: groupVM.club.baseLocation.longitude)

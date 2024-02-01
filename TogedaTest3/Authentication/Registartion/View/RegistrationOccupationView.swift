@@ -15,6 +15,8 @@ struct RegistrationOccupationView: View {
     
     @State var isStudent: Bool = false
     @State private var displayError: Bool = false
+    @State private var isActive: Bool = false
+    
     var body: some View {
         VStack {
             Text("What do you do?")
@@ -22,15 +24,23 @@ struct RegistrationOccupationView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            TextField("", text: $vm.occupation)
-                .placeholder(when: vm.occupation.isEmpty) {
+            TextField("", text: $vm.createdUser.occupation)
+                .placeholder(when: vm.createdUser.occupation.isEmpty) {
                     Text("Occupation")
                         .foregroundColor(.secondary)
                         .bold()
                 }
                 .bold()
                 .focused($keyIsFocused)
-                .keyboardType(.emailAddress)
+                .keyboardType(.default)
+                .submitLabel(.next)
+                .onSubmit {
+                    if vm.createdUser.occupation.isEmpty && !isStudent{
+                        displayError.toggle()
+                    } else {
+                        isActive = true
+                    }
+                }
                 .padding(10)
                 .frame(minWidth: 80, minHeight: 47)
                 .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -38,17 +48,17 @@ struct RegistrationOccupationView: View {
                 .padding(.bottom, 15)
             
             
-//            if displayError {
-//                WarningTextComponent(text: "Please fill in the field")
-//                    .padding(.bottom, 15)
-//            }
+            if displayError {
+                WarningTextComponent(text: "Please fill in the field")
+                    .padding(.bottom, 15)
+            }
             
             Button{
                 isStudent.toggle()
                 if isStudent {
-                    vm.occupation = "Student"
+                    vm.createdUser.occupation = "Student"
                 } else {
-                    vm.occupation = ""
+                    vm.createdUser.occupation = ""
                 }
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
@@ -63,7 +73,9 @@ struct RegistrationOccupationView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationPhotosView(vm: RegistrationViewModel())){
+            Button{
+                isActive = true
+            } label:{
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -72,22 +84,27 @@ struct RegistrationOccupationView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-//            .disableWithOpacity(occupation.isEmpty && !isStudent)
-//            .onTapGesture {
-//                if occupation.isEmpty && !isStudent{
-//                    displayError.toggle()
-//                }
-//            }
+            .disableWithOpacity(vm.createdUser.occupation.isEmpty && !isStudent)
+            .onTapGesture {
+                if vm.createdUser.occupation.isEmpty && !isStudent{
+                    displayError.toggle()
+                }
+            }
             
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)
         .padding(.horizontal)
-        
+        .onAppear(){
+            keyIsFocused = true
+        }
         .onTapGesture {
             hideKeyboard()
         }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
+        .navigationDestination(isPresented: $isActive, destination: {
+            RegistrationPhotosView(vm: vm)
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

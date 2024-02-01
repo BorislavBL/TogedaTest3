@@ -17,6 +17,7 @@ struct RegistrationFullNameView: View {
     @FocusState private var focus: FocusedField?
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
+    @State private var isActive: Bool = false
     var body: some View {
         VStack {
             Text("What's your name?")
@@ -24,14 +25,15 @@ struct RegistrationFullNameView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            TextField("", text: $vm.firstName)
-                .placeholder(when: vm.firstName.isEmpty) {
+            TextField("", text: $vm.createdUser.firstName)
+                .placeholder(when: vm.createdUser.firstName.isEmpty) {
                     Text("First Name")
                         .foregroundColor(.secondary)
                         .bold()
                 }
                 .bold()
                 .focused($focus, equals: .first)
+                .submitLabel(.next)
                 .onSubmit {
                     focus = .last
                 }
@@ -40,14 +42,22 @@ struct RegistrationFullNameView: View {
                 .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .padding(.top, 20)
             
-            TextField("", text: $vm.lastName)
-                .placeholder(when: vm.lastName.isEmpty) {
+            TextField("", text: $vm.createdUser.lastName)
+                .placeholder(when: vm.createdUser.lastName.isEmpty) {
                     Text("Last Name")
                         .foregroundColor(.secondary)
                         .bold()
                 }
                 .bold()
                 .focused($focus, equals: .last)
+                .submitLabel(.next)
+                .onSubmit {
+                    if vm.createdUser.firstName.count < 3 || vm.createdUser.lastName.count < 3 {
+                        displayError.toggle()
+                    } else {
+                        isActive = true
+                    }
+                }
                 .padding(10)
                 .frame(minWidth: 80, minHeight: 47)
                 .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -65,7 +75,9 @@ struct RegistrationFullNameView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistartionAgeView(vm: vm)){
+            Button{
+                isActive = true
+            } label:{
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -74,9 +86,9 @@ struct RegistrationFullNameView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity((vm.firstName.count < 3 || vm.lastName.count < 3))
+            .disableWithOpacity((vm.createdUser.firstName.count < 3 || vm.createdUser.lastName.count < 3))
             .onTapGesture {
-                if vm.firstName.count < 3 || vm.lastName.count < 3 {
+                if vm.createdUser.firstName.count < 3 || vm.createdUser.lastName.count < 3 {
                     displayError.toggle()
                 }
             }
@@ -88,9 +100,16 @@ struct RegistrationFullNameView: View {
         .onTapGesture {
             hideKeyboard()
         }
+        .onAppear{
+            focus = .first
+        }
+        
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $isActive, destination: {
+            RegistartionAgeView(vm: vm)
+        })
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .frame(width: 35, height: 35)

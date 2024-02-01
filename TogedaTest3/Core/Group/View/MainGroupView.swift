@@ -35,7 +35,7 @@ struct MainGroupView: View {
                 HStack(spacing: 5){
                     Image(systemName: "mappin.circle")
                     
-                    Text(groupVM.club.baseLocation.name)
+                    Text(locationAddress(groupVM.club.baseLocation))
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .foregroundColor(.gray)

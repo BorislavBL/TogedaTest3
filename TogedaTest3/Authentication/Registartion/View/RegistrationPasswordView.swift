@@ -19,7 +19,7 @@ struct RegistrationPasswordView: View {
     @State var confirmPassword: String = ""
     @State private var displayError: Bool = false
     @State private var isPasswordVisible: Bool = false
-    
+    @State private var isActive: Bool = false
     
     var body: some View {
         VStack {
@@ -30,9 +30,9 @@ struct RegistrationPasswordView: View {
             
             HStack{
                 if isPasswordVisible{
-                    TextField("", text: $vm.password)
+                    TextField("", text: $vm.createdUser.password)
                 } else {
-                    SecureField("", text: $vm.password)
+                    SecureField("", text: $vm.createdUser.password)
                 }
                 
                 Button{
@@ -42,7 +42,7 @@ struct RegistrationPasswordView: View {
                         .foregroundStyle(.gray)
                 }
             }
-            .placeholder(when: vm.password.isEmpty) {
+            .placeholder(when: vm.createdUser.password.isEmpty) {
                 Text("Password")
                     .foregroundColor(.secondary)
                     .bold()
@@ -51,6 +51,7 @@ struct RegistrationPasswordView: View {
             .bold()
             .autocapitalization(.none)
             .focused($focus, equals: .password1)
+            .submitLabel(.next)
             .onSubmit {
                 focus = .password2
             }
@@ -80,23 +81,33 @@ struct RegistrationPasswordView: View {
             }
             .bold()
             .focused($focus, equals: .password2)
+            .submitLabel(.next)
+            .onSubmit {
+                if !isValidPassword(vm.createdUser.password) || !samePassword{
+                    displayError.toggle()
+                } else {
+                    isActive = true
+                }
+            }
             .padding(10)
             .frame(minWidth: 80, minHeight: 47)
             .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             .padding(.top, 2)
             .padding(.bottom, 15)
             
-            if displayError && !isValidPassword(vm.password) {
+            if displayError && !isValidPassword(vm.createdUser.password) {
                 WarningTextComponent(text: "Make sure the password is at lest 6 characters long, contains letters and digits and has at lest one capital letter.")
                     .padding(.bottom, 15)
-            } else if displayError &&  confirmPassword != vm.password {
+            } else if displayError &&  confirmPassword != vm.createdUser.password {
                 WarningTextComponent(text: "The two passwords do not match.")
             }
             
             
             Spacer()
             
-            NavigationLink(destination: RegistrationFullNameView(vm: vm)){
+            Button{
+                isActive = true
+            } label:{
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -105,9 +116,9 @@ struct RegistrationPasswordView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(!isValidPassword(vm.password) || !samePassword)
+            .disableWithOpacity(!isValidPassword(vm.createdUser.password) || !samePassword)
             .onTapGesture {
-                if !isValidPassword(vm.password) || !samePassword{
+                if !isValidPassword(vm.createdUser.password) || !samePassword{
                     displayError.toggle()
                 }
             }
@@ -118,8 +129,14 @@ struct RegistrationPasswordView: View {
         .onTapGesture {
             hideKeyboard()
         }
+        .onAppear{
+            focus = .password1
+        }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
+        .navigationDestination(isPresented: $isActive, destination: {
+            RegistrationFullNameView(vm: vm)
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
@@ -155,7 +172,7 @@ struct RegistrationPasswordView: View {
     }
     
     var samePassword: Bool {
-        return confirmPassword == vm.password
+        return confirmPassword == vm.createdUser.password
     }
     
 }

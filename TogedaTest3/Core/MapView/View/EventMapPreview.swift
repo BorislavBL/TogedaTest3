@@ -18,7 +18,7 @@ struct EventMapPreview: View {
                 Image(post.imageUrl[0])
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 80, height:80)
+                    .frame(width: 80, height: 80)
                     .cornerRadius(10)
                     .clipped()
                 

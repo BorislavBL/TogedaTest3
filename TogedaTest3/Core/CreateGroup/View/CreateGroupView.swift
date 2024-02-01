@@ -127,8 +127,14 @@ struct CreateGroupView: View {
                             
                             Spacer()
                             
-                            Text("\(createGroupVM.returnedPlace.name == "Unknown Location" ? "Select": createGroupVM.returnedPlace.name)")
-                                .foregroundColor(.gray)
+                            if let location = createGroupVM.location{
+                                
+                                Text(location.name)
+                                    .foregroundColor(.gray)
+                            } else {
+                                Text("Select")
+                                    .foregroundColor(.gray)
+                            }
                             
                             Image(systemName: "chevron.right")
                                 .padding(.trailing, 10)

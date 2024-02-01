@@ -126,6 +126,7 @@ struct AllInOneFilterView: View {
             }
             .padding()
         }
+        .scrollIndicators(.never)
         
     }
 }

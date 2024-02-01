@@ -19,14 +19,14 @@ struct ContentView: View {
     var body: some View {
         Group {
             ZStack(alignment:.top){
-                if let user = viewModel.currentUser{
-                    MainTabView(user: user)
-                        .environmentObject(locationManager)
-                        .environmentObject(postsViewModel)
-                        .environmentObject(userViewModel)
-                } else {
+//                if let user = viewModel.currentUser{
+//                    MainTabView(user: user)
+//                        .environmentObject(locationManager)
+//                        .environmentObject(postsViewModel)
+//                        .environmentObject(userViewModel)
+//                } else {
                     IntroView()
-                }
+//                }
                 
                 if !networkManager.isConnected {
                     Text("No Internet Connection")

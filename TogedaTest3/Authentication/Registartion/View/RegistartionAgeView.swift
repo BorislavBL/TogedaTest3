@@ -17,6 +17,7 @@ struct RegistartionAgeView: View {
     @Environment(\.dismiss) var dismiss
 
     @State private var displayError: Bool = false
+    @State private var isActive: Bool = false
     
     var body: some View {
         VStack {
@@ -34,6 +35,8 @@ struct RegistartionAgeView: View {
                     }
                     .bold()
                     .focused($focus, equals: .day)
+                    .submitLabel(.next)
+                    .keyboardType(.numberPad)
                     .onChange(of: vm.day) {
                         if vm.day.count >= 2 {
                             vm.day = String(vm.day.prefix(2))
@@ -51,6 +54,8 @@ struct RegistartionAgeView: View {
                     }
                     .bold()
                     .focused($focus, equals: .month)
+                    .submitLabel(.next)
+                    .keyboardType(.numberPad)
                     .onChange(of: vm.month) {
                         if vm.month.count >= 2 {
                             vm.month = String(vm.month.prefix(2))
@@ -68,6 +73,15 @@ struct RegistartionAgeView: View {
                     }
                     .bold()
                     .focused($focus, equals: .year)
+                    .submitLabel(.next)
+                    .keyboardType(.numberPad)
+                    .onSubmit(){
+                        if !hasAge(day: vm.day, month: vm.month, year: vm.year){
+                            displayError.toggle()
+                        } else {
+                            isActive = true
+                        }
+                    }
                     .onChange(of: vm.year) {
                         if vm.year.count >= 4 {
                             vm.year = String(vm.year.prefix(4))
@@ -80,18 +94,29 @@ struct RegistartionAgeView: View {
             .padding(.top, 2)
             .padding(.bottom, 15)
             
-            if displayError {
+            if displayError && !validDate(day: vm.day, month: vm.month, year: vm.year){
                 WarningTextComponent(text: "Please write a valid date.")
+                    .padding(.bottom, 15)
+            } else if displayError && !hasAge(day: vm.day, month: vm.month, year: vm.year){
+                WarningTextComponent(text: "You must be at least 18 years old.")
                     .padding(.bottom, 15)
             }
             
+            
+
             Text("Your age will be visable to others")
                 .bold()
                 .foregroundStyle(.gray)
             
             Spacer()
             
-            NavigationLink(destination: RegistrationGenderView(vm: vm)){
+            Button{
+                vm.day = formatSingleDigit(vm.day)
+                vm.month = formatSingleDigit(vm.month)
+                vm.createdUser.birthDate = "\(vm.year)-\(vm.month)-\(vm.day)"
+                print(vm.createdUser.birthDate)
+                isActive = true
+            } label:{
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -100,9 +125,9 @@ struct RegistartionAgeView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(!validDate(day: vm.day, month: vm.month, year: vm.year))
+            .disableWithOpacity(!hasAge(day: vm.day, month: vm.month, year: vm.year))
             .onTapGesture {
-                if !validDate(day: vm.day, month: vm.month, year: vm.year){
+                if !hasAge(day: vm.day, month: vm.month, year: vm.year){
                     displayError.toggle()
                 }
             }
@@ -110,12 +135,17 @@ struct RegistartionAgeView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: focus)
         .padding(.horizontal)
-        
         .onTapGesture {
             hideKeyboard()
         }
+        .onAppear{
+            focus = .day
+        }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
+        .navigationDestination(isPresented: $isActive, destination: {
+            RegistrationGenderView(vm: vm)
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
@@ -125,6 +155,12 @@ struct RegistartionAgeView: View {
         })
     }
     
+    func formatSingleDigit(_ numberStr: String) -> String {
+        if numberStr.count == 1, let _ = Int(numberStr) {
+            return "0\(numberStr)"
+        }
+        return numberStr
+    }
     
     var foregroundColor: Color {
         if colorScheme == .dark {

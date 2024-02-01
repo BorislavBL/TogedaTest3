@@ -81,19 +81,16 @@ struct GroupEventComponent: View {
                 }
                 .padding(.bottom, 2)
                 
-                if let country = post.location.country, let city = post.location.city {
                     HStack(alignment: .center){
                         Image(systemName: "location")
                             .font(.caption)
                             .foregroundColor(Color("lightGray"))
                         
-                        Text("\(city), \(country)")
+                        Text(locationCityAndCountry(post.location))
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(Color("lightGray"))
                     }
-                    
-                }
                 
             }
             

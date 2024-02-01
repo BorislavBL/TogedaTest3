@@ -14,7 +14,6 @@ struct EditProfileLocationView: View {
     @Environment(\.dismiss) var dismiss
     
     @ObservedObject var editProfileVM: EditProfileViewModel
-    @State var returnedPlace: Place = Place(mapItem: MKMapItem())
     @State var showCancelButton: Bool = false
     @State var isCurrentLocation: Bool = true
     
@@ -57,10 +56,7 @@ struct EditProfileLocationView: View {
                                 UIApplication.shared.endEditing(true)
                                 editProfileVM.searchLocationText = place.addressCountry
                                 showCancelButton = false
-                                returnedPlace = place
-                                editProfileVM.baseLocation.name = place.addressCountry
-                                editProfileVM.baseLocation.latitude = place.latitude
-                                editProfileVM.baseLocation.longitude = place.longitude
+                                editProfileVM.returnedPlace = place
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading )

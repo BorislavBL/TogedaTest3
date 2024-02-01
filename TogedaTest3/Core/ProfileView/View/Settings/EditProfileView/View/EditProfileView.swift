@@ -92,9 +92,12 @@ struct EditProfileView: View {
                             Image(systemName: "location.circle.fill")
                                 .imageScale(.large)
                             
-                            
-                            Text(editProfileVM.baseLocation.name.isEmpty ? "Select Location" : editProfileVM.baseLocation.name)
-                            
+                            if let location = editProfileVM.location {
+                                Text(locationCityAndCountry(location))
+                            } else {
+                                Text("Select Location")
+                            }
+                             
                             Spacer()
                             
                             Image(systemName: "chevron.right")

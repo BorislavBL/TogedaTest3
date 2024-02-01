@@ -64,8 +64,14 @@ struct EditEventView: View {
                             
                             Spacer()
                             
-                            Text("\(vm.returnedPlace.name == "Unknown Location" ? "Select": vm.returnedPlace.name)")
-                                .foregroundColor(.gray)
+                            if let location = vm.location{
+                                
+                                Text(location.name)
+                                    .foregroundColor(.gray)
+                            } else {
+                                Text("Select")
+                                    .foregroundColor(.gray)
+                            }
                             
                             Image(systemName: "chevron.right")
                                 .padding(.trailing, 10)

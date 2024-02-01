@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct IntroView: View {
+    @StateObject var vm = RegistrationViewModel()
     var body: some View {
         NavigationStack{
             ZStack(alignment:.bottom){
@@ -39,7 +40,7 @@ struct IntroView: View {
                                 .fontWeight(.semibold)
                         }
                         
-                        NavigationLink(destination: RegistrationEmailView()){
+                        NavigationLink(destination: RegistrationEmailView(vm: vm)){
                             Text("Register")
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)

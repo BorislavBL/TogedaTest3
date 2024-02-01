@@ -50,7 +50,6 @@ struct EventView: View {
                         .frame(height: 500)
                         
                         VStack(alignment: .leading){
-                            
                             Text(post.title)
                                 .font(.title)
                                 .fontWeight(.bold)
@@ -136,20 +135,30 @@ struct EventView: View {
                                     
                                     VStack(alignment: .leading, spacing: 5) {
                                         
-                                        if post.peopleIn.contains(userViewModel.user.id) || post.accessability == .Public{
-                                            Text("Bulgaria, Sofia")
+ 
+                                            Text(locationCityAndCountry(post.location))
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                             
-                                            Text("St. Georg Washington")
+                                        if post.peopleIn.contains(userViewModel.user.id) || !post.askToJoin{
+                                            if let address = post.location.address {
+                                                Text(address)
+                                                    .font(.footnote)
+                                                    .foregroundColor(.gray)
+                                                    .fontWeight(.bold)
+                                            } else {
+                                                Text(post.location.name)
+                                                    .font(.footnote)
+                                                    .foregroundColor(.gray)
+                                                    .fontWeight(.bold)
+                                            }
+                                        } else {
+                                            Text("The exact location will be revealed upon joining.")
                                                 .font(.footnote)
                                                 .foregroundColor(.gray)
                                                 .fontWeight(.bold)
-                                        } else {
-                                            Text("The exact location will be revealed upon joining.")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
                                         }
+                                        
                                     }
                                 }
                                 
@@ -285,7 +294,7 @@ struct EventView: View {
                             
                             if post.peopleIn.contains(userViewModel.user.id) || !post.askToJoin{
                                 
-                                Text(address ?? "-/--")
+                                Text(locationAddress(post.location))
                                     .normalTagTextStyle()
                                     .normalTagCapsuleStyle()
                                 
@@ -366,9 +375,6 @@ struct EventView: View {
             }
             .onAppear {
                 self.peopleIn = post.peopleIn.count
-                reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
-                    address = result
-                }
             }
         }
     }

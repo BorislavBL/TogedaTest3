@@ -14,9 +14,13 @@ struct RegistrationCodeView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var displayError: Bool = false
+    @State private var isActive: Bool = false
+    
+    @State private var errorMessage: String?
+    
     var body: some View {
         VStack {
-            Text("Please enter the code you receive.")
+            Text("Please enter the verification code you have received on your email.")
                 .multilineTextAlignment(.center)
                 .font(.title).bold()
                 .padding(.top, 20)
@@ -28,8 +32,8 @@ struct RegistrationCodeView: View {
                         .bold()
                 }
                 .onChange(of: vm.code) { oldValue, newValue in
-                    if vm.code.count > 4 {
-                        vm.code = String(vm.code.prefix(4))
+                    if vm.code.count > 6 {
+                        vm.code = String(vm.code.prefix(6))
                     }
                 }
                 .bold()
@@ -46,8 +50,26 @@ struct RegistrationCodeView: View {
                     .padding(.bottom, 15)
             }
             
+            if let message = errorMessage {
+                WarningTextComponent(text: message)
+                    .padding(.bottom, 15)
+            }
+            
             Button{
                 vm.code = ""
+                Task{
+                    do {
+                        try await AuthService().resendSignUpCode(email: vm.createdUser.email)
+                    } catch GeneralError.badRequest(details: let details){
+                        print(details)
+                    } catch GeneralError.invalidURL {
+                        print("Invalid URL")
+                    } catch GeneralError.serverError(let statusCode, let details) {
+                        print("Status: \(statusCode) \n \(details)")
+                    } catch {
+                        print("Error message:", error)
+                    }
+                }
             } label: {
                 HStack(alignment: .top, content: {
                     Image(systemName: "gobackward")
@@ -60,7 +82,25 @@ struct RegistrationCodeView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationEmailView()){
+            Button{
+                Task{
+                    do {
+                        if let userId = vm.userId, let code = Int(vm.code){
+                            try await AuthService().confirmSignUp(userId: userId, code: code)
+                            isActive = true
+                        }
+                    } catch GeneralError.badRequest(details: let details){
+                        print(details)
+                        errorMessage = "Invalid Code"
+                    } catch GeneralError.invalidURL {
+                        print("Invalid URL")
+                    } catch GeneralError.serverError(let statusCode, let details) {
+                        print("Status: \(statusCode) \n \(details)")
+                    } catch {
+                        print("Error message:", error)
+                    }
+                }
+            } label:{
                 Text("Complete")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -69,7 +109,7 @@ struct RegistrationCodeView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(vm.code.count < 4)
+            .disableWithOpacity(vm.code.count < 6)
             .onTapGesture {
                 if vm.code.count < 4 {
                     displayError.toggle()
@@ -85,6 +125,9 @@ struct RegistrationCodeView: View {
         }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
+        .navigationDestination(isPresented: $isActive, destination: {
+            LoginView()
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

@@ -12,7 +12,7 @@ struct PhotosGridView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var showPhotosPicker: Bool
     @Binding var selectedImageIndex: Int?
-    @Binding var selectedImages: [Image?]
+    @Binding var selectedImages: [UIImage?]
 
     var body: some View {
         Grid {
@@ -20,7 +20,7 @@ struct PhotosGridView: View {
                 ForEach(0..<3, id: \.self){ index in
                     ZStack{
                         if let image = selectedImages[index]{
-                            image
+                            Image(uiImage: image)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width:imageDimension, height: imageDimension * 1.3)
@@ -47,7 +47,7 @@ struct PhotosGridView: View {
                 ForEach(3..<6, id: \.self){ index in
                     ZStack{
                         if let image = selectedImages[index]{
-                            image
+                            Image(uiImage: image)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width:imageDimension, height: imageDimension * 1.3)

@@ -25,7 +25,13 @@ class EditProfileViewModel: ObservableObject {
     @Published var occupation: String = ""
     @Published var email: String = ""
     @Published var gender: String = "Male"
-    @Published var baseLocation: baseLocation = mockLocation
+
+    @Published var location: baseLocation?
+    @Published var returnedPlace: Place = Place(mapItem: MKMapItem()){
+        didSet{
+            self.location = baseLocation(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+        }
+    }
     
     @Published var description: String = ""
     
@@ -38,7 +44,7 @@ class EditProfileViewModel: ObservableObject {
     
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
-    @Published var selectedImages: [Image?] = [nil, nil, nil, nil, nil, nil]
+    @Published var selectedImages: [UIImage?] = [nil, nil, nil, nil, nil, nil]
     @Published var selectedImage: UIImage?
     @Published var showCropView = false
     
@@ -85,12 +91,12 @@ extension EditProfileViewModel {
         education = user.education
         personalityType = user.personalityType
         instagram = user.instagarm ?? ""
-        baseLocation = user.baseLocation
+        location = user.baseLocation
         interests = user.interests
         searchLocationText = user.baseLocation.name
         
         for i in user.profileImageUrl.indices {
-            selectedImages[i] = Image(User.MOCK_USERS[0].profileImageUrl[i])
+            selectedImages[i] = UIImage(named: User.MOCK_USERS[0].profileImageUrl[i])
         }
     }
     

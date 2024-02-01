@@ -14,43 +14,50 @@ enum AccountType {
     case personal, business
 }
 
+@MainActor
 class RegistrationViewModel: ObservableObject {
-    //Email
-    @Published var email: String = ""
-    @Published var isEmailListed: Bool = false
-    
-    //Password
-    @Published var password: String = ""
-    
-    //Full Name
-    @Published var firstName: String = ""
-    @Published var lastName: String = ""
+    @Published var userId: String?
+    @Published var createdUser: CreateUser = .init(
+        profilePhotos: ["https://example.com/photo1.jpg"],
+        firstName: "",
+        lastName: "",
+        email: "",
+        subToEmail: false,
+        password: "",
+        phoneNumber: "",
+        birthDate: "",
+        occupation: "",
+        location: nil,
+        gender: "",
+        visibleGender: true,
+        interests: ["hiking", "sport", "startup", "kalata", "hdtv"])
     
     //Birthday
     @Published var day: String = ""
     @Published var month: String = ""
     @Published var year: String = ""
     
-    //Gender
-    @Published var gender: String = ""
-    @Published var showGender: Bool = true
-    
     //Location
-    @Published var returnedPlace: Place = Place(mapItem: MKMapItem())
+    @Published var returnedPlace: Place = Place(mapItem: MKMapItem()){
+        didSet{
+            self.createdUser.location = .init(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+        }
+    }
     @Published var isCurrentLocation: Bool = true
-    
-    //Occupation
-    @Published var occupation: String = ""
     
     //Interests
     @Published var selectedInterests: [Interest] = []
     
     //Number
-    @Published var countryCode: String = "+359"
+    @Published var countryCode: String = "359"
     @Published var countryFlag: String = "🇧🇬"
     @Published var countryPattern: String = "#"
     @Published var countryLimit: Int = 17
-    @Published var mobPhoneNumber: String = ""
+    @Published var mobPhoneNumber: String = "" {
+        didSet{
+            self.createdUser.phoneNumber = "\(countryCode)\(mobPhoneNumber)"
+        }
+    }
     
     //Code
     @Published var code: String = ""
@@ -58,7 +65,7 @@ class RegistrationViewModel: ObservableObject {
     //Photos
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
-    @Published var selectedImages: [Image?] = [nil, nil, nil, nil, nil, nil]
+    @Published var selectedImages: [UIImage?] = [nil, nil, nil, nil, nil, nil]
     @Published var selectedImage: UIImage?
     @Published var showCropView = false
     @Published var interests: [String] = []
@@ -128,4 +135,12 @@ extension RegistrationViewModel {
             self.places = response.mapItems.map(Place.init)
         }
     }
+}
+
+
+// Create a user
+extension RegistrationViewModel {
+
+    
+    
 }

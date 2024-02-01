@@ -25,13 +25,13 @@ struct GroupCellTags: View {
                 }
             }
             .normalTagCapsuleStyle()
-                
-                HStack(spacing: 3) {
-                    Image(systemName: "location")
-                    Text(club.baseLocation.name)
-                        .normalTagTextStyle()
-                }
-                .normalTagCapsuleStyle()
+            
+            HStack(spacing: 3) {
+                Image(systemName: "location")
+                Text(locationCityAndCountry(club.baseLocation))
+                    .normalTagTextStyle()
+            }
+            .normalTagCapsuleStyle()
             
             
             HStack(spacing: 3) {
@@ -40,7 +40,7 @@ struct GroupCellTags: View {
                     .normalTagTextStyle()
             }
             .normalTagCapsuleStyle()
-
+            
         }
     }
 }

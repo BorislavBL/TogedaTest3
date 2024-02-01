@@ -18,6 +18,9 @@ struct LoginView: View {
     @State var password: String = ""
     @State private var displayError: Bool = false
     @State private var isPasswordVisible: Bool = false
+    @State private var errorMessage: String?
+    
+    @State private var saveLogin: Bool = true
     
     var body: some View {
         VStack {
@@ -82,22 +85,57 @@ struct LoginView: View {
                     .padding(.bottom, 15)
             }
             
+            if let message = errorMessage {
+                WarningTextComponent(text: message)
+                    .padding(.bottom, 15)
+            }
+            
+            Button{
+                saveLogin.toggle()
+            } label: {
+                HStack(alignment: .center, spacing: 16, content: {
+                    Image(systemName: saveLogin ? "checkmark.square.fill" : "square")
+                    Text("Stay logged in")
+                        .multilineTextAlignment(.leading)
+                        .bold()
+                    
+                })
+                .foregroundStyle(.gray)
+                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+            }
+            .padding(.bottom, 10)
+            
             Button{
                 
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
                     Text("Forget Password?")
                         .multilineTextAlignment(.leading)
+                        .font(.footnote)
                         .bold()
                     
                 })
-                .foregroundStyle(.gray)
+                .foregroundStyle(.blue)
             }
             
             Spacer()
             
             Button{
-                
+                errorMessage = nil
+                Task{
+                    do {
+                        try await AuthService().login(email: email, password:password)
+                    } catch GeneralError.badRequest(details: let details){
+                        print(details)
+                        errorMessage = "Incorrect email or password."
+                    } catch GeneralError.invalidURL {
+                        print("Invalid URL")
+                    } catch GeneralError.serverError(let statusCode, let details) {
+                        print("Status: \(statusCode) \n \(details)")
+                    } catch {
+                        print("Error message:", error)
+                    }
+                }
             } label: {
                 Text("Login")
                     .frame(maxWidth: .infinity)

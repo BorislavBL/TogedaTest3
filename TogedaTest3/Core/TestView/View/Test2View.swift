@@ -8,73 +8,112 @@
 import SwiftUI
 
 struct Test2View: View {
-    let maxImageSize: CGFloat = 240
-    let minImageSize: CGFloat = 60
-    @State private var MinY: CGFloat = 0
-    @State private var iMinY: CGFloat = 0
-    @State private var showFilter: Bool = true
+    var miniUser: MiniUser = .MOCK_MINIUSERS[0]
+    var user: User = .MOCK_USERS[0]
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .center){
-                    VStack(alignment: .center){
-                        Text("\(MinY)")
-                        if showFilter {
-                            TabView {
-                                ForEach(0..<5, id: \.self) { image in
-
-                                        Image("event_1")
-                                            .resizable()
-                                            .scaledToFill()
-                                            .clipped()
-                                    
-                                    
-                                }
+        VStack{
+            VStack(alignment: .center) {
+                TabView {
+                    ForEach(miniUser.profileImageUrl, id: \.self) { image in
+                        Image(image)
+                            .resizable()
+                            .scaledToFill()
+                            .clipped()
+                        
+                    }
+                    
+                }
+                .tabViewStyle(PageTabViewStyle())
+                .frame(height: 500)
+                
+                VStack(alignment: .leading, spacing: 15) {
+                    Text(miniUser.fullName)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    HStack(alignment:.top, spacing: 15){
+                        VStack(alignment: .leading, spacing: 15){
+                            HStack(spacing: 5){
+                                Image(systemName: "suitcase")
                                 
+                                Text("Graphic Designer")
+                                    .font(.footnote)
+                                    .fontWeight(.semibold)
                             }
-                            .tabViewStyle(PageTabViewStyle())
-                            .cornerRadius(10)
-                            .frame(height: 400)
-                        } else {
-                            Image("event_1")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 300, height: 300)
+                            .foregroundColor(.gray)
+                            
+                            
+                            HStack(spacing: 5){
+                                Image(systemName: "mappin.circle")
+                                
+                                Text(user.baseLocation.name)
+                                    .font(.footnote)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.gray)
+                            }
+                            .foregroundColor(.gray)
+                        }
+                        Spacer()
+//                        HStack(alignment: .top, spacing: 10) {
+//                            userStats(value: String(user.friendIDs.count), title: "Friends")
+//
+//                            userStats(value: String(user.createdEventIDs.count), title: "Events")
+//
+//                        }
+
+                    }
+                    
+                    
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                
+
+                
+
+                    HStack(alignment:.center, spacing: 10) {
+                        Button {
+                            
+                        } label: {
+                            Text("Add Friend")
+                                .normalTagTextStyle()
+                                .frame(width: UIScreen.main.bounds.width/2 - 36)
+                                .normalTagRectangleStyle()
+                        }
+                        Button {
+                            
+                        } label: {
+                            Text("Message")
+                                .normalTagTextStyle()
+                                .frame(width: UIScreen.main.bounds.width/2 - 36)
+                                .normalTagRectangleStyle()
                         }
                     }
-            }
-            .padding(.top, 59)
-            .background(
-                GeometryReader { geo in
-                    Color.clear
-                        .frame(width: 0, height: 0)
-                        .onAppear(){
-                            iMinY = geo.frame(in: .global).minY
-                        }
-                        .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
-                            MinY = newMinY
-                            if newMinY > 0 {
-                                showFilter = true
-                            } else if newMinY < -55 {
-                                showFilter = false
-                            }
-                        }
+                    .padding(.horizontal)
                 }
-            )
+                
+                
+            .padding(.bottom)
+            .frame(width: UIScreen.main.bounds.width)
+            .background(.bar)
+            .cornerRadius(10)
         }
-        .edgesIgnoringSafeArea(.top)
-        
+    }
+    @ViewBuilder
+    func userStats(value: String, title: String) -> some View {
+        VStack(alignment: .center, spacing: 5) {
+            Text(value)
+                .font(.body)
+                .bold()
+            Text(title)
+                .font(.footnote)
+                .bold()
+                .foregroundColor(.gray)
+        }
+        .frame(width: 50, height: 50)
+        .normalTagRectangleStyle()
     }
     
-    func scaleForImage(geometry: GeometryProxy) -> CGFloat {
-        let offset = geometry.frame(in: .global).minY
-        let size = max(minImageSize, maxImageSize - offset)
-        return size / maxImageSize
-    }
-    
-    func sizeForImage(geometry: GeometryProxy) -> CGFloat {
-        let offset = geometry.frame(in: .global).minY
-        return max(minImageSize, maxImageSize - offset)
-    }
 }
 
 #Preview {

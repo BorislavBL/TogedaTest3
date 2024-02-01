@@ -54,15 +54,13 @@ struct PostTags: View {
             }
             .normalTagCapsuleStyle()
             
-            if let city = post.location.city{
-                
-                HStack(spacing: 3) {
-                    Image(systemName: "location")
-                    Text(city)
-                        .normalTagTextStyle()
-                }
-                .normalTagCapsuleStyle()
+            HStack(spacing: 3) {
+                Image(systemName: "location")
+                Text(locationCityAndCountry(post.location))
+                    .normalTagTextStyle()
             }
+            .normalTagCapsuleStyle()
+            
             
             
             HStack(spacing: 3) {
@@ -76,7 +74,7 @@ struct PostTags: View {
                 }
             }
             .normalTagCapsuleStyle()
-
+            
         }
     }
 }
