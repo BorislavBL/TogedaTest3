@@ -23,7 +23,7 @@ struct CountryNumbersView: View {
     @State private var displayError: Bool = false
     
     var currentDestination: AnyView
-    let counrties: [CPData] = Bundle.main.decode("CountryNumbers.json")
+//    let counrties: [CPData] = Bundle.main.decode("CountryNumbers.json")
     
     var body: some View {
         VStack {
@@ -95,31 +95,31 @@ struct CountryNumbersView: View {
         .onTapGesture {
             hideKeyboard()
         }
-        .sheet(isPresented: $presentSheet) {
-            NavigationView {
-                List(filteredResorts) { country in
-                    HStack {
-                        Text(country.flag)
-                        Text(country.name)
-                            .font(.headline)
-                        Spacer()
-                        Text(country.dial_code)
-                            .foregroundColor(.secondary)
-                    }
-                    .onTapGesture {
-                        self.countryFlag = country.flag
-                        self.countryCode = country.dial_code
-                        self.countryPattern = country.pattern
-                        self.countryLimit = country.limit
-                        presentSheet = false
-                        searchCountry = ""
-                    }
-                }
-                .listStyle(.plain)
-                .searchable(text: $searchCountry, placement:.navigationBarDrawer(displayMode: .always) )
-            }
-            .presentationDetents([.large])
-        }
+//        .sheet(isPresented: $presentSheet) {
+//            NavigationView {
+//                List(filteredResorts) { country in
+//                    HStack {
+//                        Text(country.flag)
+//                        Text(country.name)
+//                            .font(.headline)
+//                        Spacer()
+//                        Text(country.dial_code)
+//                            .foregroundColor(.secondary)
+//                    }
+//                    .onTapGesture {
+//                        self.countryFlag = country.flag
+//                        self.countryCode = country.dial_code
+//                        self.countryPattern = country.pattern
+//                        self.countryLimit = country.limit
+//                        presentSheet = false
+//                        searchCountry = ""
+//                    }
+//                }
+//                .listStyle(.plain)
+//                .searchable(text: $searchCountry, placement:.navigationBarDrawer(displayMode: .always) )
+//            }
+//            .presentationDetents([.large])
+//        }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
         .navigationBarBackButtonHidden(true)
@@ -131,13 +131,13 @@ struct CountryNumbersView: View {
         })
     }
     
-    var filteredResorts: [CPData] {
-        if searchCountry.isEmpty {
-            return counrties
-        } else {
-            return counrties.filter { $0.name.contains(searchCountry) }
-        }
-    }
+//    var filteredResorts: [CPData] {
+//        if searchCountry.isEmpty {
+//            return counrties
+//        } else {
+//            return counrties.filter { $0.name.contains(searchCountry) }
+//        }
+//    }
     
     var foregroundColor: Color {
         if colorScheme == .dark {

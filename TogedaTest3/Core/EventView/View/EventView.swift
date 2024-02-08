@@ -340,6 +340,11 @@ struct EventView: View {
 
                 }
             }
+//            .background{
+//                SwipeBackGesture{
+//                    self.dismiss()
+//                }
+//            }
             .navigationBarBackButtonHidden(true)
             .sheet(isPresented: $showPostOptions, content: {
                 List {

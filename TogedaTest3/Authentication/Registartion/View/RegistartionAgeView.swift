@@ -111,9 +111,9 @@ struct RegistartionAgeView: View {
             Spacer()
             
             Button{
-                vm.day = formatSingleDigit(vm.day)
-                vm.month = formatSingleDigit(vm.month)
-                vm.createdUser.birthDate = "\(vm.year)-\(vm.month)-\(vm.day)"
+//                vm.day = formatSingleDigit(vm.day)
+//                vm.month = formatSingleDigit(vm.month)
+//                vm.createdUser.birthDate = birthday
                 print(vm.createdUser.birthDate)
                 isActive = true
             } label:{

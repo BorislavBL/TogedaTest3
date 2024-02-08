@@ -16,6 +16,18 @@ enum GeneralError: Error {
     case decodingError
 }
 
+struct APIErrorResponse: Codable {
+    let apierror: APIError
+}
+
+struct APIError: Codable {
+    let status: String
+    let timestamp: String
+    let message: String
+    let debugMessage: String?
+    let subErrors: String? // Adjust types if necessary
+}
+
 class AuthService {
     @Published var userID: String?
     
@@ -53,27 +65,24 @@ class AuthService {
             print("ID Token: \(authResult.idToken)")
             print("Request ID: \(requestId)")
             
-            // Example of how you might save these tokens
-            // UserDefaults.standard.set(authResult.accessToken, forKey: "accessToken")
-            // UserDefaults.standard.set(authResult.refreshToken, forKey: "refreshToken")
-            // UserDefaults.standard.set(authResult.idToken, forKey: "idToken")
-            // UserDefaults.standard.set(requestId, forKey: "requestId")
+            if let accessTokenData = authResult.accessToken.data(using: .utf8) {
+                let saved = KeychainManager().saveOrUpdate(item: accessTokenData, account: "userAccessToken", service: "net-togeda-app")
+                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
+            }
+            
+            if let refreshTokenData = authResult.refreshToken.data(using: .utf8) {
+                let saved = KeychainManager().saveOrUpdate(item: refreshTokenData, account: "userRefreshToken", service: "net-togeda-app")
+                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
+            }
+            
+            if let requestIdData = requestId.data(using: .utf8) {
+                let saved = KeychainManager().saveOrUpdate(item: requestIdData, account: "userId", service: "net-togeda-app")
+                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
+            }
             
         } catch {
             throw GeneralError.decodingError
         }
-    }
-    
-    struct APIError: Codable {
-        let status: String
-        let timestamp: String
-        let message: String
-        let debugMessage: String?
-        let subErrors: String? // Adjust types if necessary
-    }
-    
-    struct APIErrorResponse: Codable {
-        let apierror: APIError
     }
     
     struct AuthenticationResult: Codable {
@@ -91,32 +100,6 @@ class AuthService {
         let authenticationResult: AuthenticationResult
     }
     
-    
-    func uploadFile(to presignedUrl: String, filePath: String) {
-        guard let fileURL = URL(string: filePath) else {
-            print("Invalid file URL")
-            return
-        }
-        
-        var request = URLRequest(url: URL(string: presignedUrl)!)
-        request.httpMethod = "PUT"
-        
-        do {
-            let fileData = try Data(contentsOf: fileURL)
-            
-            let task = URLSession.shared.uploadTask(with: request, from: fileData) { (data, response, error) in
-                if let error = error {
-                    print("Error uploading file: \(error)")
-                } else {
-                    print("File uploaded successfully")
-                }
-            }
-            
-            task.resume()
-        } catch {
-            print("Error reading file data: \(error)")
-        }
-    }
     
     func confirmSignUp(userId: String, code: Int) async throws {
         print("userID:\(userId), code:\(code)")
@@ -210,4 +193,34 @@ class AuthService {
             }
         }
     }
+    
+    func userExistsWithEmail(email: String) async throws -> Bool {
+        guard let url = URL(string: "https://api.togeda.net/userExistsWithEmail?email=\(email)") else {
+            throw GeneralError.invalidURL
+        }
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+                // Handle non-2xx responses here, potentially decoding an error response
+                throw GeneralError.noHTTPResponse // Or a more specific error based on the statusCode
+            }
+            
+            // Decode the JSON to a [String: Bool] dictionary
+            let decodedResponse = try JSONDecoder().decode([String: Bool].self, from: data)
+            
+            // Attempt to retrieve the boolean value using the email as the key
+            if let exists = decodedResponse[email] {
+                return exists
+            } else {
+                // Handle the case where the email key is not found in the response
+                throw GeneralError.badRequest(details: "Email key not found in response")
+            }
+        } catch {
+            // Handle any decoding errors or other errors
+            throw error
+        }
+    }
+
 }

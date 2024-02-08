@@ -22,6 +22,8 @@ struct LoginView: View {
     
     @State private var saveLogin: Bool = true
     
+    @State var tokenCheck: String = ""
+    
     var body: some View {
         VStack {
             Text("Sign In to Your Account")
@@ -125,6 +127,12 @@ struct LoginView: View {
                 Task{
                     do {
                         try await AuthService().login(email: email, password:password)
+                        if let retrievedData = KeychainManager().retrieve(itemForAccount: "userAccessToken", service: "net-togeda-app"),
+                           let token = String(data: retrievedData, encoding: .utf8) {
+                            print("Retrieved token: \(token)")
+                        } else {
+                            print("Failed to retrieve token")
+                        }
                     } catch GeneralError.badRequest(details: let details){
                         print(details)
                         errorMessage = "Incorrect email or password."

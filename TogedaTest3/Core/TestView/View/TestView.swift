@@ -8,18 +8,12 @@
 import SwiftUI
 
 struct TestView: View {
-    let link = URL(string: "https://www.hackingwithswift.com")!
-    
+
     var body: some View {
-        VStack{
-            ShareLink("", item: link)
-            ShareLink("Learn Swift here", item: link)
-            ShareLink(item: link) {
-                Label("Learn Swift here", systemImage: "swift")
-            }
-        }
+        Text("babag")
     }
-}
+    
+  }
 
 
 

@@ -15,6 +15,9 @@ struct RegistrationEmailView: View {
 
     @State private var displayError: Bool = false
     @State private var isActive: Bool = false
+    @State private var isLoading = false
+    @State private var alreadyTaken: Bool = false
+    
     var body: some View {
         VStack {
             Text("What's your email?")
@@ -30,6 +33,7 @@ struct RegistrationEmailView: View {
                 }
                 .bold()
                 .focused($keyIsFocused)
+                .autocapitalization(.none)
                 .keyboardType(.emailAddress)
                 .submitLabel(.next)
                 .onSubmit {
@@ -48,6 +52,9 @@ struct RegistrationEmailView: View {
             
             if displayError {
                 WarningTextComponent(text: "Please enter a valid email.")
+                    .padding(.bottom, 15)
+            } else if alreadyTaken {
+                WarningTextComponent(text: "This email is already taken.")
                     .padding(.bottom, 15)
             }
             
@@ -68,15 +75,43 @@ struct RegistrationEmailView: View {
             Spacer()
             
             Button{
-                isActive = true
+                Task{
+                    defer { isLoading = false }
+                    do {
+                        alreadyTaken = try await AuthService().userExistsWithEmail(email: vm.createdUser.email)
+                        if !alreadyTaken {
+                            isActive = true
+                        }
+                    } catch GeneralError.encodingError{
+                        print("Data encoding error")
+                    } catch GeneralError.badRequest(details: let details){
+                        print(details)
+                    } catch GeneralError.invalidURL {
+                        print("Invalid URL")
+                    } catch GeneralError.serverError(let statusCode, let details) {
+                        print("Status: \(statusCode) \n \(details)")
+                    } catch {
+                        print("Error message:", error)
+                    }
+                }
             } label:{
-                Text("Next")
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color("blackAndWhite"))
-                    .foregroundColor(Color("testColor"))
-                    .cornerRadius(10)
-                    .fontWeight(.semibold)
+                if isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                        .fontWeight(.semibold)
+                } else {
+                    Text("Next")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                        .fontWeight(.semibold)
+                }
             }
             .disableWithOpacity(!isValidEmail(testStr: vm.createdUser.email))
             .onTapGesture {

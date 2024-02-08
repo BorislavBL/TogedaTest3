@@ -20,8 +20,8 @@ struct RegistrationNumberView: View {
     @State private var isActive = false
     @State private var isLoading = false
     @State private var errorMessage: String?
-    
-    let counrties: [CPData] = Bundle.main.decode("CountryNumbers.json")
+
+    @State var countries: [CPData] = []
     
     var body: some View {
         VStack {
@@ -154,6 +154,7 @@ struct RegistrationNumberView: View {
         }
         .onAppear(){
             keyIsFocused = true
+            countries = vm.loadJsonData()
         }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
@@ -172,9 +173,9 @@ struct RegistrationNumberView: View {
     
     var filteredResorts: [CPData] {
         if searchCountry.isEmpty {
-            return counrties
+            return countries
         } else {
-            return counrties.filter { $0.name.contains(searchCountry) }
+            return countries.filter { $0.name.contains(searchCountry) }
         }
     }
     

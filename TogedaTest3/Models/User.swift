@@ -20,7 +20,7 @@ struct CreateUser: Codable, Hashable {
     var location: baseLocation?
     var gender: String
     var visibleGender: Bool
-    var interests: [String]
+    var interests: [Interest]
 }
 
 struct User: Identifiable, Codable, Hashable {
