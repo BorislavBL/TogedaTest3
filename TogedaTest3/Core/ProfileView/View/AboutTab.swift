@@ -16,16 +16,16 @@ struct AboutTab: View {
                 .font(.body)
                 .fontWeight(.bold)
             WrappingHStack(alignment: .leading){
-                if let education = user.education {
+                if let education = user.details.education {
                     aboutTag(img: Image(systemName: "graduationcap"), text: education)
                 }
-                if let workout = user.workout {
+                if let workout = user.details.workout {
                     aboutTag(img: Image(systemName: "dumbbell"), text: workout)
                 }
-                if let personalityType = user.personalityType {
+                if let personalityType = user.details.personalityType {
                     aboutTag(img: Image(systemName: "puzzlepiece.extension"), text: personalityType)
                 }
-                if let instagarm = user.instagarm {
+                if let instagarm = user.details.instagram {
                     aboutTag(img:Image("instagram"), text: instagarm)
                 }
                 
@@ -42,7 +42,7 @@ struct AboutTab: View {
                 }
             }.padding(.bottom, 30)
             
-            if let bio = user.bio {
+            if let bio = user.details.bio {
                 Text("Bio")
                     .font(.body)
                     .fontWeight(.bold)

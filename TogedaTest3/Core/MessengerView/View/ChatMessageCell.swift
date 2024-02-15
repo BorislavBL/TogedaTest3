@@ -79,7 +79,7 @@ struct ChatMessageCell: View {
             } else {
                 HStack(alignment: .bottom, spacing: 8){
                     if shouldShowChatPartnerImage, let user = message.user {
-                        Image(user.profileImageUrl[0])
+                        Image(user.profilePhotos[0])
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)

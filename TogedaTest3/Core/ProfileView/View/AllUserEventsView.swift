@@ -15,6 +15,9 @@ struct AllUserEventsView: View {
     ]
     @Environment(\.dismiss) var dismiss
     var posts: [Post]
+    
+    @State var bookmarkedView: Bool = false
+    
     var body: some View {
         ScrollView{
             LazyVGrid(columns: columns){
@@ -39,7 +42,7 @@ struct AllUserEventsView: View {
         .scrollIndicators(.hidden)
         .navigationTitle("Events")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
+//        .navigationBarBackButtonHidden(true)
         .toolbar{
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {dismiss()}) {
@@ -48,11 +51,14 @@ struct AllUserEventsView: View {
             }
             
             ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink(destination: BookmarkedEventsView(userID: userID, posts: posts)) {
+                Button{
+                    
+                } label: {
                     Image(systemName: "bookmark.fill")
                 }
             }
         }
+        .navigationDestination(isPresented: $bookmarkedView, destination:{ BookmarkedEventsView(userID: userID, posts: posts)})
         .background(.bar)
     }
 

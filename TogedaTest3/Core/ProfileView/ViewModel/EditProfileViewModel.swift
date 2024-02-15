@@ -83,20 +83,20 @@ extension EditProfileViewModel {
         let user = User.MOCK_USERS[0]
         firstName = user.firstName
         lastName = user.lastName
-        occupation = user.occipation
+        occupation = user.occupation
         email = user.email
         gender = user.gender
-        description = user.bio ?? ""
-        workout = user.workout
-        education = user.education
-        personalityType = user.personalityType
-        instagram = user.instagarm ?? ""
-        location = user.baseLocation
+        description = user.details.bio ?? ""
+        workout = user.details.workout
+        education = user.details.education
+        personalityType = user.details.personalityType
+        instagram = user.details.instagram ?? ""
+        location = user.location
         interests = user.interests
-        searchLocationText = user.baseLocation.name
+        searchLocationText = user.location.name
         
-        for i in user.profileImageUrl.indices {
-            selectedImages[i] = UIImage(named: User.MOCK_USERS[0].profileImageUrl[i])
+        for i in user.profilePhotos.indices {
+            selectedImages[i] = UIImage(named: User.MOCK_USERS[0].profilePhotos[i])
         }
     }
     

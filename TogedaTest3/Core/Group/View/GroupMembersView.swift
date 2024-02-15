@@ -39,7 +39,7 @@ struct GroupMembersView: View {
                     ForEach(groupVM.club.members.indices, id: \.self){ index in
                         if index < 10 {
                             NavigationLink(destination: UserProfileView(miniUser: groupVM.club.members[index].user)) {
-                                Image(groupVM.club.members[index].user.profileImageUrl[0])
+                                Image(groupVM.club.members[index].user.profilePhotos[0])
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: imgSize.dimension, height: imgSize.dimension)
@@ -48,7 +48,7 @@ struct GroupMembersView: View {
                             }
                         } else if index == 10 {
                             ZStack{
-                                Image(groupVM.club.members[index].user.profileImageUrl[0])
+                                Image(groupVM.club.members[index].user.profilePhotos[0])
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: imgSize.dimension, height: imgSize.dimension)

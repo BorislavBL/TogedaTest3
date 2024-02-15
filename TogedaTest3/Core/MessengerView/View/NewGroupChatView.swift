@@ -66,7 +66,7 @@ struct NewGroupChatView: View {
                                             .foregroundStyle(.gray)
                                     }
                                     
-                                    Image(user.profileImageUrl[0])
+                                    Image(user.profilePhotos[0])
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: size.dimension, height: size.dimension)
@@ -146,7 +146,7 @@ struct ParticipantsChatTags: View {
         } else {
             Button{clicked = true} label:{
                 HStack{
-                    Image(user.profileImageUrl[0])
+                    Image(user.profilePhotos[0])
                         .resizable()
                         .scaledToFill()
                         .frame(width: size.dimension, height: size.dimension)

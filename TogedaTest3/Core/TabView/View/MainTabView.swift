@@ -21,37 +21,35 @@ struct MainTabView: View {
     var body: some View {
         NavigationStack{
             TabView(selection: $router.screen) {
-                Group {
-                    
-                    HomeView()
-                        .tag(Screen.home)
-                        .tabItem {
-                            Image(systemName: "house")
-                        }
-                    MapView()
-                        .tag(Screen.map)
-                        .tabItem {
-                            Image(systemName: "map.fill")
-                        }
-                    
-                    Button("Any") {
-                        router.change(to: Screen.home)
-                    }
-                    .tag(Screen.add)
+                HomeView()
+                    .tag(Screen.home)
                     .tabItem {
-                        Image(systemName: "plus.square")
+                        Image(systemName: "house")
                     }
-                    InboxView(chatVM: chatVM)
-                        .tag(Screen.message)
-                        .tabItem {
-                            Image(systemName: "message")
-                        }
-                    ProfileView(user: user)
-                        .tag(Screen.profile)
-                        .tabItem {
-                            Image(systemName: "person.circle")
-                        }
+                MapView()
+                    .tag(Screen.map)
+                    .tabItem {
+                        Image(systemName: "map.fill")
+                    }
+                
+                Button("Any") {
+                    router.change(to: Screen.home)
                 }
+                .tag(Screen.add)
+                .tabItem {
+                    Image(systemName: "plus.square")
+                }
+                InboxView(chatVM: chatVM)
+                    .tag(Screen.message)
+                    .tabItem {
+                        Image(systemName: "message")
+                    }
+                ProfileView(user: user)
+                    .tag(Screen.profile)
+                    .tabItem {
+                        Image(systemName: "person.circle")
+                    }
+                
                 
             }
             .navigationBarTitleDisplayMode(.inline)

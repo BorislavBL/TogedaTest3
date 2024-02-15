@@ -103,7 +103,7 @@ struct AccessibilityView: View {
                     .foregroundColor(.gray)
             }
             
-            if userVM.user.clubIDs.count > 0 {
+            if userVM.user.details.clubIds.count > 0 {
                 VStack(alignment: .leading){
                     Text("Is this a personal or club event?")
                         .fontWeight(.semibold)

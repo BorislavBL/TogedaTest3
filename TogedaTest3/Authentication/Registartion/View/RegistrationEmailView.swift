@@ -78,7 +78,7 @@ struct RegistrationEmailView: View {
                 Task{
                     defer { isLoading = false }
                     do {
-                        alreadyTaken = try await AuthService().userExistsWithEmail(email: vm.createdUser.email)
+                        alreadyTaken = try await AuthService.shared.userExistsWithEmail(email: vm.createdUser.email)
                         if !alreadyTaken {
                             isActive = true
                         }

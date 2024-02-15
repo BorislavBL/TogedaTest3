@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PostService {
+class PostService {
     func fetchPost(withID id: String) {
         
     }

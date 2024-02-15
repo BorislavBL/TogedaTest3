@@ -15,7 +15,7 @@ struct ChatSearchView: View {
                 ForEach(MiniUser.MOCK_MINIUSERS, id: \.id) { user in
                     NavigationLink(destination: ChatView(user: user)){
                         HStack(alignment:.center, spacing: 10){
-                            Image(user.profileImageUrl[0])
+                            Image(user.profilePhotos[0])
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: size.dimension, height: size.dimension)

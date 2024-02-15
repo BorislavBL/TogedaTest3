@@ -11,10 +11,10 @@ class UserViewModel: ObservableObject {
     @Published var user: User = User.MOCK_USERS[0]
     
     func savePost(postId: String) {
-        if !user.savedPosts.contains(postId){
-            user.savedPosts.append(postId)
+        if !user.details.savedPostIds.contains(postId){
+            user.details.savedPostIds.append(postId)
         } else {
-            user.savedPosts.removeAll(where: { $0 == postId })
+            user.details.savedPostIds.removeAll(where: { $0 == postId })
         }
     }
     

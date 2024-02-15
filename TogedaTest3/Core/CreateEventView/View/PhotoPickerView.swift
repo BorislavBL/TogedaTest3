@@ -88,9 +88,9 @@ struct PhotoPickerView: View {
                         .foregroundStyle(.gray)
                     
                     Button {
-                        photoPickerVM.selectedImages[0] = UIImage(named: userViewModel.user.profileImageUrl[0])
+                        photoPickerVM.selectedImages[0] = UIImage(named: userViewModel.user.profilePhotos[0])
                     } label:{
-                        Image(userViewModel.user.profileImageUrl[0])
+                        Image(userViewModel.user.profilePhotos[0])
                             .resizable()
                             .scaledToFill()
                             .frame(width:imageDimension, height: imageDimension * 1.3)

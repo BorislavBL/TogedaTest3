@@ -106,7 +106,7 @@ struct InboxRowView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12){
             if let user = message.user{
-                Image(user.profileImageUrl[0])
+                Image(user.profilePhotos[0])
                     .resizable()
                     .scaledToFill()
                     .frame(width: size.dimension, height: size.dimension)

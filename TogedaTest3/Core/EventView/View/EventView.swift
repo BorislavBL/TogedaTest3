@@ -59,7 +59,7 @@ struct EventView: View {
                                     HStack(alignment: .center, spacing: 10) {
                                         
                                         
-                                        if let image = post.user?.profileImageUrl {
+                                        if let image = post.user?.profilePhotos {
                                             Image(image[0])
                                                 .resizable()
                                                 .scaledToFill()
@@ -184,7 +184,7 @@ struct EventView: View {
                                                     ForEach(0..<post.participants.count, id: \.self){ number in
                                                         
                                                         if number < 4{
-                                                            Image(post.participants[number].profileImageUrl[0])
+                                                            Image(post.participants[number].profilePhotos[0])
                                                                 .resizable()
                                                                 .scaledToFill()
                                                                 .frame(width: 40, height: 40)
@@ -477,7 +477,7 @@ struct EventView: View {
                     Button {
                         userViewModel.savePost(postId: post.id)
                     } label: {
-                        Image(systemName: userViewModel.user.savedPosts.contains(post.id) ? "bookmark.fill" : "bookmark")
+                        Image(systemName: userViewModel.user.details.savedPostIds.contains(post.id) ? "bookmark.fill" : "bookmark")
                             .resizable()
                             .scaledToFit()
                             .padding()

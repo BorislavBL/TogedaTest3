@@ -7,44 +7,36 @@
 
 import Foundation
 import Security
+import JWTDecode
+
+enum userKeys {
+    case accessToken
+    case refreshToken
+    case userId
+    case service
+    
+    var toString: String {
+        switch self {
+        case .accessToken:
+            return "userAccessToken"
+        case .refreshToken:
+            return "userRefreshToken"
+        case .userId:
+            return "userId"
+        case .service:
+            return "net-togeda-app"
+        }
+    }
+}
 
 class KeychainManager {
+    
+    static let shared = KeychainManager()
+    
     enum KeychainError: Error {
         case duplicatesEntry
         case unknown(OSStatus)
     }
-    
-//    static func save(data: Data, forService service: String, account: String) throws {
-//        let query: [String: AnyObject] = [
-//            kSecClass as String: kSecClassGenericPassword,
-//            kSecAttrService as String: service as AnyObject,
-//            kSecAttrAccount as String: account as AnyObject,
-//            kSecValueData as String: data as AnyObject
-//        ]
-//        
-//        let status = SecItemAdd(query as CFDictionary, nil)
-//        guard status != errSecDuplicateItem else {
-//            throw KeychainError.duplicatesEntry
-//        }
-//        
-//        guard status == errSecSuccess else {
-//            throw KeychainError.unknown(status)
-//        }
-//    }
-//    
-//    static func get(forService service: String, account: String) throws -> Data? {
-//        let query: [String: AnyObject] = [
-//            kSecClass as String: kSecClassGenericPassword,
-//            kSecAttrService as String: service as AnyObject,
-//            kSecAttrAccount as String: account as AnyObject,
-//            kSecReturnRef as String: kCFBooleanTrue,
-//            kSecMatchLimit as String: kSecMatchLimitOne
-//        ]
-//        
-//        var result: AnyObject?
-//        let status = SecItemCopyMatching(query as CFDictionary, &result)
-//        return result as? Data
-//    }
     
     func saveOrUpdate(item: Data, account: String, service: String) -> Bool {
         // Check if the item already exists
@@ -56,7 +48,7 @@ class KeychainManager {
             return add(item: item, account: account, service: service)
         }
     }
-
+    
     // Retrieve an item from the Keychain
     func retrieve(itemForAccount account: String, service: String) -> Data? {
         let query: [String: Any] = [
@@ -76,7 +68,7 @@ class KeychainManager {
             return nil
         }
     }
-
+    
     // Delete an item from the Keychain
     func delete(itemForAccount account: String, service: String) -> Bool {
         let query: [String: Any] = [
@@ -89,7 +81,7 @@ class KeychainManager {
         
         return status == errSecSuccess
     }
-
+    
     private func add(item: Data, account: String, service: String) -> Bool {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -102,7 +94,7 @@ class KeychainManager {
         
         return status == errSecSuccess
     }
-
+    
     private func update(item: Data, account: String, service: String) -> Bool {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -116,3 +108,74 @@ class KeychainManager {
         return status == errSecSuccess
     }
 }
+
+extension KeychainManager {
+    func getTokenToString(item: String, service: String) -> String? {
+        if let tokenData = self.retrieve(itemForAccount: item, service: service),
+           let tokenString = String(data: tokenData, encoding: .utf8) {
+            return tokenString
+        } else {
+            print("Failed to retrieve tokens")
+            return nil
+        }
+    }
+    
+    func getToken(item: String, service: String) -> DecodedJWTBody? {
+        if let tokenData = self.retrieve(itemForAccount: item, service: service),
+           let tokenString = String(data: tokenData, encoding: .utf8) {
+            let token = getDecodedJWTBody(token: tokenString)
+            return token
+        } else {
+            print("Failed to retrieve tokens")
+            return nil
+        }
+    }
+    
+    func getDecodedJWTBody(token: String) -> DecodedJWTBody? {
+        do {
+            // Assuming `decode(jwt:)` function is capable of returning the decoded JWT body as a Dictionary
+            let jwtBody = try decode(jwt: token)
+            // Convert the dictionary to JSON data
+            let jsonData = try JSONSerialization.data(withJSONObject: jwtBody.body, options: [])
+            // Decode the JSON data to `DecodedJWTBody` struct
+            let decodedJWTBody = try JSONDecoder().decode(DecodedJWTBody.self, from: jsonData)
+            return decodedJWTBody
+        } catch {
+            print("Error decoding JWT: \(error)")
+            return nil
+        }
+    }
+}
+
+
+//    static func save(data: Data, forService service: String, account: String) throws {
+//        let query: [String: AnyObject] = [
+//            kSecClass as String: kSecClassGenericPassword,
+//            kSecAttrService as String: service as AnyObject,
+//            kSecAttrAccount as String: account as AnyObject,
+//            kSecValueData as String: data as AnyObject
+//        ]
+//
+//        let status = SecItemAdd(query as CFDictionary, nil)
+//        guard status != errSecDuplicateItem else {
+//            throw KeychainError.duplicatesEntry
+//        }
+//
+//        guard status == errSecSuccess else {
+//            throw KeychainError.unknown(status)
+//        }
+//    }
+//
+//    static func get(forService service: String, account: String) throws -> Data? {
+//        let query: [String: AnyObject] = [
+//            kSecClass as String: kSecClassGenericPassword,
+//            kSecAttrService as String: service as AnyObject,
+//            kSecAttrAccount as String: account as AnyObject,
+//            kSecReturnRef as String: kCFBooleanTrue,
+//            kSecMatchLimit as String: kSecMatchLimitOne
+//        ]
+//
+//        var result: AnyObject?
+//        let status = SecItemCopyMatching(query as CFDictionary, &result)
+//        return result as? Data
+//    }

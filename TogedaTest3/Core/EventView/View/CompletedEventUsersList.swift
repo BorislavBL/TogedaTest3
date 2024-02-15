@@ -20,7 +20,7 @@ struct CompletedEventUsersList: View {
                 ForEach(users, id:\.id) { user in
                         HStack{
                             NavigationLink(destination: UserProfileView(miniUser: user)){
-                                    Image(user.profileImageUrl[0])
+                                    Image(user.profilePhotos[0])
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: size.dimension, height: size.dimension)

@@ -63,7 +63,7 @@ struct CompletedEventView: View {
                             if let user = post.user {
                                 NavigationLink(destination: UserProfileView(miniUser: user)){
                                     HStack(alignment: .center, spacing: 10) {                                        
-                                        if let image = post.user?.profileImageUrl {
+                                        if let image = post.user?.profilePhotos {
                                             Image(image[0])
                                                 .resizable()
                                                 .scaledToFill()
@@ -153,7 +153,7 @@ struct CompletedEventView: View {
                                 }
                                 
                                 
-                                NavigationLink(destination: CompletedEventUsersList( users: post.participants)){
+                                NavigationLink(destination: CompletedEventUsersList(users: post.participants)){
                                     HStack(alignment: .center, spacing: 10) {
                                         Image(systemName: "person.3")
                                             .imageScale(.large)
@@ -173,7 +173,7 @@ struct CompletedEventView: View {
                                                 ZStack{
                                                     ForEach(0..<post.participants.count, id: \.self){ number in
                                                         
-                                                        Image(post.participants[number].profileImageUrl[0])
+                                                        Image(post.participants[number].profilePhotos[0])
                                                             .resizable()
                                                             .scaledToFill()
                                                             .frame(width: 40, height: 40)

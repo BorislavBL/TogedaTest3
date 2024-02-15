@@ -85,7 +85,7 @@ struct GroupCell: View {
                 if club.members.count > 1 {
                     ZStack(alignment:.top){
                         
-                        Image(club.members[1].user.profileImageUrl[0])
+                        Image(club.members[1].user.profilePhotos[0])
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -96,7 +96,7 @@ struct GroupCell: View {
                             )
                             .offset(x:size.dimension/5, y: size.dimension/5)
                         
-                        Image(club.members[0].user.profileImageUrl[0])
+                        Image(club.members[0].user.profilePhotos[0])
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -109,7 +109,7 @@ struct GroupCell: View {
                     .padding([.trailing, .bottom], size.dimension/5)
                     
                 } else{
-                    Image(club.members[0].user.profileImageUrl[0])
+                    Image(club.members[0].user.profilePhotos[0])
                         .resizable()
                         .scaledToFill()
                         .frame(width: 50, height: 50)

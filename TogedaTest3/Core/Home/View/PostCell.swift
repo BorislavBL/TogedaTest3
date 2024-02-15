@@ -25,7 +25,7 @@ struct PostCell: View {
                         if let user = post.user{
                             NavigationLink(value: user) {
                                 
-                                Image(user.profileImageUrl[0])
+                                Image(user.profilePhotos[0])
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 50, height: 50)
@@ -121,7 +121,7 @@ struct PostCell: View {
                     Button {
                         userViewModel.savePost(postId: post.id)
                     } label: {
-                        Image(systemName: userViewModel.user.savedPosts.contains(post.id) ? "bookmark.fill" : "bookmark")
+                        Image(systemName: userViewModel.user.details.savedPostIds.contains(post.id) ? "bookmark.fill" : "bookmark")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 25, height: 25)

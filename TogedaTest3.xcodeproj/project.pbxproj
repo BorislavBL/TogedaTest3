@@ -89,6 +89,7 @@
 		145D72372ABA0702005934E2 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145D72362ABA0702005934E2 /* MapView.swift */; };
 		145D72392ABA07B0005934E2 /* MapSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145D72382ABA07B0005934E2 /* MapSlot.swift */; };
 		145FEB472AE95C3B002301D1 /* UserSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145FEB462AE95C3B002301D1 /* UserSettingsView.swift */; };
+		1460FB002B7A60FD00DE05AE /* DecodedJWT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1460FAFF2B7A60FD00DE05AE /* DecodedJWT.swift */; };
 		14651BD92AE9378A0091FECE /* JoinRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14651BD82AE9378A0091FECE /* JoinRequestView.swift */; };
 		146591642B726FA50004B6DC /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 146591632B726FA50004B6DC /* ImageService.swift */; };
 		1467C8B62AC5C2FF0034A3BB /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1467C8B52AC5C2FF0034A3BB /* UserViewModel.swift */; };
@@ -143,6 +144,7 @@
 		1489AEAC2B3601F7001524DC /* Abouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1489AEAB2B3601F7001524DC /* Abouts.swift */; };
 		1489AEAE2B361908001524DC /* EditProfileInstagramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1489AEAD2B361908001524DC /* EditProfileInstagramView.swift */; };
 		1489AEB02B3C9A96001524DC /* Checkers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1489AEAF2B3C9A96001524DC /* Checkers.swift */; };
+		148ABB6C2B77EC2700C80467 /* JWTDecode in Frameworks */ = {isa = PBXBuildFile; productRef = 148ABB6B2B77EC2700C80467 /* JWTDecode */; };
 		148B81A82B4C6A12009801BC /* GroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148B81A72B4C6A12009801BC /* GroupCell.swift */; };
 		148B81AA2B4D9726009801BC /* GroupCellTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148B81A92B4D9726009801BC /* GroupCellTags.swift */; };
 		148B81AC2B4DB55E009801BC /* CreateSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148B81AB2B4DB55E009801BC /* CreateSheetView.swift */; };
@@ -285,6 +287,7 @@
 		145D72362ABA0702005934E2 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		145D72382ABA07B0005934E2 /* MapSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSlot.swift; sourceTree = "<group>"; };
 		145FEB462AE95C3B002301D1 /* UserSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsView.swift; sourceTree = "<group>"; };
+		1460FAFF2B7A60FD00DE05AE /* DecodedJWT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedJWT.swift; sourceTree = "<group>"; };
 		14651BD82AE9378A0091FECE /* JoinRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinRequestView.swift; sourceTree = "<group>"; };
 		146591632B726FA50004B6DC /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		1467C8B52AC5C2FF0034A3BB /* UserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
@@ -408,6 +411,7 @@
 				14EB8A612B73DE13007C2FEF /* Security.framework in Frameworks */,
 				1418C7762B6D1E730037BE5A /* GoogleSignInSwift in Frameworks */,
 				14807A022AB4B91500716A17 /* WrappingHStack in Frameworks */,
+				148ABB6C2B77EC2700C80467 /* JWTDecode in Frameworks */,
 				1418C7742B6D1E730037BE5A /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -706,9 +710,9 @@
 			children = (
 				14807A1A2AB4B9E800716A17 /* Constants */,
 				14807A052AB4B93B00716A17 /* Services */,
+				14FB720B2AC1B97F00A2852D /* Managers */,
 				14C1498A2AC4777900F28463 /* Helpers */,
 				14AFFA822B275971001D903A /* Authentication */,
-				14FB720B2AC1B97F00A2852D /* Managers */,
 				14807A032AB4B92D00716A17 /* App */,
 				14807A042AB4B93500716A17 /* Extensions */,
 				14807A062AB4B94200716A17 /* Core */,
@@ -1006,6 +1010,7 @@
 				142C68D72B28E75C001FBCA7 /* PhoneNumber.swift */,
 				1400BD0B2B45AE8D000EB8BC /* Group.swift */,
 				14E35BA62B56ECD900CD662E /* Interests.swift */,
+				1460FAFF2B7A60FD00DE05AE /* DecodedJWT.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1235,6 +1240,7 @@
 				14807A012AB4B91500716A17 /* WrappingHStack */,
 				1418C7732B6D1E730037BE5A /* GoogleSignIn */,
 				1418C7752B6D1E730037BE5A /* GoogleSignInSwift */,
+				148ABB6B2B77EC2700C80467 /* JWTDecode */,
 			);
 			productName = TogedaTest3;
 			productReference = 148079EE2AB4B8B800716A17 /* TogedaTest3.app */;
@@ -1267,6 +1273,7 @@
 			packageReferences = (
 				14807A002AB4B91500716A17 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 				1418C7722B6D1E730037BE5A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				148ABB6A2B77EC2700C80467 /* XCRemoteSwiftPackageReference "JWTDecode" */,
 			);
 			productRefGroup = 148079EF2AB4B8B800716A17 /* Products */;
 			projectDirPath = "";
@@ -1480,6 +1487,7 @@
 				14ADEAAE2AD6ECFA00626D86 /* LocationPickerViewModel.swift in Sources */,
 				14807A212AB4BAAF00716A17 /* MathFunctions.swift in Sources */,
 				14F10B8D2B1E3F5500298737 /* ShareView.swift in Sources */,
+				1460FB002B7A60FD00DE05AE /* DecodedJWT.swift in Sources */,
 				14E35BA72B56ECD900CD662E /* Interests.swift in Sources */,
 				141DF3682B09155000CE94F5 /* LinkPreview.swift in Sources */,
 			);
@@ -1727,6 +1735,14 @@
 				minimumVersion = 0.1.3;
 			};
 		};
+		148ABB6A2B77EC2700C80467 /* XCRemoteSwiftPackageReference "JWTDecode" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/auth0/JWTDecode.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1744,6 +1760,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 14807A002AB4B91500716A17 /* XCRemoteSwiftPackageReference "WrappingHStack" */;
 			productName = WrappingHStack;
+		};
+		148ABB6B2B77EC2700C80467 /* JWTDecode */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 148ABB6A2B77EC2700C80467 /* XCRemoteSwiftPackageReference "JWTDecode" */;
+			productName = JWTDecode;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

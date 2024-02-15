@@ -60,7 +60,7 @@ struct SearchView: View {
                     ForEach(viewModel.searchUserResults, id: \.id) { user in
                         NavigationLink(value: user){
                             HStack(alignment:.center, spacing: 10){
-                                Image(user.profileImageUrl[0])
+                                Image(user.profilePhotos[0])
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: size.dimension, height: size.dimension)

@@ -17,7 +17,7 @@ struct UserRequestView: View {
                 ForEach(users, id: \.id){user in
                     NavigationLink(destination: UserProfileView(miniUser: user)){
                         HStack(alignment:.top){
-                                Image(user.profileImageUrl[0])
+                                Image(user.profilePhotos[0])
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: size.dimension, height: size.dimension)

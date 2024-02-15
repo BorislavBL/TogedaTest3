@@ -79,7 +79,7 @@ struct RegistrationNumberView: View {
                 Task{
                     defer { isLoading = false }
                     do {
-                        vm.userId = try await AuthService().createUser(userData: vm.createdUser)
+                        vm.userId = try await AuthService.shared.createUser(userData: vm.createdUser)
                         isActive = true
                     } catch GeneralError.encodingError{
                         print("Data encoding error")

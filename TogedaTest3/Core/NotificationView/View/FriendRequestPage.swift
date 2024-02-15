@@ -16,7 +16,7 @@ struct FriendRequestPage: View {
                 HStack{
                     ZStack(alignment:.top){
                        
-                            Image(users[0].profileImageUrl[0])
+                            Image(users[0].profilePhotos[0])
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: size.dimension, height: size.dimension)
@@ -26,7 +26,7 @@ struct FriendRequestPage: View {
                                         .stroke(Color("base"), lineWidth: 2)
                                 )
                                 
-                            Image(users[1].profileImageUrl[0])
+                            Image(users[1].profilePhotos[0])
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: size.dimension, height: size.dimension)

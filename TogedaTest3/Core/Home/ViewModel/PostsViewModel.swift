@@ -24,7 +24,7 @@ class PostsViewModel: ObservableObject {
     
     
     func likePost(postID: String, userID: String, user: User) {
-        let miniUser = MiniUser(id: user.id, firstName: user.firstName, lastName: user.lastName, profileImageUrl: user.profileImageUrl, occupation: user.occipation, baseLocation: user.baseLocation)
+        let miniUser = MiniUser(id: user.id, firstName: user.firstName, lastName: user.lastName, profilePhotos: user.profilePhotos, occupation: user.occupation, location: user.location)
         if let index = posts.firstIndex(where: { $0.id == postID }) {
             if !posts[index].peopleIn.contains(userID){
                 posts[index].peopleIn.append(userID)

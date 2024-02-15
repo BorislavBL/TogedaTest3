@@ -24,6 +24,8 @@ struct LoginView: View {
     
     @State var tokenCheck: String = ""
     
+    @EnvironmentObject var contentVM: ContentViewModel
+    
     var body: some View {
         VStack {
             Text("Sign In to Your Account")
@@ -126,13 +128,8 @@ struct LoginView: View {
                 errorMessage = nil
                 Task{
                     do {
-                        try await AuthService().login(email: email, password:password)
-                        if let retrievedData = KeychainManager().retrieve(itemForAccount: "userAccessToken", service: "net-togeda-app"),
-                           let token = String(data: retrievedData, encoding: .utf8) {
-                            print("Retrieved token: \(token)")
-                        } else {
-                            print("Failed to retrieve token")
-                        }
+                        try await AuthService.shared.login(email: email, password:password)
+                        contentVM.checkRefreshToken()
                     } catch GeneralError.badRequest(details: let details){
                         print(details)
                         errorMessage = "Incorrect email or password."
@@ -205,4 +202,5 @@ struct LoginView: View {
 
 #Preview {
     LoginView()
+        .environmentObject(ContentViewModel())
 }

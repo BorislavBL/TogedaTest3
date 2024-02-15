@@ -30,7 +30,7 @@ struct UserProfileView: View {
                 
                 VStack(alignment: .center) {
                     TabView {
-                        ForEach(miniUser.profileImageUrl, id: \.self) { image in
+                        ForEach(miniUser.profilePhotos, id: \.self) { image in
                             Image(image)
                                 .resizable()
                                 .scaledToFill()
@@ -56,7 +56,7 @@ struct UserProfileView: View {
                         }
                         .foregroundColor(.gray)
                         
-                        if let location = user?.baseLocation.name {
+                        if let location = user?.location.name {
                             HStack(spacing: 5){
                                 Image(systemName: "mappin.circle")
                                 
@@ -71,9 +71,9 @@ struct UserProfileView: View {
                     }.padding()
                     
                     HStack(alignment: .top, spacing: 30) {
-                        UserStats(value: String(user?.friendIDs.count ?? 0), title: "Friends")
+                        UserStats(value: String(user?.details.friendIds.count ?? 0), title: "Friends")
                         Divider()
-                        UserStats(value: String(user?.createdEventIDs.count ?? 0), title: "Events")
+                        UserStats(value: String(user?.details.createdEventIds.count ?? 0), title: "Events")
                         Divider()
                         UserStats(value: "\(10)%", title: "Rating")
                     }

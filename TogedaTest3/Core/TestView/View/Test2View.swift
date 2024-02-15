@@ -14,7 +14,7 @@ struct Test2View: View {
         VStack{
             VStack(alignment: .center) {
                 TabView {
-                    ForEach(miniUser.profileImageUrl, id: \.self) { image in
+                    ForEach(miniUser.profilePhotos, id: \.self) { image in
                         Image(image)
                             .resizable()
                             .scaledToFill()
@@ -46,7 +46,7 @@ struct Test2View: View {
                             HStack(spacing: 5){
                                 Image(systemName: "mappin.circle")
                                 
-                                Text(user.baseLocation.name)
+                                Text(user.location.name)
                                     .font(.footnote)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.gray)

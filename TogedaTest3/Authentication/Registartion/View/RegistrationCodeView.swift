@@ -59,7 +59,7 @@ struct RegistrationCodeView: View {
                 vm.code = ""
                 Task{
                     do {
-                        try await AuthService().resendSignUpCode(email: vm.createdUser.email)
+                        try await AuthService.shared.resendSignUpCode(email: vm.createdUser.email)
                     } catch GeneralError.badRequest(details: let details){
                         print(details)
                     } catch GeneralError.invalidURL {
@@ -86,7 +86,7 @@ struct RegistrationCodeView: View {
                 Task{
                     do {
                         if let userId = vm.userId, let code = Int(vm.code){
-                            try await AuthService().confirmSignUp(userId: userId, code: code)
+                            try await AuthService.shared.confirmSignUp(userId: userId, code: code)
                             isActive = true
                         }
                     } catch GeneralError.badRequest(details: let details){

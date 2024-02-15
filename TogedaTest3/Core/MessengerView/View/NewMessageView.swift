@@ -31,7 +31,7 @@ struct NewMessageView: View {
                     ForEach(searchUserResults) { user in
                         VStack {
                             HStack {
-                                Image(user.profileImageUrl[0])
+                                Image(user.profilePhotos[0])
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: size.dimension, height: size.dimension)

@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 enum GeneralError: Error {
     case encodingError
     case invalidURL
@@ -14,6 +15,7 @@ enum GeneralError: Error {
     case badRequest(details: String)
     case serverError(statusCode: Int, details: String)
     case decodingError
+    case keyChainError
 }
 
 struct APIErrorResponse: Codable {
@@ -28,78 +30,9 @@ struct APIError: Codable {
     let subErrors: String? // Adjust types if necessary
 }
 
-class AuthService {
-    @Published var userID: String?
+class AuthService: ObservableObject {
     
-    func login(email: String, password: String) async throws {
-        guard let url = URL(string: "https://api.togeda.net/login?email=\(email)&password=\(password)") else {
-            throw GeneralError.invalidURL
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw GeneralError.noHTTPResponse
-        }
-        
-        if !(200...299).contains(httpResponse.statusCode) {
-            if let loginErrorResponse = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
-                throw GeneralError.badRequest(details: loginErrorResponse.apierror.message)
-            } else {
-                throw GeneralError.serverError(statusCode: httpResponse.statusCode, details: "Server responded with status code: \(httpResponse.statusCode)")
-            }
-        }
-        
-        do {
-            let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
-            let authResult = loginResponse.authenticationResult
-            let requestId = loginResponse.sdkResponseMetadata.requestId
-            
-            // Save or use the tokens as needed
-            print("Access Token: \(authResult.accessToken)")
-            print("Refresh Token: \(authResult.refreshToken)")
-            print("ID Token: \(authResult.idToken)")
-            print("Request ID: \(requestId)")
-            
-            if let accessTokenData = authResult.accessToken.data(using: .utf8) {
-                let saved = KeychainManager().saveOrUpdate(item: accessTokenData, account: "userAccessToken", service: "net-togeda-app")
-                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
-            }
-            
-            if let refreshTokenData = authResult.refreshToken.data(using: .utf8) {
-                let saved = KeychainManager().saveOrUpdate(item: refreshTokenData, account: "userRefreshToken", service: "net-togeda-app")
-                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
-            }
-            
-            if let requestIdData = requestId.data(using: .utf8) {
-                let saved = KeychainManager().saveOrUpdate(item: requestIdData, account: "userId", service: "net-togeda-app")
-                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
-            }
-            
-        } catch {
-            throw GeneralError.decodingError
-        }
-    }
-    
-    struct AuthenticationResult: Codable {
-        let accessToken: String
-        let refreshToken: String
-        let idToken: String
-    }
-    
-    struct SDKResponseMetadata: Codable {
-        let requestId: String
-    }
-    
-    struct LoginResponse: Codable {
-        let sdkResponseMetadata: SDKResponseMetadata
-        let authenticationResult: AuthenticationResult
-    }
-    
+    static let shared = AuthService()
     
     func confirmSignUp(userId: String, code: Int) async throws {
         print("userID:\(userId), code:\(code)")
@@ -222,5 +155,143 @@ class AuthService {
             throw error
         }
     }
+    
+    
+    func refreshToken() async throws {
+        guard let refreshToken = KeychainManager.shared.getTokenToString(item: userKeys.refreshToken.toString, service: userKeys.service.toString) else {
+            print("Failed to get Refresh Token")
+            throw GeneralError.keyChainError
+        }
+        
+        guard let userId = KeychainManager.shared.getTokenToString(item: userKeys.userId.toString, service: userKeys.service.toString) else {
+            print("Failed to get user id")
+            throw GeneralError.keyChainError
+        }
+        
+        guard let url = URL(string: "https://api.togeda.net/refreshToken?refreshToken=\(refreshToken)&userId=\(userId)") else {
+            throw GeneralError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw GeneralError.noHTTPResponse
+        }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            if let loginErrorResponse = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
+                throw GeneralError.badRequest(details: loginErrorResponse.apierror.message)
+            } else {
+                throw GeneralError.serverError(statusCode: httpResponse.statusCode, details: "Server responded with status code: \(httpResponse.statusCode)")
+            }
+        }
+        
+        do {
+            let response = try JSONDecoder().decode(RefreshTokenResponse.self, from: data)
+            
+            // Save or use the tokens as needed
+            print("Access Token: \(response.accessToken)")
+            
+            if let accessTokenData = response.accessToken.data(using: .utf8) {
+                let saved = KeychainManager.shared.saveOrUpdate(item: accessTokenData, account: userKeys.accessToken.toString, service: userKeys.service.toString)
+                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
+                
+                if let tokenString = String(data: accessTokenData, encoding: .utf8) {
+                    let token = KeychainManager.shared.getDecodedJWTBody(token: tokenString)
+                    if let userIdData = token?.username.data(using: .utf8) {
+                        let savedUserIdData = KeychainManager.shared.saveOrUpdate(item: userIdData, account: userKeys.userId.toString, service: userKeys.service.toString)
+                        print(savedUserIdData ? "Token saved/updated successfully" : "Failed to save/update token")
+                    }
+                }
+            }
+            
+        } catch {
+            throw GeneralError.decodingError
+        }
+    }
+    
+    struct RefreshTokenResponse: Codable {
+        let idToken: String
+        let accessToken: String
+    }
 
 }
+
+
+extension AuthService {
+    func login(email: String, password: String) async throws {
+        guard let url = URL(string: "https://api.togeda.net/login?email=\(email)&password=\(password)") else {
+            throw GeneralError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw GeneralError.noHTTPResponse
+        }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            if let loginErrorResponse = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
+                throw GeneralError.badRequest(details: loginErrorResponse.apierror.message)
+            } else {
+                throw GeneralError.serverError(statusCode: httpResponse.statusCode, details: "Server responded with status code: \(httpResponse.statusCode)")
+            }
+        }
+        
+        do {
+            let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+            let authResult = loginResponse.authResult.authenticationResult
+            let userId = loginResponse.userId
+            
+            // Save or use the tokens as needed
+            print("Access Token: \(authResult.accessToken)")
+            print("Refresh Token: \(authResult.refreshToken)")
+            print("ID Token: \(authResult.idToken)")
+            print("userId: \(userId)")
+            
+            if let accessTokenData = authResult.accessToken.data(using: .utf8) {
+                let saved = KeychainManager.shared.saveOrUpdate(item: accessTokenData, account: userKeys.accessToken.toString, service: userKeys.service.toString)
+                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
+            }
+            
+            if let refreshTokenData = authResult.refreshToken.data(using: .utf8) {
+                let saved = KeychainManager.shared.saveOrUpdate(item: refreshTokenData, account: userKeys.refreshToken.toString, service: userKeys.service.toString)
+                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
+            }
+            
+            if let userIdData = userId.data(using: .utf8) {
+                let saved = KeychainManager.shared.saveOrUpdate(item: userIdData, account: userKeys.userId.toString, service: userKeys.service.toString)
+                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
+            }
+                        
+        } catch {
+            throw GeneralError.decodingError
+        }
+    }
+    
+    struct LoginResponse: Codable {
+        let authResult: AuthResult
+        let userId: String
+    }
+
+    struct AuthResult: Codable {
+        let authenticationResult: AuthenticationResult
+    }
+
+    struct AuthenticationResult: Codable {
+        let accessToken: String
+        let expiresIn: Int
+        let tokenType: String
+        let refreshToken: String
+        let idToken: String
+    }
+}
+

@@ -57,7 +57,7 @@ extension EditEventViewModel {
         participants = post.maximumPeople
         
         for i in post.imageUrl.indices {
-            selectedImages[i] = UIImage(named: User.MOCK_USERS[0].profileImageUrl[i])
+            selectedImages[i] = UIImage(named: User.MOCK_USERS[0].profilePhotos[i])
         }
     }
 

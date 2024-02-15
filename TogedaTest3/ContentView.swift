@@ -10,7 +10,6 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var locationManager = LocationManager()
     @StateObject var networkManager = NetworkManager()
-    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @StateObject var viewModel = ContentViewModel()
     
     @StateObject var postsViewModel = PostsViewModel()
@@ -19,13 +18,19 @@ struct ContentView: View {
     var body: some View {
         Group {
             ZStack(alignment:.top){
-                if let user = viewModel.currentUser{
-                    MainTabView(user: user)
-                        .environmentObject(locationManager)
-                        .environmentObject(postsViewModel)
-                        .environmentObject(userViewModel)
-                } else {
-                    IntroView()
+                switch viewModel.authenticationState {
+                    case .checking:
+                        ProgressView("Checking authentication...")
+                    case .authenticated:
+                        if let user = viewModel.currentUser {
+                            MainTabView(user: user)
+                                .environmentObject(locationManager)
+                                .environmentObject(postsViewModel)
+                                .environmentObject(userViewModel)
+                        }
+                    case .unauthenticated:
+                        IntroView()
+                        .environmentObject(viewModel)
                 }
                 
                 if !networkManager.isConnected {
