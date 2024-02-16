@@ -250,12 +250,14 @@ extension AuthService {
             let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
             let authResult = loginResponse.authResult.authenticationResult
             let userId = loginResponse.userId
+            let refreshTokenDeadline = loginResponse.refreshTokenDeadline
             
             // Save or use the tokens as needed
             print("Access Token: \(authResult.accessToken)")
             print("Refresh Token: \(authResult.refreshToken)")
             print("ID Token: \(authResult.idToken)")
             print("userId: \(userId)")
+            print("userId: \(refreshTokenDeadline)")
             
             if let accessTokenData = authResult.accessToken.data(using: .utf8) {
                 let saved = KeychainManager.shared.saveOrUpdate(item: accessTokenData, account: userKeys.accessToken.toString, service: userKeys.service.toString)
@@ -271,6 +273,13 @@ extension AuthService {
                 let saved = KeychainManager.shared.saveOrUpdate(item: userIdData, account: userKeys.userId.toString, service: userKeys.service.toString)
                 print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
             }
+            
+            let refreshTokenDeadlineString = String(refreshTokenDeadline)
+            if let refreshTokenDeadlineData = refreshTokenDeadlineString.data(using: .utf8) {
+                let saved = KeychainManager.shared.saveOrUpdate(item: refreshTokenDeadlineData, account: userKeys.refreshTokenDeadline.toString, service: userKeys.service.toString)
+                print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
+            }
+
                         
         } catch {
             throw GeneralError.decodingError
@@ -280,6 +289,7 @@ extension AuthService {
     struct LoginResponse: Codable {
         let authResult: AuthResult
         let userId: String
+        let refreshTokenDeadline: Int
     }
 
     struct AuthResult: Codable {

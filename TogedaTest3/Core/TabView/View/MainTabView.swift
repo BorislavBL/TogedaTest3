@@ -9,14 +9,19 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject var router = TabRouter()
-    var user: User
     
+    @EnvironmentObject var contentViewModel: ContentViewModel
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
-    @EnvironmentObject var locationManager: LocationManager
+    @StateObject var locationManager = LocationManager()
+//    @EnvironmentObject var locationManager: LocationManager
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     
     @StateObject var chatVM = ChatViewModel()
+    
+
+        
+
     
     var body: some View {
         NavigationStack{
@@ -44,7 +49,7 @@ struct MainTabView: View {
                     .tabItem {
                         Image(systemName: "message")
                     }
-                ProfileView(user: user)
+                ProfileView()
                     .tag(Screen.profile)
                     .tabItem {
                         Image(systemName: "person.circle")
@@ -58,6 +63,7 @@ struct MainTabView: View {
                 let tabBarAppearance = UITabBarAppearance()
                 tabBarAppearance.configureWithDefaultBackground()
                 UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+                contentViewModel.userViewModel = userViewModel
             }
             .onChange(of: router.screen) { oldValue, newValue in
                 if router.screen == .add {
@@ -124,6 +130,7 @@ struct MainTabView: View {
             //                EventView(viewModel: postsViewModel, post: postsViewModel.posts[postsViewModel.clickedPostIndex], userViewModel: userViewModel)
             //            })
         }
+        .environmentObject(LocationManager())
     }
 }
 
@@ -132,9 +139,9 @@ struct MainTabView: View {
 
 struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {
-        MainTabView(user: User.MOCK_USERS[1])
-            .environmentObject(LocationManager())
+        MainTabView()
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
+            .environmentObject(ContentViewModel())
     }
 }

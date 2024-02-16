@@ -6,13 +6,13 @@
 //
 
 import SwiftUI
+import Kingfisher
+import SkeletonUI
 
 struct ProfileView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     
-    var user: User
-    
-    @StateObject var viewModel = ProfileViewModel()
+    @EnvironmentObject var userVm: UserViewModel
     @State var minYValue: CGFloat = 0
     @State private var showImageSet: Bool = true
     
@@ -22,88 +22,90 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack(alignment: .top){
-            ScrollView(showsIndicators: false){
-                
-                
-                VStack(alignment: .center) {
-                    TabView {
-                        ForEach(user.profilePhotos, id: \.self) { image in
-                            Image(image)
-                                .resizable()
-                                .scaledToFill()
-                                .clipped()
-                            
+            if let user = userVm.currentUser {
+                ScrollView(showsIndicators: false){
+                    VStack(alignment: .center){
+                        TabView {
+                            ForEach(user.profilePhotos, id: \.self) { image in
+                                KFImage(URL(string: image))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .clipped()
+                            }
                         }
+                        .tabViewStyle(PageTabViewStyle())
+                        .frame(height: 500)
+                        
+                        VStack(spacing: 10) {
+                            Text(user.fullName)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            HStack(spacing: 5){
+                                Image(systemName: "suitcase")
+                                
+                                Text(user.occupation)
+                                    .font(.footnote)
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.gray)
+                            
+                            
+                            HStack(spacing: 5){
+                                Image(systemName: "mappin.circle")
+                                
+                                Text(user.location.name)
+                                    .font(.footnote)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.gray)
+                            }
+                            .foregroundColor(.gray)
+                            
+                            
+                        }.padding()
+                        
+                        HStack(alignment: .top, spacing: 30) {
+                            UserStats(value: String(user.details.friendIds.count), title: "Friends")
+                            Divider()
+                            UserStats(value: String(user.details.createdEventIds.count), title: "Events")
+                            Divider()
+                            UserStats(value: "\(10)%", title: "Rating")
+                        }
+                        .padding()
                         
                     }
-                    .tabViewStyle(PageTabViewStyle())
-                    .frame(height: 500)
+                    /*               .padding(.top, safeAreaInsets.top + 50)*/ // if you move this part you might break the geomrty reader
                     
-                    VStack(spacing: 10) {
-                        Text(user.fullName)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        
-                        HStack(spacing: 5){
-                            Image(systemName: "suitcase")
-                            
-                            Text("Graphic Designer")
-                                .font(.footnote)
-                                .fontWeight(.semibold)
+                    .padding(.bottom)
+                    .frame(width: UIScreen.main.bounds.width)
+                    .background(.bar)
+                    .cornerRadius(10)
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear
+                                .frame(width: 0, height: 0)
+                                .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
+                                    minYValue = newMinY
+                                    
+                                }
                         }
-                        .foregroundColor(.gray)
-                        
-                        
-                        HStack(spacing: 5){
-                            Image(systemName: "mappin.circle")
-                            
-                            Text(user.location.name)
-                                .font(.footnote)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.gray)
-                        }
-                        .foregroundColor(.gray)
-                        
-                        
-                    }.padding()
-                    
-                    HStack(alignment: .top, spacing: 30) {
-                        UserStats(value: String(user.details.friendIds.count), title: "Friends")
-                        Divider()
-                        UserStats(value: String(user.details.createdEventIds.count), title: "Events")
-                        Divider()
-                        UserStats(value: "\(10)%", title: "Rating")
-                    }
-                    .padding()
+                    )
+                    BadgesTab()
+                    AboutTab(user: user)
+                    EventTab(userID: user.id)
+                    ClubsTab(userID: user.id)
                     
                 }
-                /*               .padding(.top, safeAreaInsets.top + 50)*/ // if you move this part you might break the geomrty reader
+                .edgesIgnoringSafeArea(.top)
+                .frame(maxWidth: .infinity)
+                .background(Color("testColor"))
+                navbar()
                 
-                .padding(.bottom)
-                .frame(width: UIScreen.main.bounds.width)
-                .background(.bar)
-                .cornerRadius(10)
-                .background(
-                    GeometryReader { geo in
-                        Color.clear
-                            .frame(width: 0, height: 0)
-                            .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
-                                minYValue = newMinY
-                                
-                            }
-                    }
-                )
-                BadgesTab()
-                AboutTab(user: user)
-                EventTab(userID: user.id)
-                ClubsTab(userID: user.id)
-                
+            } else {
+                UserProfileSkeletonView()
             }
-            .edgesIgnoringSafeArea(.top)
-            .frame(maxWidth: .infinity)
-            .background(Color("testColor"))
-            navbar()
         }
+
         .sheet(isPresented: $showSheet, content: {
             CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
         })
@@ -144,7 +146,7 @@ struct ProfileView: View {
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileView(user: User.MOCK_USERS[0])
+        ProfileView()
             .environmentObject(UserViewModel())
             .environmentObject(PostsViewModel())
     }

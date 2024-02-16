@@ -13,6 +13,7 @@ enum userKeys {
     case accessToken
     case refreshToken
     case userId
+    case refreshTokenDeadline
     case service
     
     var toString: String {
@@ -23,6 +24,8 @@ enum userKeys {
             return "userRefreshToken"
         case .userId:
             return "userId"
+        case .refreshTokenDeadline:
+            return "refreshTokenDeadline"
         case .service:
             return "net-togeda-app"
         }

@@ -9,6 +9,11 @@ import Foundation
 
 class UserViewModel: ObservableObject {
     @Published var user: User = User.MOCK_USERS[0]
+    @Published var currentUser: User?
+
+    func updateUser(_ user: User) {
+        self.currentUser = user
+    }
     
     func savePost(postId: String) {
         if !user.details.savedPostIds.contains(postId){

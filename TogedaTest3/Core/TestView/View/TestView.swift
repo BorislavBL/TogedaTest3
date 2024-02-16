@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct TestView: View {
-
+    @State var users = [User]()
+    
     var body: some View {
         Text("babag")
+            
     }
     
   }

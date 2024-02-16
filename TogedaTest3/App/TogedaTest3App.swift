@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct TogedaTest3App: App {
+    @StateObject var viewModel = ContentViewModel()
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(viewModel)
         }
     }
 }

@@ -90,6 +90,7 @@
 		145D72392ABA07B0005934E2 /* MapSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145D72382ABA07B0005934E2 /* MapSlot.swift */; };
 		145FEB472AE95C3B002301D1 /* UserSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145FEB462AE95C3B002301D1 /* UserSettingsView.swift */; };
 		1460FB002B7A60FD00DE05AE /* DecodedJWT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1460FAFF2B7A60FD00DE05AE /* DecodedJWT.swift */; };
+		1462A9BC2B7FC65A00727BDF /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1462A9BB2B7FC65A00727BDF /* Kingfisher */; };
 		14651BD92AE9378A0091FECE /* JoinRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14651BD82AE9378A0091FECE /* JoinRequestView.swift */; };
 		146591642B726FA50004B6DC /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 146591632B726FA50004B6DC /* ImageService.swift */; };
 		1467C8B62AC5C2FF0034A3BB /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1467C8B52AC5C2FF0034A3BB /* UserViewModel.swift */; };
@@ -172,6 +173,8 @@
 		14BFB4502AF2896800500190 /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFB44F2AF2896800500190 /* ImageViewer.swift */; };
 		14BFD2E22AE00599006A26F9 /* Crop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFD2E12AE00599006A26F9 /* Crop.swift */; };
 		14C1498C2AC477AF00F28463 /* LocationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C1498B2AC477AF00F28463 /* LocationHelpers.swift */; };
+		14D437DC2B7FE5DC00912845 /* UserProfileSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D437DB2B7FE5DC00912845 /* UserProfileSkeletonView.swift */; };
+		14D437DF2B7FED8A00912845 /* SkeletonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 14D437DE2B7FED8A00912845 /* SkeletonUI */; };
 		14D5EFE02B5E9EF000561A8D /* StringHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D5EFDF2B5E9EF000561A8D /* StringHelpers.swift */; };
 		14D5EFE22B5EC04200561A8D /* AllGroupEventsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D5EFE12B5EC04200561A8D /* AllGroupEventsView.swift */; };
 		14D5EFE42B5EC52600561A8D /* EventRequestPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D5EFE32B5EC52600561A8D /* EventRequestPage.swift */; };
@@ -370,6 +373,7 @@
 		14BFB44F2AF2896800500190 /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
 		14BFD2E12AE00599006A26F9 /* Crop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crop.swift; sourceTree = "<group>"; };
 		14C1498B2AC477AF00F28463 /* LocationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationHelpers.swift; sourceTree = "<group>"; };
+		14D437DB2B7FE5DC00912845 /* UserProfileSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileSkeletonView.swift; sourceTree = "<group>"; };
 		14D5EFDF2B5E9EF000561A8D /* StringHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringHelpers.swift; sourceTree = "<group>"; };
 		14D5EFE12B5EC04200561A8D /* AllGroupEventsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllGroupEventsView.swift; sourceTree = "<group>"; };
 		14D5EFE32B5EC52600561A8D /* EventRequestPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRequestPage.swift; sourceTree = "<group>"; };
@@ -408,9 +412,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1462A9BC2B7FC65A00727BDF /* Kingfisher in Frameworks */,
 				14EB8A612B73DE13007C2FEF /* Security.framework in Frameworks */,
 				1418C7762B6D1E730037BE5A /* GoogleSignInSwift in Frameworks */,
 				14807A022AB4B91500716A17 /* WrappingHStack in Frameworks */,
+				14D437DF2B7FED8A00912845 /* SkeletonUI in Frameworks */,
 				148ABB6C2B77EC2700C80467 /* JWTDecode in Frameworks */,
 				1418C7742B6D1E730037BE5A /* GoogleSignIn in Frameworks */,
 			);
@@ -712,12 +718,12 @@
 				14807A052AB4B93B00716A17 /* Services */,
 				14FB720B2AC1B97F00A2852D /* Managers */,
 				14C1498A2AC4777900F28463 /* Helpers */,
-				14AFFA822B275971001D903A /* Authentication */,
-				14807A032AB4B92D00716A17 /* App */,
 				14807A042AB4B93500716A17 /* Extensions */,
+				14AFFA822B275971001D903A /* Authentication */,
 				14807A062AB4B94200716A17 /* Core */,
 				14807A182AB4B9D500716A17 /* Components */,
 				14807A1B2AB4B9F100716A17 /* Models */,
+				14807A032AB4B92D00716A17 /* App */,
 				148079F32AB4B8B800716A17 /* ContentView.swift */,
 				14807A6A2AB4C20600716A17 /* ContentViewModel.swift */,
 				142814132ACC55530046886B /* Info.plist */,
@@ -959,6 +965,7 @@
 				147613DA2B4469C0001C1AA8 /* AllUserGroupsView.swift */,
 				148B81AB2B4DB55E009801BC /* CreateSheetView.swift */,
 				14515E2C2B51992C004ECF31 /* BookmarkedEventsView.swift */,
+				14D437DB2B7FE5DC00912845 /* UserProfileSkeletonView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1241,6 +1248,8 @@
 				1418C7732B6D1E730037BE5A /* GoogleSignIn */,
 				1418C7752B6D1E730037BE5A /* GoogleSignInSwift */,
 				148ABB6B2B77EC2700C80467 /* JWTDecode */,
+				1462A9BB2B7FC65A00727BDF /* Kingfisher */,
+				14D437DE2B7FED8A00912845 /* SkeletonUI */,
 			);
 			productName = TogedaTest3;
 			productReference = 148079EE2AB4B8B800716A17 /* TogedaTest3.app */;
@@ -1274,6 +1283,8 @@
 				14807A002AB4B91500716A17 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 				1418C7722B6D1E730037BE5A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				148ABB6A2B77EC2700C80467 /* XCRemoteSwiftPackageReference "JWTDecode" */,
+				1462A9BA2B7FC65A00727BDF /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				14D437DD2B7FED8A00912845 /* XCRemoteSwiftPackageReference "SkeletonUI" */,
 			);
 			productRefGroup = 148079EF2AB4B8B800716A17 /* Products */;
 			projectDirPath = "";
@@ -1429,6 +1440,7 @@
 				148B81AA2B4D9726009801BC /* GroupCellTags.swift in Sources */,
 				14973BCA2B3F1F320067D1A8 /* GroupAccessibilityView.swift in Sources */,
 				14807A712AB4C25800716A17 /* CreateEventView.swift in Sources */,
+				14D437DC2B7FE5DC00912845 /* UserProfileSkeletonView.swift in Sources */,
 				142814152ACC7F8F0046886B /* EventMapPreview.swift in Sources */,
 				14AFFA882B275A92001D903A /* IntroView.swift in Sources */,
 				1400BD062B459B10000EB8BC /* GroupAboutView.swift in Sources */,
@@ -1626,6 +1638,7 @@
 				INFOPLIST_FILE = TogedaTest3/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Togeda;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Please allow us to access your location to show you suitable events nearby you.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to show you suitable events nearby you.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -1669,6 +1682,7 @@
 				INFOPLIST_FILE = TogedaTest3/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Togeda;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Please allow us to access your location to show you suitable events nearby you.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to show you suitable events nearby you.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -1727,6 +1741,14 @@
 				minimumVersion = 7.0.0;
 			};
 		};
+		1462A9BA2B7FC65A00727BDF /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.11.0;
+			};
+		};
 		14807A002AB4B91500716A17 /* XCRemoteSwiftPackageReference "WrappingHStack" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ksemianov/WrappingHStack.git";
@@ -1743,6 +1765,14 @@
 				minimumVersion = 3.1.0;
 			};
 		};
+		14D437DD2B7FED8A00912845 /* XCRemoteSwiftPackageReference "SkeletonUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CSolanaM/SkeletonUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1756,6 +1786,11 @@
 			package = 1418C7722B6D1E730037BE5A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
 		};
+		1462A9BB2B7FC65A00727BDF /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1462A9BA2B7FC65A00727BDF /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		14807A012AB4B91500716A17 /* WrappingHStack */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 14807A002AB4B91500716A17 /* XCRemoteSwiftPackageReference "WrappingHStack" */;
@@ -1765,6 +1800,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 148ABB6A2B77EC2700C80467 /* XCRemoteSwiftPackageReference "JWTDecode" */;
 			productName = JWTDecode;
+		};
+		14D437DE2B7FED8A00912845 /* SkeletonUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 14D437DD2B7FED8A00912845 /* XCRemoteSwiftPackageReference "SkeletonUI" */;
+			productName = SkeletonUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

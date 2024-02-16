@@ -12,24 +12,26 @@ struct AboutTab: View {
     var user: User
     var body: some View {
         VStack (alignment: .leading) {
-            Text("About Me")
-                .font(.body)
-                .fontWeight(.bold)
-            WrappingHStack(alignment: .leading){
-                if let education = user.details.education {
-                    aboutTag(img: Image(systemName: "graduationcap"), text: education)
-                }
-                if let workout = user.details.workout {
-                    aboutTag(img: Image(systemName: "dumbbell"), text: workout)
-                }
-                if let personalityType = user.details.personalityType {
-                    aboutTag(img: Image(systemName: "puzzlepiece.extension"), text: personalityType)
-                }
-                if let instagarm = user.details.instagram {
-                    aboutTag(img:Image("instagram"), text: instagarm)
-                }
-                
-            }.padding(.bottom, 30)
+            if isAboutInfo {
+                Text("About Me")
+                    .font(.body)
+                    .fontWeight(.bold)
+                WrappingHStack(alignment: .leading){
+                    if let education = user.details.education {
+                        aboutTag(img: Image(systemName: "graduationcap"), text: education)
+                    }
+                    if let workout = user.details.workout {
+                        aboutTag(img: Image(systemName: "dumbbell"), text: workout)
+                    }
+                    if let personalityType = user.details.personalityType {
+                        aboutTag(img: Image(systemName: "puzzlepiece.extension"), text: personalityType)
+                    }
+                    if let instagarm = user.details.instagram {
+                        aboutTag(img:Image("instagram"), text: instagarm)
+                    }
+                    
+                }.padding(.bottom, 30)
+            }
             
             Text("Interests")
                 .font(.body)
@@ -75,6 +77,13 @@ struct AboutTab: View {
         .normalTagCapsuleStyle()
     }
     
+    var isAboutInfo: Bool {
+        if let education = user.details.education, let workout = user.details.workout, let personalityType = user.details.personalityType, let instagarm = user.details.instagram {
+            return true
+        } else {
+            return false
+        }
+    }
 }
 
 struct AboutTab_Previews: PreviewProvider {

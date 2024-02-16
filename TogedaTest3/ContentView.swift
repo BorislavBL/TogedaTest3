@@ -8,10 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var locationManager = LocationManager()
+    @EnvironmentObject var viewModel: ContentViewModel
     @StateObject var networkManager = NetworkManager()
-    @StateObject var viewModel = ContentViewModel()
-    
     @StateObject var postsViewModel = PostsViewModel()
     @StateObject var userViewModel = UserViewModel()
     
@@ -22,15 +20,11 @@ struct ContentView: View {
                     case .checking:
                         ProgressView("Checking authentication...")
                     case .authenticated:
-                        if let user = viewModel.currentUser {
-                            MainTabView(user: user)
-                                .environmentObject(locationManager)
-                                .environmentObject(postsViewModel)
-                                .environmentObject(userViewModel)
-                        }
+                        MainTabView()
+                            .environmentObject(postsViewModel)
+                            .environmentObject(userViewModel)
                     case .unauthenticated:
                         IntroView()
-                        .environmentObject(viewModel)
                 }
                 
                 if !networkManager.isConnected {
@@ -45,6 +39,7 @@ struct ContentView: View {
                         .padding(.top)
                 }
             }
+            
         }
     }
 }
@@ -52,5 +47,6 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(ContentViewModel())
     }
 }
