@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import Kingfisher
 
 struct PhotoPickerView: View {
     @ObservedObject var photoPickerVM: PhotoPickerViewModel
@@ -81,16 +82,20 @@ struct PhotoPickerView: View {
                     }
                 }
                 
-                if photoPickerVM.selectedImages.allSatisfy({ $0 == nil }) {
+                if photoPickerVM.selectedImages.allSatisfy({ $0 == nil }), let user = userViewModel.currentUser {
                     
                     Text("Use your ptofile picture as the cover for the event.")
                         .font(.footnote)
                         .foregroundStyle(.gray)
                     
                     Button {
-                        photoPickerVM.selectedImages[0] = UIImage(named: userViewModel.user.profilePhotos[0])
+                        Task{
+                            if let image = await ImageService().urlToUIImage(urlString: user.profilePhotos[0]) {
+                                photoPickerVM.selectedImages[0] = image
+                            }
+                        }
                     } label:{
-                        Image(userViewModel.user.profilePhotos[0])
+                        KFImage(URL(string: user.profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width:imageDimension, height: imageDimension * 1.3)

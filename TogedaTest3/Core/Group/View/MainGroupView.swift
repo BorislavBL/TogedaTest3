@@ -45,7 +45,7 @@ struct MainGroupView: View {
                     HStack(spacing: 5){
                         Image(systemName: "eye")
                         
-                        Text(groupVM.club.visability.value)
+                        Text(groupVM.club.visability)
                             .font(.footnote)
                             .fontWeight(.semibold)
                     }

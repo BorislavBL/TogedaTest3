@@ -248,23 +248,23 @@ extension AuthService {
         
         do {
             let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
-            let authResult = loginResponse.authResult.authenticationResult
+            let accessTokenResponse = loginResponse.accessToken
+            let refreshTokenResponse = loginResponse.refreshToken
             let userId = loginResponse.userId
             let refreshTokenDeadline = loginResponse.refreshTokenDeadline
             
             // Save or use the tokens as needed
-            print("Access Token: \(authResult.accessToken)")
-            print("Refresh Token: \(authResult.refreshToken)")
-            print("ID Token: \(authResult.idToken)")
+            print("Access Token: \(accessTokenResponse)")
+            print("Refresh Token: \(refreshTokenResponse)")
             print("userId: \(userId)")
             print("userId: \(refreshTokenDeadline)")
             
-            if let accessTokenData = authResult.accessToken.data(using: .utf8) {
+            if let accessTokenData = accessTokenResponse.data(using: .utf8) {
                 let saved = KeychainManager.shared.saveOrUpdate(item: accessTokenData, account: userKeys.accessToken.toString, service: userKeys.service.toString)
                 print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
             }
             
-            if let refreshTokenData = authResult.refreshToken.data(using: .utf8) {
+            if let refreshTokenData = refreshTokenResponse.data(using: .utf8) {
                 let saved = KeychainManager.shared.saveOrUpdate(item: refreshTokenData, account: userKeys.refreshToken.toString, service: userKeys.service.toString)
                 print(saved ? "Token saved/updated successfully" : "Failed to save/update token")
             }
@@ -287,21 +287,10 @@ extension AuthService {
     }
     
     struct LoginResponse: Codable {
-        let authResult: AuthResult
+        let accessToken: String
+        let refreshToken: String
         let userId: String
         let refreshTokenDeadline: Int
-    }
-
-    struct AuthResult: Codable {
-        let authenticationResult: AuthenticationResult
-    }
-
-    struct AuthenticationResult: Codable {
-        let accessToken: String
-        let expiresIn: Int
-        let tokenType: String
-        let refreshToken: String
-        let idToken: String
     }
 }
 

@@ -78,7 +78,7 @@ struct AboutTab: View {
     }
     
     var isAboutInfo: Bool {
-        if let education = user.details.education, let workout = user.details.workout, let personalityType = user.details.personalityType, let instagarm = user.details.instagram {
+        if user.details.education != nil || user.details.workout != nil || user.details.personalityType != nil || user.details.instagram != nil {
             return true
         } else {
             return false

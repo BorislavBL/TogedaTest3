@@ -14,6 +14,7 @@ class PhotoPickerViewModel: ObservableObject {
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
     @Published var selectedImages: [UIImage?] = [nil, nil, nil, nil, nil, nil]
+    @Published var publishedPhotosURLs: [String] = []
     @Published var selectedImage: UIImage?
     @Published var showCropView = false
     
@@ -35,13 +36,6 @@ class PhotoPickerViewModel: ObservableObject {
         guard let selection else {return}
         
         Task {
-//            if let data = try? await selection.loadTransferable(type: Data.self) {
-//                if let uiImage = UIImage(data: data){
-//                    selectedImage = uiImage
-//                    return
-//                }
-//            }
-            
             do {
                 let data = try await selection.loadTransferable(type: Data.self)
                 guard let data, let uiImage = UIImage(data: data) else {
@@ -50,11 +44,6 @@ class PhotoPickerViewModel: ObservableObject {
                 
                 selectedImage = uiImage
                 showCropView = true
-//                if let index = selectedImageIndex {
-//                    
-//                    selectedImages[index] = uiImage
-//                    showCropView = true
-//                }
             } catch {
                 print(error)
             }
@@ -94,6 +83,48 @@ class PhotoPickerViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self.eventSelectedImages = images
             }
+        }
+    }
+    
+    func saveImages() async -> Bool {
+        var isSuccess = true
+        publishedPhotosURLs = []
+        
+        await withTaskGroup(of: Bool.self) { group in
+            for image in selectedImages {
+                if let image = image {
+                    group.addTask {
+                        return await self.uploadImageAsync(uiImage: image)
+                    }
+                }
+            }
+            for await result in group {
+                if !result {
+                    isSuccess = false
+                }
+            }
+        }
+        return isSuccess
+    }
+    
+    private func uploadImageAsync(uiImage: UIImage) async -> Bool {
+        let UUID = NSUUID().uuidString
+        guard let jpeg = compressImageIfNeeded(image: uiImage)else {
+            print("Image compression failed.")
+            return false
+        }
+        
+        do {
+            let response = try await ImageService().generatePresignedPutUrl(bucketName: "togeda-profile-photos", fileName: UUID)
+            try await ImageService().uploadImage(imageData: jpeg, urlString: response)
+            let imageUrl = "https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
+            publishedPhotosURLs.append(imageUrl)
+            
+            return true
+        } catch {
+            print("Upload failed with error: \(error)")
+            
+            return false
         }
     }
     

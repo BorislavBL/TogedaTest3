@@ -7,22 +7,25 @@
 
 import SwiftUI
 
-enum Visabilities: Hashable, Codable {
-    case Public
-    case Private
-
-    var value : String {
-      switch self {
-      // Use Internationalization, as appropriate.
-      case .Public: return "Public"
-      case .Private: return "Private"
-      }
-    }
-}
+//enum Visabilities: Hashable, Codable {
+//    case Public
+//    case Private
+//    case Undefined
+//
+//    var value : String {
+//        switch self {
+//            // Use Internationalization, as appropriate.
+//        case .Public: return "Public"
+//        case .Private: return "Private"
+//        case .Undefined: return ""
+//        }
+//    }
+//
+//}
 
 struct AccessibilityView: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var selectedVisability: Visabilities?
+    @Binding var selectedVisability: String
     @Binding var askToJoin: Bool
     @EnvironmentObject var userVM: UserViewModel
     
@@ -35,10 +38,10 @@ struct AccessibilityView: View {
 
             VStack(alignment: .leading){
                 Button{
-                    selectedVisability = .Public
+                    selectedVisability = "PUBLIC"
                 } label:{
                     HStack {
-                        if selectedVisability == .Public{
+                        if selectedVisability == "PUBLIC"{
                             Image(systemName: "checkmark.circle.fill")
                                 .imageScale(.large)
                                 .foregroundStyle(.blue)
@@ -47,7 +50,7 @@ struct AccessibilityView: View {
                                 .imageScale(.large)
                                 .foregroundStyle(.gray)
                         }
-                        Text("Public").tag(Visabilities.Public)
+                        Text("Public").tag("PUBLIC")
                     }
                 }
                 
@@ -65,10 +68,10 @@ struct AccessibilityView: View {
             VStack(alignment: .leading){
                 
                 Button{
-                    selectedVisability = .Private
+                    selectedVisability = "PRIVATE"
                 } label:{
                     HStack{
-                        if selectedVisability == .Private{
+                        if selectedVisability == "PRIVATE"{
                             Image(systemName: "checkmark.circle.fill")
                                 .imageScale(.large)
                                 .foregroundStyle(.blue)
@@ -77,7 +80,7 @@ struct AccessibilityView: View {
                                 .imageScale(.large)
                                 .foregroundStyle(.gray)
                         }
-                        Text("Private").tag(Visabilities.Private)
+                        Text("Private").tag("PRIVATE")
                     }
                 }
                 
@@ -205,7 +208,7 @@ struct AccessibilityEventType: View {
 
 struct AccessibilityView_Previews: PreviewProvider {
     static var previews: some View {
-        AccessibilityView(selectedVisability: .constant(.Public), askToJoin: .constant(true))
+        AccessibilityView(selectedVisability: .constant("PUBLIC"), askToJoin: .constant(true))
             .environmentObject(UserViewModel())
     }
 }

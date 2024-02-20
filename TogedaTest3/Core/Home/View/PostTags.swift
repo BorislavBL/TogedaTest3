@@ -48,7 +48,7 @@ struct PostTags: View {
                     Text("Ask to join")
                         .normalTagTextStyle()
                 } else {
-                    Text(post.accessability.value)
+                    Text(post.accessability)
                         .normalTagTextStyle()
                 }
             }

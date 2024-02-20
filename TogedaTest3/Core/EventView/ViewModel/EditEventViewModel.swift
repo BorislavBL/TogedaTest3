@@ -33,6 +33,7 @@ class EditEventViewModel: ObservableObject {
     @Published var isDate = true
     @Published var daySettings = 0
     @Published var timeSettings = 0
+    @Published var showTimeSettings: Bool = false
     
     //Photos
     @Published var showPhotosPicker = false
@@ -52,7 +53,7 @@ class EditEventViewModel: ObservableObject {
 extension EditEventViewModel {
     func fetchPostData(post: Post) {
         title = post.title
-        description = post.description
+        description = post.description ?? ""
         selectedInterests = post.interests
         participants = post.maximumPeople
         

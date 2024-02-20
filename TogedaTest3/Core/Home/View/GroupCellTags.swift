@@ -20,7 +20,7 @@ struct GroupCellTags: View {
                     Text("Ask to join")
                         .normalTagTextStyle()
                 } else {
-                    Text(club.visability.value)
+                    Text(club.visability)
                         .normalTagTextStyle()
                 }
             }

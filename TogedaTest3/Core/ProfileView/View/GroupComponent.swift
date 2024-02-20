@@ -59,7 +59,7 @@ struct GroupComponent: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("lightGray"))
                         } else {
-                            Text(club.visability.value)
+                            Text(club.visability)
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("lightGray"))

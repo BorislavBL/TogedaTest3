@@ -28,22 +28,43 @@ class CreateEventViewModel: ObservableObject {
         }
     }
 
-    
     //Date View
     @Published var date = Date()
-    @Published var from = Date()
-    @Published var to = Date()
+    @Published var from = Date().addingTimeInterval(60)
+    @Published var to = Date().addingTimeInterval(3600)
     @Published var isDate = true
     @Published var daySettings = 0
     @Published var timeSettings = 0
+    @Published var showTimeSettings = false
     
     //Description View
     @Published var description: String = ""
     
     //Accesability
-    @Published var selectedVisability: Visabilities?
+    @Published var selectedVisability: String = ""
     @Published var askToJoin: Bool = false
     
     //Tag
     @Published var selectedInterests: [Interest] = []
+    
+    //Photos
+    @Published var postPhotosURls: [String] = []
+    
+    func createPost() -> CreatePost {
+        let dateFrom = formatDateAndTimeToStringTimeFormat(date: from)
+        let dateTo = formatDateAndTimeToStringTimeFormat(date: to)
+        return .init(
+            title: title,
+            images: postPhotosURls,
+            description: description.isEmpty ? nil : description,
+            maximumPeople: participants,
+            location: location!,
+            fromDate: (timeSettings == 0 || timeSettings == 1) ? dateFrom : nil,
+            toDate: (timeSettings == 1) ? dateTo : nil,
+            interests: selectedInterests,
+            payment: price != nil ? price! : 0,
+            accessibility: selectedVisability,
+            askToJoin: askToJoin,
+            inClubID: nil)
+    }
 }

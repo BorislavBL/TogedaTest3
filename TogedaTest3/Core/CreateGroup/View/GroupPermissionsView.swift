@@ -19,6 +19,15 @@ enum Permissions: Hashable, Codable {
      
       }
     }
+    
+    var backendValue : String {
+      switch self {
+      // Use Internationalization, as appropriate.
+      case .All_members: return "ALL"
+      case .Admins_only: return "ADMINS_ONLY"
+     
+      }
+    }
 }
 
 struct GroupPermissionsView: View {

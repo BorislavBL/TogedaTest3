@@ -31,7 +31,7 @@ struct EditEventView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 10){
-                    Text("Profile Info")
+                    Text("Event Info")
                         .font(.title3)
                         .fontWeight(.bold)
                     
@@ -119,29 +119,83 @@ struct EditEventView: View {
                         
                     }
                     
-                    NavigationLink {
-                        DateView(isDate: $vm.isDate, date: $vm.date, from: $vm.from, to: $vm.to, daySettings: $vm.daySettings, timeSettings: $vm.timeSettings)
-                    } label: {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "calendar")
-                                .imageScale(.large)
-                            
-                            
-                            Text("Date & Time")
-                            
-                            Spacer()
-                            
-                            
-                            Text(vm.isDate ? separateDateAndTime(from:vm.date).date : "Any day")
-                                .foregroundColor(.gray)
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundColor(.gray)
+//                    NavigationLink {
+//                        DateView(isDate: $vm.isDate, date: $vm.date, from: $vm.from, to: $vm.to, daySettings: $vm.daySettings, timeSettings: $vm.timeSettings)
+//                    } label: {
+//                        HStack(alignment: .center, spacing: 10) {
+//                            Image(systemName: "calendar")
+//                                .imageScale(.large)
+//                            
+//                            
+//                            Text("Date & Time")
+//                            
+//                            Spacer()
+//                            
+//                            
+//                            Text(vm.isDate ? separateDateAndTime(from:vm.date).date : "Any day")
+//                                .foregroundColor(.gray)
+//                            
+//                            Image(systemName: "chevron.right")
+//                                .padding(.trailing, 10)
+//                                .foregroundColor(.gray)
+//                            
+//                        }
+//                        .createEventTabStyle()
+//                    }
+                    
+                    VStack(alignment: .leading, spacing: 20){
+                        Button{
+                            vm.showTimeSettings.toggle()
+                        } label: {
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "calendar")
+                                    .imageScale(.large)
+                                
+                                
+                                Text("Date & Time")
+                                
+                                Spacer()
+                                
+                                
+                                Text(vm.isDate ? separateDateAndTime(from:vm.from).date : "Any day")
+                                    .foregroundColor(.gray)
+                                
+                                Image(systemName: vm.showTimeSettings ? "chevron.down" : "chevron.right")
+                                    .padding(.trailing, 10)
+                                    .foregroundColor(.gray)
+                                
+                            }
                             
                         }
-                        .createEventTabStyle()
+                        
+                        if vm.showTimeSettings {
+                            Picker("Choose Date", selection: $vm.timeSettings){
+                                Text("Exact").tag(0)
+                                Text("Range").tag(1)
+                                Text("Anytime").tag(2)
+                            }
+                            .pickerStyle(.segmented)
+                            
+                            if vm.timeSettings != 2 {
+                                DatePicker("From", selection: $vm.from, in: Date().addingTimeInterval(60)..., displayedComponents: [.date, .hourAndMinute])
+                                    .fontWeight(.semibold)
+                                
+                                if vm.timeSettings == 1 {
+                                    DatePicker("To", selection: $vm.to, in: vm.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
+                                        .fontWeight(.semibold)
+                                }
+                            } else {
+                                HStack {
+                                    Text("The event won't have a specific timeframe.")
+                                        .fontWeight(.medium)
+                                        .padding()
+                                }
+                            }
+                            
+                            
+                        }
                     }
+                    .createEventTabStyle()
                     
                     VStack(alignment: .leading, spacing: 20){
                         

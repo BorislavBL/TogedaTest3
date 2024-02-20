@@ -62,7 +62,7 @@ struct CompletedEventView: View {
                             
                             if let user = post.user {
                                 NavigationLink(destination: UserProfileView(miniUser: user)){
-                                    HStack(alignment: .center, spacing: 10) {                                        
+                                    HStack(alignment: .center, spacing: 10) {
                                         if let image = post.user?.profilePhotos {
                                             Image(image[0])
                                                 .resizable()
@@ -217,7 +217,7 @@ struct CompletedEventView: View {
                                         .imageScale(.large)
                                     
                                     VStack(alignment: .leading, spacing: 5) {
-                                        Text(post.accessability.value.capitalized)
+                                        Text(post.accessability.capitalized)
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                         
@@ -247,18 +247,19 @@ struct CompletedEventView: View {
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                             .normalTagRectangleStyle()
                             
-                            
-                            
-                            Text("Description")
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .padding(.vertical, 8)
-                            
-                            ExpandableText(post.description, lineLimit: 4)
-                                .lineSpacing(8.0)
-                                .fontWeight(.medium)
-                                .foregroundColor(.gray)
-                                .padding(.bottom, 8)
+                            if let description = post.description {
+                                
+                                Text("Description")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .padding(.vertical, 8)
+                                
+                                ExpandableText(description, lineLimit: 4)
+                                    .lineSpacing(8.0)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.gray)
+                                    .padding(.bottom, 8)
+                            }
                             
                             Text("Memories")
                                 .font(.title3)

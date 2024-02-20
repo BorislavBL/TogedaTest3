@@ -150,8 +150,8 @@ struct CreateEventView: View {
                             
                             Spacer()
                             
-                            if let visability = ceVM.selectedVisability {
-                                Text(visability.value)
+                            if !ceVM.selectedVisability.isEmpty {
+                                Text(ceVM.selectedVisability)
                                     .foregroundColor(.gray)
                             } else {
                                 Text("Select")
@@ -213,28 +213,86 @@ struct CreateEventView: View {
                         .padding(.top)
                         .padding(.horizontal, 8)
                     
-                    NavigationLink {
-                        DateView(isDate: $ceVM.isDate, date: $ceVM.date, from: $ceVM.from, to: $ceVM.to, daySettings: $ceVM.daySettings, timeSettings: $ceVM.timeSettings)
-                    } label: {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "calendar")
-                                .imageScale(.large)
-                            
-                            
-                            Text("Date & Time")
-                            
-                            Spacer()
-                            
-                            
-                            Text(ceVM.isDate ? separateDateAndTime(from:ceVM.date).date : "Any day")
-                                .foregroundColor(.gray)
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundColor(.gray)
+                    //                    NavigationLink {
+                    //                        DateView(isDate: $ceVM.isDate, date: $ceVM.date, from: $ceVM.from, to: $ceVM.to, daySettings: $ceVM.daySettings, timeSettings: $ceVM.timeSettings)
+                    //                    } label: {
+                    //                        HStack(alignment: .center, spacing: 10) {
+                    //                            Image(systemName: "calendar")
+                    //                                .imageScale(.large)
+                    //
+                    //
+                    //                            Text("Date & Time")
+                    //
+                    //                            Spacer()
+                    //
+                    //
+                    //                            Text(ceVM.isDate ? separateDateAndTime(from:ceVM.date).date : "Any day")
+                    //                                .foregroundColor(.gray)
+                    //
+                    //                            Image(systemName: "chevron.right")
+                    //                                .padding(.trailing, 10)
+                    //                                .foregroundColor(.gray)
+                    //
+                    //                        }
+                    //                        .createEventTabStyle()
+                    //                    }
+                    
+                    VStack(alignment: .leading, spacing: 20){
+                        Button{
+                            ceVM.showTimeSettings.toggle()
+                        } label: {
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "calendar")
+                                    .imageScale(.large)
+                                
+                                
+                                Text("Date & Time")
+                                
+                                Spacer()
+                                
+                                Text(ceVM.isDate ? separateDateAndTime(from:ceVM.from).date : "Any day")
+                                    .foregroundColor(.gray)
+                                
+                                Image(systemName: ceVM.showTimeSettings ? "chevron.down" : "chevron.right")
+                                    .padding(.trailing, 10)
+                                    .foregroundColor(.gray)
+                                
+                            }
                             
                         }
-                        .createEventTabStyle()
+                        
+                        if ceVM.showTimeSettings {
+                            Picker("Choose Date", selection: $ceVM.timeSettings){
+                                Text("Exact").tag(0)
+                                Text("Range").tag(1)
+                                Text("Anytime").tag(2)
+                            }
+                            .pickerStyle(.segmented)
+                            
+                            if ceVM.timeSettings != 2 {
+                                DatePicker("From", selection: $ceVM.from, in: Date().addingTimeInterval(60)..., displayedComponents: [.date, .hourAndMinute])
+                                    .fontWeight(.semibold)
+                                
+                                if ceVM.timeSettings == 1 {
+                                    DatePicker("To", selection: $ceVM.to, in: ceVM.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
+                                        .fontWeight(.semibold)
+                                }
+                            } else {
+                                HStack {
+                                    Text("The event won't have a specific timeframe.")
+                                        .fontWeight(.medium)
+                                        .padding()
+                                }
+                            }
+                            
+                            
+                        }
+                    }
+                    .createEventTabStyle()
+                    
+                    if pastDate {
+                        WarningTextComponent(text: "Please at least one interest.")
+                        
                     }
                     
                     VStack(alignment: .leading, spacing: 20){
@@ -338,7 +396,26 @@ struct CreateEventView: View {
                 
                 if allRequirenments {
                     Button{
-                        dismiss()
+                        Task{
+                            do{
+                                if await photoPickerVM.saveImages() {
+                                    ceVM.postPhotosURls = photoPickerVM.publishedPhotosURLs
+                                    let createPost = ceVM.createPost()
+                                    print(createPost)
+                                    try await PostService().createPost(userData: createPost)
+                                    dismiss()
+                                }
+                            } catch GeneralError.badRequest(details: let details){
+                                print(details)
+                            } catch GeneralError.invalidURL {
+                                print("Invalid URL")
+                            } catch GeneralError.serverError(let statusCode, let details) {
+                                print("Status: \(statusCode) \n \(details)")
+                            } catch {
+                                print("Error message:", error)
+                            }
+                            
+                        }
                     } label: {
                         Text("Create")
                             .frame(maxWidth: .infinity)
@@ -364,9 +441,9 @@ struct CreateEventView: View {
                 }
                 
             }
-            .onTapGesture {
-                hideKeyboard()
-            }
+            //            .onTapGesture {
+            //                hideKeyboard()
+            //            }
             .frame(maxHeight: UIScreen.main.bounds.height,alignment: .top)
             .navigationBarBackButtonHidden(true)
             .navigationTitle("Create Event")
@@ -442,7 +519,7 @@ struct CreateEventView: View {
     }
     
     var noVisability: Bool {
-        if ceVM.selectedVisability == nil && displayWarnings {
+        if ceVM.selectedVisability.isEmpty && displayWarnings {
             return true
         } else {
             return false
@@ -457,8 +534,16 @@ struct CreateEventView: View {
         }
     }
     
+    var pastDate: Bool {
+        if ceVM.from <= Date() && displayWarnings {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     var allRequirenments: Bool {
-        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }),ceVM.selectedInterests.count > 0 && ceVM.selectedVisability != nil {
+        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }),ceVM.selectedInterests.count > 0 && !ceVM.selectedVisability.isEmpty && ceVM.from > Date() {
             return true
         } else {
             return false

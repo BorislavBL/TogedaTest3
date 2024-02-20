@@ -202,7 +202,7 @@ struct CreateGroupView: View {
                             
                             Spacer()
                             
-                            Text(createGroupVM.selectedVisability.value)
+                            Text(createGroupVM.selectedVisability)
                                 .foregroundColor(.gray)
                             
                             Image(systemName: "chevron.right")
@@ -243,7 +243,25 @@ struct CreateGroupView: View {
 
                 if allRequirenments {
                     Button{
-                        dismiss()
+                        Task{
+                            do{
+                                if await createGroupVM.saveImages() {
+                                    let createClub = createGroupVM.createClub()
+                                    print(createClub)
+                                    try await ClubService.shared.createClub(clubData: createClub)
+                                    dismiss()
+                                }
+                            } catch GeneralError.badRequest(details: let details){
+                                print(details)
+                            } catch GeneralError.invalidURL {
+                                print("Invalid URL")
+                            } catch GeneralError.serverError(let statusCode, let details) {
+                                print("Status: \(statusCode) \n \(details)")
+                            } catch {
+                                print("Error message:", error)
+                            }
+                            
+                        }
                     } label: {
                         Text("Create")
                             .frame(maxWidth: .infinity)

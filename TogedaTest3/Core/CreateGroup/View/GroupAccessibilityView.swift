@@ -9,7 +9,7 @@ import SwiftUI
 
 struct GroupAccessibilityView: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var selectedVisability: Visabilities
+    @Binding var selectedVisability: String
     @Binding var askToJoin: Bool
 
     var body: some View {
@@ -21,10 +21,10 @@ struct GroupAccessibilityView: View {
 
             VStack(alignment: .leading){
                 Button{
-                    selectedVisability = .Public
+                    selectedVisability = "PUBLIC"
                 } label:{
                     HStack {
-                        if selectedVisability == .Public{
+                        if selectedVisability == "PUBLIC" {
                             Image(systemName: "checkmark.circle.fill")
                                 .imageScale(.large)
                                 .foregroundStyle(.blue)
@@ -33,7 +33,7 @@ struct GroupAccessibilityView: View {
                                 .imageScale(.large)
                                 .foregroundStyle(.gray)
                         }
-                        Text("Public").tag(Visabilities.Public)
+                        Text("Public").tag("PUBLIC")
                     }
                 }
                 
@@ -51,10 +51,10 @@ struct GroupAccessibilityView: View {
             VStack(alignment: .leading){
                 
                 Button{
-                    selectedVisability = .Private
+                    selectedVisability = "PRIVATE"
                 } label:{
                     HStack{
-                        if selectedVisability == .Private{
+                        if selectedVisability == "PRIVATE"{
                             Image(systemName: "checkmark.circle.fill")
                                 .imageScale(.large)
                                 .foregroundStyle(.blue)
@@ -63,7 +63,7 @@ struct GroupAccessibilityView: View {
                                 .imageScale(.large)
                                 .foregroundStyle(.gray)
                         }
-                        Text("Private").tag(Visabilities.Private)
+                        Text("Private").tag("PRIVATE")
                     }
                 }
                 
@@ -107,7 +107,7 @@ struct GroupAccessibilityView: View {
 }
 
 #Preview {
-    GroupAccessibilityView(selectedVisability: .constant(.Public), askToJoin: .constant(true))
+    GroupAccessibilityView(selectedVisability: .constant("PUBLIC"), askToJoin: .constant(true))
 }
 
 

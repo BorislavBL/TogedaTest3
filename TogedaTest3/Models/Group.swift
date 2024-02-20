@@ -7,13 +7,24 @@
 
 import Foundation
 
+struct CreateClub: Codable {
+    var title: String
+    var images: [String]
+    var description: String
+    var location: baseLocation
+    var interests: [Interest]
+    var accessibility: String
+    var permissions: String
+    var askToJoin: Bool
+}
+
 struct Club: Identifiable, Hashable, Codable {
     let id: String
     var title: String
     var imagesUrl: [String]
     var baseLocation: baseLocation
     var members: [ClubMember]
-    var visability: Visabilities
+    var visability: String
     var askToJoin: Bool
     var description: String?
     var interests: [Interest]
@@ -44,6 +55,6 @@ let groupDescription = "Lorem Ipsum is simply dummy text of the printing and typ
 
 extension Club {
     static var MOCK_CLUBS: [Club] = [
-        .init(id: NSUUID().uuidString, title: "Sky Diving Club Sofia", imagesUrl: ["event_1", "event_2"], baseLocation: mockLocation, members: mock_members, visability: .Public, askToJoin: true, description: groupDescription, interests: mockInterests, eventIDs: [Post.MOCK_POSTS[0].id, Post.MOCK_POSTS[1].id], memories: ["event_1", "event_2", "event_3", "event_4"], joinRequestUsers: [Post.MOCK_POSTS[2].id], permissions: .All_members, events: [Post.MOCK_POSTS[0], Post.MOCK_POSTS[1]])
+        .init(id: NSUUID().uuidString, title: "Sky Diving Club Sofia", imagesUrl: ["event_1", "event_2"], baseLocation: mockLocation, members: mock_members, visability: "PUBLIC", askToJoin: true, description: groupDescription, interests: mockInterests, eventIDs: [Post.MOCK_POSTS[0].id, Post.MOCK_POSTS[1].id], memories: ["event_1", "event_2", "event_3", "event_4"], joinRequestUsers: [Post.MOCK_POSTS[2].id], permissions: .All_members, events: [Post.MOCK_POSTS[0], Post.MOCK_POSTS[1]])
     ]
 }

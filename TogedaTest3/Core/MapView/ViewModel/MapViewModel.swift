@@ -23,9 +23,9 @@ class MapViewModel: ObservableObject{
     @Published var visibleRegion: MKCoordinateRegion?
     
     @Published var searchText: String = ""
-    @Published var searchResults: [Post] = Post.MOCK_POSTS.filter{$0.accessability == Visabilities.Public}
+    @Published var searchResults: [Post] = Post.MOCK_POSTS.filter{$0.accessability == "PUBLIC"}
     
-    @Published var mapPosts: [Post] = Post.MOCK_POSTS.filter{$0.accessability == Visabilities.Public}
+    @Published var mapPosts: [Post] = Post.MOCK_POSTS.filter{$0.accessability == "PUBLIC"}
     
 }
 

@@ -120,42 +120,42 @@ class RegistrationViewModel: ObservableObject {
         }
     }
     
-    func saveImage() {
-        createdUser.profilePhotos = []
-        for i in selectedImages {
-            if let image = i {
-                combineImageMethods(uiImage: image, bucketName: "togeda-profile-photos")
-            } else{
-                print("no selected image")
-            }
-        }
-    }
-    
-    func combineImageMethods(uiImage: UIImage, bucketName: String){
-        let jpeg = compressImageIfNeeded(image: uiImage)
-        if let jpegimg = jpeg {
-            Task {
-                do{
-                    let UUID = NSUUID().uuidString
-                    let response = try await ImageService().generatePresignedPutUrl(bucketName: bucketName, fileName: UUID)
-                    try await ImageService().uploadImage(imageData: jpegimg, urlString: response)
-                    createdUser.profilePhotos.append("https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg")
-                } catch GeneralError.encodingError{
-                    print("Data encoding error")
-                } catch GeneralError.badRequest(details: let details){
-                    print(details)
-                } catch GeneralError.invalidURL {
-                    print("Invalid URL")
-                } catch GeneralError.serverError(let statusCode, let details) {
-                    print("Status: \(statusCode) \n \(details)")
-                } catch {
-                    print("Error message:", error)
-                }
-            }
-        } else {
-            print("no jpeg")
-        }
-    }
+//    func saveImage() {
+//        createdUser.profilePhotos = []
+//        for i in selectedImages {
+//            if let image = i {
+//                combineImageMethods(uiImage: image, bucketName: "togeda-profile-photos")
+//            } else{
+//                print("no selected image")
+//            }
+//        }
+//    }
+//    
+//    func combineImageMethods(uiImage: UIImage, bucketName: String){
+//        let jpeg = compressImageIfNeeded(image: uiImage)
+//        if let jpegimg = jpeg {
+//            Task {
+//                do{
+//                    let UUID = NSUUID().uuidString
+//                    let response = try await ImageService().generatePresignedPutUrl(bucketName: bucketName, fileName: UUID)
+//                    try await ImageService().uploadImage(imageData: jpegimg, urlString: response)
+//                    createdUser.profilePhotos.append("https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg")
+//                } catch GeneralError.encodingError{
+//                    print("Data encoding error")
+//                } catch GeneralError.badRequest(details: let details){
+//                    print(details)
+//                } catch GeneralError.invalidURL {
+//                    print("Invalid URL")
+//                } catch GeneralError.serverError(let statusCode, let details) {
+//                    print("Status: \(statusCode) \n \(details)")
+//                } catch {
+//                    print("Error message:", error)
+//                }
+//            }
+//        } else {
+//            print("no jpeg")
+//        }
+//    }
     
     @Published var selectedImage: UIImage?
     @Published var showCropView = false

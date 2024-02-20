@@ -43,7 +43,7 @@ struct TestCreateEventView: View {
     @State var description: String = ""
     
     //Accesability
-    @State var selectedVisability: Visabilities?
+    @State var selectedVisability: String = ""
     
     //Category
     @State var selectedCategory: String?
@@ -330,10 +330,9 @@ struct TestCreateEventView: View {
                                     
                                     Spacer()
                                     
-                                    if let v = selectedVisability {
-                                        Text(v.value)
+
+                                        Text(selectedVisability)
                                             .foregroundColor(.gray)
-                                    }
                                     
                                     Image(systemName: "chevron.right")
                                         .padding(.trailing, 10)

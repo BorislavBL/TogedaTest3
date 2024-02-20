@@ -1,19 +1,21 @@
 //
-//  PostService.swift
+//  ClubService.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 15.09.23.
+//  Created by Borislav Lorinkov on 20.02.24.
 //
 
 import Foundation
 
-class PostService {
-    func createPost(userData: CreatePost) async throws {
-        guard let encoded = try? JSONEncoder().encode(userData) else {
+class ClubService {
+    static let shared = ClubService()
+    
+    func createClub(clubData: CreateClub) async throws {
+        guard let encoded = try? JSONEncoder().encode(clubData) else {
             throw GeneralError.encodingError
         }
         
-        guard let url = URL(string: "https://api.togeda.net/posts") else {
+        guard let url = URL(string: "https://api.togeda.net/clubs") else {
             throw GeneralError.invalidURL
         }
         
@@ -44,7 +46,7 @@ class PostService {
         }
         
         do {
-            let decodedUsers = try JSONDecoder().decode(createPostResponse.self, from: data)
+            let decodedUsers = try JSONDecoder().decode(createClubResponse.self, from: data)
             print(decodedUsers)
         } catch {
             throw GeneralError.decodingError
@@ -52,13 +54,7 @@ class PostService {
         
     }
     
-    struct createPostResponse: Codable {
+    struct createClubResponse: Codable {
         let success: Bool
-    }
-    
-    func fetchPosts(withIDs ids: [String]) -> [Post] {
-        return Post.MOCK_POSTS.filter { post in
-            return ids.contains(post.id)
-        }
     }
 }

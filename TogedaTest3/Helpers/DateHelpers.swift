@@ -52,3 +52,9 @@ func formatDateAndTime(date: Date) -> String {
 
     return dateFormatter.string(from: date)
 }
+
+func formatDateAndTimeToStringTimeFormat(date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+    return formatter.string(from: date)
+}
