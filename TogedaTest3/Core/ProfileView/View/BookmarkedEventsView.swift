@@ -20,11 +20,11 @@ struct BookmarkedEventsView: View {
             LazyVGrid(columns: columns){
                 ForEach(posts){ post in
                     if post.hasEnded{
-                        NavigationLink(destination: CompletedEventView(postID: post.id)){
+                        NavigationLink(value: SelectionPath.completedEventDetails(post)){
                             EventComponent(userID: userID, post: post)
                         }
                     } else {
-                        NavigationLink(destination: EventView(postID: post.id)){
+                        NavigationLink(value: SelectionPath.eventDetails(post)){
                             EventComponent(userID: userID, post: post)
                         }
                     }

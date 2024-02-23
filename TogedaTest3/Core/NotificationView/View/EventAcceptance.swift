@@ -13,7 +13,7 @@ struct EventAcceptance: View {
     @EnvironmentObject var postsVM: PostsViewModel
     var body: some View {
             VStack {
-                NavigationLink(destination: EventView(postID: post.id)){
+                NavigationLink(value: SelectionPath.eventDetails(post)){
                     HStack(alignment:.top){
                         Image(post.imageUrl[0])
                             .resizable()

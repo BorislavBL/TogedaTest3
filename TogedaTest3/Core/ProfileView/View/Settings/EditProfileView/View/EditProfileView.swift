@@ -18,6 +18,9 @@ struct EditProfileView: View {
     @State private var types: [String] = []
     
     @State private var showError: Bool = false
+    @State private var showGenderView: Bool = false
+    @State private var showLocationView: Bool = false
+    @State private var showInterestsView: Bool = false
     
     var body: some View {
         ScrollView{
@@ -87,7 +90,9 @@ struct EditProfileView: View {
                         WarningTextComponent(text: "Write a valid email.")
                     }
                     
-                    NavigationLink(destination: EditProfileLocationView(editProfileVM: editProfileVM)){
+                    Button{
+                        showLocationView = true
+                    } label:{
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "location.circle.fill")
                                 .imageScale(.large)
@@ -109,7 +114,9 @@ struct EditProfileView: View {
                         .createEventTabStyle()
                     }
                     
-                    NavigationLink(destination: EditProfileGenderView(gender: $editProfileVM.gender, showGender: .constant(true))){
+                    Button{
+                        showGenderView = true
+                    } label:{
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "accessibility")
                                 .imageScale(.large)
@@ -128,7 +135,9 @@ struct EditProfileView: View {
                         .createEventTabStyle()
                     }
                     
-                    NavigationLink(destination: EditProfileInterestView(selectedInterests: $editProfileVM.interests)){
+                    Button{
+                        showInterestsView = true
+                    } label:{
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "circle.grid.2x2")
                                 .imageScale(.large)
@@ -301,6 +310,15 @@ struct EditProfileView: View {
         .scrollIndicators(.hidden)
         .navigationTitle("Edit Profile")
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $showGenderView, destination: {
+            EditProfileGenderView(gender: $editProfileVM.gender, showGender: .constant(true))
+        })
+        .navigationDestination(isPresented: $showLocationView, destination: {
+            EditProfileLocationView(editProfileVM: editProfileVM)
+        })
+        .navigationDestination(isPresented: $showInterestsView, destination: {
+            EditProfileInterestView(selectedInterests: $editProfileVM.interests)
+        })
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if saveButtonCheck{

@@ -63,6 +63,7 @@ struct MapView: View {
                             viewModel.mapPosts = Post.MOCK_POSTS.filter{
                                 isLocationInsideVisibleRegion(latitude: $0.location.latitude, longitude: $0.location.longitude, region: region)
                             }
+                            print(region)
                         }
                     } label: {
                         Image(systemName: "location.viewfinder")
@@ -160,7 +161,7 @@ struct MapView: View {
         }
         .overlay(alignment:.bottom) {
             if viewModel.showPostView && !showSearch {
-                NavigationLink(value: viewModel.selectedPost){
+                NavigationLink(value: SelectionPath.eventDetails(viewModel.selectedPost)){
                     EventMapPreview(post: viewModel.selectedPost, address: address)
                 }
                 .frame(height: 170)

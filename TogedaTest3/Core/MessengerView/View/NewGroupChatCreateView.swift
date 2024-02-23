@@ -13,7 +13,6 @@ struct NewGroupChatCreateView: View {
     var body: some View {
         ScrollView{
             VStack(spacing: 16){
-                
                 if let image = newChatVM.groupImage {
                     Button{
                         newChatVM.showPhotosPicker = true

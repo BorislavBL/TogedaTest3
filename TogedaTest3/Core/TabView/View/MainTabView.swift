@@ -8,50 +8,51 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @StateObject var router = TabRouter()
-    
+    @EnvironmentObject var navigationManager:NavigationManager
+    @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var contentViewModel: ContentViewModel
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
-    @StateObject var locationManager = LocationManager()
-//    @EnvironmentObject var locationManager: LocationManager
+    
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     
     @StateObject var chatVM = ChatViewModel()
-
+    
     var body: some View {
-        NavigationStack{
-            TabView(selection: $router.screen) {
-                HomeView()
-                    .tag(Screen.home)
-                    .tabItem {
-                        Image(systemName: "house")
+        NavigationStack(path: $navigationManager.selectionPath){
+            Group{
+                TabView(selection: $navigationManager.screen) {
+                    HomeView()
+                        .tag(Screen.home)
+                        .tabItem {
+                            Image(systemName: "house")
+                        }
+                    MapView()
+                        .tag(Screen.map)
+                        .tabItem {
+                            Image(systemName: "map.fill")
+                        }
+                    
+                    Button("Any") {
+                        navigationManager.change(to: Screen.home)
                     }
-                MapView()
-                    .tag(Screen.map)
+                    .tag(Screen.add)
                     .tabItem {
-                        Image(systemName: "map.fill")
+                        Image(systemName: "plus.square")
                     }
-                
-                Button("Any") {
-                    router.change(to: Screen.home)
+                    InboxView(chatVM: chatVM)
+                        .tag(Screen.message)
+                        .tabItem {
+                            Image(systemName: "message")
+                        }
+                    ProfileView()
+                        .tag(Screen.profile)
+                        .tabItem {
+                            Image(systemName: "person.circle")
+                        }
+                    
+                    
                 }
-                .tag(Screen.add)
-                .tabItem {
-                    Image(systemName: "plus.square")
-                }
-                InboxView(chatVM: chatVM)
-                    .tag(Screen.message)
-                    .tabItem {
-                        Image(systemName: "message")
-                    }
-                ProfileView()
-                    .tag(Screen.profile)
-                    .tabItem {
-                        Image(systemName: "person.circle")
-                    }
-                
-                
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .navigationBar)
@@ -61,18 +62,16 @@ struct MainTabView: View {
                 UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
                 contentViewModel.userViewModel = userViewModel
             }
-            .onChange(of: router.screen) { oldValue, newValue in
-                if router.screen == .add {
-                    router.isPresenting = true
-                    router.screen = router.oldScreen
-                } else if (router.isPresenting == false) {
-                    router.oldScreen = newValue
+            .onChange(of: navigationManager.screen) { oldValue, newValue in
+                if navigationManager.screen == .add {
+                    navigationManager.isPresenting = true
+                    navigationManager.screen = navigationManager.oldScreen
+                } else if (navigationManager.isPresenting == false) {
+                    navigationManager.oldScreen = newValue
                 }
             }
-            .fullScreenCover(isPresented: $router.isPresenting) {
+            .fullScreenCover(isPresented: $navigationManager.isPresenting) {
                 CreateEventView()
-                //                    .presentationDragIndicator(.hidden)
-                //                    .interactiveDismissDisabled(true)
             }
             .fullScreenCover(isPresented: $locationManager.showLocationServicesView, content: {
                 AllowLocationView()
@@ -110,23 +109,60 @@ struct MainTabView: View {
                     ChatView(viewModel: chatVM, user: user)
                 }
             })
-            .navigationDestination(for: Post.self) { post in
-                EventView(postID: post.id)
-                //.toolbar(.hidden, for: .tabBar)
-            }
-            .navigationDestination(for: Club.self) { club in
-                GroupView(clubID: club.id)
-                //.toolbar(.hidden, for: .tabBar)
-            }
-            .navigationDestination(for: MiniUser.self) { user in
-                UserProfileView(miniUser: user)
-            }
-            .navigationViewStyle(StackNavigationViewStyle())
-            //            .fullScreenCover(isPresented: $postsViewModel.showDetailsPage, content: {
-            //                EventView(viewModel: postsViewModel, post: postsViewModel.posts[postsViewModel.clickedPostIndex], userViewModel: userViewModel)
-            //            })
+            .navigationDestination(for: SelectionPath.self, destination: { state in
+                switch state {
+                case .eventDetails(let post):
+                    EventView(postID: post.id)
+                case .usersList(users: let users, post: let post):
+                    UsersListView(users: users, post: post)
+                case .editEvent(post: let post):
+                    EditEventView(post: post)
+                case .userRequests(users: let users):
+                    UserRequestView(users: users)
+                case .completedEventDetails(let post):
+                    CompletedEventView(postID: post.id)
+                case .completedEventUsersList(users: let users):
+                    CompletedEventUsersList(users: users)
+                case .allUserEvents(userID: let userID, posts: let posts):
+                    AllUserEventsView(userID: userID, posts: posts)
+                case .bookmarkedEvents(userID: let userID, posts: let posts):
+                    BookmarkedEventsView(userID: userID, posts: posts)
+                case .profile(let miniUser):
+                    UserProfileView(miniUser: miniUser)
+                case .userSettings:
+                    UserSettingsView()
+                case .editProfile:
+                    EditProfileView()
+                case .club(let club):
+                    GroupView(clubID: club.id)
+                case .allUserGroups(userID: let userID):
+                    AllUserGroupsView(userID: userID)
+                case .userChat(user: let user):
+                    ChatView(user: user)
+                case .notification:
+                    NotificationView()
+                case .userRequest(users: let users):
+                    UserRequestView(users: users)
+                case .eventReview:
+                    EventReviewView()
+                case .reviewMemories:
+                    ReviewMemoriesView()
+                case .test:
+                    TestView()
+                }
+                
+            })
+            //            .navigationDestination(for: Post.self) { post in
+            //                EventView(postID: post.id)
+            //            }
+            //            .navigationDestination(for: Club.self) { club in
+            //                GroupView(clubID: club.id)
+            //            }
+            //            .navigationDestination(for: MiniUser.self) { user in
+            //                UserProfileView(miniUser: user)
+            //            }
         }
-        .environmentObject(LocationManager())
+        
     }
 }
 
@@ -139,5 +175,7 @@ struct MainTabView_Previews: PreviewProvider {
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
             .environmentObject(ContentViewModel())
+            .environmentObject(NavigationManager())
+            .environmentObject(LocationManager())
     }
 }

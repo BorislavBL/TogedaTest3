@@ -15,7 +15,7 @@ struct UserRequestView: View {
         ScrollView{
             LazyVStack(spacing: 16){
                 ForEach(users, id: \.id){user in
-                    NavigationLink(destination: UserProfileView(miniUser: user)){
+                    NavigationLink(value: SelectionPath.profile(user)){
                         HStack(alignment:.top){
                                 Image(user.profilePhotos[0])
                                     .resizable()

@@ -18,9 +18,9 @@ struct baseLocation: Hashable, Codable {
     var longitude: Double
 }
 
-struct Place:Identifiable {
-    let id = UUID().uuidString
-    private var mapItem: MKMapItem
+struct Place: Identifiable {
+    var id = UUID().uuidString
+    var mapItem: MKMapItem
     
     init(mapItem: MKMapItem) {
         self.mapItem = mapItem

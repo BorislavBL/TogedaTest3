@@ -14,7 +14,7 @@ struct GroupRequestPage: View {
     
     var body: some View {
             VStack {
-                NavigationLink(destination: GroupView(clubID: club.id)){
+                NavigationLink(value: SelectionPath.club(club)){
                     HStack(alignment:.top){
                         Image(club.imagesUrl[0])
                             .resizable()

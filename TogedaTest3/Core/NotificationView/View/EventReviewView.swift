@@ -51,7 +51,7 @@ struct EventReviewView: View {
             VStack(){
                 Divider()
                 
-                NavigationLink(destination: ReviewMemoriesView()) {
+                NavigationLink(value: SelectionPath.reviewMemories) {
                     HStack(spacing:2){
                         
                             Text("Next")

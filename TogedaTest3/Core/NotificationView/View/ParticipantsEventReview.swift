@@ -12,7 +12,7 @@ struct ParticipantsEventReview: View {
     var post: Post = Post.MOCK_POSTS[0]
     var body: some View {
         VStack {
-            NavigationLink(destination: EventReviewView()){
+            NavigationLink(value: SelectionPath.eventReview){
                 HStack(alignment:.top){
                         Image(post.imageUrl[0])
                             .resizable()

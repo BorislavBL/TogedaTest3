@@ -12,6 +12,7 @@ struct RegistrationGenderView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
+    @State private var isActive: Bool = false
 
     var body: some View {
         VStack {
@@ -45,7 +46,9 @@ struct RegistrationGenderView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationLocationView(vm: vm)){
+            Button{
+                isActive = true
+            } label:{
                 Text("Next")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -71,6 +74,9 @@ struct RegistrationGenderView: View {
                 .background(Color(.tertiarySystemFill))
                 .clipShape(Circle())
         })
+        .navigationDestination(isPresented: $isActive) {
+            RegistrationLocationView(vm: vm)
+        }
     }
     
     @ViewBuilder

@@ -23,7 +23,7 @@ struct SearchView: View {
                         //                            postsViewModel.showDetailsPage = true
                         //                            postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: post) ?? 0
                         //                        } label: {
-                        NavigationLink(value: post){
+                        NavigationLink(value: SelectionPath.eventDetails(post)){
                             HStack(alignment:.center, spacing: 10){
                                 Image(post.imageUrl[0])
                                     .resizable()
@@ -58,7 +58,7 @@ struct SearchView: View {
                     }
                 } else if viewModel.selectedFilter == "People" {
                     ForEach(viewModel.searchUserResults, id: \.id) { user in
-                        NavigationLink(value: user){
+                        NavigationLink(value: SelectionPath.profile(user)){
                             HStack(alignment:.center, spacing: 10){
                                 Image(user.profilePhotos[0])
                                     .resizable()

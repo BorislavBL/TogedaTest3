@@ -12,7 +12,7 @@ struct FriendRequestView: View {
     var user: MiniUser = MiniUser.MOCK_MINIUSERS[0]
     var body: some View {
         VStack {
-            NavigationLink(destination: UserProfileView(miniUser: user)){
+            NavigationLink(value: SelectionPath.profile(user)){
                 HStack(alignment:.top){
                         Image(user.profilePhotos[0])
                             .resizable()

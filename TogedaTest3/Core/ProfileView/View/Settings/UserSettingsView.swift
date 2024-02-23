@@ -12,18 +12,18 @@ struct UserSettingsView: View {
     var body: some View {
         List{
             Section(header: Text("Profile")){
-                NavigationLink(destination: EditProfileView()){
+                NavigationLink(value: SelectionPath.editProfile){
                     Text("Edit Profile")
                 }
-                NavigationLink(destination: TestView()){
+                NavigationLink(value: SelectionPath.test){
                     Text("Privacy Settings")
                 }
-                NavigationLink(destination: TestView()){
+                NavigationLink(value: SelectionPath.test){
                     Text("Payment Methods")
                 }
             }
             Section(header: Text("Togeda")){
-                NavigationLink(destination: TestView()){
+                NavigationLink(value: SelectionPath.test){
                     Text("Website")
                 }
                 Button{
@@ -40,21 +40,21 @@ struct UserSettingsView: View {
                 } label:{
                     Text("Discord")
                 }
-                NavigationLink(destination: TestView()){
+                NavigationLink(value: SelectionPath.test){
                     Text("Linked in")
                 }
-                NavigationLink(destination: TestView()){
+                NavigationLink(value: SelectionPath.test){
                     Text("Contact us")
                 }
             }
             Section(header: Text("About")){
-                NavigationLink(destination: TestView()){
+                NavigationLink(value: SelectionPath.test){
                     Text("Privacy Policy")
                 }
-                NavigationLink(destination: TestView()){
+                NavigationLink(value: SelectionPath.test){
                     Text("Terms of Use")
                 }
-                NavigationLink(destination: TestView()){
+                NavigationLink(value: SelectionPath.test){
                     Text("Licenses")
                 }
             }

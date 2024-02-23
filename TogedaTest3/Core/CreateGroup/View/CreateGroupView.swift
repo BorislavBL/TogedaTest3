@@ -8,10 +8,18 @@
 import SwiftUI
 
 struct CreateGroupView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) private var dismiss
     @StateObject var createGroupVM = CreateGroupViewModel()
-    @State var showExitSheet: Bool = false
-    @State var displayWarnings: Bool = false
+    @State private var showExitSheet: Bool = false
+    @State private var displayWarnings: Bool = false
+    
+    @State private var showDescription: Bool = false
+    @State private var showPhotos: Bool = false
+    @State private var showLocation: Bool = false
+    @State private var showInterests: Bool = false
+    @State private var showAcessibility: Bool = false
+    @State private var showPermission: Bool = false
+    
     let placeholder = "Provide a brief overview of your group. What is the main focus or interest? Describe the typical activities, meetings, or events you organize. Highlight any unique aspects or notable achievements."
     
     var body: some View {
@@ -59,8 +67,8 @@ struct CreateGroupView: View {
                     //                }
                     //                .createEventTabStyle()
                     
-                    NavigationLink {
-                        DescriptionView(description: $createGroupVM.description, placeholder: placeholder)
+                    Button {
+                        showDescription = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "square.and.pencil")
@@ -83,8 +91,8 @@ struct CreateGroupView: View {
                         .createEventTabStyle()
                     }
                     
-                    NavigationLink {
-                        NormalPhotoPickerView(createGroupVM: createGroupVM, message: "Select images related to the group activities.")
+                    Button {
+                        showPhotos = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "photo")
@@ -115,9 +123,9 @@ struct CreateGroupView: View {
                         
                     }
                     
-                    NavigationLink {
-                        LocationPicker(returnedPlace: $createGroupVM.returnedPlace)
-                    } label: {
+                    Button {
+                        showLocation = true
+                    }label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "mappin.circle")
                                 .imageScale(.large)
@@ -150,8 +158,8 @@ struct CreateGroupView: View {
                         
                     }
                     
-                    NavigationLink {
-                        CategoryView(selectedInterests: $createGroupVM.selectedInterests, text: "Select at least one tag related to your group", minInterests: 0)
+                    Button {
+                        showInterests = true
                     } label:{
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "circle.grid.2x2")
@@ -190,8 +198,8 @@ struct CreateGroupView: View {
                         .padding(.top)
                         .padding(.horizontal, 8)
                     
-                    NavigationLink {
-                        GroupAccessibilityView(selectedVisability: $createGroupVM.selectedVisability, askToJoin: $createGroupVM.askToJoin)
+                    Button {
+                        showAcessibility = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "eye.circle")
@@ -214,8 +222,8 @@ struct CreateGroupView: View {
                         .createEventTabStyle()
                     }
                     
-                    NavigationLink {
-                        GroupPermissionsView(selectedPermission: $createGroupVM.selectedPermission)
+                    Button {
+                        showPermission = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "lock")
@@ -299,6 +307,24 @@ struct CreateGroupView: View {
                     .clipShape(Circle())
             }
             )
+            .navigationDestination(isPresented: $showDescription) {
+                DescriptionView(description: $createGroupVM.description, placeholder: placeholder)
+            }
+            .navigationDestination(isPresented: $showPhotos) {
+                NormalPhotoPickerView(createGroupVM: createGroupVM, message: "Select images related to the group activities.")
+            }
+            .navigationDestination(isPresented: $showLocation) {
+                LocationPicker(returnedPlace: $createGroupVM.returnedPlace)
+            }
+            .navigationDestination(isPresented: $showInterests) {
+                CategoryView(selectedInterests: $createGroupVM.selectedInterests, text: "Select at least one tag related to your group", minInterests: 0)
+            }
+            .navigationDestination(isPresented: $showAcessibility) {
+                GroupAccessibilityView(selectedVisability: $createGroupVM.selectedVisability, askToJoin: $createGroupVM.askToJoin)
+            }
+            .navigationDestination(isPresented: $showPermission) {
+                GroupPermissionsView(selectedPermission: $createGroupVM.selectedPermission)
+            }
         }
         .sheet(isPresented: $showExitSheet, content: {
             onCloseTab()

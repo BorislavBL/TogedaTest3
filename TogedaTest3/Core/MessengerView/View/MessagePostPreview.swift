@@ -18,7 +18,7 @@ struct MessagePostPreview: View {
 
         VStack(alignment: .leading){
             if let post = post {
-                NavigationLink(destination:EventView(postID: post.id)) {
+                NavigationLink(value: SelectionPath.eventDetails(post)) {
                     VStack(alignment: .leading){
                         Image(post.imageUrl[0])
                             .resizable()

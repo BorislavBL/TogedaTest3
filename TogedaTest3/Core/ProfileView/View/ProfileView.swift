@@ -115,7 +115,6 @@ struct ProfileView: View {
         .fullScreenCover(isPresented: $showCreateEvent, content: {
             CreateEventView()
         })
-        .navigationViewStyle(.stack)
     }
     
     @ViewBuilder
@@ -132,7 +131,7 @@ struct ProfileView: View {
                     .navButton3()
             }
             
-            NavigationLink(destination: UserSettingsView()) {
+            NavigationLink(value: SelectionPath.userSettings) {
                 Image(systemName: "gear")
                     .imageScale(.large)
                     .foregroundColor(.accentColor)

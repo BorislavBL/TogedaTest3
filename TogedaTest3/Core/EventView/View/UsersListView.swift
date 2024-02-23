@@ -16,12 +16,12 @@ struct UsersListView: View {
         ScrollView{
             LazyVStack(alignment:.leading){
                 if post.joinRequests.count > 0 && post.askToJoin{
-                    NavigationLink(destination: UserRequestView(users: users)){
+                    NavigationLink(value: SelectionPath.userRequests(users: users)){
                         UserRequestTab(users: users)
                     }
                 }
                 ForEach(users, id:\.id) { user in
-                    NavigationLink(destination: UserProfileView(miniUser: user)){
+                    NavigationLink(value: SelectionPath.profile(user)){
                         HStack{
                             Image(user.profilePhotos[0])
                                 .resizable()

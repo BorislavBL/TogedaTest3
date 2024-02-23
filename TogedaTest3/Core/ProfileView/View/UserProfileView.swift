@@ -165,7 +165,7 @@ struct UserProfileView: View {
                         .navButton3()
                 }
                 
-                NavigationLink(destination: UserSettingsView()) {
+                NavigationLink(value: SelectionPath.userSettings) {
                     Image(systemName: "gear")
                         .imageScale(.large)
                         .foregroundColor(.accentColor)

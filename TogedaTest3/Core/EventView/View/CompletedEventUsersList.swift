@@ -19,7 +19,7 @@ struct CompletedEventUsersList: View {
             LazyVStack(alignment:.leading){
                 ForEach(users, id:\.id) { user in
                         HStack{
-                            NavigationLink(destination: UserProfileView(miniUser: user)){
+                            NavigationLink(value: SelectionPath.profile(user)){
                                     Image(user.profilePhotos[0])
                                         .resizable()
                                         .scaledToFill()

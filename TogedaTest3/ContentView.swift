@@ -12,6 +12,8 @@ struct ContentView: View {
     @StateObject var networkManager = NetworkManager()
     @StateObject var postsViewModel = PostsViewModel()
     @StateObject var userViewModel = UserViewModel()
+    @StateObject var navigationManager = NavigationManager()
+    @StateObject var locationManager = LocationManager()
     
     var body: some View {
         Group {
@@ -23,6 +25,8 @@ struct ContentView: View {
                         MainTabView()
                             .environmentObject(postsViewModel)
                             .environmentObject(userViewModel)
+                            .environmentObject(locationManager)
+                            .environmentObject(navigationManager)
                     case .unauthenticated:
                         IntroView()
                 }

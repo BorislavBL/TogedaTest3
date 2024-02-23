@@ -13,7 +13,7 @@ struct ChatSearchView: View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 15){
                 ForEach(MiniUser.MOCK_MINIUSERS, id: \.id) { user in
-                    NavigationLink(destination: ChatView(user: user)){
+                    NavigationLink(value: SelectionPath.userChat(user: user)){
                         HStack(alignment:.center, spacing: 10){
                             Image(user.profilePhotos[0])
                                 .resizable()

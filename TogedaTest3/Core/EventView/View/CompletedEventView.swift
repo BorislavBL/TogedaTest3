@@ -61,7 +61,7 @@ struct CompletedEventView: View {
                             
                             
                             if let user = post.user {
-                                NavigationLink(destination: UserProfileView(miniUser: user)){
+                                NavigationLink(value: SelectionPath.profile(user)){
                                     HStack(alignment: .center, spacing: 10) {
                                         if let image = post.user?.profilePhotos {
                                             Image(image[0])
@@ -92,7 +92,7 @@ struct CompletedEventView: View {
                             }
                             
                             if post.inClubID != nil {
-                                NavigationLink(destination: GroupView(clubID: club.id)){
+                                NavigationLink(value: SelectionPath.club(club)){
                                     HStack(alignment: .center, spacing: 10) {
                                         Image(club.imagesUrl[0])
                                             .resizable()
@@ -153,7 +153,7 @@ struct CompletedEventView: View {
                                 }
                                 
                                 
-                                NavigationLink(destination: CompletedEventUsersList(users: post.participants)){
+                                NavigationLink(value: SelectionPath.completedEventUsersList(users: post.participants)){
                                     HStack(alignment: .center, spacing: 10) {
                                         Image(systemName: "person.3")
                                             .imageScale(.large)

@@ -23,7 +23,7 @@ struct PostCell: View {
                 HStack(alignment: .center) {
 
                         if let user = post.user{
-                            NavigationLink(value: user) {
+                            NavigationLink(value: SelectionPath.profile(user)) {
                                 
                                 Image(user.profilePhotos[0])
                                     .resizable()
@@ -63,7 +63,7 @@ struct PostCell: View {
    
                 }
  
-                NavigationLink(value: post) {
+                NavigationLink(value: SelectionPath.eventDetails(post)) {
                     Image(post.imageUrl[0])
                         .resizable()
                         .scaledToFill()

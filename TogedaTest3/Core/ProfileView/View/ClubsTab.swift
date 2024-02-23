@@ -23,7 +23,7 @@ struct ClubsTab: View {
                 
                 Spacer()
                 
-                NavigationLink(destination: AllUserGroupsView(userID: userID)){
+                NavigationLink(value: SelectionPath.allUserGroups(userID: userID)){
                     Text("View All")
                         .fontWeight(.semibold)
                     
@@ -36,7 +36,7 @@ struct ClubsTab: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack{
                     ForEach(clubs.indices, id: \.self){ index in
-                        NavigationLink( destination: GroupView(clubID: clubs[index].id)){
+                        NavigationLink(value: SelectionPath.club(clubs[index])){
                             GroupComponent(userID: userID, club: clubs[index])
                         }
                     }

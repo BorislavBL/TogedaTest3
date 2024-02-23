@@ -28,6 +28,7 @@ struct RegistartionInterestsView: View {
     
     @State private var searchText: String = ""
     @State private var cancelSearch: Bool = false
+    @State private var isActive: Bool = false
     
     var body: some View {
         VStack {
@@ -114,7 +115,9 @@ struct RegistartionInterestsView: View {
             
             Spacer()
             
-            NavigationLink(destination: RegistrationNumberView(vm: vm)){
+            Button{
+                isActive = true
+            } label:{
                 Text("Next (\(vm.createdUser.interests.count)/5)")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -179,6 +182,9 @@ struct RegistartionInterestsView: View {
                 .background(Color(.tertiarySystemFill))
                 .clipShape(Circle())
         })
+        .navigationDestination(isPresented: $isActive) {
+            RegistrationNumberView(vm: vm)
+        }
     }
     
     var foregroundColor: Color {

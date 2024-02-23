@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct TestView: View {
-    @State var show: Bool = false
     @State var favoriteColor = 0
     
     var body: some View {
@@ -20,18 +19,6 @@ struct TestView: View {
             }
             .pickerStyle(.segmented)
         }
-        .fullScreenCover(isPresented: /*@START_MENU_TOKEN@*/.constant(true)/*@END_MENU_TOKEN@*/, content: {
-            NavigationStack{
-                VStack{
-                    Picker("What is your favorite color?", selection: $favoriteColor) {
-                        Text("Red").tag(0)
-                        Text("Green").tag(1)
-                        Text("Blue").tag(2)
-                    }
-                    .pickerStyle(.segmented)
-                }
-            }
-        })
     }
     
   }

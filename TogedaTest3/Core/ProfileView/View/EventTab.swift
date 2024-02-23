@@ -25,7 +25,7 @@ struct EventTab: View {
                 
                 Spacer()
                 
-                NavigationLink(destination: AllUserEventsView(userID: userID, posts: posts)){
+                NavigationLink(value: SelectionPath.allUserEvents(userID: userID, posts: posts)){
                     Text("View All")
                         .fontWeight(.semibold)
                 }
@@ -39,11 +39,11 @@ struct EventTab: View {
                 LazyHStack{
                     ForEach(posts.indices, id: \.self){ index in
                         if posts[index].hasEnded {
-                            NavigationLink(destination: CompletedEventView(postID: posts[index].id)){
+                            NavigationLink(value: SelectionPath.completedEventDetails(posts[index])){
                                 EventComponent(userID: userID, post: posts[index])
                             }
                         } else {
-                            NavigationLink(destination: EventView(postID: posts[index].id)){
+                            NavigationLink(value: SelectionPath.eventDetails(posts[index])){
                                 EventComponent(userID: userID, post: posts[index])
                             }
                         }

@@ -15,6 +15,7 @@ struct NewGroupChatView: View {
     let size: ImageSize = .small
     @State var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
     @State var selectedUsers: [MiniUser] = []
+    @State private var showNewGroupChatCreateView = false
     
     var body: some View {
             ScrollView {
@@ -111,12 +112,17 @@ struct NewGroupChatView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if selectedUsers.count > 0 {
-                        NavigationLink(destination: NewGroupChatCreateView(newChatVM: newChatVM)){Text("Next")}
+                        Button{
+                            showNewGroupChatCreateView = true
+                        } label:{Text("Next")}
                     } else {
                         Text("Next")
                             .foregroundStyle(.gray)
                     }
                 }
+            }
+            .navigationDestination(isPresented: $showNewGroupChatCreateView) {
+                NewGroupChatCreateView(newChatVM: newChatVM)
             }
         }
 }

@@ -11,7 +11,11 @@ import AuthenticationServices
 struct IntroView: View {
     @StateObject var vm = RegistrationViewModel()
     @StateObject var googleVM = GoogleAuthService()
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
+    
+    @State private var showLogin = false
+    @State private var showRegistartion = false
+    
     var body: some View {
         NavigationStack{
             ZStack(alignment:.bottom){
@@ -33,28 +37,9 @@ struct IntroView: View {
                     
                     
                     VStack(spacing: 16){
-                        
-//                        Button{
-//                            googleVM.signIn()
-//                        } label: {
-//                            HStack{
-//                                Image("google")
-//                                    .resizable()
-//                                    .scaledToFit()
-//                                    .frame(width: 25, height: 25)
-//                                Text("Continue with Google")
-//                            }
-//                            
-//                        }
-//                        .frame(maxWidth: .infinity)
-//                        .frame(height: 48)
-//                        .background(Color("blackAndWhite"))
-//                        .foregroundColor(Color("testColor"))
-//                        .cornerRadius(10)
-//                        .fontWeight(.semibold)
-                        
-                        
-                        NavigationLink(destination: LoginView()){
+                        Button{
+                            showLogin = true
+                        } label:{
                             Text("Login")
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
@@ -64,7 +49,9 @@ struct IntroView: View {
                                 .fontWeight(.semibold)
                         }
                         
-                        NavigationLink(destination: RegistrationEmailView(vm: vm)){
+                        Button{
+                            showRegistartion = true
+                        } label:{
                             Text("Register")
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
@@ -133,6 +120,12 @@ struct IntroView: View {
                 .cornerRadius(10)
             }
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+            .navigationDestination(isPresented: $showLogin) {
+                LoginView()
+            }
+            .navigationDestination(isPresented: $showRegistartion) {
+                RegistrationEmailView(vm: vm)
+            }
         }
     }
 }

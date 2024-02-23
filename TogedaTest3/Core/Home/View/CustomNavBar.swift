@@ -26,12 +26,7 @@ struct CustomNavBar: View {
                     Spacer(minLength: 0)
                     
                     Group{
-                        //                    NavigationLink(destination: SearchView(postViewModel: postViewModel, userViewModel: userViewModel)
-                        //                        .toolbar(.hidden, for: .tabBar)
-                        //                    ) {
-                        //                        Image(systemName: "magnifyingglass")
-                        //                    }
-                        
+                    
                         Button{
                             withAnimation{
                                 filterVM.showAllFilter = true
@@ -50,7 +45,7 @@ struct CustomNavBar: View {
                         }
                         
                         
-                        NavigationLink(destination: NotificationView()) {
+                        NavigationLink(value: SelectionPath.notification) {
                             Image(systemName: "bell")
                         }
                         

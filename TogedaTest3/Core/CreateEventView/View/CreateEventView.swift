@@ -10,12 +10,18 @@ import MapKit
 
 struct CreateEventView: View {
     @Environment(\.dismiss) private var dismiss
-    @State var showExitSheet: Bool = false
-    @State var displayWarnings: Bool = false
+    @State private var showExitSheet: Bool = false
+    @State private var displayWarnings: Bool = false
     @StateObject var ceVM = CreateEventViewModel()
     
     //PhotoPicker
     @StateObject var photoPickerVM = PhotoPickerViewModel()
+    
+    @State private var showDescriptionView: Bool = false
+    @State private var showPhotosView: Bool = false
+    @State private var showLocationView: Bool = false
+    @State private var showAccessibilityView: Bool = false
+    @State private var showInterestsView: Bool = false
     
     let descriptionPlaceholder = "Describe the purpose of your event. What activities are you planning? Mention any special guests who might be attending. Will there be food and drinks? Help attendees know what to expect."
     
@@ -45,8 +51,8 @@ struct CreateEventView: View {
                     }
                     
                     
-                    NavigationLink {
-                        DescriptionView(description: $ceVM.description, placeholder: descriptionPlaceholder)
+                    Button{
+                        showDescriptionView = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "square.and.pencil")
@@ -69,8 +75,8 @@ struct CreateEventView: View {
                         .createEventTabStyle()
                     }
                     
-                    NavigationLink {
-                        PhotoPickerView(photoPickerVM: photoPickerVM)
+                    Button{
+                        showPhotosView = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "photo")
@@ -138,8 +144,8 @@ struct CreateEventView: View {
                         
                     }
                     
-                    NavigationLink {
-                        AccessibilityView(selectedVisability: $ceVM.selectedVisability, askToJoin: $ceVM.askToJoin)
+                    Button {
+                        showAccessibilityView = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "eye.circle")
@@ -172,8 +178,8 @@ struct CreateEventView: View {
                         
                     }
                     
-                    NavigationLink {
-                        CategoryView(selectedInterests: $ceVM.selectedInterests, text: "Select at least one tag related to your event", minInterests: 0)
+                    Button {
+                        showInterestsView = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "circle.grid.2x2")
@@ -203,7 +209,6 @@ struct CreateEventView: View {
                         WarningTextComponent(text: "Please at least one interest.")
                         
                     }
-                    
                     
                     Text("Aditional Options")
                         .font(.callout)
@@ -456,6 +461,21 @@ struct CreateEventView: View {
                     .clipShape(Circle())
             }
             )
+            .navigationDestination(isPresented: $showDescriptionView) {
+                DescriptionView(description: $ceVM.description, placeholder: descriptionPlaceholder)
+            }
+            .navigationDestination(isPresented: $showPhotosView) {
+                PhotoPickerView(photoPickerVM: photoPickerVM)
+            }
+            .navigationDestination(isPresented: $showLocationView) {
+                LocationPicker(returnedPlace: $ceVM.returnedPlace)
+            }
+            .navigationDestination(isPresented: $showAccessibilityView) {
+                AccessibilityView(selectedVisability: $ceVM.selectedVisability, askToJoin: $ceVM.askToJoin)
+            }
+            .navigationDestination(isPresented: $showInterestsView) {
+                CategoryView(selectedInterests: $ceVM.selectedInterests, text: "Select at least one tag related to your event", minInterests: 0)
+            }
         }
         .sheet(isPresented: $showExitSheet, content: {
             onCloseTab()

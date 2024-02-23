@@ -55,7 +55,7 @@ struct EventView: View {
                                 .fontWeight(.bold)
                             
                             if let user = post.user {
-                                NavigationLink(destination: UserProfileView(miniUser: user)){
+                                NavigationLink(value: SelectionPath.profile(user)){
                                     HStack(alignment: .center, spacing: 10) {
                                         
                                         
@@ -87,7 +87,7 @@ struct EventView: View {
                             }
                             
                             if post.inClubID != nil {
-                                NavigationLink(destination: GroupView(clubID: club.id)){
+                                NavigationLink(value: SelectionPath.club(club)){
                                     HStack(alignment: .center, spacing: 10) {
                                         Image(club.imagesUrl[0])
                                             .resizable()
@@ -162,7 +162,7 @@ struct EventView: View {
                                     }
                                 }
                                 
-                                NavigationLink(destination: UsersListView(users: post.participants, post: post)){
+                                NavigationLink(value: SelectionPath.usersList(users: post.participants, post: post)){
                                     HStack(alignment: .center, spacing: 10) {
                                         Image(systemName: "person.3")
                                             .imageScale(.large)
@@ -397,7 +397,7 @@ struct EventView: View {
             Spacer()
             
             if let post = post, let user = post.user, user.id == userId{
-                NavigationLink(destination: EditEventView(post: post)) {
+                NavigationLink(value: SelectionPath.editEvent(post: post)) {
                     Image(systemName: "square.and.pencil")
                         .frame(width: 35, height: 35)
                         .background(.bar)

@@ -23,11 +23,11 @@ struct AllUserEventsView: View {
             LazyVGrid(columns: columns){
                 ForEach(posts){ post in
                     if post.hasEnded{
-                        NavigationLink(destination: CompletedEventView(postID: post.id)){
+                        NavigationLink(value: SelectionPath.completedEventDetails(post)){
                             EventComponent(userID: userID, post: post)
                         }
                     } else {
-                        NavigationLink(destination: EventView(postID: post.id)){
+                        NavigationLink(value: SelectionPath.eventDetails(post)){
                             EventComponent(userID: userID, post: post)
                         }
                     }
@@ -42,7 +42,7 @@ struct AllUserEventsView: View {
         .scrollIndicators(.hidden)
         .navigationTitle("Events")
         .navigationBarTitleDisplayMode(.inline)
-//        .navigationBarBackButtonHidden(true)
+        .navigationBarBackButtonHidden(true)
         .toolbar{
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {dismiss()}) {
@@ -51,14 +51,11 @@ struct AllUserEventsView: View {
             }
             
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button{
-                    
-                } label: {
+                NavigationLink(value: SelectionPath.bookmarkedEvents(userID: userID, posts: posts)){
                     Image(systemName: "bookmark.fill")
                 }
             }
         }
-        .navigationDestination(isPresented: $bookmarkedView, destination:{ BookmarkedEventsView(userID: userID, posts: posts)})
         .background(.bar)
     }
 

@@ -12,6 +12,9 @@ struct EditEventView: View {
     @StateObject var vm = EditEventViewModel()
     @State private var displayWarnings: Bool = false
     @Environment(\.dismiss) private var dismiss
+    @State private var showLocationView = false
+    @State private var showCategoryView = false
+    @EnvironmentObject var navManager: NavigationManager
     
     var body: some View {
         ScrollView{
@@ -52,8 +55,8 @@ struct EditEventView: View {
                     
                     EditProfileBioView(text: $vm.description, placeholder: "Description")
                     
-                    NavigationLink {
-                        LocationPicker(returnedPlace: $vm.returnedPlace)
+                    Button {
+                        showLocationView = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "mappin.circle")
@@ -87,8 +90,8 @@ struct EditEventView: View {
                         
                     }
                     
-                    NavigationLink {
-                        CategoryView(selectedInterests: $vm.selectedInterests, text: "Select at least one tag related to your event", minInterests: 0)
+                    Button {
+                        showCategoryView = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "circle.grid.2x2")
@@ -285,6 +288,12 @@ struct EditEventView: View {
                 
             }
         }
+        .navigationDestination(isPresented: $showLocationView, destination: {
+            LocationPicker(returnedPlace: $vm.returnedPlace)
+        })
+        .navigationDestination(isPresented: $showCategoryView, destination: {
+            CategoryView(selectedInterests: $vm.selectedInterests, text: "Select at least one tag related to your event", minInterests: 0)
+        })
         .onAppear{
             vm.fetchPostData(post: post)
         }
@@ -342,4 +351,5 @@ struct EditEventView: View {
 
 #Preview {
     EditEventView()
+        .environmentObject(NavigationManager())
 }

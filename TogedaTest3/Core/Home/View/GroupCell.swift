@@ -19,7 +19,7 @@ struct GroupCell: View {
                 //MARK: - Post Header
                 header()
                 
-                NavigationLink(value: club){
+                NavigationLink(value: SelectionPath.club(club)){
                     Image(club.imagesUrl[0])
                         .resizable()
                         .scaledToFill()
@@ -81,7 +81,7 @@ struct GroupCell: View {
     @ViewBuilder
     func header() -> some View {
         HStack{
-            NavigationLink(value: club){
+            NavigationLink(value: SelectionPath.club(club)){
                 if club.members.count > 1 {
                     ZStack(alignment:.top){
                         
