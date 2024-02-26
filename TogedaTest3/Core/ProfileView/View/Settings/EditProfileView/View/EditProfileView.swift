@@ -9,6 +9,8 @@ import SwiftUI
 
 struct EditProfileView: View {
     @StateObject var editProfileVM = EditProfileViewModel()
+    @EnvironmentObject var userVM: UserViewModel
+    
     @Environment(\.dismiss) var dismiss
     @State private var showTypeSheet = false
     @State private var showInstagramSheet = false
@@ -38,8 +40,8 @@ struct EditProfileView: View {
                         .font(.title3)
                         .fontWeight(.bold)
                     
-                    TextField("", text: $editProfileVM.firstName)
-                        .placeholder(when: editProfileVM.firstName.isEmpty) {
+                    TextField("", text: $editProfileVM.editUser.firstName)
+                        .placeholder(when: editProfileVM.editUser.firstName.isEmpty) {
                             Text("First Name")
                                 .foregroundColor(.secondary)
                                 .bold()
@@ -51,8 +53,8 @@ struct EditProfileView: View {
                         WarningTextComponent(text: "The field should contain at least 3 letters.")
                     }
                     
-                    TextField("", text: $editProfileVM.lastName)
-                        .placeholder(when: editProfileVM.lastName.isEmpty) {
+                    TextField("", text: $editProfileVM.editUser.lastName)
+                        .placeholder(when: editProfileVM.editUser.lastName.isEmpty) {
                             Text("Last Name")
                                 .foregroundColor(.secondary)
                                 .bold()
@@ -64,8 +66,8 @@ struct EditProfileView: View {
                         WarningTextComponent(text: "The field should contain at least 3 letters.")
                     }
                     
-                    TextField("", text: $editProfileVM.occupation)
-                        .placeholder(when: editProfileVM.lastName.isEmpty) {
+                    TextField("", text: $editProfileVM.editUser.occupation)
+                        .placeholder(when: editProfileVM.editUser.occupation.isEmpty) {
                             Text("Occupation")
                                 .foregroundColor(.secondary)
                                 .bold()
@@ -77,18 +79,18 @@ struct EditProfileView: View {
                         WarningTextComponent(text: "The field should contain at least 3 letters.")
                     }
                     
-                    TextField("", text: $editProfileVM.email)
-                        .placeholder(when: editProfileVM.lastName.isEmpty) {
-                            Text("Email")
-                                .foregroundColor(.secondary)
-                                .bold()
-                        }
-                        .bold()
-                        .createEventTabStyle()
-                    
-                    if emailError {
-                        WarningTextComponent(text: "Write a valid email.")
-                    }
+//                    TextField("", text: $editProfileVM.editUser.email)
+//                        .placeholder(when: editProfileVM.editUser.email.isEmpty) {
+//                            Text("Email")
+//                                .foregroundColor(.secondary)
+//                                .bold()
+//                        }
+//                        .bold()
+//                        .createEventTabStyle()
+//                    
+//                    if emailError {
+//                        WarningTextComponent(text: "Write a valid email.")
+//                    }
                     
                     Button{
                         showLocationView = true
@@ -97,12 +99,8 @@ struct EditProfileView: View {
                             Image(systemName: "location.circle.fill")
                                 .imageScale(.large)
                             
-                            if let location = editProfileVM.location {
-                                Text(locationCityAndCountry(location))
-                            } else {
-                                Text("Select Location")
-                            }
-                             
+                            Text(locationCityAndCountry(editProfileVM.editUser.location))
+                            
                             Spacer()
                             
                             Image(systemName: "chevron.right")
@@ -122,7 +120,7 @@ struct EditProfileView: View {
                                 .imageScale(.large)
                             
                             
-                            Text(editProfileVM.gender)
+                            Text(editProfileVM.editUser.gender)
                             
                             Spacer()
                             
@@ -142,8 +140,8 @@ struct EditProfileView: View {
                             Image(systemName: "circle.grid.2x2")
                                 .imageScale(.large)
                             
-                            if editProfileVM.interests.count > 0 {
-                                Text(interestsOrder(editProfileVM.interests))
+                            if editProfileVM.editUser.interests.count > 0 {
+                                Text(interestsOrder(editProfileVM.editUser.interests))
                                     .lineLimit(1)
                                 Spacer()
                             } else {
@@ -160,6 +158,10 @@ struct EditProfileView: View {
                             
                         }
                         .createEventTabStyle()
+                    }
+                    
+                    if occupationError {
+                        WarningTextComponent(text: "You need to pick at least 5 interests.")
                     }
                     
                     EditProfileBioView(text: $editProfileVM.description, placeholder: "Bio")
@@ -185,7 +187,7 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if let education = editProfileVM.education{
+                            if let education = editProfileVM.editUser.details.education{
                                 Text(education)
                                     .foregroundColor(.gray)
                                 
@@ -218,7 +220,7 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if let workout = editProfileVM.workout{
+                            if let workout = editProfileVM.editUser.details.workout{
                                 Text(workout)
                                     .foregroundColor(.gray)
                                 
@@ -251,7 +253,7 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if let personalityType = editProfileVM.personalityType{
+                            if let personalityType = editProfileVM.editUser.details.personalityType{
                                 Text(personalityType)
                                     .foregroundColor(.gray)
                                 
@@ -281,11 +283,11 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if editProfileVM.instagram.isEmpty {
-                                Text("Select")
+                            if let instagram = editProfileVM.editUser.details.instagram {
+                                Text(instagram)
                                     .foregroundColor(.gray)
                             } else {
-                                Text(editProfileVM.instagram)
+                                Text("Select")
                                     .foregroundColor(.gray)
                             }
                             
@@ -311,19 +313,19 @@ struct EditProfileView: View {
         .navigationTitle("Edit Profile")
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $showGenderView, destination: {
-            EditProfileGenderView(gender: $editProfileVM.gender, showGender: .constant(true))
+            EditProfileGenderView(gender: $editProfileVM.editUser.gender, showGender: .constant(true))
         })
         .navigationDestination(isPresented: $showLocationView, destination: {
             EditProfileLocationView(editProfileVM: editProfileVM)
         })
         .navigationDestination(isPresented: $showInterestsView, destination: {
-            EditProfileInterestView(selectedInterests: $editProfileVM.interests)
+            EditProfileInterestView(selectedInterests: $editProfileVM.editUser.interests)
         })
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if saveButtonCheck{
                     Button {
-                        dismiss()
+                        save()
                     } label: {
                         Text("Save")
                             .foregroundStyle(.blue)
@@ -351,12 +353,54 @@ struct EditProfileView: View {
                 
             }
         }
+        .onAppear {
+            if let user = userVM.currentUser, editProfileVM.isInit {
+                editProfileVM.fetchUserData(currentUser: user)
+                editProfileVM.isInit = false
+            }
+        } 
         
     }
     
+    func save() {
+        Task {
+            do{
+                if await editProfileVM.imageCheckAndMerge(){
+                    if editProfileVM.editUser != editProfileVM.initialUser {
+                        let data = try await UserService().editUserDetails(userData: editProfileVM.editUser)
+                        print("Success: \(data)")
+                        try await userVM.fetchCurrentUser()
+                        dismiss()
+                    } else {
+                        print("No changes")
+                        dismiss()
+                    }
+                } else {
+                    print("No images")
+                }
+            } catch GeneralError.badRequest(details: let details){
+                print(details)
+            } catch GeneralError.invalidURL {
+                print("Invalid URL")
+            } catch GeneralError.serverError(let statusCode, let details) {
+                print("Status: \(statusCode) \n \(details)")
+            } catch {
+                print("Error message:", error)
+            }
+            
+        }
+    }
+    
+    var interestsError: Bool {
+        if editProfileVM.editUser.interests.count < 5 && showError {
+            return true
+        } else {
+            return false
+        }
+    }
     
     var firstNameError: Bool {
-        if editProfileVM.firstName.count < 3 && showError {
+        if editProfileVM.editUser.firstName.count < 3 && showError {
             return true
         } else {
             return false
@@ -364,7 +408,7 @@ struct EditProfileView: View {
     }
     
     var lastNameError: Bool {
-        if editProfileVM.lastName.count < 3 && showError {
+        if editProfileVM.editUser.lastName.count < 3 && showError {
             return true
         } else {
             return false
@@ -372,23 +416,23 @@ struct EditProfileView: View {
     }
     
     var occupationError: Bool {
-        if editProfileVM.occupation.count < 3 && showError {
+        if editProfileVM.editUser.occupation.count < 3 && showError {
             return true
         } else {
             return false
         }
     }
     
-    var emailError: Bool {
-        if !isValidEmail(testStr: editProfileVM.email) && showError {
-            return true
-        } else {
-            return false
-        }
-    }
+//    var emailError: Bool {
+//        if !isValidEmail(testStr: editProfileVM.email) && showError {
+//            return true
+//        } else {
+//            return false
+//        }
+//    }
     
     var saveButtonCheck: Bool {
-        if isValidEmail(testStr: editProfileVM.email) && editProfileVM.occupation.count >= 3 && editProfileVM.lastName.count >= 3 && editProfileVM.firstName.count >= 3 {
+        if editProfileVM.editUser.occupation.count >= 3 && editProfileVM.editUser.lastName.count >= 3 && editProfileVM.editUser.firstName.count >= 3, editProfileVM.editUser.interests.count >= 5{
             return true
         } else {
             return false
@@ -399,4 +443,5 @@ struct EditProfileView: View {
 
 #Preview {
     EditProfileView()
+        .environmentObject(UserViewModel())
 }

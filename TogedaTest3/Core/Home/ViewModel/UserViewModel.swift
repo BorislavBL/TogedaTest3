@@ -7,12 +7,19 @@
 
 import Foundation
 
+@MainActor
 class UserViewModel: ObservableObject {
     @Published var user: User = User.MOCK_USERS[0]
     @Published var currentUser: User?
 
     func updateUser(_ user: User) {
         self.currentUser = user
+    }
+    
+    func fetchCurrentUser() async throws {
+        if let accessToken = KeychainManager.shared.getToken(item: userKeys.accessToken.toString, service: userKeys.service.toString) {
+            currentUser = try await UserService().fetchUserDetails(userId: accessToken.username)
+        }
     }
     
     func savePost(postId: String) {

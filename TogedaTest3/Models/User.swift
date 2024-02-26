@@ -7,6 +7,23 @@
 
 import Foundation
 
+struct EditUser: Codable, Hashable{
+    var subToEmail: Bool
+    var firstName: String
+    var lastName: String
+    var gender: String
+    var birthDate: String
+    var visibleGender: Bool
+    var location: baseLocation
+    var occupation: String
+    var profilePhotos: [String]
+    var interests: [Interest]
+    var phoneNumber: String
+    var details: UserDetails
+    
+    static var example: EditUser = .init(subToEmail: false, firstName: "", lastName: "", gender: "", birthDate: "", visibleGender: false, location: mockLocation, occupation: "", profilePhotos: [], interests: [], phoneNumber: "", details: mockUserDetails)
+}
+
 struct CreateUser: Codable, Hashable {
     var profilePhotos: [String]
     var firstName: String
@@ -97,7 +114,7 @@ struct MiniUser: Identifiable, Codable, Hashable {
 //}
 
 // User details structure
-struct UserDetails: Codable {
+struct UserDetails: Codable, Hashable {
     var id: String
     var bio: String?
     var education: String?

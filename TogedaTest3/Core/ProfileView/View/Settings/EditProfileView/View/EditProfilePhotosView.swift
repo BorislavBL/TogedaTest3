@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct EditProfilePhotosView: View {
     @ObservedObject var editProfileVM: EditProfileViewModel
@@ -19,6 +20,13 @@ struct EditProfilePhotosView: View {
                     ZStack{
                         if let image = editProfileVM.selectedImages[index]{
                             Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width:imageDimension, height: imageDimension * 1.3)
+                                .cornerRadius(10)
+                                .clipped()
+                        } else if index < editProfileVM.editUser.profilePhotos.count {
+                            KFImage(URL(string: editProfileVM.editUser.profilePhotos[index]))
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width:imageDimension, height: imageDimension * 1.3)
@@ -46,6 +54,13 @@ struct EditProfilePhotosView: View {
                     ZStack{
                         if let image = editProfileVM.selectedImages[index]{
                             Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width:imageDimension, height: imageDimension * 1.3)
+                                .cornerRadius(10)
+                                .clipped()
+                        } else if index < editProfileVM.editUser.profilePhotos.count {
+                            KFImage(URL(string: editProfileVM.editUser.profilePhotos[index]))
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width:imageDimension, height: imageDimension * 1.3)

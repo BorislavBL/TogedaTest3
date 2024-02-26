@@ -42,21 +42,21 @@ struct SelectTabTypeView: View {
                         if type == selectedType {
                             switch editProfileVM.selectedType {
                             case .workout:
-                                editProfileVM.workout = ""
+                                editProfileVM.editUser.details.workout = ""
                             case .education:
-                                editProfileVM.education = ""
+                                editProfileVM.editUser.details.education = ""
                             case .personalityType:
-                                editProfileVM.personalityType = ""
+                                editProfileVM.editUser.details.personalityType = ""
                             }
                             selectedType = ""
                         } else {
                             switch editProfileVM.selectedType {
                             case .workout:
-                                editProfileVM.workout = type
+                                editProfileVM.editUser.details.workout = type
                             case .education:
-                                editProfileVM.education = type
+                                editProfileVM.editUser.details.education = type
                             case .personalityType:
-                                editProfileVM.personalityType = type
+                                editProfileVM.editUser.details.personalityType = type
                             }
                             selectedType = type
                         }
@@ -77,11 +77,11 @@ struct SelectTabTypeView: View {
         .onAppear(){
             switch editProfileVM.selectedType {
             case .workout:
-                selectedType = editProfileVM.workout ?? ""
+                selectedType = editProfileVM.editUser.details.workout ?? ""
             case .education:
-                selectedType =  editProfileVM.education ?? ""
+                selectedType =  editProfileVM.editUser.details.education ?? ""
             case .personalityType:
-                selectedType = editProfileVM.personalityType ?? ""
+                selectedType = editProfileVM.editUser.details.personalityType ?? ""
             }
         }
         .padding()

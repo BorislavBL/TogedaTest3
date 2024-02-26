@@ -21,9 +21,9 @@ struct EditProfileGenderView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            genderButton(title: "Man")
+            genderButton(title: "Male")
                 .padding(.bottom, 4)
-            genderButton(title: "Woman")
+            genderButton(title: "Female")
                 .padding(.bottom, 15)
             
             Button{

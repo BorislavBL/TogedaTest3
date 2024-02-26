@@ -47,7 +47,55 @@ class UserService: ObservableObject {
         }
     }
     
-    func fetchUsers(withID id: String) {
+    func editUserDetails(userData: EditUser) async throws -> Bool {
+        guard let encoded = try? JSONEncoder().encode(userData) else {
+            throw GeneralError.encodingError
+        }
         
+        guard let accessToken = KeychainManager.shared.getTokenToString(item: userKeys.accessToken.toString, service: userKeys.service.toString) else {
+            print("No access token available")
+            throw GeneralError.keyChainError
+        }
+        
+        guard let userId = KeychainManager.shared.getTokenToString(item: userKeys.userId.toString, service: userKeys.service.toString) else {
+            print("No userId available")
+            throw GeneralError.keyChainError
+        }
+        
+        guard let url = URL(string: "https://api.togeda.net/users/\(userId)") else {
+            throw GeneralError.invalidURL
+        }
+        
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await URLSession.shared.upload(for: request, from: encoded)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw GeneralError.noHTTPResponse
+        }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            if let loginErrorResponse = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
+                throw GeneralError.badRequest(details: loginErrorResponse.apierror.message)
+            } else {
+                throw GeneralError.serverError(statusCode: httpResponse.statusCode, details: "Server responded with status code: \(httpResponse.statusCode)")
+            }
+        }
+        
+        do {
+            let responseData = try JSONDecoder().decode(SuccessResponse.self, from: data)
+            return responseData.success
+        } catch {
+            print(error)
+            return false
+        }
+    }
+    
+    struct SuccessResponse: Codable {
+        let success: Bool
     }
 }

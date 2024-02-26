@@ -16,35 +16,36 @@ enum ProfileTypes {
     case personalityType
 }
 
-class EditProfileViewModel: ObservableObject {
-    
-    @Published var user: User = User.MOCK_USERS[0]
-    
-    @Published var firstName: String = ""
-    @Published var lastName: String = ""
-    @Published var occupation: String = ""
-    @Published var email: String = ""
-    @Published var gender: String = "Male"
+@MainActor
+class EditProfileViewModel: ObservableObject{
+    @Published var editUser: EditUser = .example
+    @Published var initialUser: EditUser = .example
 
-    @Published var location: baseLocation?
     @Published var returnedPlace: Place = Place(mapItem: MKMapItem()){
         didSet{
-            self.location = baseLocation(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+            self.editUser.location = baseLocation(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
         }
     }
     
-    @Published var description: String = ""
+    @Published var isInit: Bool = true
     
-    @Published var workout: String?
-    @Published var education: String?
-    @Published var personalityType: String?
+    @Published var description: String = "" {
+        didSet{
+            editUser.details.bio = description
+        }
+    }
+    @Published var instagram: String = "" {
+        didSet{
+            editUser.details.instagram = instagram
+        }
+    }
+    
     @Published var selectedType: ProfileTypes = .workout
-    @Published var instagram: String = ""
-    @Published var interests: [Interest] = []
     
     @Published var showPhotosPicker = false
     @Published var selectedImageIndex: Int?
     @Published var selectedImages: [UIImage?] = [nil, nil, nil, nil, nil, nil]
+    @Published var publishedPhotosURLs: [String?] = [nil, nil, nil, nil, nil, nil]
     @Published var selectedImage: UIImage?
     @Published var showCropView = false
     
@@ -61,7 +62,6 @@ class EditProfileViewModel: ObservableObject {
     @Published var fetchedPlaces: [CLPlacemark]?
     
     init() {
-        fetchUserData()
         cancellable = $searchLocationText
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .removeDuplicates()
@@ -76,35 +76,89 @@ class EditProfileViewModel: ObservableObject {
 
 }
 
+extension EditProfileViewModel {
+    func fetchUserData(currentUser: User) {
+        let user = EditUser(
+            subToEmail: currentUser.subToEmail,
+            firstName: currentUser.firstName,
+            lastName: currentUser.lastName,
+            gender: currentUser.gender,
+            birthDate: currentUser.birthDate,
+            visibleGender: currentUser.visibleGender,
+            location: currentUser.location,
+            occupation: currentUser.occupation,
+            profilePhotos: currentUser.profilePhotos,
+            interests: currentUser.interests,
+            phoneNumber: currentUser.phoneNumber,
+            details: currentUser.details)
+        
+        editUser = user
+        initialUser = user
+        description = user.details.bio ?? ""
+        instagram = user.details.instagram ?? ""
+        
+    }
+    
+    func saveData() async {
+            do{
+                if await self.saveImages() {
+                    //Image check
+                    for (index, image) in publishedPhotosURLs.enumerated() {
+                        if let image = image {
+                            if editUser.profilePhotos.count > index {
+                                editUser.profilePhotos[index] = image
+                            } else {
+                                editUser.profilePhotos.append(image)
+                            }
+                        }
+                    }
+                    
+                    if editUser != initialUser {
+                        let data = try await UserService().editUserDetails(userData: editUser)
+                        print("Success: \(data)")
+                    } else {
+                        print("No changes")
+                    }
+                } else {
+                    print("No images")
+                }
+            } catch GeneralError.badRequest(details: let details){
+                print(details)
+            } catch GeneralError.invalidURL {
+                print("Invalid URL")
+            } catch GeneralError.serverError(let statusCode, let details) {
+                print("Status: \(statusCode) \n \(details)")
+            } catch {
+                print("Error message:", error)
+            }
+            
+        }
+
+}
+    
+
 
 // Photo
 extension EditProfileViewModel {
-    private func fetchUserData() {
-        let user = User.MOCK_USERS[0]
-        firstName = user.firstName
-        lastName = user.lastName
-        occupation = user.occupation
-        email = user.email
-        gender = user.gender
-        description = user.details.bio ?? ""
-        workout = user.details.workout
-        education = user.details.education
-        personalityType = user.details.personalityType
-        instagram = user.details.instagram ?? ""
-        location = user.location
-        interests = user.interests
-        searchLocationText = user.location.name
-        
-        for i in user.profilePhotos.indices {
-            selectedImages[i] = UIImage(named: User.MOCK_USERS[0].profilePhotos[i])
+    
+    func imageCheckAndMerge() async -> Bool {
+        if await self.saveImages() {
+            //Image check
+            for (index, image) in publishedPhotosURLs.enumerated() {
+                if let image = image {
+                    if editUser.profilePhotos.count > index {
+                        editUser.profilePhotos[index] = image
+                    } else {
+                        editUser.profilePhotos.append(image)
+                    }
+                }
+            }
+            return true
+            
+        } else {
+            return false
         }
     }
-    
-//    private func updateSelectedImages() {
-//        for i in User.MOCK_USERS[0].profileImageUrl.indices {
-//            selectedImages[i] = Image(User.MOCK_USERS[0].profileImageUrl[i])
-//        }
-//    }
     
     private func setImage(from selection: PhotosPickerItem?){
         guard let selection else {return}
@@ -123,6 +177,49 @@ extension EditProfileViewModel {
             }
         }
     }
+    
+    func saveImages() async -> Bool {
+        var isSuccess = true
+        publishedPhotosURLs = [nil, nil, nil, nil, nil, nil]
+        
+        await withTaskGroup(of: Bool.self) { group in
+            for (index, image) in selectedImages.enumerated() {
+                if let image = image {
+                    group.addTask {
+                        return await self.uploadImageAsync(uiImage: image, index: index)
+                    }
+                }
+            }
+            for await result in group {
+                if !result {
+                    isSuccess = false
+                }
+            }
+        }
+        return isSuccess
+    }
+    
+    private func uploadImageAsync(uiImage: UIImage, index: Int) async -> Bool {
+        let UUID = NSUUID().uuidString
+        guard let jpeg = compressImageIfNeeded(image: uiImage) else {
+            print("Image compression failed.")
+            return false
+        }
+        
+        do {
+            let response = try await ImageService().generatePresignedPutUrl(bucketName: "togeda-profile-photos", fileName: UUID)
+            try await ImageService().uploadImage(imageData: jpeg, urlString: response)
+            let imageUrl = "https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
+            publishedPhotosURLs[index] = imageUrl
+            
+            return true
+        } catch {
+            print("Upload failed with error: \(error)")
+            
+            return false
+        }
+    }
+    
 }
 
 // Location

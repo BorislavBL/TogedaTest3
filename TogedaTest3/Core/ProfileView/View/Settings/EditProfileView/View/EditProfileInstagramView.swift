@@ -36,6 +36,7 @@ struct EditProfileInstagramView: View {
                         .bold()
                 }
                 .bold()
+                .autocapitalization(.none)
                 .createEventTabStyle()
             
         }
