@@ -89,7 +89,6 @@ extension EditProfileViewModel {
             occupation: currentUser.occupation,
             profilePhotos: currentUser.profilePhotos,
             interests: currentUser.interests,
-            phoneNumber: currentUser.phoneNumber,
             details: currentUser.details)
         
         editUser = user
@@ -114,7 +113,7 @@ extension EditProfileViewModel {
                     }
                     
                     if editUser != initialUser {
-                        let data = try await UserService().editUserDetails(userData: editUser)
+                        let data = try await UserService().editUserDetails(userData: editUser, phoneNumber: nil)
                         print("Success: \(data)")
                     } else {
                         print("No changes")

@@ -1,27 +1,35 @@
 //
-//  RegistrationNumberView.swift
+//  PhoneNumberView.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 16.01.24.
+//  Created by Borislav Lorinkov on 27.02.24.
 //
 
 import SwiftUI
 
-struct RegistrationNumberView: View {
-    @ObservedObject var vm: RegistrationViewModel
+struct PhoneNumberView: View {
+    @StateObject var vm = NumberViewModel()
+    
     @State var presentSheet = false
     
     @State private var searchCountry: String = ""
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var keyIsFocused: Bool
-    @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
-    
-    @State private var isActive = false
-    @State private var isLoading = false
+    @Environment(\.dismiss) var dismiss
+
+    @Binding var isLoading: Bool
     @State private var errorMessage: String?
+    
+    @Binding var countryCode: String
+    @Binding var countryFlag: String
+    @Binding var countryPattern: String
+    @Binding var countryLimit: Int
+    @Binding var mobPhoneNumber: String
 
     @State var countries: [CPData] = []
+    
+    var submitFunc: ()-> Void
     
     var body: some View {
         VStack {
@@ -36,7 +44,7 @@ struct RegistrationNumberView: View {
                     presentSheet = true
                     keyIsFocused = false
                 } label: {
-                    Text("\(vm.countryFlag) +\(vm.countryCode)")
+                    Text("\(countryFlag) +\(countryCode)")
                         .padding(10)
                         .frame(minWidth: 80, minHeight: 47)
                         .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -44,8 +52,8 @@ struct RegistrationNumberView: View {
                         .bold()
                 }
                 
-                TextField("", text: $vm.mobPhoneNumber)
-                    .placeholder(when: vm.mobPhoneNumber.isEmpty) {
+                TextField("", text: $mobPhoneNumber)
+                    .placeholder(when: mobPhoneNumber.isEmpty) {
                         Text("Phone number")
                             .foregroundColor(.secondary)
                     }
@@ -73,27 +81,8 @@ struct RegistrationNumberView: View {
             Spacer()
 
             Button{
-                isLoading = true
-                print(vm.createdUser)
+                submitFunc()
                 
-                Task{
-                    defer { isLoading = false }
-                    do {
-                        vm.userId = try await AuthService.shared.createUser(userData: vm.createdUser)
-                        isActive = true
-                    } catch GeneralError.encodingError{
-                        print("Data encoding error")
-                    } catch GeneralError.badRequest(details: let details){
-                        print(details)
-                        errorMessage = "Invalid phone number."
-                    } catch GeneralError.invalidURL {
-                        print("Invalid URL")
-                    } catch GeneralError.serverError(let statusCode, let details) {
-                        print("Status: \(statusCode) \n \(details)")
-                    } catch {
-                        print("Error message:", error)
-                    }
-                }
             } label:{
                 if isLoading {
                     ProgressView()
@@ -113,9 +102,9 @@ struct RegistrationNumberView: View {
                         .fontWeight(.semibold)
                 }
             }
-            .disableWithOpacity(vm.mobPhoneNumber.count < 5)
+            .disableWithOpacity(mobPhoneNumber.count < 5)
             .onTapGesture {
-                if vm.mobPhoneNumber.count < 5 {
+                if mobPhoneNumber.count < 5 {
                     displayError.toggle()
                 }
             }
@@ -139,10 +128,10 @@ struct RegistrationNumberView: View {
                             .foregroundColor(.secondary)
                     }
                     .onTapGesture {
-                        vm.countryFlag = country.flag
-                        vm.countryCode = country.dial_code
-                        vm.countryPattern = country.pattern
-                        vm.countryLimit = country.limit
+                        countryFlag = country.flag
+                        countryCode = country.dial_code
+                        countryPattern = country.pattern
+                        countryLimit = country.limit
                         presentSheet = false
                         searchCountry = ""
                     }
@@ -165,9 +154,8 @@ struct RegistrationNumberView: View {
                 .background(Color(.tertiarySystemFill))
                 .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
         })
-        .navigationDestination(isPresented: $isActive, destination: {
-            RegistrationCodeView(vm: vm)
-        })
+        
+
 
     }
     
@@ -194,8 +182,10 @@ struct RegistrationNumberView: View {
             return Color(.systemGray6)
         }
     }
+    
 }
 
+
 #Preview {
-    RegistrationNumberView(vm: RegistrationViewModel())
+    PhoneNumberView(isLoading: .constant(false), countryCode: .constant(""), countryFlag: .constant(""), countryPattern: .constant(""), countryLimit: .constant(17), mobPhoneNumber: .constant(""), submitFunc: {})
 }

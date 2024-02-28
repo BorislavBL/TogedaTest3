@@ -47,9 +47,18 @@ class UserService: ObservableObject {
         }
     }
     
-    func editUserDetails(userData: EditUser) async throws -> Bool {
-        guard let encoded = try? JSONEncoder().encode(userData) else {
+    func editUserDetails(userData: EditUser?, phoneNumber: String?) async throws -> Bool {
+        guard userData != nil || phoneNumber != nil else {
             throw GeneralError.encodingError
+        }
+
+        let encoded: Data
+        if let userData = userData {
+            encoded = try JSONEncoder().encode(userData)
+        } else if let phoneNumber = phoneNumber {
+            encoded = try JSONEncoder().encode(ChangePhoneNumber(phoneNumber: phoneNumber))
+        } else {
+            encoded = try JSONEncoder().encode(userData!)
         }
         
         guard let accessToken = KeychainManager.shared.getTokenToString(item: userKeys.accessToken.toString, service: userKeys.service.toString) else {
@@ -93,6 +102,10 @@ class UserService: ObservableObject {
             print(error)
             return false
         }
+    }
+    
+    struct ChangePhoneNumber: Codable, Hashable {
+        var phoneNumber: String
     }
     
     struct SuccessResponse: Codable {

@@ -18,10 +18,14 @@ struct EditUser: Codable, Hashable{
     var occupation: String
     var profilePhotos: [String]
     var interests: [Interest]
-    var phoneNumber: String
+
     var details: UserDetails
     
-    static var example: EditUser = .init(subToEmail: false, firstName: "", lastName: "", gender: "", birthDate: "", visibleGender: false, location: mockLocation, occupation: "", profilePhotos: [], interests: [], phoneNumber: "", details: mockUserDetails)
+    static var example: EditUser = .init(subToEmail: false, firstName: "", lastName: "", gender: "", birthDate: "", visibleGender: false, location: mockLocation, occupation: "", profilePhotos: [], interests: [], details: mockUserDetails)
+}
+
+struct EditProfilePhoneNumber: Codable, Hashable {
+    var phoneNumber: String
 }
 
 struct CreateUser: Codable, Hashable {

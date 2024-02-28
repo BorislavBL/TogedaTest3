@@ -195,6 +195,12 @@
 		14DCAC382B17624F00104B10 /* NewGroupChatCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DCAC372B17624F00104B10 /* NewGroupChatCreateView.swift */; };
 		14DCAC3A2B1764FD00104B10 /* NewChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DCAC392B1764FD00104B10 /* NewChatViewModel.swift */; };
 		14E35BA72B56ECD900CD662E /* Interests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E35BA62B56ECD900CD662E /* Interests.swift */; };
+		14E4F9792B8E23BA00D2A50C /* PhoneNumberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E4F9782B8E23BA00D2A50C /* PhoneNumberView.swift */; };
+		14E4F97B2B8E253100D2A50C /* NumberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E4F97A2B8E253100D2A50C /* NumberViewModel.swift */; };
+		14E4F97F2B8E265400D2A50C /* PhoneNumberCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E4F97E2B8E265400D2A50C /* PhoneNumberCodeView.swift */; };
+		14E4F9812B8F60FA00D2A50C /* EditProfilePhoneNumberMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E4F9802B8F60FA00D2A50C /* EditProfilePhoneNumberMainView.swift */; };
+		14E4F9852B8F86CB00D2A50C /* EditProfilePhoneCodeVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E4F9842B8F86CB00D2A50C /* EditProfilePhoneCodeVerificationView.swift */; };
+		14E4F9872B8F99F400D2A50C /* VerifyPhoneProfileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E4F9862B8F99F400D2A50C /* VerifyPhoneProfileTab.swift */; };
 		14EB8A612B73DE13007C2FEF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14EB8A602B73DE13007C2FEF /* Security.framework */; };
 		14EB8A632B73DE5A007C2FEF /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14EB8A622B73DE5A007C2FEF /* KeychainManager.swift */; };
 		14EE5E0E2B67E0C000F07046 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14EE5E0D2B67E0C000F07046 /* AuthService.swift */; };
@@ -396,6 +402,12 @@
 		14DCAC372B17624F00104B10 /* NewGroupChatCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGroupChatCreateView.swift; sourceTree = "<group>"; };
 		14DCAC392B1764FD00104B10 /* NewChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChatViewModel.swift; sourceTree = "<group>"; };
 		14E35BA62B56ECD900CD662E /* Interests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interests.swift; sourceTree = "<group>"; };
+		14E4F9782B8E23BA00D2A50C /* PhoneNumberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberView.swift; sourceTree = "<group>"; };
+		14E4F97A2B8E253100D2A50C /* NumberViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberViewModel.swift; sourceTree = "<group>"; };
+		14E4F97E2B8E265400D2A50C /* PhoneNumberCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberCodeView.swift; sourceTree = "<group>"; };
+		14E4F9802B8F60FA00D2A50C /* EditProfilePhoneNumberMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfilePhoneNumberMainView.swift; sourceTree = "<group>"; };
+		14E4F9842B8F86CB00D2A50C /* EditProfilePhoneCodeVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfilePhoneCodeVerificationView.swift; sourceTree = "<group>"; };
+		14E4F9862B8F99F400D2A50C /* VerifyPhoneProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyPhoneProfileTab.swift; sourceTree = "<group>"; };
 		14EB8A602B73DE13007C2FEF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.2.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		14EB8A622B73DE5A007C2FEF /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		14EE5E0D2B67E0C000F07046 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
@@ -526,6 +538,8 @@
 				1489AEA92B35F798001524DC /* SelectTabTypeView.swift */,
 				1489AEAD2B361908001524DC /* EditProfileInstagramView.swift */,
 				144006AB2B8D1C2C0085D549 /* EditProfilePhoneNumberView.swift */,
+				14E4F9802B8F60FA00D2A50C /* EditProfilePhoneNumberMainView.swift */,
+				14E4F9842B8F86CB00D2A50C /* EditProfilePhoneCodeVerificationView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -958,6 +972,7 @@
 			children = (
 				141E72B72B31C99800BB213D /* Settings */,
 				14807A482AB4BFE900716A17 /* ProfileView.swift */,
+				14E4F9862B8F99F400D2A50C /* VerifyPhoneProfileTab.swift */,
 				1446962A2AE0239600F29BB7 /* UserProfileView.swift */,
 				14807A462AB4BFD200716A17 /* AboutTab.swift */,
 				14807A442AB4BFBB00716A17 /* EventTab.swift */,
@@ -979,6 +994,7 @@
 		14807A182AB4B9D500716A17 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				14E4F9752B8E22E800D2A50C /* PhoneNumber */,
 				141537D02B62A442005669EC /* LocationPicker */,
 				14515E292B51850D004ECF31 /* UserRequestView */,
 				14F10B932B20A15400298737 /* AllInOneFilter */,
@@ -1164,6 +1180,32 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		14E4F9752B8E22E800D2A50C /* PhoneNumber */ = {
+			isa = PBXGroup;
+			children = (
+				14E4F9772B8E231200D2A50C /* ViewModel */,
+				14E4F9762B8E230F00D2A50C /* View */,
+			);
+			path = PhoneNumber;
+			sourceTree = "<group>";
+		};
+		14E4F9762B8E230F00D2A50C /* View */ = {
+			isa = PBXGroup;
+			children = (
+				14E4F9782B8E23BA00D2A50C /* PhoneNumberView.swift */,
+				14E4F97E2B8E265400D2A50C /* PhoneNumberCodeView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		14E4F9772B8E231200D2A50C /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				14E4F97A2B8E253100D2A50C /* NumberViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		14EB8A5F2B73DE13007C2FEF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1328,6 +1370,7 @@
 				14BEC1792AFBCFFA00DDCD63 /* GroupAcceptanceView.swift in Sources */,
 				14BEC17B2AFBD25700DDCD63 /* NetworkManager.swift in Sources */,
 				1455CFD22B484F1D00D6044B /* PhotoPickerService.swift in Sources */,
+				14E4F97F2B8E265400D2A50C /* PhoneNumberCodeView.swift in Sources */,
 				141DF3572B053ED400CE94F5 /* MessageInputView.swift in Sources */,
 				1455CFD62B48734800D6044B /* PhotosGridView.swift in Sources */,
 				14F8F7C42AF3EF7F005BBC92 /* RatingView.swift in Sources */,
@@ -1381,7 +1424,9 @@
 				1454D42A2B6159B90050C762 /* NavButtonStyle.swift in Sources */,
 				14807A432AB4BFA200716A17 /* ProfileTabs.swift in Sources */,
 				141DF36E2B0BB4E700CE94F5 /* AttributedText.swift in Sources */,
+				14E4F9852B8F86CB00D2A50C /* EditProfilePhoneCodeVerificationView.swift in Sources */,
 				1400BD0A2B45A3F7000EB8BC /* GroupMemoryView.swift in Sources */,
+				14E4F97B2B8E253100D2A50C /* NumberViewModel.swift in Sources */,
 				14450A4E2B85006300EE2A8B /* ClubService.swift in Sources */,
 				145D62FB2ADDC2C100941BC3 /* CropPhotoView.swift in Sources */,
 				14D7E43F2AF9253500A76D09 /* FriendRequestView.swift in Sources */,
@@ -1395,6 +1440,7 @@
 				1489AEAC2B3601F7001524DC /* Abouts.swift in Sources */,
 				14807A412AB4BF6700716A17 /* UserStats.swift in Sources */,
 				14BFB4502AF2896800500190 /* ImageViewer.swift in Sources */,
+				14E4F9872B8F99F400D2A50C /* VerifyPhoneProfileTab.swift in Sources */,
 				1467C8B62AC5C2FF0034A3BB /* UserViewModel.swift in Sources */,
 				145FEB472AE95C3B002301D1 /* UserSettingsView.swift in Sources */,
 				14651BD92AE9378A0091FECE /* JoinRequestView.swift in Sources */,
@@ -1402,6 +1448,7 @@
 				14807A1D2AB4BA9400716A17 /* TagStyle.swift in Sources */,
 				14515E2B2B51854E004ECF31 /* UserRequestTab.swift in Sources */,
 				14FB720A2ABF4BA000A2852D /* MapViewModel.swift in Sources */,
+				14E4F9812B8F60FA00D2A50C /* EditProfilePhoneNumberMainView.swift in Sources */,
 				14D7E43D2AF924E500A76D09 /* UserRequestView.swift in Sources */,
 				148B81AC2B4DB55E009801BC /* CreateSheetView.swift in Sources */,
 				14D5EFE62B5ECADC00561A8D /* GroupRequestPage.swift in Sources */,
@@ -1493,6 +1540,7 @@
 				147613D72B445E19001C1AA8 /* GroupComponent.swift in Sources */,
 				1489AEB02B3C9A96001524DC /* Checkers.swift in Sources */,
 				1445A2092AFE77480057613B /* InboxView.swift in Sources */,
+				14E4F9792B8E23BA00D2A50C /* PhoneNumberView.swift in Sources */,
 				141DF3552B05369400CE94F5 /* ChatView.swift in Sources */,
 				141537CD2B629D1D005669EC /* EditEventView.swift in Sources */,
 				145D72372ABA0702005934E2 /* MapView.swift in Sources */,

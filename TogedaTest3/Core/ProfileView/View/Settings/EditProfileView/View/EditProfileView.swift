@@ -23,6 +23,7 @@ struct EditProfileView: View {
     @State private var showGenderView: Bool = false
     @State private var showLocationView: Bool = false
     @State private var showInterestsView: Bool = false
+    @State private var showPhoneNumberView: Bool = false
     
     var body: some View {
         ScrollView{
@@ -79,18 +80,6 @@ struct EditProfileView: View {
                         WarningTextComponent(text: "The field should contain at least 3 letters.")
                     }
                     
-//                    TextField("", text: $editProfileVM.editUser.email)
-//                        .placeholder(when: editProfileVM.editUser.email.isEmpty) {
-//                            Text("Email")
-//                                .foregroundColor(.secondary)
-//                                .bold()
-//                        }
-//                        .bold()
-//                        .createEventTabStyle()
-//                    
-//                    if emailError {
-//                        WarningTextComponent(text: "Write a valid email.")
-//                    }
                     
                     Button{
                         showLocationView = true
@@ -166,6 +155,58 @@ struct EditProfileView: View {
                     
                     EditProfileBioView(text: $editProfileVM.description, placeholder: "Bio")
                 }
+                
+                VStack(alignment: .leading, spacing: 10){
+                    Text("Phone Number")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                    
+                    NavigationLink(value: SelectionPath.editProfilePhoneNumberMain) {
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "phone.fill")
+                                .imageScale(.large)
+                            
+                            if let user = userVM.currentUser{
+                                Text(user.phoneNumber.isEmpty ? "Enter Phone Number" : "+"+user.phoneNumber)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .padding(.trailing, 10)
+                                .foregroundColor(.gray)
+                            
+                        }
+                    }
+                    .createEventTabStyle()
+                    
+                    if let user = userVM.currentUser {
+                        if !user.verifiedPhone{
+                            HStack{
+                                Image(systemName: "x.circle")
+                                Text("You still haven't verified your number.")
+                                    .foregroundStyle(.red)
+                                    .font(.footnote)
+                                    .bold()
+                            }
+                            .foregroundStyle(.red)
+                        } else {
+                            HStack{
+                                Image(systemName: "checkmark.circle")
+
+                                Text("Your phone number is verified")
+                                    .font(.footnote)
+                                    .bold()
+                            }
+                            .foregroundStyle(.green)
+                        }
+                    }
+                    
+                }
+                
+//                    if emailError {
+//                        WarningTextComponent(text: "Write a valid email.")
+//                    }
                 
                 VStack(alignment: .leading, spacing: 10){
                     Text("About Me")
@@ -367,7 +408,7 @@ struct EditProfileView: View {
             do{
                 if await editProfileVM.imageCheckAndMerge(){
                     if editProfileVM.editUser != editProfileVM.initialUser {
-                        let data = try await UserService().editUserDetails(userData: editProfileVM.editUser)
+                        let data = try await UserService().editUserDetails(userData: editProfileVM.editUser, phoneNumber: nil)
                         print("Success: \(data)")
                         try await userVM.fetchCurrentUser()
                         dismiss()
@@ -422,14 +463,6 @@ struct EditProfileView: View {
             return false
         }
     }
-    
-//    var emailError: Bool {
-//        if !isValidEmail(testStr: editProfileVM.email) && showError {
-//            return true
-//        } else {
-//            return false
-//        }
-//    }
     
     var saveButtonCheck: Bool {
         if editProfileVM.editUser.occupation.count >= 3 && editProfileVM.editUser.lastName.count >= 3 && editProfileVM.editUser.firstName.count >= 3, editProfileVM.editUser.interests.count >= 5{

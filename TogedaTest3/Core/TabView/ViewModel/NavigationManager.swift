@@ -27,6 +27,9 @@ enum SelectionPath: Hashable, Codable {
     case profile(MiniUser)
     case userSettings
     case editProfile
+    case editProfilePhoneNumberMain
+    case editProfilePhoneNumber
+    case editProfilePhoneCodeVerification
     case club(Club)
     case allUserGroups(userID: String)
     case userChat(user: MiniUser)

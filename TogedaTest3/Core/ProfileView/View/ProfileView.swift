@@ -91,6 +91,9 @@ struct ProfileView: View {
                         }
                     )
                     BadgesTab()
+                    if let user = userVm.currentUser, !user.verifiedPhone {
+                        VerifyPhoneProfileTab()
+                    }
                     AboutTab(user: user)
                     EventTab(userID: user.id)
                     ClubsTab(userID: user.id)

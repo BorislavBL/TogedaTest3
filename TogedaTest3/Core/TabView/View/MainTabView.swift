@@ -133,6 +133,12 @@ struct MainTabView: View {
                     UserSettingsView()
                 case .editProfile:
                     EditProfileView()
+                case .editProfilePhoneNumberMain:
+                    EditProfilePhoneNumberMainView()
+                case .editProfilePhoneNumber:
+                    EditProfilePhoneNumberView()
+                case .editProfilePhoneCodeVerification:
+                    EditProfilePhoneCodeVerificationView()
                 case .club(let club):
                     GroupView(clubID: club.id)
                 case .allUserGroups(userID: let userID):
