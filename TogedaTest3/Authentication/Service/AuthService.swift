@@ -286,6 +286,8 @@ extension AuthService {
         }
     }
     
+    func logout(){}
+    
     struct LoginResponse: Codable {
         let accessToken: String
         let refreshToken: String

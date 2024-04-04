@@ -31,7 +31,11 @@ class EditProfileViewModel: ObservableObject{
     
     @Published var description: String = "" {
         didSet{
-            editUser.details.bio = description
+            if !description.isEmpty{
+                editUser.details.bio = description
+            } else {
+                editUser.details.bio = nil
+            }
         }
     }
     @Published var instagram: String = "" {
@@ -39,6 +43,8 @@ class EditProfileViewModel: ObservableObject{
             editUser.details.instagram = instagram
         }
     }
+    
+    @Published var height: String = "" 
     
     @Published var selectedType: ProfileTypes = .workout
     
@@ -200,7 +206,12 @@ extension EditProfileViewModel {
     
     private func uploadImageAsync(uiImage: UIImage, index: Int) async -> Bool {
         let UUID = NSUUID().uuidString
-        guard let jpeg = compressImageIfNeeded(image: uiImage) else {
+//        guard let jpeg = compressImageIfNeeded(image: uiImage) else {
+//            print("Image compression failed.")
+//            return false
+//        }
+        
+        guard let jpeg = uiImage.jpegData(compressionQuality: 1.0) else {
             print("Image compression failed.")
             return false
         }

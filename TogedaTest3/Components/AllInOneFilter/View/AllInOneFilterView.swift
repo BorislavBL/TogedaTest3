@@ -14,120 +14,132 @@ struct AllInOneFilterView: View {
     @StateObject var filterVM = FilterViewModel()
     
     var body: some View {
-        ScrollView{
-            VStack(alignment: .leading, spacing: 25 ){
-                Text("Filters")
-                    .font(.title)
-                    .bold()
+        VStack(spacing: 0){
+            
+            navbar()
+            
+            ScrollView{
+                VStack(alignment: .leading, spacing: 25 ){
                     
-                
-                VStack(alignment: .leading, spacing: 16){
-                    Text("Location")
-                        .font(.body)
-                        .bold()
-                    
-                    LocationPickerFilterView(returnedPlace: $filterVM.returnedPlace, isCurrentLocation: $filterVM.isCurrentLocation)
-                    
-                }
-                .padding(.top, 6)
-                
-                VStack(alignment: .leading, spacing: 16){
-                    Text("Time")
-                        .font(.body)
-                        .bold()
-                    
-                    StandartFilterView(selectedFilter: $filterVM.selectedTimeFilter, filterOptions: filterVM.timeFilterOptions, image: Image(systemName: "calendar"))
-                }
-                
-                VStack(alignment: .leading, spacing: 16){
-                    Text("Sort")
-                        .font(.body)
-                        .bold()
-                    
-                    StandartFilterView(selectedFilter: $filterVM.selectedSortFilter, filterOptions: filterVM.sortFilterOptions, image: Image(systemName: "list.bullet"))
-                }
-                
-                VStack(alignment: .leading, spacing: 16){
-                    HStack{
-                        Text("Distance")
+                    VStack(alignment: .leading, spacing: 16){
+                        Text("Time")
                             .font(.body)
                             .bold()
-                            
-                        Spacer()
                         
-                        Text("\(filterVM.sliderValue) km")
-                            .font(.callout)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.gray)
-
+                        TimeFilterView(vm: filterVM)
                     }
-//                    Slider(value: $sliderValue, in: 1...300, step: 1)
                     
-                    SwiftUISlider(
-                      thumbColor: UIColor(Color("blackAndWhite")),
-                      minTrackColor: UIColor(Color("blackAndWhite")),
-                      value: $filterVM.sliderValue
-                    )
- 
-                }
-                
-                VStack(alignment: .leading, spacing: 16){
-                    HStack{
-                        Text("Categories")
+                    VStack(alignment: .leading, spacing: 16){
+                        Text("Sort")
                             .font(.body)
                             .bold()
-                            
-                        Spacer()
                         
-                        Text("\(filterVM.selectedCategories.count) selected")
-                            .font(.callout)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.gray)
-
+                        StandartFilterView(selectedFilter: $filterVM.selectedSortFilter, filterOptions: filterVM.sortFilterOptions, image: Image(systemName: "list.bullet"))
                     }
                     
-                    CategoryFilterView(selectedCategories: $filterVM.selectedCategories, categories: filterVM.categories)
+                    VStack(alignment: .leading, spacing: 16){
+                        Text("Location")
+                            .font(.body)
+                            .bold()
+                        
+                        LocationPickerFilterView(returnedPlace: $filterVM.returnedPlace, isCurrentLocation: $filterVM.isCurrentLocation)
+                        
+                    }
+                    .padding(.top, 6)
+                    
+                    VStack(alignment: .leading, spacing: 16){
+                        HStack{
+                            Text("Distance")
+                                .font(.body)
+                                .bold()
+                                
+                            Spacer()
+                            
+                            Text("\(filterVM.sliderValue) km")
+                                .font(.callout)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.gray)
+
+                        }
+    //                    Slider(value: $sliderValue, in: 1...300, step: 1)
+                        
+                        SwiftUISlider(
+                          thumbColor: UIColor(Color("blackAndWhite")),
+                          minTrackColor: UIColor(Color("blackAndWhite")),
+                          value: $filterVM.sliderValue
+                        )
+     
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 16){
+                        HStack{
+                            Text("Categories")
+                                .font(.body)
+                                .bold()
+                                
+                            Spacer()
+                            
+                            Text("\(filterVM.selectedCategories.count) selected")
+                                .font(.callout)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.gray)
+
+                        }
+                        
+                        CategoryFilterView(selectedCategories: $filterVM.selectedCategories, categories: filterVM.categories)
+                        
+                    }
+                    
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Submit")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .fontWeight(.semibold)
+                        
+                    }
+                    .cornerRadius(10)
+                    .padding(.top, 8)
                     
                 }
-                
+                .padding()
+            }
+            .scrollIndicators(.never)
+        .ignoresSafeArea(.keyboard)
+        }
+    }
+    
+    @ViewBuilder
+    func navbar() -> some View {
+        VStack{
+            HStack{
                 Button {
                     dismiss()
-                } label: {
-                    Text("Submit")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 60)
-                        .background(Color("blackAndWhite"))
-                        .foregroundColor(Color("testColor"))
-                        .fontWeight(.semibold)
-                    
+                } label:{
+                    Text("Cancel")
                 }
-                .cornerRadius(10)
-                .padding(.top, 8)
                 
-                Button{
-                    filterVM.searchText = ""
-                    filterVM.isCurrentLocation = true
-                    filterVM.returnedPlace = Place(mapItem: MKMapItem())
-                    
-                    filterVM.selectedTimeFilter = "Anytime"
-                    
-                    filterVM.sliderValue = 300
-                    
-                    filterVM.selectedSortFilter = "Personalised"
-                    
-                    filterVM.selectedCategories = []
-                } label: {
+                Spacer()
+                
+                Text("Filters")
+                    .font(.body)
+                    .bold()
+                
+                Spacer()
+                
+                Button {
+                    filterVM.resetFilter()
+                } label:{
                     Text("Reset")
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.blue)
-                        .frame(maxWidth: .infinity, alignment: .center )
                 }
-                
             }
-            .padding()
+            
+            Divider()
         }
-        .scrollIndicators(.never)
-        
+        .padding([.horizontal, .top])
     }
 }
 
@@ -138,12 +150,14 @@ struct LocationPickerFilterView: View {
     @Binding var returnedPlace: Place
     @State var showCancelButton: Bool = false
     @Binding var isCurrentLocation: Bool
+    @FocusState var focus: Bool
     
     var body: some View {
         VStack(spacing: 20) {
             if !returnedPlace.addressCountry.isEmpty && !isCurrentLocation {
                 Button {
                     returnedPlace = Place(mapItem: MKMapItem())
+                    focus = true
                 } label:{
                     HStack {
                         Image(systemName: "mappin.circle")
@@ -162,6 +176,7 @@ struct LocationPickerFilterView: View {
                 Button {
                     returnedPlace = Place(mapItem: MKMapItem())
                     isCurrentLocation = false
+                    focus = true
                 } label: {
                     
                     HStack{
@@ -186,6 +201,7 @@ struct LocationPickerFilterView: View {
                     TextField("Search", text: $allInOneVM.searchText)
                         .foregroundColor(.primary)
                         .autocorrectionDisabled()
+                        .focused($focus)
                     
                     Spacer()
                     
@@ -229,7 +245,7 @@ struct LocationPickerFilterView: View {
                 }
                 
                 
-                if locationManager.authorizationStatus == .authorizedWhenInUse{
+                if locationManager.authorizationStatus == .authorizedWhenInUse {
                     Divider()
                         .padding(.horizontal)
                     
@@ -239,6 +255,7 @@ struct LocationPickerFilterView: View {
                         UIApplication.shared.endEditing(true)
                         allInOneVM.searchText = ""
                         isCurrentLocation = true
+                        focus = false
                         
                     } label: {
                         Label {
@@ -266,6 +283,7 @@ struct StandartFilterView: View {
     var filterOptions: [String]
     var image: Image
     @State var showOptions: Bool = false
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Button{
@@ -293,6 +311,73 @@ struct StandartFilterView: View {
                             .fontWeight(.semibold)
                     }
                 }
+            }
+            
+        }
+        .frame(maxWidth: .infinity, alignment: .leading )
+        .padding(16)
+        .background(Color(.tertiarySystemFill))
+        .cornerRadius(10.0)
+        .frame(maxHeight: .infinity, alignment: .top )
+    }
+}
+
+struct TimeFilterView: View {
+    @State var showOptions: Bool = false
+    @ObservedObject var vm: FilterViewModel
+    @State var dateFormat = "Custom"
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Button{
+                showOptions.toggle()
+            } label: {
+                HStack{
+                    Image(systemName: "calendar")
+                    if vm.selectedTimeFilter == "Custom"{
+                        Text(vm.selectedTimeFrame)
+                            .fontWeight(.semibold)
+                    } else {
+                        Text(vm.selectedTimeFilter)
+                            .fontWeight(.semibold)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: showOptions ? "chevron.up" : "chevron.down")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            if showOptions{
+                ForEach(vm.timeFilterOptions, id: \.self){option in
+                    Button{
+                        vm.selectedTimeFilter = option
+                        if option != "Custom" {
+                            showOptions = false
+                        } else {
+                            vm.selectedTimeFrame = vm.timeToString()
+                        }
+                    } label:{
+                        Text(option)
+                            .fontWeight(.semibold)
+                    }
+                }
+                
+                if vm.selectedTimeFilter == "Custom" {
+                    HStack{
+                        DatePicker("From", selection: $vm.from, in: Date()..., displayedComponents: [.date])
+                            .fontWeight(.semibold)
+                            .labelsHidden()
+                        
+                        Image(systemName: "arrow.right")
+                        
+                        DatePicker("To", selection: $vm.to, in: vm.from..., displayedComponents: [.date])
+                            .fontWeight(.semibold)
+                            .labelsHidden()
+                    }
+                }
+                
             }
             
         }
@@ -334,59 +419,6 @@ struct CategoryFilterView: View {
     }
 }
 
-struct SwiftUISlider: UIViewRepresentable {
-    
-    final class Coordinator: NSObject {
-        // The class property value is a binding: It’s a reference to the SwiftUISlider
-        // value, which receives a reference to a @State variable value in ContentView.
-        var value: Binding<Int>
-        
-        // Create the binding when you initialize the Coordinator
-        init(value: Binding<Int>) {
-            self.value = value
-        }
-        
-        // Create a valueChanged(_:) action
-        @objc func valueChanged(_ sender: UISlider) {
-            self.value.wrappedValue = Int(sender.value)
-        }
-    }
-    
-    var thumbColor: UIColor = .white
-    var minTrackColor: UIColor?
-    var maxTrackColor: UIColor?
-    
-    @Binding var value: Int
-    
-    func makeUIView(context: Context) -> UISlider {
-        let slider = UISlider(frame: .zero)
-        slider.thumbTintColor = thumbColor
-        slider.minimumTrackTintColor = minTrackColor
-        if let color = maxTrackColor {
-            slider.maximumTrackTintColor = color
-        }
-        slider.value = Float(value)
-        slider.maximumValue = Float(300)
-        slider.minimumValue = Float(1)
-        
-        slider.addTarget(
-            context.coordinator,
-            action: #selector(Coordinator.valueChanged(_:)),
-            for: .valueChanged
-        )
-        
-        return slider
-    }
-    
-    func updateUIView(_ uiView: UISlider, context: Context) {
-        // Coordinating data between UIView and SwiftUI view
-        uiView.value = Float(self.value)
-    }
-    
-    func makeCoordinator() -> SwiftUISlider.Coordinator {
-        Coordinator(value: $value)
-    }
-}
 
 #Preview {
     AllInOneFilterView()

@@ -111,4 +111,5 @@ class UserService: ObservableObject {
     struct SuccessResponse: Codable {
         let success: Bool
     }
+    
 }

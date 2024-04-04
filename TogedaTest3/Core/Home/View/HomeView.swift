@@ -128,8 +128,8 @@ struct HomeView: View {
             }
             .sheet(isPresented: $filterViewModel.showAllFilter, content: {
                 AllInOneFilterView()
-                    .presentationDetents([.fraction(0.99)])
-                    .presentationDragIndicator(.visible)
+//                    .presentationDetents([.fraction(0.99)])
+//                    .presentationDragIndicator(.visible)
             })
 
         }

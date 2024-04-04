@@ -58,3 +58,25 @@ func formatDateAndTimeToStringTimeFormat(date: Date) -> String {
     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
     return formatter.string(from: date)
 }
+
+func formatDateToDayAndMonthString(date: Date) -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "d MMM"
+    return dateFormatter.string(from: date)
+}
+
+func calculateAge(from birthdateStr: String) -> Int? {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd"
+
+    guard let birthdate = dateFormatter.date(from: birthdateStr) else {
+        return nil
+    }
+
+    let calendar = Calendar.current
+    let now = Date()
+    let ageComponents = calendar.dateComponents([.year], from: birthdate, to: now)
+    return ageComponents.year
+}
+
+

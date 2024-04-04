@@ -41,6 +41,8 @@
 		141E72C22B33203D00BB213D /* RegistrationLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141E72C12B33203D00BB213D /* RegistrationLocationView.swift */; };
 		141E72C42B33477500BB213D /* LocationPickingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141E72C32B33477500BB213D /* LocationPickingViewModel.swift */; };
 		141E72C62B334C8400BB213D /* EditProfileLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141E72C52B334C8400BB213D /* EditProfileLocationView.swift */; };
+		142487AC2BBDAB9500671014 /* EditProfileHeightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142487AB2BBDAB9500671014 /* EditProfileHeightView.swift */; };
+		142487AE2BBDD82900671014 /* UserStatsSecond.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142487AD2BBDD82900671014 /* UserStatsSecond.swift */; };
 		142814152ACC7F8F0046886B /* EventMapPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142814142ACC7F8F0046886B /* EventMapPreview.swift */; };
 		142814172ACCA1140046886B /* CustomSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142814162ACCA1140046886B /* CustomSearchBar.swift */; };
 		142C68D42B28CCA4001FBCA7 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142C68D32B28CCA4001FBCA7 /* LoginView.swift */; };
@@ -158,6 +160,8 @@
 		14973BC82B3F19ED0067D1A8 /* NormalPhotoPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14973BC72B3F19ED0067D1A8 /* NormalPhotoPickerView.swift */; };
 		14973BCA2B3F1F320067D1A8 /* GroupAccessibilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14973BC92B3F1F320067D1A8 /* GroupAccessibilityView.swift */; };
 		14973BCC2B3F23E00067D1A8 /* GroupPermissionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14973BCB2B3F23E00067D1A8 /* GroupPermissionsView.swift */; };
+		14A236812B974E0400A8F124 /* SwiftUISlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A236802B974E0400A8F124 /* SwiftUISlider.swift */; };
+		14A236832B97636100A8F124 /* GeneralEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A236822B97636100A8F124 /* GeneralEnums.swift */; };
 		14ADEAAC2AD6ECE200626D86 /* LocationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ADEAAB2AD6ECE200626D86 /* LocationPicker.swift */; };
 		14ADEAAE2AD6ECFA00626D86 /* LocationPickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ADEAAD2AD6ECFA00626D86 /* LocationPickerViewModel.swift */; };
 		14AF74062B558D1E0044EB3A /* RegistrationPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AF74052B558D1E0044EB3A /* RegistrationPasswordView.swift */; };
@@ -249,6 +253,8 @@
 		141E72C12B33203D00BB213D /* RegistrationLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationLocationView.swift; sourceTree = "<group>"; };
 		141E72C32B33477500BB213D /* LocationPickingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPickingViewModel.swift; sourceTree = "<group>"; };
 		141E72C52B334C8400BB213D /* EditProfileLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileLocationView.swift; sourceTree = "<group>"; };
+		142487AB2BBDAB9500671014 /* EditProfileHeightView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileHeightView.swift; sourceTree = "<group>"; };
+		142487AD2BBDD82900671014 /* UserStatsSecond.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatsSecond.swift; sourceTree = "<group>"; };
 		142814132ACC55530046886B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		142814142ACC7F8F0046886B /* EventMapPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventMapPreview.swift; sourceTree = "<group>"; };
 		142814162ACCA1140046886B /* CustomSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSearchBar.swift; sourceTree = "<group>"; };
@@ -366,6 +372,8 @@
 		14973BC72B3F19ED0067D1A8 /* NormalPhotoPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NormalPhotoPickerView.swift; sourceTree = "<group>"; };
 		14973BC92B3F1F320067D1A8 /* GroupAccessibilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupAccessibilityView.swift; sourceTree = "<group>"; };
 		14973BCB2B3F23E00067D1A8 /* GroupPermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPermissionsView.swift; sourceTree = "<group>"; };
+		14A236802B974E0400A8F124 /* SwiftUISlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUISlider.swift; sourceTree = "<group>"; };
+		14A236822B97636100A8F124 /* GeneralEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralEnums.swift; sourceTree = "<group>"; };
 		14ADEAAB2AD6ECE200626D86 /* LocationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPicker.swift; sourceTree = "<group>"; };
 		14ADEAAD2AD6ECFA00626D86 /* LocationPickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPickerViewModel.swift; sourceTree = "<group>"; };
 		14AF74052B558D1E0044EB3A /* RegistrationPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationPasswordView.swift; sourceTree = "<group>"; };
@@ -537,6 +545,7 @@
 				1489AEA72B35EB93001524DC /* EditProfileInterestView.swift */,
 				1489AEA92B35F798001524DC /* SelectTabTypeView.swift */,
 				1489AEAD2B361908001524DC /* EditProfileInstagramView.swift */,
+				142487AB2BBDAB9500671014 /* EditProfileHeightView.swift */,
 				144006AB2B8D1C2C0085D549 /* EditProfilePhoneNumberView.swift */,
 				14E4F9802B8F60FA00D2A50C /* EditProfilePhoneNumberMainView.swift */,
 				14E4F9842B8F86CB00D2A50C /* EditProfilePhoneCodeVerificationView.swift */,
@@ -885,7 +894,6 @@
 			isa = PBXGroup;
 			children = (
 				14807A502AB4C08200716A17 /* HomeViewModel.swift */,
-				14807A522AB4C09000716A17 /* FilterViewModel.swift */,
 				14807A542AB4C09A00716A17 /* PostsViewModel.swift */,
 				1467C8B52AC5C2FF0034A3BB /* UserViewModel.swift */,
 			);
@@ -980,6 +988,7 @@
 				147613D62B445E19001C1AA8 /* GroupComponent.swift */,
 				14807A422AB4BFA200716A17 /* ProfileTabs.swift */,
 				14807A402AB4BF6700716A17 /* UserStats.swift */,
+				142487AD2BBDD82900671014 /* UserStatsSecond.swift */,
 				14807A3E2AB4BF4700716A17 /* ClubsTab.swift */,
 				14807A382AB4BEE600716A17 /* BadgesTab.swift */,
 				147613D82B4463F3001C1AA8 /* AllUserEventsView.swift */,
@@ -1012,6 +1021,7 @@
 				1455CFD52B48734800D6044B /* PhotosGridView.swift */,
 				1454D4252B6147720050C762 /* ShareSheet.swift */,
 				1454D4272B6157860050C762 /* NavButtons.swift */,
+				14A236802B974E0400A8F124 /* SwiftUISlider.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1023,6 +1033,7 @@
 				14807A302AB4BBB200716A17 /* FilterOptions.swift */,
 				141DF36B2B09173D00CE94F5 /* ImageSize.swift */,
 				1489AEAB2B3601F7001524DC /* Abouts.swift */,
+				14A236822B97636100A8F124 /* GeneralEnums.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -1259,6 +1270,7 @@
 		14F10B952B20A16700298737 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				14807A522AB4C09000716A17 /* FilterViewModel.swift */,
 				14F10B962B20A17C00298737 /* AllInOneFilterViewModel.swift */,
 			);
 			path = ViewModel;
@@ -1311,7 +1323,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1530;
 				TargetAttributes = {
 					148079ED2AB4B8B800716A17 = {
 						CreatedOnToolsVersion = 14.3.1;
@@ -1362,6 +1374,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				145A6C712B2A10320015F7C6 /* LoginCodeView.swift in Sources */,
+				142487AC2BBDAB9500671014 /* EditProfileHeightView.swift in Sources */,
 				14F10B922B1F889C00298737 /* AllInOneFilterView.swift in Sources */,
 				14807A312AB4BBB200716A17 /* FilterOptions.swift in Sources */,
 				141DF3642B09152900CE94F5 /* LInkPreviewViewModel.swift in Sources */,
@@ -1417,6 +1430,7 @@
 				14807A4B2AB4C01700716A17 /* EventView.swift in Sources */,
 				141E72BC2B31D6D200BB213D /* EditProfileViewModel.swift in Sources */,
 				14D7E4452AF9288200A76D09 /* ParticipantsEventReview.swift in Sources */,
+				14A236812B974E0400A8F124 /* SwiftUISlider.swift in Sources */,
 				145A6C832B2B5A480015F7C6 /* RegistartionAgeView.swift in Sources */,
 				1476901C2AFD43A200A830DF /* PinchToZoom.swift in Sources */,
 				143A6EA02AB89DDF00BDDA87 /* CategoryView.swift in Sources */,
@@ -1460,6 +1474,7 @@
 				1454D4282B6157860050C762 /* NavButtons.swift in Sources */,
 				145D62F92ADD7AE500941BC3 /* PhotoPickerViewModel.swift in Sources */,
 				147613D92B4463F3001C1AA8 /* AllUserEventsView.swift in Sources */,
+				142487AE2BBDD82900671014 /* UserStatsSecond.swift in Sources */,
 				14973BCC2B3F23E00067D1A8 /* GroupPermissionsView.swift in Sources */,
 				147613E02B4470B3001C1AA8 /* GroupView.swift in Sources */,
 				145D72392ABA07B0005934E2 /* MapSlot.swift in Sources */,
@@ -1538,6 +1553,7 @@
 				14973BC42B3E10CF0067D1A8 /* CreateGroupView.swift in Sources */,
 				14DCAC382B17624F00104B10 /* NewGroupChatCreateView.swift in Sources */,
 				147613D72B445E19001C1AA8 /* GroupComponent.swift in Sources */,
+				14A236832B97636100A8F124 /* GeneralEnums.swift in Sources */,
 				1489AEB02B3C9A96001524DC /* Checkers.swift in Sources */,
 				1445A2092AFE77480057613B /* InboxView.swift in Sources */,
 				14E4F9792B8E23BA00D2A50C /* PhoneNumberView.swift in Sources */,
@@ -1568,6 +1584,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -1628,6 +1645,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

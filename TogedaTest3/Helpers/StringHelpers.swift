@@ -51,3 +51,13 @@ func locationAddress(_ location: baseLocation) -> String {
     
     return locationComponents.joined(separator: ", ")
 }
+
+func convertCmToFeetAndInches(_ centimeters: String) -> String? {
+    guard let cm = Double(centimeters) else { return nil }
+    
+    let totalInches = cm / 2.54
+    let feet = Int(totalInches / 12)
+    let inches = Int(totalInches.truncatingRemainder(dividingBy: 12))
+    
+    return "\(feet)' \(inches)\""
+}

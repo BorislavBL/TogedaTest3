@@ -156,8 +156,8 @@ struct MapView: View {
         }
         .sheet(isPresented: $filterViewModel.showAllFilter){
             AllInOneFilterView()
-                .presentationDetents([.fraction(0.99)])
-                .presentationDragIndicator(.visible)
+//                .presentationDetents([.fraction(0.99)])
+//                .presentationDragIndicator(.visible)
         }
         .overlay(alignment:.bottom) {
             if viewModel.showPostView && !showSearch {

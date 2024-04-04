@@ -12,6 +12,10 @@ struct UsersListView: View {
     let size: ImageSize = .medium
     var users: [MiniUser]
     var post: Post
+    @State var showUserOptions = false
+    @State var selectedOption: String?
+    @State var selectedUser: MiniUser?
+    
     var body: some View {
         ScrollView{
             LazyVStack(alignment:.leading){
@@ -21,30 +25,53 @@ struct UsersListView: View {
                     }
                 }
                 ForEach(users, id:\.id) { user in
-                    NavigationLink(value: SelectionPath.profile(user)){
-                        HStack{
-                            Image(user.profilePhotos[0])
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: size.dimension, height: size.dimension)
-                                .clipShape(Circle())
+                    HStack{
+                        NavigationLink(value: SelectionPath.profile(user)){
+                            HStack{
+                                Image(user.profilePhotos[0])
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: size.dimension, height: size.dimension)
+                                    .clipShape(Circle())
+                                
+                                
+                                Text(user.fullName)
+                                    .fontWeight(.semibold)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                            }
                             
-                            
-                            Text(user.fullName)
-                                .fontWeight(.semibold)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
                         }
-                        .padding(.vertical, 5)
+                        Button{
+                            showUserOptions = true
+                            selectedUser = user
+                        } label:{
+                            Image(systemName: "ellipsis")
+                                .rotationEffect(.degrees(90))
+                        }
                     }
+                    .padding(.vertical, 5)
                 }
                 
             }
             .padding(.horizontal)
             
         }
+        .sheet(isPresented: $showUserOptions, content: {
+            List {
+                Button("Make a Co-Host") {
+                    selectedOption = "Co-Host"
+                }
+
+                Button("Remove") {
+                    selectedOption = "Remove"
+                }
+            }
+            .presentationDetents([.fraction(0.20)])
+            .presentationDragIndicator(.visible)
+        })
         .navigationTitle("Participants")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

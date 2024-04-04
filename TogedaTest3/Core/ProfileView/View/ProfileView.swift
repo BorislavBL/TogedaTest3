@@ -8,9 +8,11 @@
 import SwiftUI
 import Kingfisher
 import SkeletonUI
+import WrappingHStack
 
 struct ProfileView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
+    @Environment(\.colorScheme) var colorScheme
     
     @EnvironmentObject var userVm: UserViewModel
     @State var minYValue: CGFloat = 0
@@ -19,37 +21,56 @@ struct ProfileView: View {
     @State var showSheet: Bool = false
     @State var showCreateEvent: Bool = false
     @State var showCreateClub: Bool = false
+    let user = User.MOCK_USERS[0]
     
     var body: some View {
         ZStack(alignment: .top){
-            if let user = userVm.currentUser {
+//            if let user = userVm.currentUser {
                 ScrollView(showsIndicators: false){
                     VStack(alignment: .center){
                         TabView {
                             ForEach(user.profilePhotos, id: \.self) { image in
-                                KFImage(URL(string: image))
+//                                KFImage(URL(string: image))
+//                                    .resizable()
+//                                    .scaledToFill()
+//                                    .clipped()
+                                
+                                Image(image)
                                     .resizable()
                                     .scaledToFill()
+                                    .frame(width: UIScreen.main.bounds.width)
                                     .clipped()
                             }
                         }
                         .tabViewStyle(PageTabViewStyle())
-                        .frame(height: 500)
+                        .frame(height: UIScreen.main.bounds.width * 1.5)
                         
                         VStack(spacing: 10) {
                             Text(user.fullName)
                                 .font(.title2)
                                 .fontWeight(.bold)
                             
-                            HStack(spacing: 5){
-                                Image(systemName: "suitcase")
-                                
-                                Text(user.occupation)
-                                    .font(.footnote)
-                                    .fontWeight(.semibold)
+                            WrappingHStack(horizontalSpacing: 5, verticalSpacing: 5){
+                                HStack(spacing: 5){
+                                    Image(systemName: "suitcase")
+                                    
+                                    Text(user.occupation)
+                                        .font(.footnote)
+                                        .fontWeight(.semibold)
+                                }
+                                .foregroundColor(.gray)
+
+                                if let age = calculateAge(from: user.birthDate){
+                                    HStack(spacing: 5){
+                                        Image(systemName: "birthday.cake")
+                                        
+                                        Text("\(age)y")
+                                            .font(.footnote)
+                                            .fontWeight(.semibold)
+                                    }
+                                    .foregroundColor(.gray)
+                                }
                             }
-                            .foregroundColor(.gray)
-                            
                             
                             HStack(spacing: 5){
                                 Image(systemName: "mappin.circle")
@@ -71,11 +92,9 @@ struct ProfileView: View {
                             Divider()
                             UserStats(value: "\(10)%", title: "Rating")
                         }
-                        .padding()
+                        .padding(.bottom)
                         
                     }
-                    /*               .padding(.top, safeAreaInsets.top + 50)*/ // if you move this part you might break the geomrty reader
-                    
                     .padding(.bottom)
                     .frame(width: UIScreen.main.bounds.width)
                     .background(.bar)
@@ -104,9 +123,9 @@ struct ProfileView: View {
                 .background(Color("testColor"))
                 navbar()
                 
-            } else {
-                UserProfileSkeletonView()
-            }
+//            } else {
+//                UserProfileSkeletonView()
+//            }
         }
 
         .sheet(isPresented: $showSheet, content: {
@@ -118,6 +137,22 @@ struct ProfileView: View {
         .fullScreenCover(isPresented: $showCreateEvent, content: {
             CreateEventView()
         })
+    }
+    
+    var foregroundColor: Color {
+        if colorScheme == .dark {
+            return Color(.white)
+        } else {
+            return Color(.black)
+        }
+    }
+    
+    var backgroundColor: Color {
+        if colorScheme == .dark {
+            return Color(.systemGray5)
+        } else {
+            return Color(.systemGray6)
+        }
     }
     
     @ViewBuilder

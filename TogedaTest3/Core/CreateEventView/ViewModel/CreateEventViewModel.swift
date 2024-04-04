@@ -30,8 +30,8 @@ class CreateEventViewModel: ObservableObject {
 
     //Date View
     @Published var date = Date()
-    @Published var from = Date().addingTimeInterval(60)
-    @Published var to = Date().addingTimeInterval(3600)
+    @Published var from = Date().addingTimeInterval(900)
+    @Published var to = Date().addingTimeInterval(4500)
     @Published var isDate = true
     @Published var daySettings = 0
     @Published var timeSettings = 0

@@ -11,9 +11,9 @@ struct UserStats: View {
     let value: String
     let title: String
     var body: some View {
-        VStack(alignment: .center, spacing: 10) {
+        VStack(alignment: .center, spacing: 8) {
             Text(value)
-                .font(.title3)
+                .font(.headline)
                 .bold()
             Text(title)
                 .font(.footnote)

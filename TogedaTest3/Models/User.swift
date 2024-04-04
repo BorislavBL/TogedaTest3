@@ -72,6 +72,7 @@ struct MiniUser: Identifiable, Codable, Hashable {
     let id: String
     var firstName: String
     var lastName: String
+    var birthDate: String
     var profilePhotos: [String]
     var occupation: String
     var location: baseLocation
@@ -123,6 +124,7 @@ struct UserDetails: Codable, Hashable {
     var bio: String?
     var education: String?
     var workout: String?
+    var height: String?
     var personalityType: String?
     var instagram: String?
     var savedPostIds: [String]
@@ -170,6 +172,7 @@ let mockUserDetails = UserDetails(
     bio: "Loves hiking and reading. Graphic designer by profession.",
     education: "Bachelor's in Graphic Design",
     workout: "Regular",
+    height: "186",
     personalityType: "ISFP",
     instagram: "@userInstagram",
     savedPostIds: ["post1", "post2"],
@@ -196,7 +199,7 @@ extension User {
             birthDate: "1990-01-01",
             visibleGender: true,
             location: mockLocation,
-            occupation: "Graphic Designer",
+            occupation: "Designer",
             profilePhotos: ["person_1", "person_2", "person_3"],
             interests: mockInterests,
             phoneNumber: "359892206243",
@@ -318,7 +321,7 @@ extension User {
 
 extension MiniUser {
     static var MOCK_MINIUSERS: [MiniUser] = User.MOCK_USERS.map { user in
-        return MiniUser(id: user.id, firstName: user.firstName, lastName: user.lastName, profilePhotos: user.profilePhotos, occupation: user.occupation, location: user.location)
+        return MiniUser(id: user.id, firstName: user.firstName, lastName: user.lastName, birthDate: user.birthDate, profilePhotos: user.profilePhotos, occupation: user.occupation, location: user.location)
     }
 }
 

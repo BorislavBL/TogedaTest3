@@ -20,6 +20,20 @@ struct AboutTab: View {
                     if let education = user.details.education {
                         aboutTag(img: Image(systemName: "graduationcap"), text: education)
                     }
+                    if let height = user.details.height {
+                        HStack{
+                            Image(systemName: "ruler")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                                .rotationEffect(.degrees(115))
+                            
+                            Text("\(height) cm (\(convertCmToFeetAndInches(height) ?? "feet"))")
+                                .normalTagTextStyle()
+                        }
+                        .normalTagCapsuleStyle()
+                    }
+                    
                     if let workout = user.details.workout {
                         aboutTag(img: Image(systemName: "dumbbell"), text: workout)
                     }
@@ -44,7 +58,7 @@ struct AboutTab: View {
                 }
             }.padding(.bottom, 30)
             
-            if let bio = user.details.bio {
+            if let bio = user.details.bio, !bio.isEmpty {
                 Text("Bio")
                     .font(.body)
                     .fontWeight(.bold)

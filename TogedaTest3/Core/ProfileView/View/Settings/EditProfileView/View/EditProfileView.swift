@@ -14,6 +14,7 @@ struct EditProfileView: View {
     @Environment(\.dismiss) var dismiss
     @State private var showTypeSheet = false
     @State private var showInstagramSheet = false
+    @State private var showHeightSheet = false
     
     @State private var sheetImage: Image = Image(systemName: "")
     @State private var sheetTitle: String = ""
@@ -280,6 +281,40 @@ struct EditProfileView: View {
                     }
                     
                     Button{
+                        showHeightSheet = true
+                    } label:{
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "ruler")
+                                .imageScale(.large)
+                                .rotationEffect(.degrees(115))
+                            
+                            Text("Height")
+                            
+                            Spacer()
+                            
+                            if let workout = editProfileVM.editUser.details.workout{
+                                Text(workout)
+                                    .foregroundColor(.gray)
+                                
+                            } else {
+                                Text("Select")
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Image(systemName: "chevron.right")
+                                .padding(.trailing, 10)
+                                .foregroundColor(.gray)
+                            
+                            
+                        }
+                        .createEventTabStyle()
+                    }
+                    
+                    if !validHeight {
+                        WarningTextComponent(text: "Invalid height.")
+                    }
+                    
+                    Button{
                         sheetImage = Image(systemName: "puzzlepiece.extension")
                         sheetTitle = "What's your personality type?"
                         types = personalityType
@@ -349,6 +384,9 @@ struct EditProfileView: View {
         })
         .sheet(isPresented: $showInstagramSheet, content: {
             EditProfileInstagramView(instaText: $editProfileVM.instagram)
+        })
+        .sheet(isPresented: $showHeightSheet, content: {
+            EditProfileHeightView(heightText: $editProfileVM.height)
         })
         .scrollIndicators(.hidden)
         .navigationTitle("Edit Profile")
@@ -465,10 +503,26 @@ struct EditProfileView: View {
     }
     
     var saveButtonCheck: Bool {
-        if editProfileVM.editUser.occupation.count >= 3 && editProfileVM.editUser.lastName.count >= 3 && editProfileVM.editUser.firstName.count >= 3, editProfileVM.editUser.interests.count >= 5{
+        if editProfileVM.editUser.occupation.count >= 3 && editProfileVM.editUser.lastName.count >= 3 && editProfileVM.editUser.firstName.count >= 3, editProfileVM.editUser.interests.count >= 5 &&
+            validHeight
+        {
             return true
         } else {
             return false
+        }
+    }
+    
+    var validHeight: Bool {
+        if let height = Int(editProfileVM.height) {
+            if height > 280 {
+                return false
+            } else if height < 60 {
+                return false
+            } else {
+                return true
+            }
+        } else {
+            return true
         }
     }
     

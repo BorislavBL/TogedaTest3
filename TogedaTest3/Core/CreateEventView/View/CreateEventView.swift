@@ -275,7 +275,7 @@ struct CreateEventView: View {
                             .pickerStyle(.segmented)
                             
                             if ceVM.timeSettings != 2 {
-                                DatePicker("From", selection: $ceVM.from, in: Date().addingTimeInterval(60)..., displayedComponents: [.date, .hourAndMinute])
+                                DatePicker("From", selection: $ceVM.from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
                                     .fontWeight(.semibold)
                                 
                                 if ceVM.timeSettings == 1 {
@@ -296,7 +296,7 @@ struct CreateEventView: View {
                     .createEventTabStyle()
                     
                     if pastDate {
-                        WarningTextComponent(text: "Please at least one interest.")
+                        WarningTextComponent(text: "Chnage your timeframe. You can't create an event in the past.")
                         
                     }
                     

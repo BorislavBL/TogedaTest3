@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WrappingHStack
 
 struct UserProfileView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
@@ -34,27 +35,41 @@ struct UserProfileView: View {
                             Image(image)
                                 .resizable()
                                 .scaledToFill()
+                                .frame(width: UIScreen.main.bounds.width)
                                 .clipped()
                             
                         }
                         
                     }
                     .tabViewStyle(PageTabViewStyle())
-                    .frame(height: 500)
+                    .frame(height: UIScreen.main.bounds.width * 1.5)
                     
                     VStack(spacing: 10) {
                         Text(miniUser.fullName)
                             .font(.title2)
                             .fontWeight(.bold)
                         
-                        HStack(spacing: 5){
-                            Image(systemName: "suitcase")
-                            
-                            Text("Graphic Designer")
-                                .font(.footnote)
-                                .fontWeight(.semibold)
+                        WrappingHStack(horizontalSpacing: 5, verticalSpacing: 5){
+                            HStack(spacing: 5){
+                                Image(systemName: "suitcase")
+                                
+                                Text(miniUser.occupation)
+                                    .font(.footnote)
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.gray)
+
+                            if let age = calculateAge(from: miniUser.birthDate){
+                                HStack(spacing: 5){
+                                    Image(systemName: "birthday.cake")
+                                    
+                                    Text("\(age)y")
+                                        .font(.footnote)
+                                        .fontWeight(.semibold)
+                                }
+                                .foregroundColor(.gray)
+                            }
                         }
-                        .foregroundColor(.gray)
                         
                         if let location = user?.location.name {
                             HStack(spacing: 5){
@@ -70,14 +85,15 @@ struct UserProfileView: View {
                         }
                     }.padding()
                     
-                    HStack(alignment: .top, spacing: 30) {
+                    HStack(alignment: .top, spacing: 30
+                    ) {
                         UserStats(value: String(user?.details.friendIds.count ?? 0), title: "Friends")
                         Divider()
                         UserStats(value: String(user?.details.createdEventIds.count ?? 0), title: "Events")
                         Divider()
                         UserStats(value: "\(10)%", title: "Rating")
                     }
-                    .padding()
+                    .padding(.bottom)
                     
                     if miniUser.id != userId{
                         HStack(alignment:.center, spacing: 10) {

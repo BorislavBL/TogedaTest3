@@ -41,13 +41,14 @@ struct EventView: View {
                                 Image(image)
                                     .resizable()
                                     .scaledToFill()
+                                    .frame(width: UIScreen.main.bounds.width)
                                     .clipped()
                                 
                             }
                             
                         }
                         .tabViewStyle(PageTabViewStyle())
-                        .frame(height: 500)
+                        .frame(height: UIScreen.main.bounds.width * 1.5)
                         
                         VStack(alignment: .leading){
                             Text(post.title)
