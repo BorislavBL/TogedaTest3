@@ -21,7 +21,7 @@ struct UserStatsSecond: View {
                 .foregroundColor(.gray)
         }
         .frame(width: 80, height: 80)
-        .background(Color("secondaryColor").opacity(0.5))
+        .background(Color("main-secondary-color").opacity(0.5))
         .cornerRadius(10)
         .overlay(
             RoundedRectangle(cornerRadius: 10)

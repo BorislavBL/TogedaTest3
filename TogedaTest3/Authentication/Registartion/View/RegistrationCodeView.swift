@@ -6,17 +6,21 @@
 //
 
 import SwiftUI
+import AWSCognitoIdentityProvider
 
 struct RegistrationCodeView: View {
-    @ObservedObject var vm: RegistrationViewModel
+    @EnvironmentObject var mainVm: ContentViewModel
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var keyIsFocused: Bool
     @Environment(\.dismiss) var dismiss
     
     @State private var displayError: Bool = false
-    @State private var isActive: Bool = false
     
     @State private var errorMessage: String?
+    
+    @State var code: String = ""
+    @Binding var email: String
+    @Binding var password: String
     
     var body: some View {
         VStack {
@@ -25,15 +29,15 @@ struct RegistrationCodeView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            TextField("", text: $vm.code)
-                .placeholder(when: vm.code.isEmpty) {
+            TextField("", text: $code)
+                .placeholder(when: code.isEmpty) {
                     Text("Code")
                         .foregroundColor(.secondary)
                         .bold()
                 }
-                .onChange(of: vm.code) { oldValue, newValue in
-                    if vm.code.count > 6 {
-                        vm.code = String(vm.code.prefix(6))
+                .onChange(of: code) { oldValue, newValue in
+                    if code.count > 6 {
+                        code = String(code.prefix(6))
                     }
                 }
                 .bold()
@@ -56,18 +60,12 @@ struct RegistrationCodeView: View {
             }
             
             Button{
-                vm.code = ""
-                Task{
-                    do {
-                        try await AuthService.shared.resendSignUpCode(email: vm.createdUser.email)
-                    } catch GeneralError.badRequest(details: let details){
-                        print(details)
-                    } catch GeneralError.invalidURL {
-                        print("Invalid URL")
-                    } catch GeneralError.serverError(let statusCode, let details) {
-                        print("Status: \(statusCode) \n \(details)")
-                    } catch {
-                        print("Error message:", error)
+                code = ""
+                AuthClient.shared.resendConfirmationCode(email: email) { success, error in
+                    if success {
+                        
+                    } else if let errorMessage = error {
+                        print("Error:", errorMessage)
                     }
                 }
             } label: {
@@ -83,21 +81,21 @@ struct RegistrationCodeView: View {
             Spacer()
             
             Button{
-                Task{
-                    do {
-                        if let userId = vm.userId, let code = Int(vm.code){
-                            try await AuthService.shared.confirmSignUp(userId: userId, code: code)
-                            isActive = true
+                AuthClient.shared.confirmSignUp(email: email, code: code) { success, error in
+                    if success {
+                        AuthClient.shared.login(email: email, password: password) { success, emailNotConfirmed, error  in
+                            if success {
+                                print("Success")
+                                mainVm.checkAuthStatus()
+                            } else if let message = error {
+                                print(message)
+                                if emailNotConfirmed{
+                                    print("Email not confirmed")
+                                }
+                            }
                         }
-                    } catch GeneralError.badRequest(details: let details){
-                        print(details)
-                        errorMessage = "Invalid Code"
-                    } catch GeneralError.invalidURL {
-                        print("Invalid URL")
-                    } catch GeneralError.serverError(let statusCode, let details) {
-                        print("Status: \(statusCode) \n \(details)")
-                    } catch {
-                        print("Error message:", error)
+                    } else if let errorMessage = error {
+                        self.errorMessage = errorMessage
                     }
                 }
             } label:{
@@ -109,9 +107,9 @@ struct RegistrationCodeView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(vm.code.count < 6)
+            .disableWithOpacity(code.count < 6)
             .onTapGesture {
-                if vm.code.count < 4 {
+                if code.count < 4 {
                     displayError.toggle()
                 }
             }
@@ -125,9 +123,6 @@ struct RegistrationCodeView: View {
         }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
-        .navigationDestination(isPresented: $isActive, destination: {
-            LoginView()
-        })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
@@ -155,5 +150,6 @@ struct RegistrationCodeView: View {
 }
 
 #Preview {
-    RegistrationCodeView(vm: RegistrationViewModel())
+    RegistrationCodeView(email: .constant(""), password: .constant(""))
+        .environmentObject(ContentViewModel())
 }

@@ -27,7 +27,7 @@ struct PhotosGridView: View {
                                 .cornerRadius(10)
                                 .clipped()
                         } else {
-                            Color("secondaryColor")
+                            Color("main-secondary-color")
                                 .frame(width:imageDimension, height: imageDimension * 1.3)
                                 .cornerRadius(10)
                             
@@ -54,7 +54,7 @@ struct PhotosGridView: View {
                                 .cornerRadius(10)
                                 .clipped()
                         } else {
-                            Color("secondaryColor")
+                            Color("main-secondary-color")
                                 .frame(width:imageDimension, height: imageDimension * 1.3)
                                 .cornerRadius(10)
                             

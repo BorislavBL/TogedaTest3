@@ -26,7 +26,7 @@ struct UsersListView: View {
                 }
                 ForEach(users, id:\.id) { user in
                     HStack{
-                        NavigationLink(value: SelectionPath.profile(user)){
+                        NavigationLink(value: SelectionPath.profile(MockMiniUser)){
                             HStack{
                                 Image(user.profilePhotos[0])
                                     .resizable()

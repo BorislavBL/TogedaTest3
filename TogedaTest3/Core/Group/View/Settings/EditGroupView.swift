@@ -49,7 +49,7 @@ struct EditGroupView: View {
                     }
                     
                     
-                    NavigationLink(destination:  LocationPicker(returnedPlace: $editGroupVM.returnedPlace)){
+                    NavigationLink(destination:  LocationPicker( returnedPlace: $editGroupVM.returnedPlace, isActivePrev: .constant(true))){
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "location.circle.fill")
                                 .imageScale(.large)

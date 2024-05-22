@@ -21,7 +21,7 @@ struct CreateSheetView: View {
                 Button{dismiss()} label:{
                     Image(systemName: "xmark")
                         .frame(width: 35, height: 35)
-                        .background(Color("secondaryColor"))
+                        .background(Color("main-secondary-color"))
                         .clipShape(Circle())
                 }
             }
@@ -36,7 +36,7 @@ struct CreateSheetView: View {
                 HStack{
                     Image(systemName: "plus")
                         .frame(width: 35, height: 35)
-                        .background(Color("secondaryColor"))
+                        .background(Color("main-secondary-color"))
                         .clipShape(Circle())
                     Text("Create a Club")
                         .fontWeight(.semibold)
@@ -52,7 +52,7 @@ struct CreateSheetView: View {
                 HStack{
                     Image(systemName: "plus")
                         .frame(width: 35, height: 35)
-                        .background(Color("secondaryColor"))
+                        .background(Color("main-secondary-color"))
                         .clipShape(Circle())
                     Text("Create an Event")
                         .fontWeight(.semibold)

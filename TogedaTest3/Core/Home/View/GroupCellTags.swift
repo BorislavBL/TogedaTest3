@@ -28,7 +28,8 @@ struct GroupCellTags: View {
             
             HStack(spacing: 3) {
                 Image(systemName: "location")
-                Text(locationCityAndCountry(club.baseLocation))
+//                Text(locationCityAndCountry(club.baseLocation))
+                Text(club.baseLocation.name)
                     .normalTagTextStyle()
             }
             .normalTagCapsuleStyle()

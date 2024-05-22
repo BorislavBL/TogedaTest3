@@ -36,15 +36,15 @@ struct GroupEventsView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack{
                     ForEach(groupVM.club.events.indices, id: \.self){ index in
-                        if groupVM.club.events[index].hasEnded {
-                            NavigationLink(destination: CompletedEventView(postID: posts[index].id)){
-                                GroupEventComponent(post: posts[index])
-                            }
-                        } else {
-                            NavigationLink(destination: EventView(postID: posts[index].id)){
-                                GroupEventComponent(post: posts[index])
-                            }
-                        }
+//                        if groupVM.club.events[index].hasEnded {
+//                            NavigationLink(destination: CompletedEventView(postID: posts[index].id)){
+//                                GroupEventComponent(post: posts[index])
+//                            }
+//                        } else {
+//                            NavigationLink(destination: EventView(postID: posts[index].id)){
+//                                GroupEventComponent(post: posts[index])
+//                            }
+//                        }
                     }
                 }
                 .padding(.horizontal)

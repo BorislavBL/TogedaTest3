@@ -110,21 +110,22 @@ struct IntroView: View {
                         }
                         
                     }
-                    .padding(.bottom, 30)
+                    .padding(.bottom, 10)
                     
                 }
-                .padding(.vertical, 32)
+                .padding(.vertical, 30)
                 .padding(.horizontal)
                 .frame(width: UIScreen.main.bounds.width)
                 .background(.bar)
                 .cornerRadius(10)
             }
+            .edgesIgnoringSafeArea(.top)
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
             .navigationDestination(isPresented: $showLogin) {
                 LoginView()
             }
             .navigationDestination(isPresented: $showRegistartion) {
-                RegistrationEmailView(vm: vm)
+                RegistrationView()
             }
         }
     }

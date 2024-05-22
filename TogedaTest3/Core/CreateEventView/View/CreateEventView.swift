@@ -26,8 +26,8 @@ struct CreateEventView: View {
     let descriptionPlaceholder = "Describe the purpose of your event. What activities are you planning? Mention any special guests who might be attending. Will there be food and drinks? Help attendees know what to expect."
     
     var body: some View {
-        NavigationStack {
-            VStack{
+        NavigationStack() {
+            ZStack(alignment: .bottom){
                 ScrollView(showsIndicators: false){
                     VStack(alignment: .leading){
                         Text("Title:")
@@ -109,8 +109,8 @@ struct CreateEventView: View {
                     }
                     
                     
-                    NavigationLink {
-                        LocationPicker(returnedPlace: $ceVM.returnedPlace)
+                    Button {
+                        showLocationView = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "mappin.circle")
@@ -157,7 +157,7 @@ struct CreateEventView: View {
                             Spacer()
                             
                             if !ceVM.selectedVisability.isEmpty {
-                                Text(ceVM.selectedVisability)
+                                Text(ceVM.selectedVisability.capitalized)
                                     .foregroundColor(.gray)
                             } else {
                                 Text("Select")
@@ -267,18 +267,18 @@ struct CreateEventView: View {
                         }
                         
                         if ceVM.showTimeSettings {
-                            Picker("Choose Date", selection: $ceVM.timeSettings){
+                            Picker("Choose Date", selection: $ceVM.dateTimeSettings){
                                 Text("Exact").tag(0)
                                 Text("Range").tag(1)
                                 Text("Anytime").tag(2)
                             }
                             .pickerStyle(.segmented)
                             
-                            if ceVM.timeSettings != 2 {
+                            if ceVM.dateTimeSettings != 2 {
                                 DatePicker("From", selection: $ceVM.from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
                                     .fontWeight(.semibold)
                                 
-                                if ceVM.timeSettings == 1 {
+                                if ceVM.dateTimeSettings == 1 {
                                     DatePicker("To", selection: $ceVM.to, in: ceVM.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
                                         .fontWeight(.semibold)
                                 }
@@ -395,61 +395,77 @@ struct CreateEventView: View {
                         }
                     }
                     .createEventTabStyle()
+                    .padding(.bottom, 100)
                 }
                 .padding(.horizontal)
                 
                 
                 if allRequirenments {
-                    Button{
-                        Task{
-                            do{
-                                if await photoPickerVM.saveImages() {
-                                    ceVM.postPhotosURls = photoPickerVM.publishedPhotosURLs
-                                    let createPost = ceVM.createPost()
-                                    print(createPost)
-                                    try await PostService().createPost(userData: createPost)
-                                    dismiss()
+                    ZStack(alignment: .bottom){
+                        LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
+                            .ignoresSafeArea(edges: .bottom)
+
+                        Button{
+                            Task{
+                                do{
+                                    if await photoPickerVM.saveImages() {
+                                        ceVM.postPhotosURls = photoPickerVM.publishedPhotosURLs
+                                        let createPost = ceVM.createPost()
+                                        print(createPost)
+                                        let response = try await APIClient.shared.createEvent(body: createPost)
+                                        print("Post:", response)
+                                        dismiss()
+                                    }
+                                } catch GeneralError.badRequest(details: let details){
+                                    print(details)
+                                } catch GeneralError.invalidURL {
+                                    print("Invalid URL")
+                                } catch GeneralError.serverError(let statusCode, let details) {
+                                    print("Status: \(statusCode) \n \(details)")
+                                } catch {
+                                    print("Error message:", error)
                                 }
-                            } catch GeneralError.badRequest(details: let details){
-                                print(details)
-                            } catch GeneralError.invalidURL {
-                                print("Invalid URL")
-                            } catch GeneralError.serverError(let statusCode, let details) {
-                                print("Status: \(statusCode) \n \(details)")
-                            } catch {
-                                print("Error message:", error)
+                                
                             }
-                            
+                        } label: {
+                            Text("Create")
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                                .fontWeight(.semibold)
                         }
-                    } label: {
+                        .padding()
+                    }
+                    .frame(height: 60)
+                } else {
+                    ZStack(alignment: .bottom){
+                        LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
+                            .ignoresSafeArea(edges: .bottom)
+
                         Text("Create")
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
-                            .background(Color("blackAndWhite"))
+                            .background(.gray)
                             .foregroundColor(Color("testColor"))
                             .cornerRadius(10)
                             .fontWeight(.semibold)
+                            .padding()
+                            .onTapGesture {
+                                displayWarnings.toggle()
+                            }
                     }
-                    .padding()
-                } else {
-                    Text("Create")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 60)
-                        .background(.gray)
-                        .foregroundColor(Color("testColor"))
-                        .cornerRadius(10)
-                        .fontWeight(.semibold)
-                        .padding()
-                        .onTapGesture {
-                            displayWarnings.toggle()
-                        }
+                    .frame(height: 60)
                 }
                 
             }
-            //            .onTapGesture {
-            //                hideKeyboard()
-            //            }
-            .frame(maxHeight: UIScreen.main.bounds.height,alignment: .top)
+            .toolbar{
+                ToolbarItemGroup(placement: .keyboard) {
+                    KeyboardToolbarItems()
+                }
+            }
+            .frame(maxHeight: UIScreen.main.bounds.height, alignment: .top)
             .navigationBarBackButtonHidden(true)
             .navigationTitle("Create Event")
             .navigationBarTitleDisplayMode(.inline)
@@ -457,7 +473,7 @@ struct CreateEventView: View {
                 Image(systemName: "xmark")
                     .imageScale(.medium)
                     .padding(.all, 8)
-                    .background(Color("secondaryColor"))
+                    .background(Color("main-secondary-color"))
                     .clipShape(Circle())
             }
             )
@@ -468,7 +484,7 @@ struct CreateEventView: View {
                 PhotoPickerView(photoPickerVM: photoPickerVM)
             }
             .navigationDestination(isPresented: $showLocationView) {
-                LocationPicker(returnedPlace: $ceVM.returnedPlace)
+                LocationPicker(returnedPlace: $ceVM.returnedPlace, isActivePrev: $showLocationView)
             }
             .navigationDestination(isPresented: $showAccessibilityView) {
                 AccessibilityView(selectedVisability: $ceVM.selectedVisability, askToJoin: $ceVM.askToJoin)
@@ -480,7 +496,6 @@ struct CreateEventView: View {
         .sheet(isPresented: $showExitSheet, content: {
             onCloseTab()
         })
-        .resignKeyboardOnDragGesture()
     }
     
     func onCloseTab() -> some View {

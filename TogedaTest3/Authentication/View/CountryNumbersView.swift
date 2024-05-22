@@ -219,5 +219,5 @@ struct OnboardingButtonStyle: ButtonStyle {
 }
 
 #Preview {
-    CountryNumbersView(countryCode: .constant("+359"), countryFlag: .constant("🇧🇬"), countryPattern: .constant("#"), countryLimit: .constant(17), mobPhoneNumber: .constant(""), currentDestination: AnyView(LoginCodeView()))
+    CountryNumbersView(countryCode: .constant("+359"), countryFlag: .constant("🇧🇬"), countryPattern: .constant("#"), countryLimit: .constant(17), mobPhoneNumber: .constant(""), currentDestination: AnyView(RegistrationView()))
 }

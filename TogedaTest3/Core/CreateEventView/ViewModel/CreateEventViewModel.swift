@@ -21,20 +21,18 @@ class CreateEventViewModel: ObservableObject {
     @Published var price: Double?
     
     //Location View
-    @Published var location: baseLocation?
+    @Published var location: Components.Schemas.BaseLocation?
     @Published var returnedPlace = Place(mapItem: MKMapItem()){
         didSet{
-            self.location = baseLocation(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+            self.location = .init(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
         }
     }
 
     //Date View
-    @Published var date = Date()
     @Published var from = Date().addingTimeInterval(900)
     @Published var to = Date().addingTimeInterval(4500)
     @Published var isDate = true
-    @Published var daySettings = 0
-    @Published var timeSettings = 0
+    @Published var dateTimeSettings = 0
     @Published var showTimeSettings = false
     
     //Description View
@@ -50,21 +48,38 @@ class CreateEventViewModel: ObservableObject {
     //Photos
     @Published var postPhotosURls: [String] = []
     
-    func createPost() -> CreatePost {
-        let dateFrom = formatDateAndTimeToStringTimeFormat(date: from)
-        let dateTo = formatDateAndTimeToStringTimeFormat(date: to)
+    func createPost() -> Components.Schemas.CreatePostDto {
+        let interests = selectedInterests.map { interest in
+            Components.Schemas.Interest(name: interest.name, icon: interest.icon, category: interest.category)
+        }
+        
+        var fromDate: Date?
+        var toDate: Date?
+        
+        if dateTimeSettings == 0 {
+            fromDate = from
+            toDate = nil
+        } else if dateTimeSettings == 1 {
+            fromDate = from
+            toDate = to
+        } else {
+            fromDate = nil
+            toDate = nil
+        }
+        
         return .init(
             title: title,
             images: postPhotosURls,
             description: description.isEmpty ? nil : description,
-            maximumPeople: participants,
+            maximumPeople: (participants == 0 || participants == nil) ? nil : Int32(participants!),
             location: location!,
-            fromDate: (timeSettings == 0 || timeSettings == 1) ? dateFrom : nil,
-            toDate: (timeSettings == 1) ? dateTo : nil,
-            interests: selectedInterests,
+            interests: interests,
             payment: price != nil ? price! : 0,
-            accessibility: selectedVisability,
+            accessibility: .init(rawValue: selectedVisability.uppercased())!,
             askToJoin: askToJoin,
-            inClubID: nil)
+            inClubID: nil,
+            fromDate: fromDate,
+            toDate: toDate
+        )
     }
 }

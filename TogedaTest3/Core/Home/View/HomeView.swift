@@ -33,8 +33,11 @@ struct HomeView: View {
                         ScrollView(.vertical, showsIndicators: false){
                             LazyVStack (spacing: 10){
                                 
-                                ForEach(postsViewModel.posts, id: \.id) { post in
-                                    PostCell(post: post)
+                                ForEach(postsViewModel.feedPosts.indices, id: \.self) { index in
+                                    PostCell(post: postsViewModel.feedPosts[index])
+                                        .onAppear(){
+                                            postsViewModel.feedScrollFetch(index: index)
+                                        }
                                 }
                                 GroupCell()
                                 
@@ -106,17 +109,11 @@ struct HomeView: View {
                             SearchView(viewModel: viewModel)
                         }
                     }
-                    .onChange(of: viewModel.searchText){
-                        if !viewModel.searchText.isEmpty {
-                            viewModel.searchPostResults = Post.MOCK_POSTS.filter{ result in
-                                result.title.lowercased().contains(viewModel.searchText.lowercased())
-                            }
-                            viewModel.searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                                result.fullName.lowercased().contains(viewModel.searchText.lowercased())
-                            }
+                    .onChange(of: viewModel.showCancelButton){
+                        if viewModel.showCancelButton {
+                            postsViewModel.startSearch()
                         } else {
-                            viewModel.searchPostResults = Post.MOCK_POSTS
-                            viewModel.searchUserResults = MiniUser.MOCK_MINIUSERS
+                            postsViewModel.startSearch()
                         }
                     }
                     CustomNavBar(showFilter: $showFilter, filterVM: filterViewModel, homeViewModel: viewModel)
@@ -127,7 +124,7 @@ struct HomeView: View {
                     JoinRequestView()
             }
             .sheet(isPresented: $filterViewModel.showAllFilter, content: {
-                AllInOneFilterView()
+                AllInOneFilterView(filterVM: filterViewModel)
 //                    .presentationDetents([.fraction(0.99)])
 //                    .presentationDragIndicator(.visible)
             })

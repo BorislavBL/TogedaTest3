@@ -11,7 +11,8 @@ import WrappingHStack
 
 struct AllInOneFilterView: View {
     @Environment(\.dismiss) var dismiss
-    @StateObject var filterVM = FilterViewModel()
+    @ObservedObject var filterVM: FilterViewModel
+    @EnvironmentObject var postVM: PostsViewModel
     
     var body: some View {
         VStack(spacing: 0){
@@ -91,6 +92,16 @@ struct AllInOneFilterView: View {
                     }
                     
                     Button {
+                        Task{
+                           try await postVM.applyFilter(
+                            lat: filterVM.returnedPlace.latitude,
+                            long: filterVM.returnedPlace.longitude,
+                            distance: filterVM.sliderValue,
+                            from: filterVM.selectedTimeFilter.from,
+                            to: filterVM.selectedTimeFilter.to
+                           )
+                        }
+                        
                         dismiss()
                     } label: {
                         Text("Submit")
@@ -145,7 +156,7 @@ struct AllInOneFilterView: View {
 
 struct LocationPickerFilterView: View {
     @EnvironmentObject var locationManager: LocationManager
-    @StateObject var allInOneVM = AllInOneFilterViewModel()
+    @StateObject var locationVM = LocationPickerViewModel(searchType: .cityAndCountry)
     @Environment(\.dismiss) private var dismiss
     @Binding var returnedPlace: Place
     @State var showCancelButton: Bool = false
@@ -198,7 +209,7 @@ struct LocationPickerFilterView: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                     
-                    TextField("Search", text: $allInOneVM.searchText)
+                    TextField("Search", text: $locationVM.searchText)
                         .foregroundColor(.primary)
                         .autocorrectionDisabled()
                         .focused($focus)
@@ -211,9 +222,9 @@ struct LocationPickerFilterView: View {
                 .foregroundColor(.secondary)
                 
 
-                if !allInOneVM.searchText.isEmpty {
+                if !locationVM.searchText.isEmpty {
                     
-                    ForEach(allInOneVM.places, id: \.id){ place in
+                    ForEach(locationVM.places, id: \.id){ place in
                         VStack(alignment: .leading) {
                             HStack{
                                 Image(systemName: "mappin.circle")
@@ -236,7 +247,7 @@ struct LocationPickerFilterView: View {
                         }
                         .onTapGesture {
                             UIApplication.shared.endEditing(true)
-                            allInOneVM.searchText = ""
+                            locationVM.searchText = ""
                             showCancelButton = false
                             returnedPlace = place
                         }
@@ -250,12 +261,13 @@ struct LocationPickerFilterView: View {
                         .padding(.horizontal)
                     
                     Button {
-                        locationManager.requestAuthorization()
-                        findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace)
-                        UIApplication.shared.endEditing(true)
-                        allInOneVM.searchText = ""
-                        isCurrentLocation = true
-                        focus = false
+//                        locationManager.requestAuthorization()
+                        findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace){
+                            UIApplication.shared.endEditing(true)
+                            locationVM.searchText = ""
+                            isCurrentLocation = true
+                            focus = false
+                        }
                         
                     } label: {
                         Label {
@@ -268,6 +280,11 @@ struct LocationPickerFilterView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading )
                 }
+            }
+        }
+        .onAppear(){
+            findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace) {
+                isCurrentLocation = true
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading )
@@ -334,11 +351,11 @@ struct TimeFilterView: View {
             } label: {
                 HStack{
                     Image(systemName: "calendar")
-                    if vm.selectedTimeFilter == "Custom"{
+                    if vm.selectedTimeFilter.name == "Custom" {
                         Text(vm.selectedTimeFrame)
                             .fontWeight(.semibold)
                     } else {
-                        Text(vm.selectedTimeFilter)
+                        Text(vm.selectedTimeFilter.name)
                             .fontWeight(.semibold)
                     }
                     
@@ -350,21 +367,21 @@ struct TimeFilterView: View {
             }
             
             if showOptions{
-                ForEach(vm.timeFilterOptions, id: \.self){option in
+                ForEach(TimeFilter.timeFilterOptions, id: \.self){option in
                     Button{
                         vm.selectedTimeFilter = option
-                        if option != "Custom" {
+                        if option.name != "Custom" {
                             showOptions = false
                         } else {
                             vm.selectedTimeFrame = vm.timeToString()
                         }
                     } label:{
-                        Text(option)
+                        Text(option.name)
                             .fontWeight(.semibold)
                     }
                 }
                 
-                if vm.selectedTimeFilter == "Custom" {
+                if vm.selectedTimeFilter.name == "Custom" {
                     HStack{
                         DatePicker("From", selection: $vm.from, in: Date()..., displayedComponents: [.date])
                             .fontWeight(.semibold)
@@ -372,7 +389,7 @@ struct TimeFilterView: View {
                         
                         Image(systemName: "arrow.right")
                         
-                        DatePicker("To", selection: $vm.to, in: vm.from..., displayedComponents: [.date])
+                        DatePicker("To", selection: $vm.to, in: vm.from.addingTimeInterval(60 * 15)..., displayedComponents: [.date])
                             .fontWeight(.semibold)
                             .labelsHidden()
                     }
@@ -421,6 +438,7 @@ struct CategoryFilterView: View {
 
 
 #Preview {
-    AllInOneFilterView()
+    AllInOneFilterView(filterVM: FilterViewModel())
         .environmentObject(LocationManager())
+        .environmentObject(PostsViewModel())
 }

@@ -35,7 +35,7 @@ class PostService {
         }
         
         if !(200...299).contains(httpResponse.statusCode) {
-            if let loginErrorResponse = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
+            if let loginErrorResponse = try? JSONDecoder().decode(APIErrorResponse1.self, from: data) {
                 throw GeneralError.badRequest(details: loginErrorResponse.apierror.message)
                 
             } else {

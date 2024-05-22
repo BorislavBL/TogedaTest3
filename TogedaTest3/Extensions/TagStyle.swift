@@ -13,7 +13,7 @@ extension View {
         self.frame(height: 16)
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background{Capsule().fill(Color("secondaryColor"))}
+            .background{Capsule().fill(Color("main-secondary-color"))}
     }
     
     func selectedTagCapsuleStyle() -> some View {
@@ -26,7 +26,7 @@ extension View {
     func normalTagRectangleStyle() -> some View {
         self.padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background{Color("secondaryColor")}
+            .background{Color("main-secondary-color")}
             .cornerRadius(10)
     }
     

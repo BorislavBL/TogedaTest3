@@ -18,6 +18,17 @@ func interestsOrder(_ interests: [Interest]) -> String {
     return text
 }
 
+func interestsOrder1(_ interests: [Components.Schemas.Interest]) -> String {
+    var text = ""
+    for i in interests.indices {
+        if i < 3 {
+            text += "\(interests[i].icon) \(interests[i].name) "
+        }
+    }
+    
+    return text
+}
+
 func locationCityAndCountry(_ location: baseLocation) -> String {
     var locationComponents = [String]()
     
@@ -33,7 +44,41 @@ func locationCityAndCountry(_ location: baseLocation) -> String {
     return locationComponents.joined(separator: ", ")
 }
 
+func locationCityAndCountry1(_ location: Components.Schemas.BaseLocation) -> String {
+    var locationComponents = [String]()
+    
+    if let city = location.city {
+        locationComponents.append(city)
+    } else if let state = location.state {
+        locationComponents.append(state)
+    }
+    if let country = location.country {
+        locationComponents.append(country)
+    }
+    
+    return locationComponents.joined(separator: ", ")
+}
+
 func locationAddress(_ location: baseLocation) -> String {
+    var locationComponents = [String]()
+    
+    if let street = location.address {
+        locationComponents.append(street)
+    }
+    if let city = location.city {
+        locationComponents.append(city)
+    }
+    if let state = location.state {
+        locationComponents.append(state)
+    }
+    if let country = location.country {
+        locationComponents.append(country)
+    }
+    
+    return locationComponents.joined(separator: ", ")
+}
+
+func locationAddress1(_ location: Components.Schemas.BaseLocation) -> String {
     var locationComponents = [String]()
     
     if let street = location.address {

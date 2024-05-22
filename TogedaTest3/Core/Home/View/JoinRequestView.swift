@@ -12,7 +12,8 @@ struct JoinRequestView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     var post: Post? {
-        return postsViewModel.posts.first(where: {$0.id == postsViewModel.clickedPostID})
+//        return postsViewModel.posts.first(where: {$0.id == postsViewModel.clickedPostID})
+        return Post.MOCK_POSTS[0]
     }
     
     var body: some View {
@@ -53,7 +54,7 @@ struct JoinRequestView: View {
                     }
                     else {
                         Button {
-                            postsViewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
+//                            postsViewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
                             postsViewModel.showJoinRequest = false
                         } label: {
                             HStack(spacing:2){

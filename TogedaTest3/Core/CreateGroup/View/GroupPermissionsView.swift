@@ -34,47 +34,83 @@ struct GroupPermissionsView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedPermission: Permissions
     
-    var body: some View {
-        List {
-            Text("Permissions")
-                .font(.title3)
-                .fontWeight(.bold)
-                .listRowSeparator(.hidden)
-
-            
-            Picker("", selection: $selectedPermission) {
-                Text("All members").tag(Permissions.All_members)
-                Text("Admins only").tag(Permissions.Admins_only)
-            }
-            .labelsHidden()
-            .pickerStyle(InlinePickerStyle())
-            
-            Group{
-                if selectedPermission == .All_members {
-                    Text("Everyone in this group will be able to create events.")
+    var body: some View{
+        VStack(alignment: .leading, spacing: 20){
+            VStack(alignment: .leading){
+                Button{
+                    selectedPermission = .All_members
+                } label:{
+                    HStack {
+                        if selectedPermission == .All_members {
+                            Image(systemName: "checkmark.circle.fill")
+                                .imageScale(.large)
+                                .foregroundStyle(.blue)
+                        } else {
+                            Image(systemName: "circle")
+                                .imageScale(.large)
+                                .foregroundStyle(.gray)
+                        }
+                        Text("All Members").tag(Permissions.All_members)
+                    }
+                }
+                
+                HStack {
+                        Image(systemName: "circle")
+                            .imageScale(.large)
+                            .foregroundStyle(.gray.opacity(0))
                     
-                } else if selectedPermission == .Admins_only {
-                    Text("Only admins will be capable of creating group events.")
+                    Text("Everyone in this group will be able to create events.")
+                        .font(.callout)
+                        .foregroundColor(.gray)
                 }
             }
-            .font(.callout)
-            .foregroundColor(.gray)
-            .listRowSeparator(.hidden)
+            
+            VStack(alignment: .leading){
+                Button{
+                    selectedPermission = .Admins_only
+                } label:{
+                    HStack {
+                        if selectedPermission == .Admins_only {
+                            Image(systemName: "checkmark.circle.fill")
+                                .imageScale(.large)
+                                .foregroundStyle(.blue)
+                        } else {
+                            Image(systemName: "circle")
+                                .imageScale(.large)
+                                .foregroundStyle(.gray)
+                        }
+                        Text("Admins only").tag(Permissions.Admins_only)
+                    }
+                }
+                
+                HStack {
+                        Image(systemName: "circle")
+                            .imageScale(.large)
+                            .foregroundStyle(.gray.opacity(0))
+                    
+                    Text("Only admins will be capable of creating group events.")
+                        .font(.callout)
+                        .foregroundColor(.gray)
+                }
+            }
+            
         }
-        .listStyle(.plain)
-        .padding(.vertical)
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .navigationTitle("Permissions")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
                 .padding(.all, 8)
-                .background(Color("secondaryColor"))
+                .background(Color("main-secondary-color"))
                 .clipShape(Circle())
         }
         )
         
         
     }
+
 }
 
 #Preview {

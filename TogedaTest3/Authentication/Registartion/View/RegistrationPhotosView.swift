@@ -91,8 +91,8 @@ struct RegistrationPhotosView: View {
                 Task{
                     isLoading = true
                     if await vm.saveImages() {
-                        print(vm.createdUser.profilePhotos)
-                        isActive = true
+                        print(vm.profilePhotos)
+                    isActive = true
                     }
                     isLoading = false
                 }

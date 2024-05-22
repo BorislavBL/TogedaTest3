@@ -17,7 +17,6 @@ struct ChatView: View {
         VStack{
             ScrollViewReader { proxy in
                 ScrollView{
-                    
                     LazyVStack{
                         ForEach(viewModel.messages.indices, id: \.self) { index in
                             VStack{
@@ -56,11 +55,11 @@ struct ChatView: View {
                         }
                     }
                     .padding(.vertical)
-                    .onAppear(){
-                        withAnimation(.spring()) {
-                            proxy.scrollTo(viewModel.messages.count - 1, anchor:.bottom)
-                        }
-                    }
+//                    .onAppear(){
+//                        withAnimation(.spring()) {
+//                            proxy.scrollTo(viewModel.messages.count - 1, anchor:.bottom)
+//                        }
+//                    }
                     .onChange(of: viewModel.messages) { oldValue, newValue in
                         //                    guard  let lastMessage = newValue.last else { return }
                         //
@@ -72,6 +71,7 @@ struct ChatView: View {
                         }
                     }
                 }
+                .defaultScrollAnchor(.bottom)
             }
             
             Spacer()

@@ -26,7 +26,7 @@ struct CategoryView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @State private var searchText: String = ""
-    @State private var cancelSearch: Bool = false
+    @State private var isSearchPresent: Bool = false
     
     var text: String
     var minInterests: Int
@@ -36,10 +36,10 @@ struct CategoryView: View {
             ScrollView{
                 
                 LazyVStack(alignment: .leading, spacing: 20) {
-                    CustomSearchBar(searchText: $searchText, showCancelButton: $cancelSearch)
-                        .padding(.top, 20)
+                    CustomSearchBar(searchText: $searchText, showCancelButton: $isSearchPresent)
+                        .padding(.top, 5)
                     
-                    if !cancelSearch {
+                    if !isSearchPresent {
                         Text(text)
                             .font(.body)
                             .foregroundStyle(.gray)
@@ -52,9 +52,10 @@ struct CategoryView: View {
                             .bold()
                             .padding(.top, 20)
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+                        
+                        
+                        InterestCategorySection(interests: sport + health, selectedInterests: $selectedInterests, color: .green)
                     }
-                    
-                    InterestCategorySection(interests: sport + health, selectedInterests: $selectedInterests, color: .green)
                     
                     if social.count > 0 || business.count > 0 {
                         Text("Social & Business")
@@ -63,8 +64,9 @@ struct CategoryView: View {
                             .padding(.top, 20)
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                         
+                        
+                        InterestCategorySection(interests: social + business, selectedInterests: $selectedInterests, color: .cyan)
                     }
-                    InterestCategorySection(interests: social + business, selectedInterests: $selectedInterests, color: .cyan)
                     
                     if entertainment.count > 0 {
                         Text("Entertainment")
@@ -73,8 +75,9 @@ struct CategoryView: View {
                             .padding(.top, 20)
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                         
+                        
+                        InterestCategorySection(interests: entertainment, selectedInterests: $selectedInterests, color: .orange)
                     }
-                    InterestCategorySection(interests: entertainment, selectedInterests: $selectedInterests, color: .orange)
                     
                     if technology.count > 0 || education.count > 0 {
                         Text("Technology & Education")
@@ -83,8 +86,9 @@ struct CategoryView: View {
                             .padding(.top, 20)
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                         
+                        
+                        InterestCategorySection(interests: technology + education, selectedInterests: $selectedInterests, color: .blue)
                     }
-                    InterestCategorySection(interests: technology + education, selectedInterests: $selectedInterests, color: .blue)
                     
                     if hobby.count > 0 {
                         Text("Hobby")
@@ -92,8 +96,9 @@ struct CategoryView: View {
                             .bold()
                             .padding(.top, 20)
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+                        
+                        InterestCategorySection(interests: hobby, selectedInterests: $selectedInterests, color: .purple)
                     }
-                    InterestCategorySection(interests: hobby, selectedInterests: $selectedInterests, color: .purple)
                     
                     if extreme.count > 0 {
                         Text("Extreme")
@@ -102,8 +107,9 @@ struct CategoryView: View {
                             .padding(.top, 20)
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                         
+                        
+                        InterestCategorySection(interests: extreme, selectedInterests: $selectedInterests, color: .red)
                     }
-                    InterestCategorySection(interests: extreme, selectedInterests: $selectedInterests, color: .red)
                     
                     
                 }
@@ -160,6 +166,7 @@ struct CategoryView: View {
                 .background(Color(.tertiarySystemFill))
                 .clipShape(Circle())
         })
+        .navigationTitle("Interests")
         .disableWithOpacity(selectedInterests.count < minInterests)
     }
     

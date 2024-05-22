@@ -14,19 +14,19 @@ struct BookmarkedEventsView: View {
         GridItem(.flexible()),
     ]
     @Environment(\.dismiss) var dismiss
-    var posts: [Post]
+    var posts: [Components.Schemas.PostResponseDto] = []
     var body: some View {
         ScrollView{
             LazyVGrid(columns: columns){
-                ForEach(posts){ post in
+                ForEach(posts, id: \.id){ post in
                     if post.hasEnded{
-                        NavigationLink(value: SelectionPath.completedEventDetails(post)){
-                            EventComponent(userID: userID, post: post)
-                        }
+//                        NavigationLink(value: SelectionPath.completedEventDetails(post)){
+//                            EventComponent(userID: userID, post: post)
+//                        }
                     } else {
-                        NavigationLink(value: SelectionPath.eventDetails(post)){
-                            EventComponent(userID: userID, post: post)
-                        }
+//                        NavigationLink(value: SelectionPath.eventDetails(post)){
+//                            EventComponent(userID: userID, post: post)
+//                        }
                     }
                 }
             }
@@ -53,5 +53,5 @@ struct BookmarkedEventsView: View {
 }
 
 #Preview {
-    BookmarkedEventsView(userID: User.MOCK_USERS[0].id, posts: Post.MOCK_POSTS)
+    BookmarkedEventsView(userID: User.MOCK_USERS[0].id, posts: [MockPost])
 }

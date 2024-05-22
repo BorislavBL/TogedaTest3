@@ -16,6 +16,7 @@ struct RegistrationLocationView: View {
     @State private var isActive: Bool = false
     
     @ObservedObject var vm: RegistrationViewModel
+    @StateObject var locationVM = LocationPickerViewModel(searchType: .all)
 
     var body: some View {
         VStack {
@@ -28,13 +29,13 @@ struct RegistrationLocationView: View {
                     HStack {
                         Image(systemName: "magnifyingglass")
                         
-                        TextField("Search", text: $vm.searchText)
+                        TextField("Search", text: $locationVM.searchText)
                             .foregroundColor(.primary)
                             .autocorrectionDisabled()
                             .focused($keyIsFocused)
                             .submitLabel(.next)
                             .onSubmit {
-                                if vm.returnedPlace.name == "Unknown Location" || vm.searchText.isEmpty {
+                                if vm.returnedPlace.name == "Unknown Location" || locationVM.searchText.isEmpty {
                                     displayError.toggle()
                                 } else {
                                     isActive = true
@@ -47,9 +48,9 @@ struct RegistrationLocationView: View {
                 
                     
 
-                    if !vm.searchText.isEmpty && keyIsFocused {
+                    if !locationVM.searchText.isEmpty && keyIsFocused {
                         
-                        ForEach(vm.places, id: \.id){ place in
+                        ForEach(locationVM.places, id: \.id){ place in
                             VStack(alignment: .leading) {
                                 HStack{
                                     Image(systemName: "mappin.circle")
@@ -62,7 +63,7 @@ struct RegistrationLocationView: View {
                             }
                             .onTapGesture {
                                 UIApplication.shared.endEditing(true)
-                                vm.searchText = place.addressCountry
+                                locationVM.searchText = place.addressCountry
                                 vm.returnedPlace = place
                             }
                         }
@@ -76,7 +77,7 @@ struct RegistrationLocationView: View {
             .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             .cornerRadius(10.0)
             
-            if displayError && vm.returnedPlace.name == "Unknown Location" && vm.searchText.isEmpty {
+            if displayError && vm.returnedPlace.name == "Unknown Location" && locationVM.searchText.isEmpty {
                 WarningTextComponent(text: "Plese enter a location before you proceed.")
                     .padding(.vertical, 15)
             }
@@ -94,9 +95,9 @@ struct RegistrationLocationView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(vm.returnedPlace.name == "Unknown Location" || vm.searchText.isEmpty)
+            .disableWithOpacity(vm.returnedPlace.name == "Unknown Location" || locationVM.searchText.isEmpty)
             .onTapGesture {
-                if vm.returnedPlace.name == "Unknown Location" || vm.searchText.isEmpty {
+                if vm.returnedPlace.name == "Unknown Location" || locationVM.searchText.isEmpty {
                     displayError.toggle()
                 }
             }

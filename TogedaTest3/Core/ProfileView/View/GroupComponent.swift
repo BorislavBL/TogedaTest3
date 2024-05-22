@@ -35,7 +35,7 @@ struct GroupComponent: View {
                     Text("Admin")
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundColor(Color("lightGray"))
+                        .foregroundColor(Color("light-gray"))
                         .padding(.bottom, 2)
                 }
                 
@@ -52,29 +52,29 @@ struct GroupComponent: View {
                     HStack{
                         Image(systemName: "eye")
                             .font(.caption)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
                         if club.askToJoin {
                             Text("Ask to join")
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color("lightGray"))
+                                .foregroundColor(Color("light-gray"))
                         } else {
                             Text(club.visability)
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color("lightGray"))
+                                .foregroundColor(Color("light-gray"))
                         }
                     }
                     
                     HStack{
                         Image(systemName: "person.3.fill")
                             .font(.caption)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
                         
                         Text("\(club.members.count)")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
                     }
                     
                 }
@@ -85,12 +85,13 @@ struct GroupComponent: View {
                     
                     Image(systemName: "location")
                         .font(.caption)
-                        .foregroundColor(Color("lightGray"))
+                        .foregroundColor(Color("light-gray"))
                     
-                    Text(locationCityAndCountry(club.baseLocation))
+//                    Text(locationCityAndCountry(club.baseLocation))
+                    Text(club.baseLocation.name)
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundColor(Color("lightGray"))
+                        .foregroundColor(Color("light-gray"))
                     
                 }
             }

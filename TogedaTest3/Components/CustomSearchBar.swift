@@ -11,7 +11,7 @@ struct CustomSearchBar: View {
     
     @Binding var searchText: String
     @Binding var showCancelButton: Bool
-    var onCommit: () ->Void = {print("onCommit")}
+    var onCommit: () -> Void = {}
     
     var body: some View {
         HStack {
@@ -20,11 +20,25 @@ struct CustomSearchBar: View {
                 
                 // Search text field
                 
-                TextField("Search", text: $searchText, onEditingChanged: { isEditing in
-                    withAnimation(.linear){
-                        self.showCancelButton = true
+                TextField(
+                    "Search",
+                    text: $searchText,
+                    onEditingChanged: { isEditing in
+                        if isEditing || !searchText.isEmpty {
+                            withAnimation(.linear){
+                                self.showCancelButton = true
+                            }
+                        } else if !isEditing && searchText.isEmpty {
+                            withAnimation(.linear){
+                                self.showCancelButton = false
+                            }
+                        }
+                    },
+                    onCommit: {
+                        onCommit()
                     }
-                }, onCommit: onCommit).foregroundColor(.primary)
+                )
+                .foregroundColor(.primary)
                 
                 // Clear button
                 if !searchText.isEmpty {

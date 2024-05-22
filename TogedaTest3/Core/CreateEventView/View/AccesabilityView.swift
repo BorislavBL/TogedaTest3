@@ -7,22 +7,6 @@
 
 import SwiftUI
 
-//enum Visabilities: Hashable, Codable {
-//    case Public
-//    case Private
-//    case Undefined
-//
-//    var value : String {
-//        switch self {
-//            // Use Internationalization, as appropriate.
-//        case .Public: return "Public"
-//        case .Private: return "Private"
-//        case .Undefined: return ""
-//        }
-//    }
-//
-//}
-
 struct AccessibilityView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedVisability: String
@@ -31,10 +15,10 @@ struct AccessibilityView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20){
-            Text("Accessibility")
-                .font(.title3)
-                .fontWeight(.bold)
-                .listRowSeparator(.hidden)
+//            Text("Accessibility")
+//                .font(.title3)
+//                .fontWeight(.bold)
+//                .listRowSeparator(.hidden)
 
             VStack(alignment: .leading){
                 Button{
@@ -118,12 +102,13 @@ struct AccessibilityView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .navigationTitle("Accessibility")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
                 .padding(.all, 8)
-                .background(Color("secondaryColor"))
+                .background(Color("main-secondary-color"))
                 .clipShape(Circle())
         }
         )

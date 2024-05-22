@@ -14,11 +14,6 @@ struct GroupAccessibilityView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20){
-            Text("Accessibility")
-                .font(.title3)
-                .fontWeight(.bold)
-                .listRowSeparator(.hidden)
-
             VStack(alignment: .leading){
                 Button{
                     selectedVisability = "PUBLIC"
@@ -92,12 +87,13 @@ struct GroupAccessibilityView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .navigationTitle("Accessibility")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
                 .padding(.all, 8)
-                .background(Color("secondaryColor"))
+                .background(Color("main-secondary-color"))
                 .clipShape(Circle())
         }
         )

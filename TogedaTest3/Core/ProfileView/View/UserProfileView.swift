@@ -7,19 +7,14 @@
 
 import SwiftUI
 import WrappingHStack
+import Kingfisher
 
 struct UserProfileView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.dismiss) private var dismiss
-    var miniUser: MiniUser
-    var user: User? {
-        User.findUser(byId: miniUser.id)
-    }
-    let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
-    @StateObject var viewModel = ProfileViewModel()
-    
-    @State var minYValue: CGFloat = 0
-    @State private var showImageSet: Bool = true
+    var miniUser: Components.Schemas.MiniUser
+    @State var user: Components.Schemas.User?
+    @EnvironmentObject var userVm: UserViewModel
     
     @State var showSheet: Bool = false
     @State var showCreateEvent: Bool = false
@@ -28,11 +23,10 @@ struct UserProfileView: View {
     var body: some View {
         ZStack(alignment: .top){
             ScrollView(showsIndicators: false){
-                
                 VStack(alignment: .center) {
                     TabView {
                         ForEach(miniUser.profilePhotos, id: \.self) { image in
-                            Image(image)
+                            KFImage(URL(string:image))
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: UIScreen.main.bounds.width)
@@ -45,7 +39,7 @@ struct UserProfileView: View {
                     .frame(height: UIScreen.main.bounds.width * 1.5)
                     
                     VStack(spacing: 10) {
-                        Text(miniUser.fullName)
+                        Text("\(miniUser.firstName) \(miniUser.lastName)")
                             .font(.title2)
                             .fontWeight(.bold)
                         
@@ -58,44 +52,44 @@ struct UserProfileView: View {
                                     .fontWeight(.semibold)
                             }
                             .foregroundColor(.gray)
-
-                            if let age = calculateAge(from: miniUser.birthDate){
+                            
+//                            if let age = calculateAge(from: miniUser.birthDate){
                                 HStack(spacing: 5){
                                     Image(systemName: "birthday.cake")
                                     
-                                    Text("\(age)y")
+                                    Text("\(23)y")
                                         .font(.footnote)
                                         .fontWeight(.semibold)
                                 }
                                 .foregroundColor(.gray)
-                            }
+//                            }
                         }
                         
-                        if let location = user?.location.name {
-                            HStack(spacing: 5){
-                                Image(systemName: "mappin.circle")
-                                
-                                Text(location)
-                                    .font(.footnote)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.gray)
-                            }
-                            .foregroundColor(.gray)
+                        
+                        HStack(spacing: 5){
+                            Image(systemName: "mappin.circle")
                             
+                            Text(user?.location.name)
+                                .font(.footnote)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.gray)
                         }
+                        .foregroundColor(.gray)
+                        
+                        
                     }.padding()
                     
                     HStack(alignment: .top, spacing: 30
                     ) {
-                        UserStats(value: String(user?.details.friendIds.count ?? 0), title: "Friends")
+                        UserStats(value: String(user?.details?.friendIds?.count ?? 0), title: "Friends")
                         Divider()
-                        UserStats(value: String(user?.details.createdEventIds.count ?? 0), title: "Events")
+                        UserStats(value: String(user?.details?.createdEventIds?.count ?? 0), title: "Events")
                         Divider()
                         UserStats(value: "\(10)%", title: "Rating")
                     }
                     .padding(.bottom)
                     
-                    if miniUser.id != userId{
+                    if let user = userVm.currentUser, miniUser.id != user.id {
                         HStack(alignment:.center, spacing: 10) {
                             Button {
                                 
@@ -123,21 +117,12 @@ struct UserProfileView: View {
                 .frame(width: UIScreen.main.bounds.width)
                 .background(.bar)
                 .cornerRadius(10)
-                .background(
-                    GeometryReader { geo in
-                        Color.clear
-                            .frame(width: 0, height: 0)
-                            .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
-                                minYValue = newMinY
-                            }
-                    }
-                )
                 
                 BadgesTab()
-                if let user = user {
-                    AboutTab(user: user)
-                }
-                EventTab(userID: miniUser.id)
+                
+                AboutTab(user: user)
+                
+                EventTab(userID: miniUser.id, createEvent: $showCreateEvent)
                 ClubsTab(userID: miniUser.id)
                 
             }
@@ -157,6 +142,15 @@ struct UserProfileView: View {
         .fullScreenCover(isPresented: $showCreateEvent, content: {
             CreateEventView()
         })
+        .onAppear(){
+            if let user = userVm.currentUser, miniUser.id != user.id {
+                Task {
+                    self.user = try await APIClient.shared.getUserInfo(userId: miniUser.id)
+                }
+            } else {
+                user = userVm.currentUser
+            }
+        }
     }
     
     @ViewBuilder
@@ -171,7 +165,7 @@ struct UserProfileView: View {
             
             Spacer()
             // adjust the spacing value as needed
-            if miniUser.id == userId {
+            if let user = userVm.currentUser, miniUser.id == user.id {
                 Button {
                     showSheet = true
                 } label: {
@@ -194,5 +188,6 @@ struct UserProfileView: View {
 }
 
 #Preview {
-    UserProfileView(miniUser: MiniUser.MOCK_MINIUSERS[0])
+    UserProfileView(miniUser: MockMiniUser, user: MockUser)
+        .environmentObject(UserViewModel())
 }

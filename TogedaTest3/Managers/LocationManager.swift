@@ -85,4 +85,6 @@ extension LocationManager: CLLocationManagerDelegate{
         self.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 5000, longitudinalMeters: 5000)
 //        locationManager.stopUpdatingLocation()
     }
+    
+    
 }

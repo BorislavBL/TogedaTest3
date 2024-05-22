@@ -1,0 +1,1560 @@
+openapi: 3.0.1
+info:
+  title: Togeda Mobile App API
+  description: Togeda Main Api
+  version: v1
+servers:
+- url: /
+  description: Default Server URL
+paths:
+  /users/addBasicInfo:
+    post:
+      tags:
+      - user-controller
+      operationId: addBasicInfo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+            examples:
+              Add basic info sample:
+                summary: simple add to already registered user
+                description: Add basic info sample
+                value:
+                  subToEmail: true
+                  firstName: Kalo
+                  lastName: Mitev
+                  gender: MALE
+                  birthDate: 1990-01-01
+                  visibleGender: true
+                  location:
+                    name: LocationName
+                    address: locationAddress
+                    city: Sofia
+                    state: SofiaState
+                    country: country
+                    latitude: 123.345
+                    longitude: 123.345
+                  occupation: OccupationName
+                  profilePhotos:
+                  - https://example.com/photo1.jpg
+                  - https://example.com/photo2.jpg
+                  interests:
+                  - name: InterestName
+                    icon: 0xe52a
+                    category: MyCategory
+                  - name: InterestName2
+                    icon: 0xe52b
+                    category: MyCategory1
+                  - name: InterestName3
+                    icon: 0xe52a
+                    category: MyCategory2
+                  - name: InterestName
+                    icon: 0xe52a
+                    category: MyCategory3
+                  - name: InterestName
+                    icon: 0xe52a
+                    category: MyCategory4
+                  - name: InterestName
+                    icon: 0xe52a
+                    category: MyCategory5
+                  phoneNumber: "359885230163"
+        required: true
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /posts:
+    get:
+      tags:
+      - post-controller
+      operationId: getAllPosts
+      parameters:
+      - name: toDate
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: fromDate
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: longitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: latitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: distance
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoPostResponseDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+    post:
+      tags:
+      - post-controller
+      operationId: createPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostDto'
+        required: true
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /posts/{postId}/sendJoinRequest:
+    post:
+      tags:
+      - post-controller
+      operationId: sendJoinRequest
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /posts/{postId}/participants/acceptJoinRequest/{userId}:
+    post:
+      tags:
+      - post-controller
+      operationId: acceptJoinRequest
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - ACCEPT
+          - DENY
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /posts/{postId}/addCoHostRole/{userId}:
+    post:
+      tags:
+      - post-controller
+      operationId: addCoHostRole
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /clubs:
+    post:
+      tags:
+      - club-controller
+      operationId: save
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClubDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+      security:
+      - security_auth: []
+  /clubs/{clubId}/members:
+    post:
+      tags:
+      - club-controller
+      operationId: tryToJoinClub
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+      security:
+      - security_auth: []
+  /clubs/{clubId}/members/joinRequest/{userId}:
+    post:
+      tags:
+      - club-controller
+      operationId: joinRequest
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - ACCEPT
+          - DENY
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+      security:
+      - security_auth: []
+  /clubs/{clubId}/admins/{userId}:
+    post:
+      tags:
+      - club-controller
+      operationId: addAdminRole
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+      security:
+      - security_auth: []
+    delete:
+      tags:
+      - club-controller
+      operationId: removeAdminRole
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+      security:
+      - security_auth: []
+  /users/updateUserInfo:
+    patch:
+      tags:
+      - user-controller
+      operationId: patchUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchUserDto'
+            examples:
+              Patch User Info:
+                summary: Patch one/many of these fields
+                description: Patch User Info
+                value:
+                  subToEmail: true
+                  firstName: Kalo123
+                  lastName: Mitev123
+                  gender: MALE
+                  birthDate: 2020-01-01
+                  visibleGender: false
+                  location:
+                    name: LocationName123
+                    address: locationAddress123
+                    city: Sofia123
+                    state: SofiaState123
+                    country: country123
+                    latitude: 123.345123
+                    longitude: 123.345123
+                  occupation: OccupationName123
+                  profilePhotos:
+                  - https://example.com/photo1321.jpg
+                  - https://example.com/photo2321.jpg
+                  interests:
+                  - name: InterestName2321
+                    icon: 0xe52b
+                    category: MyCategory1
+                  - name: InterestName3321
+                    icon: 0xe52a
+                    category: MyCategory2
+                  phoneNumber: "359885230166"
+                  details:
+                    bio: ha
+                    education: ha2
+                    personalityType: ha3
+                    workout: ha4
+                    instagram: ha5
+        required: true
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /posts/{postId}:
+    delete:
+      tags:
+      - post-controller
+      operationId: deletePost
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+    patch:
+      tags:
+      - post-controller
+      operationId: patchPost
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchPostDto'
+        required: true
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /clubs/{clubId}:
+    delete:
+      tags:
+      - club-controller
+      operationId: delete
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+      security:
+      - security_auth: []
+    patch:
+      tags:
+      - club-controller
+      operationId: patchClub
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchClubDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+      security:
+      - security_auth: []
+  /users/{userId}:
+    get:
+      tags:
+      - user-controller
+      operationId: getUserInfo
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /users/{userId}/posts:
+    get:
+      tags:
+      - user-controller
+      operationId: getUserPosts
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/Pageable'
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoPostResponseDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /users/{userId}/clubs:
+    get:
+      tags:
+      - user-controller
+      operationId: getUserClubs
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Club'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /users/hasBasicInfo:
+    get:
+      tags:
+      - user-controller
+      operationId: hasBasicInfo
+      responses:
+        "401":
+          description: UNAUTHORIZED
+        "403":
+          description: Forbidden
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HasBasicInfoDto'
+        "400":
+          description: Client Error
+      security:
+      - security_auth: []
+  /generatePresignedPutUrl:
+    get:
+      tags:
+      - user-controller
+      operationId: generatePresignedPutUrl
+      parameters:
+      - name: bucketName
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: keyName
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreSignedUrlResponse'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /posts/{postId}/removeParticipant/{userId}:
+    delete:
+      tags:
+      - post-controller
+      operationId: removeParticipant
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /posts/{postId}/removeCoHostRole/{userId}:
+    delete:
+      tags:
+      - post-controller
+      operationId: removeCoHostRole
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "403":
+          description: Forbidden
+      security:
+      - security_auth: []
+  /clubs/{clubId}/members/{userId}:
+    delete:
+      tags:
+      - club-controller
+      operationId: removeMember
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+      security:
+      - security_auth: []
+components:
+  schemas:
+    BaseLocation:
+      required:
+      - latitude
+      - longitude
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+    InterestDto:
+      required:
+      - category
+      - icon
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        icon:
+          type: string
+        category:
+          type: string
+    UserDto:
+      required:
+      - birthDate
+      - firstName
+      - gender
+      - interests
+      - lastName
+      - location
+      - occupation
+      - phoneNumber
+      - profilePhotos
+      - subToEmail
+      - visibleGender
+      type: object
+      properties:
+        subToEmail:
+          type: boolean
+        firstName:
+          type: string
+        lastName:
+          type: string
+        gender:
+          type: string
+          enum:
+          - MALE
+          - FEMALE
+        birthDate:
+          type: string
+          format: date-time
+        visibleGender:
+          type: boolean
+        occupation:
+          type: string
+        profilePhotos:
+          maxItems: 6
+          minItems: 1
+          type: array
+          items:
+            type: string
+        interests:
+          maxItems: 20
+          minItems: 5
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/InterestDto'
+        phoneNumber:
+          type: string
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+    ApiError:
+      required:
+      - error
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - 100 CONTINUE
+          - 101 SWITCHING_PROTOCOLS
+          - 102 PROCESSING
+          - 103 EARLY_HINTS
+          - 103 CHECKPOINT
+          - 200 OK
+          - 201 CREATED
+          - 202 ACCEPTED
+          - 203 NON_AUTHORITATIVE_INFORMATION
+          - 204 NO_CONTENT
+          - 205 RESET_CONTENT
+          - 206 PARTIAL_CONTENT
+          - 207 MULTI_STATUS
+          - 208 ALREADY_REPORTED
+          - 226 IM_USED
+          - 300 MULTIPLE_CHOICES
+          - 301 MOVED_PERMANENTLY
+          - 302 FOUND
+          - 302 MOVED_TEMPORARILY
+          - 303 SEE_OTHER
+          - 304 NOT_MODIFIED
+          - 305 USE_PROXY
+          - 307 TEMPORARY_REDIRECT
+          - 308 PERMANENT_REDIRECT
+          - 400 BAD_REQUEST
+          - 401 UNAUTHORIZED
+          - 402 PAYMENT_REQUIRED
+          - 403 FORBIDDEN
+          - 404 NOT_FOUND
+          - 405 METHOD_NOT_ALLOWED
+          - 406 NOT_ACCEPTABLE
+          - 407 PROXY_AUTHENTICATION_REQUIRED
+          - 408 REQUEST_TIMEOUT
+          - 409 CONFLICT
+          - 410 GONE
+          - 411 LENGTH_REQUIRED
+          - 412 PRECONDITION_FAILED
+          - 413 PAYLOAD_TOO_LARGE
+          - 413 REQUEST_ENTITY_TOO_LARGE
+          - 414 URI_TOO_LONG
+          - 414 REQUEST_URI_TOO_LONG
+          - 415 UNSUPPORTED_MEDIA_TYPE
+          - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+          - 417 EXPECTATION_FAILED
+          - 418 I_AM_A_TEAPOT
+          - 419 INSUFFICIENT_SPACE_ON_RESOURCE
+          - 420 METHOD_FAILURE
+          - 421 DESTINATION_LOCKED
+          - 422 UNPROCESSABLE_ENTITY
+          - 423 LOCKED
+          - 424 FAILED_DEPENDENCY
+          - 425 TOO_EARLY
+          - 426 UPGRADE_REQUIRED
+          - 428 PRECONDITION_REQUIRED
+          - 429 TOO_MANY_REQUESTS
+          - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+          - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+          - 500 INTERNAL_SERVER_ERROR
+          - 501 NOT_IMPLEMENTED
+          - 502 BAD_GATEWAY
+          - 503 SERVICE_UNAVAILABLE
+          - 504 GATEWAY_TIMEOUT
+          - 505 HTTP_VERSION_NOT_SUPPORTED
+          - 506 VARIANT_ALSO_NEGOTIATES
+          - 507 INSUFFICIENT_STORAGE
+          - 508 LOOP_DETECTED
+          - 509 BANDWIDTH_LIMIT_EXCEEDED
+          - 510 NOT_EXTENDED
+          - 511 NETWORK_AUTHENTICATION_REQUIRED
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        debugMessage:
+          type: string
+        subErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiSubError'
+        error:
+          type: string
+      discriminator:
+        propertyName: error
+    ApiErrorSchema:
+      required:
+      - apiError
+      type: object
+      properties:
+        apiError:
+          $ref: '#/components/schemas/ApiError'
+    ApiSubError:
+      type: object
+    SuccessDto:
+      required:
+      - success
+      type: object
+      properties:
+        success:
+          type: boolean
+    CreatePostDto:
+      required:
+      - accessibility
+      - askToJoin
+      - images
+      - interests
+      - location
+      - payment
+      - title
+      type: object
+      properties:
+        title:
+          type: string
+        images:
+          maxItems: 6
+          minItems: 0
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        maximumPeople:
+          type: integer
+          format: int32
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+        interests:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Interest'
+        payment:
+          type: number
+          format: double
+        accessibility:
+          type: string
+          enum:
+          - PUBLIC
+          - PRIVATE
+        askToJoin:
+          type: boolean
+        inClubID:
+          type: string
+        fromDate:
+          type: string
+          format: date-time
+        toDate:
+          type: string
+          format: date-time
+    Interest:
+      required:
+      - category
+      - icon
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        icon:
+          type: string
+        category:
+          type: string
+    CreateClubDto:
+      required:
+      - accessibility
+      - askToJoin
+      - description
+      - images
+      - interests
+      - location
+      - permissions
+      - title
+      type: object
+      properties:
+        title:
+          type: string
+        images:
+          maxItems: 6
+          minItems: 0
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+        interests:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/InterestDto'
+        accessibility:
+          type: string
+          enum:
+          - PUBLIC
+          - PRIVATE
+        permissions:
+          type: string
+          enum:
+          - ALL
+          - ADMINS_ONLY
+        askToJoin:
+          type: boolean
+    PatchUserDto:
+      type: object
+      properties:
+        subToEmail:
+          type: boolean
+        firstName:
+          type: string
+        lastName:
+          type: string
+        gender:
+          type: string
+          enum:
+          - MALE
+          - FEMALE
+        birthDate:
+          type: string
+          format: date-time
+        visibleGender:
+          type: boolean
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+        occupation:
+          type: string
+        phoneNumber:
+          type: string
+        details:
+          $ref: '#/components/schemas/UserExtraDetailsDto'
+        interests:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Interest'
+        profilePhotos:
+          maxItems: 6
+          minItems: 0
+          type: array
+          items:
+            type: string
+    UserExtraDetailsDto:
+      type: object
+      properties:
+        bio:
+          type: string
+        education:
+          type: string
+        personalityType:
+          type: string
+        workout:
+          type: string
+        instagram:
+          type: string
+    PatchPostDto:
+      type: object
+      properties:
+        title:
+          type: string
+        images:
+          maxItems: 6
+          minItems: 0
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        maximumPeople:
+          type: integer
+          format: int32
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+        interests:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Interest'
+        payment:
+          type: number
+          format: double
+        accessibility:
+          type: string
+          enum:
+          - PUBLIC
+          - PRIVATE
+        hasEnded:
+          type: boolean
+        fromDate:
+          type: string
+          format: date-time
+        toDate:
+          type: string
+          format: date-time
+    PatchClubDto:
+      type: object
+      properties:
+        title:
+          type: string
+        images:
+          maxItems: 6
+          minItems: 0
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+        interests:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/InterestDto'
+        accessibility:
+          type: string
+          enum:
+          - PUBLIC
+          - PRIVATE
+        permissions:
+          type: string
+          enum:
+          - ALL
+          - ADMINS_ONLY
+        askToJoin:
+          type: boolean
+    User:
+      required:
+      - birthDate
+      - email
+      - firstName
+      - gender
+      - id
+      - interests
+      - lastName
+      - location
+      - occupation
+      - phoneNumber
+      - profilePhotos
+      - subToEmail
+      - verifiedEmail
+      - verifiedPhone
+      - visibleGender
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        subToEmail:
+          type: boolean
+        firstName:
+          type: string
+        lastName:
+          type: string
+        gender:
+          type: string
+          enum:
+          - MALE
+          - FEMALE
+        birthDate:
+          type: string
+          format: date
+        visibleGender:
+          type: boolean
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+        occupation:
+          type: string
+        profilePhotos:
+          type: array
+          items:
+            type: string
+        interests:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Interest'
+        phoneNumber:
+          type: string
+        verifiedPhone:
+          type: boolean
+        verifiedEmail:
+          type: boolean
+        createdDate:
+          type: string
+          format: date-time
+        details:
+          $ref: '#/components/schemas/UserExtraDetails'
+    UserExtraDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        bio:
+          type: string
+        education:
+          type: string
+        workout:
+          type: string
+        personalityType:
+          type: string
+        instagram:
+          type: string
+        savedPostIds:
+          type: array
+          items:
+            type: string
+        friendIds:
+          type: array
+          items:
+            type: string
+        createdEventIds:
+          type: array
+          items:
+            type: string
+        participatedEventIds:
+          type: array
+          items:
+            type: string
+        clubIds:
+          type: array
+          items:
+            type: string
+    Pageable:
+      type: object
+      properties:
+        page:
+          minimum: 0
+          type: integer
+          format: int32
+        size:
+          minimum: 1
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            type: string
+    Club:
+      required:
+      - accessibility
+      - askToJoin
+      - createdAt
+      - description
+      - permissions
+      - title
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClubMember'
+        accessibility:
+          type: string
+          enum:
+          - PUBLIC
+          - PRIVATE
+        askToJoin:
+          type: boolean
+        description:
+          type: string
+        interests:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Interest'
+        memories:
+          type: array
+          items:
+            type: string
+        joinRequests:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        permissions:
+          type: string
+          enum:
+          - ALL
+          - ADMINS_ONLY
+        createdAt:
+          type: string
+          format: date-time
+    ClubMember:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        type:
+          type: string
+          enum:
+          - ADMIN
+          - MEMBER
+    ListResponseDtoPostResponseDto:
+      required:
+      - data
+      - lastPage
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostResponseDto'
+        lastPage:
+          type: boolean
+    MiniUser:
+      required:
+      - firstName
+      - id
+      - lastName
+      - location
+      - occupation
+      - profilePhotos
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        profilePhotos:
+          type: array
+          items:
+            type: string
+        occupation:
+          type: string
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+    PostResponseDto:
+      required:
+      - accessibility
+      - askToJoin
+      - createdAt
+      - currentUserStatus
+      - hasEnded
+      - id
+      - images
+      - interests
+      - location
+      - owner
+      - participantsCount
+      - payment
+      - title
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        maximumPeople:
+          type: integer
+          format: int32
+        location:
+          $ref: '#/components/schemas/BaseLocation'
+        toDate:
+          type: string
+          format: date-time
+        fromDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        interests:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Interest'
+        owner:
+          $ref: '#/components/schemas/MiniUser'
+        payment:
+          type: number
+          format: double
+        currentUserStatus:
+          type: string
+          enum:
+          - NOT_PARTICIPATING
+          - IN_QUEUE
+          - PARTICIPATING
+        accessibility:
+          type: string
+          enum:
+          - PUBLIC
+          - PRIVATE
+        askToJoin:
+          type: boolean
+        rating:
+          type: number
+          format: double
+        hasEnded:
+          type: boolean
+        club:
+          $ref: '#/components/schemas/Club'
+        participantsCount:
+          type: integer
+          format: int32
+    HasBasicInfoDto:
+      required:
+      - hasBasicInfo
+      type: object
+      properties:
+        hasBasicInfo:
+          type: boolean
+    PreSignedUrlResponse:
+      required:
+      - url
+      type: object
+      properties:
+        url:
+          type: string
+  securitySchemes:
+    security_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -17,10 +17,6 @@ struct NormalPhotoPickerView: View {
     var body: some View {
         ScrollView {
             VStack(alignment:.leading, spacing: 10){
-                Text("Add Photos")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                
                 
                 Text(message)
                     .font(.footnote)
@@ -38,7 +34,7 @@ struct NormalPhotoPickerView: View {
                                         .cornerRadius(10)
                                         .clipped()
                                 } else {
-                                    Color("secondaryColor")
+                                    Color("main-secondary-color")
                                         .frame(width:imageDimension, height: imageDimension * 1.3)
                                         .cornerRadius(10)
                                     
@@ -64,7 +60,7 @@ struct NormalPhotoPickerView: View {
                                         .cornerRadius(10)
                                         .clipped()
                                 } else {
-                                    Color("secondaryColor")
+                                    Color("main-secondary-color")
                                         .frame(width:imageDimension, height: imageDimension * 1.3)
                                         .cornerRadius(10)
                                     
@@ -88,12 +84,13 @@ struct NormalPhotoPickerView: View {
         .fullScreenCover(isPresented: $createGroupVM.showCropView, content: {
             CropPhotoView(selectedImage:createGroupVM.selectedImage, finalImage: $createGroupVM.selectedImages[createGroupVM.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
         })
+        .navigationTitle("Photos")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
                 .padding(.all, 8)
-                .background(Color("secondaryColor"))
+                .background(Color("main-secondary-color"))
                 .clipShape(Circle())
         })
         .padding(.vertical)

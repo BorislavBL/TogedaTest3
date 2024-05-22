@@ -44,7 +44,7 @@ struct GroupView: View {
             })
             .sheet(isPresented: $showShareSheet, content: {
                 ShareView()
-                    .presentationDetents([.fraction(0.8), .fraction(1) ])
+                    .presentationDetents([.fraction(0.8), .fraction(1)])
                     .presentationDragIndicator(.visible)
             })
             .scrollIndicators(.hidden)

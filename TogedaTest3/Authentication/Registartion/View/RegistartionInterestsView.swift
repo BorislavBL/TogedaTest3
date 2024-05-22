@@ -56,7 +56,7 @@ struct RegistartionInterestsView: View {
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                     }
                     
-                    InterestCategorySection(interests: sport + health, selectedInterests: $vm.createdUser.interests, color: .green)
+                    InterestCategorySection(interests: sport + health, selectedInterests: $vm.selectedInterests, color: .green)
                     
                     if social.count > 0 || business.count > 0 {
                         Text("Social & Business")
@@ -66,7 +66,7 @@ struct RegistartionInterestsView: View {
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                         
                     }
-                    InterestCategorySection(interests: social + business, selectedInterests: $vm.createdUser.interests, color: .cyan)
+                    InterestCategorySection(interests: social + business, selectedInterests: $vm.selectedInterests, color: .cyan)
                     
                     if entertainment.count > 0 {
                         Text("Entertainment")
@@ -76,7 +76,7 @@ struct RegistartionInterestsView: View {
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                         
                     }
-                    InterestCategorySection(interests: entertainment, selectedInterests: $vm.createdUser.interests, color: .orange)
+                    InterestCategorySection(interests: entertainment, selectedInterests: $vm.selectedInterests, color: .orange)
                     
                     if technology.count > 0 || education.count > 0 {
                         Text("Technology & Education")
@@ -86,7 +86,7 @@ struct RegistartionInterestsView: View {
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                         
                     }
-                    InterestCategorySection(interests: technology + education, selectedInterests: $vm.createdUser.interests, color: .blue)
+                    InterestCategorySection(interests: technology + education, selectedInterests: $vm.selectedInterests, color: .blue)
                     
                     if hobby.count > 0 {
                         Text("Hobby")
@@ -95,7 +95,7 @@ struct RegistartionInterestsView: View {
                             .padding(.top, 20)
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                     }
-                    InterestCategorySection(interests: hobby, selectedInterests: $vm.createdUser.interests, color: .purple)
+                    InterestCategorySection(interests: hobby, selectedInterests: $vm.selectedInterests, color: .purple)
                     
                     if extreme.count > 0 {
                         Text("Extreme")
@@ -105,7 +105,7 @@ struct RegistartionInterestsView: View {
                             .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                         
                     }
-                    InterestCategorySection(interests: extreme, selectedInterests: $vm.createdUser.interests, color: .red)
+                    InterestCategorySection(interests: extreme, selectedInterests: $vm.selectedInterests, color: .red)
                     
                     
                 }
@@ -118,7 +118,7 @@ struct RegistartionInterestsView: View {
             Button{
                 isActive = true
             } label:{
-                Text("Next (\(vm.createdUser.interests.count)/5)")
+                Text("Next (\(vm.selectedInterests.count)/5)")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
                     .background(Color("blackAndWhite"))
@@ -126,9 +126,9 @@ struct RegistartionInterestsView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(vm.createdUser.interests.count < 5)
+            .disableWithOpacity(vm.selectedInterests.count < 5)
             .onTapGesture {
-                if vm.createdUser.interests.count < 5 {
+                if vm.selectedInterests.count < 5 {
                     displayError.toggle()
                 }
             }

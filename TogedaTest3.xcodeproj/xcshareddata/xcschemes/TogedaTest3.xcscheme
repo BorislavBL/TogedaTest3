@@ -49,6 +49,23 @@
             ReferencedContainer = "container:TogedaTest3.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "AWSPoolID"
+            value = "eu-central-1_sNCs6vbYv"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "AWSClientID"
+            value = "2hffqmcetqqrn3nkaev33h8il0"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "AWSClientSecret"
+            value = "13o0n3kfq8uf903lmc025e529avjdflssj0sp5vr3mhmcnsa5drr"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

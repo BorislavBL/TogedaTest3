@@ -13,15 +13,15 @@ class FilterViewModel: ObservableObject {
     @Published var returnedPlace = Place(mapItem: MKMapItem())
     @Published var isCurrentLocation = true
     
-    @Published var selectedTimeFilter: String = "Anytime"
-    var timeFilterOptions: [String] = ["Anytime", "Today", "Tomorrow", "This Week", "This Month", "This Year", "Custom"]
+    @Published var selectedTimeFilter: TimeFilter = .timeFilterOptions[0]
+    //["Anytime", "Today", "Tomorrow", "This Week", "This Month", "This Year", "Custom"]
     
     @Published var from = Date() {
         didSet{
             selectedTimeFrame = timeToString()
         }
     }
-    @Published var to = Date() {
+    @Published var to = Date().addingTimeInterval(60 * 15) {
         didSet{
             selectedTimeFrame = timeToString()
         }
@@ -43,7 +43,7 @@ class FilterViewModel: ObservableObject {
         self.searchText = ""
         self.isCurrentLocation = true
         self.returnedPlace = Place(mapItem: MKMapItem())
-        self.selectedTimeFilter = "Anytime"
+        self.selectedTimeFilter = .timeFilterOptions[0]
         self.sliderValue = 300
         self.selectedSortFilter = "Relevance"
         self.selectedCategories = []
@@ -60,3 +60,5 @@ class FilterViewModel: ObservableObject {
     }
 
 }
+
+

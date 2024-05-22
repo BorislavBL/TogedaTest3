@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditEventView: View {
-    var post: Post = .MOCK_POSTS[0]
+    var post: Components.Schemas.PostResponseDto
     @StateObject var vm = EditEventViewModel()
     @State private var displayWarnings: Bool = false
     @Environment(\.dismiss) private var dismiss
@@ -25,7 +25,7 @@ struct EditEventView: View {
                         .fontWeight(.bold)
                     
                     
-                    PhotosGridView(showPhotosPicker: $vm.showPhotosPicker, selectedImageIndex: $vm.selectedImageIndex, selectedImages: $vm.selectedImages)
+                    EditEventPhotosView(editEventVM: vm)
                     
                     if noPhotos {
                         WarningTextComponent(text: "Please add photos.")
@@ -38,8 +38,8 @@ struct EditEventView: View {
                         .font(.title3)
                         .fontWeight(.bold)
                     
-                    TextField("", text: $vm.title)
-                        .placeholder(when: vm.title.isEmpty) {
+                    TextField("", text: $vm.editPost.title)
+                        .placeholder(when: vm.editPost.title.isEmpty) {
                             Text("Title")
                                 .foregroundColor(.secondary)
                                 .bold()
@@ -67,14 +67,9 @@ struct EditEventView: View {
                             
                             Spacer()
                             
-                            if let location = vm.location{
-                                
-                                Text(location.name)
-                                    .foregroundColor(.gray)
-                            } else {
-                                Text("Select")
-                                    .foregroundColor(.gray)
-                            }
+                            
+                            Text(vm.editPost.location.name)
+                                .foregroundColor(.gray)
                             
                             Image(systemName: "chevron.right")
                                 .padding(.trailing, 10)
@@ -154,13 +149,11 @@ struct EditEventView: View {
                                 Image(systemName: "calendar")
                                     .imageScale(.large)
                                 
-                                
                                 Text("Date & Time")
                                 
                                 Spacer()
                                 
-                                
-                                Text(vm.isDate ? separateDateAndTime(from:vm.from).date : "Any day")
+                                Text(vm.isDate ? separateDateAndTime(from: vm.from).date : "Any day")
                                     .foregroundColor(.gray)
                                 
                                 Image(systemName: vm.showTimeSettings ? "chevron.down" : "chevron.right")
@@ -172,18 +165,18 @@ struct EditEventView: View {
                         }
                         
                         if vm.showTimeSettings {
-                            Picker("Choose Date", selection: $vm.timeSettings){
+                            Picker("Choose Date", selection: $vm.dateTimeSettings){
                                 Text("Exact").tag(0)
                                 Text("Range").tag(1)
                                 Text("Anytime").tag(2)
                             }
                             .pickerStyle(.segmented)
                             
-                            if vm.timeSettings != 2 {
-                                DatePicker("From", selection: $vm.from, in: Date().addingTimeInterval(60)..., displayedComponents: [.date, .hourAndMinute])
+                            if vm.dateTimeSettings != 2 {
+                                DatePicker("From", selection: $vm.from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
                                     .fontWeight(.semibold)
                                 
-                                if vm.timeSettings == 1 {
+                                if vm.dateTimeSettings == 1 {
                                     DatePicker("To", selection: $vm.to, in: vm.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
                                         .fontWeight(.semibold)
                                 }
@@ -214,9 +207,8 @@ struct EditEventView: View {
                                 Text("Participants")
                                 
                                 Spacer()
-                                
-                                if let participant = vm.participants{
-                                    Text(participant > 0 ? "\(participant)" : "No Limit")
+                                if let max = vm.editPost.maximumPeople {
+                                    Text("\(max)")
                                         .foregroundColor(.gray)
                                 } else {
                                     Text("No Limit")
@@ -236,7 +228,7 @@ struct EditEventView: View {
                                 
                                 Spacer()
                                 
-                                TextField("Max", value: $vm.participants, format:.number)
+                                TextField("Max", value: $vm.editPost.maximumPeople, format:.number)
                                     .foregroundColor(.gray)
                                     .frame(width: 70)
                                     .textFieldStyle(.roundedBorder)
@@ -253,6 +245,12 @@ struct EditEventView: View {
             }
             .padding()
         }
+        .onAppear {
+            if vm.isInit {
+                vm.fetchPostData(post: post)
+                vm.isInit = false
+            }
+        }
         .scrollIndicators(.hidden)
         .navigationTitle("Edit Profile")
         .navigationBarBackButtonHidden(true)
@@ -260,7 +258,7 @@ struct EditEventView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if saveButtonCheck{
                     Button {
-                        dismiss()
+                        save()
                     } label: {
                         Text("Save")
                             .foregroundStyle(.blue)
@@ -289,18 +287,53 @@ struct EditEventView: View {
             }
         }
         .navigationDestination(isPresented: $showLocationView, destination: {
-            LocationPicker(returnedPlace: $vm.returnedPlace)
+            LocationPicker(returnedPlace: $vm.returnedPlace, isActivePrev: $showLocationView)
         })
         .navigationDestination(isPresented: $showCategoryView, destination: {
             CategoryView(selectedInterests: $vm.selectedInterests, text: "Select at least one tag related to your event", minInterests: 0)
         })
         .onAppear{
-            vm.fetchPostData(post: post)
+            if vm.isInit {
+                vm.fetchPostData(post: post)
+                vm.isInit = false
+            }
         }
     }
     
+    func save() {
+        Task {
+            do{
+                if await vm.imageCheckAndMerge(){
+                    if vm.editPost != vm.initialPost {
+                        let data = try await APIClient.shared.editEvent(postId: vm.editPost.id, editPost: vm.convertToPathcPost(post: vm.editPost))
+                        print("Success: \(data)")
+                        
+                        //fetch current post here
+                        
+                        dismiss()
+                    } else {
+                        print("No changes")
+                        dismiss()
+                    }
+                } else {
+                    print("No images")
+                }
+            } catch GeneralError.badRequest(details: let details){
+                print(details)
+            } catch GeneralError.invalidURL {
+                print("Invalid URL")
+            } catch GeneralError.serverError(let statusCode, let details) {
+                print("Status: \(statusCode) \n \(details)")
+            } catch {
+                print("Error message:", error)
+            }
+            
+        }
+    }
+    
+    
     var titleEmpty: Bool {
-        if vm.title.isEmpty && displayWarnings {
+        if vm.editPost.title.isEmpty && displayWarnings {
             return true
         } else {
             return false
@@ -308,7 +341,7 @@ struct EditEventView: View {
     }
     
     var titleChartLimit: Bool {
-        if !vm.title.isEmpty && displayWarnings && vm.title.count < 5 {
+        if !vm.editPost.title.isEmpty && displayWarnings && vm.editPost.title.count < 5 {
             return true
         } else {
             return false
@@ -324,7 +357,7 @@ struct EditEventView: View {
     }
     
     var noLocation: Bool {
-        if vm.returnedPlace.name == "Unknown Location" && displayWarnings {
+        if vm.editPost.location.name == "Unknown Location" && displayWarnings {
             return true
         } else {
             return false
@@ -340,7 +373,7 @@ struct EditEventView: View {
     }
     
     var saveButtonCheck: Bool {
-        if vm.title.count >= 5, !vm.title.isEmpty, vm.returnedPlace.name != "Unknown Location", vm.selectedImages.contains(where: { $0 != nil }),vm.selectedInterests.count > 0 {
+        if vm.editPost.title.count >= 5, !vm.editPost.title.isEmpty, vm.editPost.location.name != "Unknown Location", vm.selectedImages.contains(where: { $0 != nil }),vm.selectedInterests.count > 0 {
             return true
         } else {
             return false
@@ -350,6 +383,6 @@ struct EditEventView: View {
 }
 
 #Preview {
-    EditEventView()
+    EditEventView(post: MockPost)
         .environmentObject(NavigationManager())
 }

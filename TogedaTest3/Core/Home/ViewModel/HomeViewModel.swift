@@ -13,7 +13,6 @@ enum FeedItem: Hashable {
 }
 
 class HomeViewModel: ObservableObject {
-    @Published var searchText: String = ""
     @Published var showSearch: Bool = false
     @Published var showCancelButton: Bool = false
     
@@ -29,6 +28,8 @@ class HomeViewModel: ObservableObject {
 
         feedItems.shuffle()
     }
+    
+
     
 }
 

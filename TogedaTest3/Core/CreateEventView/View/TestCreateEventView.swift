@@ -161,7 +161,7 @@ struct TestCreateEventView: View {
                             
                             
                             NavigationLink {
-                                LocationPicker(returnedPlace: $returnedPlace)
+//                                LocationPicker(returnedPlace: $returnedPlace)
                             } label: {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "mappin.circle")
@@ -416,7 +416,7 @@ struct TestCreateEventView: View {
                 Image(systemName: "xmark")
                     .imageScale(.medium)
                     .padding(.all, 8)
-                    .background(Color("secondaryColor"))
+                    .background(Color("main-secondary-color"))
                     .clipShape(Circle())
             }
             )

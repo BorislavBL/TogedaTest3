@@ -7,16 +7,18 @@
 
 import SwiftUI
 import WrappingHStack
+import Kingfisher
 
 struct EventComponent: View {
     var userID: String
-    var post: Post
+    var post: Components.Schemas.PostResponseDto
+    
     let size: CGSize = CGSize(width: (UIScreen.main.bounds.width / 2) - 16, height: ((UIScreen.main.bounds.width / 2) - 16) * 1.5)
 
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            Image(post.imageUrl[0])
+            KFImage(URL(string: post.images[0]))
                 .resizable()
                 .scaledToFill()
                 .frame(size)
@@ -27,17 +29,17 @@ struct EventComponent: View {
             
             VStack(alignment: .leading){
                 
-                if let user = post.user, user.id == userID {
-//                    Text("Hosted")
-//                        .font(.caption)
-//                        .fontWeight(.semibold)
-//                        .foregroundColor(Color("lightGray"))
-//                        .padding(.bottom, 2)
+                if post.owner.id == userID {
+                    Text("Hosted")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color("light-gray"))
+                        .padding(.bottom, 2)
                     
-                        Text(user.fullName)
+                        Text("\(post.owner.firstName) \(post.owner.lastName)")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
                             .padding(.bottom, 2)
 
                 }
@@ -52,31 +54,32 @@ struct EventComponent: View {
                     .padding(.bottom, 5)
                 
                 WrappingHStack(alignment: .leading, verticalSpacing: 5){
-                    HStack{
-                        Image(systemName: "calendar")
-                            .font(.caption)
-                            .foregroundColor(post.hasEnded ? .red : Color("lightGray"))
-                        Text(post.hasEnded ? "Ended" : "\(separateDateAndTime(from: post.date).date)")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(post.hasEnded ? .red : Color("lightGray"))
+                    if let fromDate = post.fromDate{
+                        HStack{
+                            Image(systemName: "calendar")
+                                .font(.caption)
+                                .foregroundColor(post.hasEnded ? .red : Color("light-gray"))
+                            Text(post.hasEnded ? "Ended" : "\(separateDateAndTime(from: fromDate).date)")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(post.hasEnded ? .red : Color("light-gray"))
+                        }
                     }
-                    
                     HStack{
                         Image(systemName: "person.3.fill")
                             .font(.caption)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
                         
                         if let maxPeople = post.maximumPeople {
-                            Text("\(post.peopleIn.count)/\(maxPeople)")
+                            Text("\(post.participantsCount)/\(maxPeople)")
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color("lightGray"))
+                                .foregroundColor(Color("light-gray"))
                         } else {
-                            Text("\(post.peopleIn.count)")
+                            Text("\(post.participantsCount)")
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color("lightGray"))
+                                .foregroundColor(Color("light-gray"))
                         }
                     }
                 }
@@ -85,12 +88,13 @@ struct EventComponent: View {
                     HStack(alignment: .center){
                         Image(systemName: "location")
                             .font(.caption)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
                         
-                        Text(locationCityAndCountry(post.location))
+                        Text(locationCityAndCountry1(post.location))
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
+                            .multilineTextAlignment(.leading)
                     }
                     
                 
@@ -106,5 +110,5 @@ struct EventComponent: View {
     }
 }
 #Preview {
-    EventComponent(userID: User.MOCK_USERS[0].id, post: Post.MOCK_POSTS[0])
+    EventComponent(userID: "", post: MockPost)
 }

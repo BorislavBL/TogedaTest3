@@ -8,382 +8,384 @@
 import SwiftUI
 import MapKit
 import WrappingHStack
+import Kingfisher
 
 struct EventView: View {
     @EnvironmentObject var viewModel: PostsViewModel
-    var postID: String
-    var post: Post? {
-        return viewModel.posts.first(where: {$0.id == postID})
-    }
+    var post: Components.Schemas.PostResponseDto
     
     @EnvironmentObject var userViewModel: UserViewModel
     
     @Environment(\.dismiss) private var dismiss
     
-    @State private var peopleIn: Int = 0
     @State private var showSharePostSheet: Bool = false
-    
-    @State private var address: String?
     @State var showPostOptions = false
     @State private var showJoinRequest: Bool = false
-    let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     
     let club = Club.MOCK_CLUBS[0]
     
     var body: some View {
-        if let post = post {
-            ZStack(alignment: .bottom) {
-                ScrollView{
-                    LazyVStack(alignment: .leading, spacing: 15) {
+        
+        ZStack(alignment: .bottom) {
+            ScrollView{
+                LazyVStack(alignment: .leading, spacing: 15) {
+                    
+                    TabView {
+                        ForEach(post.images, id: \.self) { image in
+                            KFImage(URL(string: image))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: UIScreen.main.bounds.width)
+                                .clipped()
+                            
+                        }
                         
-                        TabView {
-                            ForEach(post.imageUrl, id: \.self) { image in
-                                Image(image)
+                    }
+                    .tabViewStyle(PageTabViewStyle())
+                    .frame(height: UIScreen.main.bounds.width * 1.5)
+                    
+                    VStack(alignment: .leading){
+                        Text(post.title)
+                            .font(.title)
+                            .fontWeight(.bold)
+                        
+                        
+                        NavigationLink(value: SelectionPath.profile(post.owner)){
+                            HStack(alignment: .center, spacing: 10) {
+                                                                
+                                KFImage(URL(string: post.owner.profilePhotos[0]))
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: UIScreen.main.bounds.width)
+                                    .frame(width: 60, height: 60)
                                     .clipped()
+                                    .cornerRadius(15)
                                 
+                                
+                                VStack(alignment: .leading, spacing: 5) {
+                                                                        
+                                    Text("\(post.owner.firstName) \(post.owner.lastName)")
+                                        .font(.body)
+                                        .fontWeight(.semibold)
+                                    
+                                    Text(post.owner.occupation)
+                                        .font(.footnote)
+                                        .foregroundColor(.gray)
+                                        .fontWeight(.bold)
+                                    
+                                }
                             }
-                            
                         }
-                        .tabViewStyle(PageTabViewStyle())
-                        .frame(height: UIScreen.main.bounds.width * 1.5)
                         
-                        VStack(alignment: .leading){
-                            Text(post.title)
-                                .font(.title)
-                                .fontWeight(.bold)
-                            
-                            if let user = post.user {
-                                NavigationLink(value: SelectionPath.profile(user)){
-                                    HStack(alignment: .center, spacing: 10) {
-                                        
-                                        
-                                        if let image = post.user?.profilePhotos {
-                                            Image(image[0])
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(width: 60, height: 60)
-                                                .clipped()
-                                                .cornerRadius(15)
-                                        }
-                                        
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            
-                                            if let user = post.user {
-                                                
-                                                Text(user.fullName)
-                                                    .font(.body)
-                                                    .fontWeight(.semibold)
-                                                
-                                                Text(user.occupation)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.gray)
-                                                    .fontWeight(.bold)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            if post.inClubID != nil {
-                                NavigationLink(value: SelectionPath.club(club)){
-                                    HStack(alignment: .center, spacing: 10) {
-                                        Image(club.imagesUrl[0])
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 40, height: 40)
-                                            .clipShape(Circle())
-                                        
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            Text(club.title)
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            Text("Club Event")
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        }
-                                    }
-                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                                    .normalTagRectangleStyle()
-                                }
-                            }
-                            
-                            Group{
-                                
+                        
+                        if post.club != nil {
+                            NavigationLink(value: SelectionPath.club(club)){
                                 HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "calendar")
-                                        .imageScale(.large)
+                                    Image(club.imagesUrl[0])
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 40, height: 40)
+                                        .clipShape(Circle())
                                     
                                     VStack(alignment: .leading, spacing: 5) {
-                                        Text("\(separateDateAndTime(from: post.date).weekday), \(separateDateAndTime(from: post.date).date)")
+                                        Text(club.title)
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                         
-                                        Text(separateDateAndTime(from: post.date).time)
+                                        Text("Club Event")
                                             .font(.footnote)
                                             .foregroundColor(.gray)
                                             .fontWeight(.bold)
                                     }
                                 }
-                                
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "mappin.circle")
-                                        .imageScale(.large)
-                                    
+                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                                .normalTagRectangleStyle()
+                            }
+                        }
+                        
+                        Group{
+                            
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "calendar")
+                                    .imageScale(.large)
+                                if let from = post.fromDate {
                                     VStack(alignment: .leading, spacing: 5) {
                                         
- 
-                                            Text(locationCityAndCountry(post.location))
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                        if post.peopleIn.contains(userViewModel.user.id) || !post.askToJoin{
-                                            if let address = post.location.address {
-                                                Text(address)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.gray)
-                                                    .fontWeight(.bold)
-                                            } else {
-                                                Text(post.location.name)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.gray)
-                                                    .fontWeight(.bold)
-                                            }
+                                        Text("\(separateDateAndTime(from: from).weekday), \(separateDateAndTime(from: from).date)")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                        
+                                        Text(separateDateAndTime(from: from).time)
+                                            .font(.footnote)
+                                            .foregroundColor(.gray)
+                                            .fontWeight(.bold)
+                                        
+                                    }
+                                } else {
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        
+                                        Text("Any Day")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                        
+                                        Text("There is no fixed Date&Time.")
+                                            .font(.footnote)
+                                            .foregroundColor(.gray)
+                                            .fontWeight(.bold)
+                                    }
+                                }
+                            }
+                            
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "mappin.circle")
+                                    .imageScale(.large)
+                                
+                                VStack(alignment: .leading, spacing: 5) {
+                                    
+                                    
+                                    Text(locationCityAndCountry1(post.location))
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                    
+                                    if !post.askToJoin {
+                                        if let address = post.location.address {
+                                            Text(address)
+                                                .font(.footnote)
+                                                .foregroundColor(.gray)
+                                                .fontWeight(.bold)
                                         } else {
-                                            Text("The exact location will be revealed upon joining.")
+                                            Text(post.location.name)
                                                 .font(.footnote)
                                                 .foregroundColor(.gray)
                                                 .fontWeight(.bold)
                                         }
-                                        
+                                    } else {
+                                        Text("The exact location will be revealed upon joining.")
+                                            .font(.footnote)
+                                            .foregroundColor(.gray)
+                                            .fontWeight(.bold)
                                     }
+                                    
                                 }
-                                
-                                NavigationLink(value: SelectionPath.usersList(users: post.participants, post: post)){
-                                    HStack(alignment: .center, spacing: 10) {
-                                        Image(systemName: "person.3")
-                                            .imageScale(.large)
+                            }
+                            
+                            NavigationLink(value: SelectionPath.usersList(users: [], post: Post.MOCK_POSTS[0])){
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "person.2")
+                                        .imageScale(.large)
+                                    
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        if let maxPeople = post.maximumPeople {
+                                            Text("Participants \(post.participantsCount)/\(maxPeople)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                        } else {
+                                            Text("Participants \(post.participantsCount)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                        }
                                         
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            if let maxPeople = post.maximumPeople {
-                                                Text("Participants \(post.peopleIn.count)/\(maxPeople)")
-                                                    .font(.subheadline)
-                                                    .fontWeight(.semibold)
-                                            } else {
-                                                Text("Participants \(post.peopleIn.count)")
-                                                    .font(.subheadline)
-                                                    .fontWeight(.semibold)
-                                            }
-                                            
-                                            
-                                            if post.participants.count > 0 {
-                                                ZStack{
-                                                    ForEach(0..<post.participants.count, id: \.self){ number in
-                                                        
-                                                        if number < 4{
-                                                            Image(post.participants[number].profilePhotos[0])
-                                                                .resizable()
-                                                                .scaledToFill()
-                                                                .frame(width: 40, height: 40)
-                                                                .clipped()
-                                                                .cornerRadius(100)
-                                                                .overlay(
-                                                                    Circle()
-                                                                        .stroke(Color("secondaryColor"), lineWidth: 2)
-                                                                )
-                                                                .offset(x:CGFloat(20 * number))
-                                                        }
-                                                        
+                                        
+                                        if Post.MOCK_POSTS[0].participants.count > 0 {
+                                            ZStack{
+                                                ForEach(0..<Post.MOCK_POSTS[0].participants.count, id: \.self){ number in
+                                                    
+                                                    if number < 4 {
+                                                        Image(Post.MOCK_POSTS[0].participants[number].profilePhotos[0])
+                                                            .resizable()
+                                                            .scaledToFill()
+                                                            .frame(width: 40, height: 40)
+                                                            .clipped()
+                                                            .cornerRadius(100)
+                                                            .overlay(
+                                                                Circle()
+                                                                    .stroke(Color("main-secondary-color"), lineWidth: 2)
+                                                            )
+                                                            .offset(x:CGFloat(20 * number))
                                                     }
                                                     
-                                                    if post.peopleIn.count > 4 {
-                                                        
-                                                        Circle()
-                                                            .fill(.gray)
-                                                            .frame(width: 40, height: 40)
-                                                            .overlay(
-                                                                ZStack(alignment:.center){
-                                                                    Text("+\(post.peopleIn.count - 3)")
-                                                                        .font(.caption2)
-                                                                        .fontWeight(.semibold)
-                                                                        .foregroundColor(.white)
-                                                                    Circle()
-                                                                        .stroke(Color("secondaryColor"), lineWidth: 2)
-                                                                }
-                                                            )
-                                                            .offset(x:CGFloat(20 * 4))
-                                                    }
                                                 }
                                                 
-                                                
+                                                if Post.MOCK_POSTS[0].peopleIn.count > 4 {
+                                                    
+                                                    Circle()
+                                                        .fill(.gray)
+                                                        .frame(width: 40, height: 40)
+                                                        .overlay(
+                                                            ZStack(alignment:.center){
+                                                                Text("+\(Post.MOCK_POSTS[0].peopleIn.count - 3)")
+                                                                    .font(.caption2)
+                                                                    .fontWeight(.semibold)
+                                                                    .foregroundColor(.white)
+                                                                Circle()
+                                                                    .stroke(Color("main-secondary-color"), lineWidth: 2)
+                                                            }
+                                                        )
+                                                        .offset(x:CGFloat(20 * 4))
+                                                }
                                             }
+                                            
+                                            
                                         }
                                     }
                                 }
+                            }
+                            
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "globe.europe.africa.fill")
+                                    .imageScale(.large)
                                 
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "globe.europe.africa.fill")
-                                        .imageScale(.large)
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text(post.accessibility.rawValue.capitalized)
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
                                     
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text(post.accessability.capitalized)
+                                    Text("Everyone can join the event")
+                                        .font(.footnote)
+                                        .foregroundColor(.gray)
+                                        .fontWeight(.bold)
+                                }
+                            }
+                            
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "wallet.pass")
+                                //                                    .resizable()
+                                //                                    .scaledToFit()
+                                //                                    .frame(width: 25, height: 25)
+                                    .imageScale(.large)
+                                
+                                VStack(alignment: .leading, spacing: 5) {
+                                    
+                                    if post.payment <= 0 {
+                                        Text("Free")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                         
-                                        Text("Everyone can join the event")
+                                        Text("No payment required")
+                                            .font(.footnote)
+                                            .foregroundColor(.gray)
+                                            .fontWeight(.bold)
+                                    } else {
+                                        Text("Paid")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                        
+                                        Text("$ \(String(format: "%.2f", post.payment)) per person")
                                             .font(.footnote)
                                             .foregroundColor(.gray)
                                             .fontWeight(.bold)
                                     }
                                 }
-                                
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "wallet.pass")
-                                    //                                    .resizable()
-                                    //                                    .scaledToFit()
-                                    //                                    .frame(width: 25, height: 25)
-                                        .imageScale(.large)
-                                    
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        
-                                        if post.payment <= 0 {
-                                            Text("Free")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            Text("No payment required")
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        } else {
-                                            Text("Paid")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            Text("$ \(String(format: "%.2f", post.payment)) per person")
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        }
-                                    }
-                                }
-                                
-                            }
-                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                            .normalTagRectangleStyle()
-                            
-                            if let description = post.description {
-                                Text("Description")
-                                    .font(.title3)
-                                    .fontWeight(.bold)
-                                    .padding(.vertical, 8)
-                                
-                                ExpandableText(description, lineLimit: 4)
-                                    .lineSpacing(8.0)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.gray)
-                                    .padding(.bottom, 8)
                             }
                             
-                            Text("Location")
+                        }
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                        .normalTagRectangleStyle()
+                        
+                        if let description = post.description {
+                            Text("Description")
                                 .font(.title3)
                                 .fontWeight(.bold)
                                 .padding(.vertical, 8)
                             
-                            if post.peopleIn.contains(userViewModel.user.id) || !post.askToJoin{
-                                
-                                Text(locationAddress(post.location))
+                            ExpandableText(description, lineLimit: 4)
+                                .lineSpacing(8.0)
+                                .fontWeight(.medium)
+                                .foregroundColor(.gray)
+                                .padding(.bottom, 8)
+                        }
+                        
+                        Text("Location")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 8)
+                        
+                        if !post.askToJoin{
+                            
+                            Text(locationAddress1(post.location))
+                                .normalTagTextStyle()
+                                .normalTagCapsuleStyle()
+                            
+                            MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
+                            
+                        } else {
+                            Text("The location will be revealed upon joining.")
+                                .lineSpacing(8.0)
+                                .fontWeight(.medium)
+                                .foregroundColor(.gray)
+                                .padding(.bottom, 8)
+                        }
+                        
+                        Text("Interests")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 8)
+                        
+                        WrappingHStack(alignment: .leading, horizontalSpacing: 5){
+                            ForEach(post.interests, id:\.self){ interest in
+                                Text("\(interest.icon) \(interest.name)")
                                     .normalTagTextStyle()
                                     .normalTagCapsuleStyle()
-                                
-                                MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
-                                
-                            } else {
-                                Text("The location will be revealed upon joining.")
-                                    .lineSpacing(8.0)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.gray)
-                                    .padding(.bottom, 8)
-                            }
-                            
-                            Text("Interests")
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .padding(.vertical, 8)
-                            
-                            WrappingHStack(alignment: .leading, horizontalSpacing: 5){
-                                ForEach(post.interests, id:\.self){ interest in
-                                    Text("\(interest.icon) \(interest.name)")
-                                        .normalTagTextStyle()
-                                        .normalTagCapsuleStyle()
-                                }
                             }
                         }
-                        .padding(.horizontal)
-                        
                     }
-                    .padding(.bottom, 100)
-                    .background(.bar)
+                    .padding(.horizontal)
+                    
                 }
-                .background(Color("testColor"))
-                .scrollIndicators(.hidden)
-                .edgesIgnoringSafeArea(.top)
+                .padding(.bottom, 100)
+                .background(.bar)
+            }
+            .background(Color("testColor"))
+            .scrollIndicators(.hidden)
+            .edgesIgnoringSafeArea(.top)
+            
+            VStack {
+                navbar()
                 
-                VStack {
-                    navbar()
-                    
-                    Spacer()
-                    
-                    bottomBar()
-
-                }
-            }
-//            .background{
-//                SwipeBackGesture{
-//                    self.dismiss()
-//                }
-//            }
-            .navigationBarBackButtonHidden(true)
-            .sheet(isPresented: $showPostOptions, content: {
-                List {
-                    Button("Save") {
-                        viewModel.selectedOption = "Save"
-                    }
-                    
-                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
-                        Text("Share via")
-                    }
-                    
-                    Button("Report") {
-                        viewModel.selectedOption = "Report"
-                    }
-                    
-                    
-                    if let user = post.user, user.id == userId {
-                        Button("Delete") {
-                            viewModel.selectedOption = "Delete"
-                        }
-                    }
-                }
-                .presentationDetents([.fraction(0.25)])
-                .presentationDragIndicator(.visible)
-            })
-            .sheet(isPresented: $showJoinRequest){
-                JoinRequestView()
-            }
-            .sheet(isPresented: $showSharePostSheet) {
-                ShareView()
-                    .presentationDetents([.fraction(0.8), .fraction(1) ])
-                    .presentationDragIndicator(.visible)
-            }
-            .onAppear {
-                self.peopleIn = post.peopleIn.count
+                Spacer()
+                
+                bottomBar()
+                
             }
         }
+        //            .background{
+        //                SwipeBackGesture{
+        //                    self.dismiss()
+        //                }
+        //            }
+        .navigationBarBackButtonHidden(true)
+        .sheet(isPresented: $showPostOptions, content: {
+            List {
+                Button("Save") {
+                    viewModel.selectedOption = "Save"
+                }
+                
+                ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                    Text("Share via")
+                }
+                
+                Button("Report") {
+                    viewModel.selectedOption = "Report"
+                }
+                
+                
+                if isOwner {
+                    Button("Delete") {
+                        viewModel.selectedOption = "Delete"
+                    }
+                }
+            }
+            .presentationDetents([.fraction(0.25)])
+            .presentationDragIndicator(.visible)
+        })
+        .sheet(isPresented: $showJoinRequest){
+            JoinRequestView()
+        }
+        .sheet(isPresented: $showSharePostSheet) {
+            ShareView()
+                .presentationDetents([.fraction(0.8), .fraction(1) ])
+                .presentationDragIndicator(.visible)
+        }
+        
     }
     
     @ViewBuilder
@@ -397,7 +399,7 @@ struct EventView: View {
             }
             Spacer()
             
-            if let post = post, let user = post.user, user.id == userId{
+            if isOwner {
                 NavigationLink(value: SelectionPath.editEvent(post: post)) {
                     Image(systemName: "square.and.pencil")
                         .frame(width: 35, height: 35)
@@ -408,7 +410,7 @@ struct EventView: View {
             
             Button{
                 showPostOptions = true
-                viewModel.clickedPostID = postID
+                viewModel.clickedPostID = post.id
             } label: {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
@@ -426,8 +428,8 @@ struct EventView: View {
             Divider()
             
             HStack{
-                if let post = post, post.date <= Date() {
-                    if let user = post.user, user.id == userId {
+                if post.currentUserStatus == .PARTICIPATING {
+                    if isOwner {
                         Button {
                             
                         } label: {
@@ -441,88 +443,91 @@ struct EventView: View {
                         }
                     } else {
                         Button {
-                            //                                    viewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
-                            viewModel.clickedPostID = post.id
-                            showJoinRequest = true
+                            
                         } label: {
-                            HStack(spacing:2){
-                                if post.peopleIn.contains(userViewModel.user.id) {
-                                    Image(systemName:"checkmark")
-                                    Text("Joined")
-                                        .fontWeight(.semibold)
-                                } else {
-                                    Text("Join")
-                                        .fontWeight(.semibold)
-                                }
-                            }
+                            Text("Leave")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                        }
+                    }
+
+                } else if post.currentUserStatus == .IN_QUEUE {
+                    Button {
+                        
+                    } label: {
+                        Text("Waiting")
+                            .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
                             .background(Color("blackAndWhite"))
                             .foregroundColor(Color("testColor"))
                             .cornerRadius(10)
-                        }
                     }
-                    
-                    Button {
-                        viewModel.clickedPostID = post.id
-                        showSharePostSheet = true
-                    } label: {
-                        Image(systemName:"paperplane")
-                            .resizable()
-                            .scaledToFit()
-                            .padding()
-                            .frame(width: 60, height: 60)
-                            .background(Color("secondaryColor"))
-                            .cornerRadius(10)
-                    }
-                    
-                    Button {
-                        userViewModel.savePost(postId: post.id)
-                    } label: {
-                        Image(systemName: userViewModel.user.details.savedPostIds.contains(post.id) ? "bookmark.fill" : "bookmark")
-                            .resizable()
-                            .scaledToFit()
-                            .padding()
-                            .frame(width: 60, height: 60)
-                            .background(Color("secondaryColor"))
-                            .cornerRadius(10)
-                    }
+
+                } else if post.currentUserStatus == .NOT_PARTICIPATING {
+                    Text("Join")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
                 } else {
-                    if let user = post?.user, user.id == userId {
-                        Button {
-                            
-                        } label: {
-                            HStack(spacing:2){
-                                Text("End the event")
-                                    .fontWeight(.semibold)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
-                        }
-                    } else {
-                        Button {
-                            
-                        } label: {
-                            HStack(spacing:2){
-                                Text("Ongoing Event")
-                                    .fontWeight(.semibold)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
-                        }
-                    }
+                    Text("Join")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
                 }
+                
+                shareAndSave()
             }
             .padding(.horizontal)
             
         }
         .background(.bar)
+    }
+    
+    @ViewBuilder
+    func shareAndSave() -> some View {
+        Button {
+            viewModel.clickedPostID = post.id
+            showSharePostSheet = true
+        } label: {
+            Image(systemName:"paperplane")
+                .resizable()
+                .scaledToFit()
+                .padding()
+                .frame(width: 60, height: 60)
+                .background(Color("main-secondary-color"))
+                .cornerRadius(10)
+        }
+        
+        Button {
+            userViewModel.savePost(postId: post.id)
+        } label: {
+            Image(systemName: userViewModel.user.details.savedPostIds.contains(post.id) ? "bookmark.fill" : "bookmark")
+                .resizable()
+                .scaledToFit()
+                .padding()
+                .frame(width: 60, height: 60)
+                .background(Color("main-secondary-color"))
+                .cornerRadius(10)
+        }
+    }
+    
+    var isOwner: Bool {
+        if let user = userViewModel.currentUser, user.id == post.owner.id{
+            return true
+        } else {
+            return false
+        }
     }
     
 }
@@ -531,7 +536,7 @@ struct EventView: View {
 
 struct EventView_Previews: PreviewProvider {
     static var previews: some View {
-        EventView(postID: Post.MOCK_POSTS[0].id)
+        EventView(post: MockPost)
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
     }

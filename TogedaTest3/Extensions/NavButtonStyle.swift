@@ -11,7 +11,7 @@ extension View {
     func navButton1() -> some View {
         self.foregroundColor(Color("textColor"))
             .frame(width: 35, height: 35)
-            .background(Color("secondaryColor"))
+            .background(Color("main-secondary-color"))
             .clipShape(Circle())
     }
     

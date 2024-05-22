@@ -24,7 +24,7 @@ struct CreateGroupView: View {
     
     var body: some View {
         NavigationStack{
-            VStack{
+            ZStack(alignment: .bottom){
                 ScrollView{
                     VStack(alignment: .leading){
                         Text("Title:")
@@ -210,7 +210,7 @@ struct CreateGroupView: View {
                             
                             Spacer()
                             
-                            Text(createGroupVM.selectedVisability)
+                            Text(createGroupVM.selectedVisability.capitalized)
                                 .foregroundColor(.gray)
                             
                             Image(systemName: "chevron.right")
@@ -248,54 +248,66 @@ struct CreateGroupView: View {
                 .padding(.horizontal)
                 .scrollIndicators(.hidden)
                 .navigationBarBackButtonHidden(true)
-
+                
                 if allRequirenments {
-                    Button{
-                        Task{
-                            do{
-                                if await createGroupVM.saveImages() {
-                                    let createClub = createGroupVM.createClub()
-                                    print(createClub)
-                                    try await ClubService.shared.createClub(clubData: createClub)
-                                    dismiss()
+                    ZStack(alignment: .bottom){
+                        LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
+                            .ignoresSafeArea(edges: .bottom)
+                        Button{
+                            Task{
+                                do{
+                                    if await createGroupVM.saveImages() {
+                                        let createClub = createGroupVM.createClub()
+                                        print(createClub)
+                                        try await ClubService.shared.createClub(clubData: createClub)
+                                        dismiss()
+                                    }
+                                } catch GeneralError.badRequest(details: let details){
+                                    print(details)
+                                } catch GeneralError.invalidURL {
+                                    print("Invalid URL")
+                                } catch GeneralError.serverError(let statusCode, let details) {
+                                    print("Status: \(statusCode) \n \(details)")
+                                } catch {
+                                    print("Error message:", error)
                                 }
-                            } catch GeneralError.badRequest(details: let details){
-                                print(details)
-                            } catch GeneralError.invalidURL {
-                                print("Invalid URL")
-                            } catch GeneralError.serverError(let statusCode, let details) {
-                                print("Status: \(statusCode) \n \(details)")
-                            } catch {
-                                print("Error message:", error)
+                                
                             }
-                            
+                        } label: {
+                            Text("Create")
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                                .fontWeight(.semibold)
                         }
-                    } label: {
+                        .padding()
+                    }
+                    .frame(height: 60)
+                } else {
+                    ZStack(alignment: .bottom){
+                        LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
+                            .ignoresSafeArea(edges: .bottom)
                         Text("Create")
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
-                            .background(Color("blackAndWhite"))
+                            .background(.gray)
                             .foregroundColor(Color("testColor"))
                             .cornerRadius(10)
                             .fontWeight(.semibold)
+                            .padding()
+                            .onTapGesture {
+                                displayWarnings.toggle()
+                            }
                     }
-                    .padding()
-                } else {
-                    Text("Create")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 60)
-                        .background(.gray)
-                        .foregroundColor(Color("testColor"))
-                        .cornerRadius(10)
-                        .fontWeight(.semibold)
-                        .padding()
-                        .onTapGesture {
-                            displayWarnings.toggle()
-                        }
+                    .frame(height: 60)
                 }
             }
-            .onTapGesture {
-                hideKeyboard()
+            .toolbar{
+                ToolbarItemGroup(placement: .keyboard) {
+                    KeyboardToolbarItems()
+                }
             }
             .navigationTitle("Create Gorup")
             .navigationBarTitleDisplayMode(.inline)
@@ -303,7 +315,7 @@ struct CreateGroupView: View {
                 Image(systemName: "xmark")
                     .imageScale(.medium)
                     .padding(.all, 8)
-                    .background(Color("secondaryColor"))
+                    .background(Color("main-secondary-color"))
                     .clipShape(Circle())
             }
             )
@@ -314,7 +326,7 @@ struct CreateGroupView: View {
                 NormalPhotoPickerView(createGroupVM: createGroupVM, message: "Select images related to the group activities.")
             }
             .navigationDestination(isPresented: $showLocation) {
-                LocationPicker(returnedPlace: $createGroupVM.returnedPlace)
+                LocationPicker(returnedPlace: $createGroupVM.returnedPlace, isActivePrev: $showLocation)
             }
             .navigationDestination(isPresented: $showInterests) {
                 CategoryView(selectedInterests: $createGroupVM.selectedInterests, text: "Select at least one tag related to your group", minInterests: 0)

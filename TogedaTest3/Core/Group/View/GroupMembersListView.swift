@@ -30,7 +30,7 @@ struct GroupMembersListView: View {
                 }
                 
                 ForEach(groupVM.club.members, id:\.userID) { member in
-                    NavigationLink(destination: UserProfileView(miniUser: member.user)){
+                    NavigationLink(destination: UserProfileView(miniUser: MockMiniUser)){
                         HStack{
                             Image(member.user.profilePhotos[0])
                                 .resizable()

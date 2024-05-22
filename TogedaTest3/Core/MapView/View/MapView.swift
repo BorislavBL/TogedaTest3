@@ -71,6 +71,7 @@ struct MapView: View {
                             .background(.ultraThickMaterial)
                             .clipShape(Circle())
                     }
+                    
                     MapUserLocationButton(scope: locationSpace)
                 }
                 .buttonBorderShape(.circle)
@@ -155,13 +156,13 @@ struct MapView: View {
 
         }
         .sheet(isPresented: $filterViewModel.showAllFilter){
-            AllInOneFilterView()
+            AllInOneFilterView(filterVM: filterViewModel)
 //                .presentationDetents([.fraction(0.99)])
 //                .presentationDragIndicator(.visible)
         }
         .overlay(alignment:.bottom) {
             if viewModel.showPostView && !showSearch {
-                NavigationLink(value: SelectionPath.eventDetails(viewModel.selectedPost)){
+                NavigationLink(value: SelectionPath.eventDetails(MockPost)){
                     EventMapPreview(post: viewModel.selectedPost, address: address)
                 }
                 .frame(height: 170)

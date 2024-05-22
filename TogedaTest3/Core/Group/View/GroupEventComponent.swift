@@ -30,13 +30,13 @@ struct GroupEventComponent: View {
                     //                    Text("Hosted")
                     //                        .font(.caption)
                     //                        .fontWeight(.semibold)
-                    //                        .foregroundColor(Color("lightGray"))
+                    //                        .foregroundColor(Color("light-gray"))
                     //                        .padding(.bottom, 2)
                     
                     Text(user.fullName)
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundColor(Color("lightGray"))
+                        .foregroundColor(Color("light-gray"))
                         .padding(.bottom, 2)
                     
                 }
@@ -54,28 +54,28 @@ struct GroupEventComponent: View {
                     HStack{
                         Image(systemName: "calendar")
                             .font(.caption)
-                            .foregroundColor(post.hasEnded ? .red : Color("lightGray"))
+                            .foregroundColor(post.hasEnded ? .red : Color("light-gray"))
                         Text(post.hasEnded ? "Ended" : "\(separateDateAndTime(from: post.date).date)")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(post.hasEnded ? .red : Color("lightGray"))
+                            .foregroundColor(post.hasEnded ? .red : Color("light-gray"))
                     }
                     
                     HStack{
                         Image(systemName: "person.3.fill")
                             .font(.caption)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
                         
                         if let maxPeople = post.maximumPeople {
                             Text("\(post.peopleIn.count)/\(maxPeople)")
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color("lightGray"))
+                                .foregroundColor(Color("light-gray"))
                         } else {
                             Text("\(post.peopleIn.count)")
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color("lightGray"))
+                                .foregroundColor(Color("light-gray"))
                         }
                     }
                 }
@@ -84,12 +84,12 @@ struct GroupEventComponent: View {
                     HStack(alignment: .center){
                         Image(systemName: "location")
                             .font(.caption)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
                         
                         Text(locationCityAndCountry(post.location))
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(Color("lightGray"))
+                            .foregroundColor(Color("light-gray"))
                     }
                 
             }

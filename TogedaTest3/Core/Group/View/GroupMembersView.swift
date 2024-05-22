@@ -38,7 +38,7 @@ struct GroupMembersView: View {
                 LazyHStack{
                     ForEach(groupVM.club.members.indices, id: \.self){ index in
                         if index < 10 {
-                            NavigationLink(destination: UserProfileView(miniUser: groupVM.club.members[index].user)) {
+                            NavigationLink(destination: UserProfileView(miniUser: MockMiniUser)) {
                                 Image(groupVM.club.members[index].user.profilePhotos[0])
                                     .resizable()
                                     .scaledToFill()

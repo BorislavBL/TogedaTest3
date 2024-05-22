@@ -14,7 +14,7 @@ struct EventRequestPage: View {
     
     var body: some View {
             VStack {
-                NavigationLink(value: SelectionPath.eventDetails(post)){
+                NavigationLink(value: SelectionPath.eventDetails(MockPost)){
                     HStack(alignment:.top){
                         Image(post.imageUrl[0])
                             .resizable()

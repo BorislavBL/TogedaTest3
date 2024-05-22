@@ -5,21 +5,26 @@
 //  Created by Borislav Lorinkov on 28.09.23.
 //
 
-import Foundation
+import SwiftUI
 
 @MainActor
 class UserViewModel: ObservableObject {
     @Published var user: User = User.MOCK_USERS[0]
-    @Published var currentUser: User?
-
-    func updateUser(_ user: User) {
-        self.currentUser = user
+    @Published var currentUserOld: User?
+    @Published var currentUser: Components.Schemas.User?
+    
+    init(){
+        Task{
+            do {
+                try await self.fetchCurrentUser()
+            } catch {
+                print("Error fetching data: \(error)")
+            }
+        }
     }
     
-    func fetchCurrentUser() async throws {
-        if let accessToken = KeychainManager.shared.getToken(item: userKeys.accessToken.toString, service: userKeys.service.toString) {
-            currentUser = try await UserService().fetchUserDetails(userId: accessToken.username)
-        }
+    func fetchCurrentUser() async throws{
+        currentUser = try await APIClient.shared.getCurrentUserInfo()
     }
     
     func savePost(postId: String) {

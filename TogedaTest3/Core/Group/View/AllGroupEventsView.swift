@@ -18,15 +18,15 @@ struct AllGroupEventsView: View {
         ScrollView{
             LazyVGrid(columns: columns){
                 ForEach(posts){ post in
-                    if post.hasEnded {
-                        NavigationLink(destination: CompletedEventView(postID: post.id)){
-                            GroupEventComponent(post: post)
-                        }
-                    } else {
-                        NavigationLink(destination: EventView(postID: post.id)){
-                            GroupEventComponent(post: post)
-                        }
-                    }
+//                    if post.hasEnded {
+//                        NavigationLink(destination: CompletedEventView(postID: post.id)){
+//                            GroupEventComponent(post: post)
+//                        }
+//                    } else {
+//                        NavigationLink(destination: EventView(postID: post.id)){
+//                            GroupEventComponent(post: post)
+//                        }
+//                    }
                 }
             }
             .padding(.horizontal, 8)

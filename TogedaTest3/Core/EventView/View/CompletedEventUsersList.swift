@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CompletedEventUsersList: View {
     @Environment(\.dismiss) private var dismiss
-    var users: [MiniUser]
+    @State var users: [Components.Schemas.MiniUser] = []
     @State var selectedUserId: String = ""
     @State var showOptions: Bool = false
     @State var selectedOption: String?
@@ -18,28 +18,28 @@ struct CompletedEventUsersList: View {
         ScrollView{
             LazyVStack(alignment:.leading){
                 ForEach(users, id:\.id) { user in
-                        HStack{
-                            NavigationLink(value: SelectionPath.profile(user)){
-                                    Image(user.profilePhotos[0])
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: size.dimension, height: size.dimension)
-                                        .clipShape(Circle())
- 
-                                
-                                Text(user.fullName)
-                                    .fontWeight(.semibold)
-                            }
-                            Spacer()
+                    HStack{
+                        NavigationLink(value: SelectionPath.profile(MockMiniUser)){
+                            Image(user.profilePhotos[0])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: size.dimension, height: size.dimension)
+                                .clipShape(Circle())
                             
-                            Button {
-                                showOptions = true
-                            } label: {
-                                Image(systemName: "ellipsis")
-                                    .rotationEffect(.degrees(90))
-                            }
+                            
+                            Text("\(user.firstName) \(user.lastName)")
+                                .fontWeight(.semibold)
                         }
-                        .padding(.vertical, 5)
+                        Spacer()
+                        
+                        Button {
+                            showOptions = true
+                        } label: {
+                            Image(systemName: "ellipsis")
+                                .rotationEffect(.degrees(90))
+                        }
+                    }
+                    .padding(.vertical, 5)
                     
                 }
                 
@@ -75,5 +75,5 @@ struct CompletedEventUsersList: View {
 }
 
 #Preview {
-    CompletedEventUsersList(users: MiniUser.MOCK_MINIUSERS)
+    CompletedEventUsersList(users: [])
 }

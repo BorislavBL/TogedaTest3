@@ -152,6 +152,8 @@ let mockInterests: [Interest] = [
     .init(name: "Voleyball", icon: "🏐", category: "sport"),
     .init(name: "Baseball", icon: "⚾️", category: "sport"),
 ]
+
+
 let events: [String] = []
 let friends = ["1", "2", "3"]
 let mockBirthday = birthDay(date: "2000-07-12")
@@ -201,7 +203,7 @@ extension User {
             location: mockLocation,
             occupation: "Designer",
             profilePhotos: ["person_1", "person_2", "person_3"],
-            interests: mockInterests,
+            interests: Interest.SportInterests,
             phoneNumber: "359892206243",
             verifiedPhone: true,
             verifiedEmail: true,

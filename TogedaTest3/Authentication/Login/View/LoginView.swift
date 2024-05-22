@@ -21,10 +21,9 @@ struct LoginView: View {
     @State private var errorMessage: String?
     
     @State private var saveLogin: Bool = true
+    @State private var isNotEmailConfirmed = false
     
-    @State var tokenCheck: String = ""
-    
-    @EnvironmentObject var contentVM: ContentViewModel
+    @EnvironmentObject var mainVm: ContentViewModel
     
     var body: some View {
         VStack {
@@ -110,7 +109,7 @@ struct LoginView: View {
             .padding(.bottom, 10)
             
             Button{
-                
+
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
                     Text("Forget Password?")
@@ -126,19 +125,16 @@ struct LoginView: View {
             
             Button{
                 errorMessage = nil
-                Task{
-                    do {
-                        try await AuthService.shared.login(email: email, password:password)
-                        contentVM.checkRefreshToken()
-                    } catch GeneralError.badRequest(details: let details){
-                        print(details)
-                        errorMessage = "Incorrect email or password."
-                    } catch GeneralError.invalidURL {
-                        print("Invalid URL")
-                    } catch GeneralError.serverError(let statusCode, let details) {
-                        print("Status: \(statusCode) \n \(details)")
-                    } catch {
-                        print("Error message:", error)
+                AuthClient.shared.login(email: email, password: password) { success, emailNotConfirmed, error  in
+                    if success {
+                        print("Success")
+                        mainVm.checkAuthStatus()
+                        self.errorMessage = nil
+                    } else if let message = error {
+                        self.errorMessage = message
+                        if emailNotConfirmed{
+                            isNotEmailConfirmed = true
+                        }
                     }
                 }
             } label: {
@@ -163,8 +159,14 @@ struct LoginView: View {
         .onTapGesture {
             hideKeyboard()
         }
+        .onAppear(){
+            focus = .email
+        }
         .ignoresSafeArea(.keyboard)
         .padding(.vertical)
+        .navigationDestination(isPresented: $isNotEmailConfirmed, destination: {
+            RegistrationCodeView(email: $email, password: $password)
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

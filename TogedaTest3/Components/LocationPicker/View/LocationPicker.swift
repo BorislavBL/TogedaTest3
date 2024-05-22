@@ -10,11 +10,13 @@ import MapKit
 
 struct LocationPicker: View {
     @EnvironmentObject var locationManager: LocationManager
-    @StateObject var placeVM = LocationPickerViewModel()
+    @StateObject var placeVM = LocationPickerViewModel(searchType: .all)
     @Environment(\.dismiss) private var dismiss
     @Binding var returnedPlace: Place
     @State var showCancelButton: Bool = false
     @State private var placemark: CLPlacemark?
+    @State var isActive: Bool = false
+    @Binding var isActivePrev: Bool
     
     var body: some View {
         VStack {
@@ -25,12 +27,13 @@ struct LocationPicker: View {
                 
                 if locationManager.authorizationStatus == .authorizedWhenInUse{
                     Button {
-                        locationManager.requestAuthorization()
-                        findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace)
-                        UIApplication.shared.endEditing(true)
-                        placeVM.searchText = ""
-                        showCancelButton = false
-                        dismiss()
+//                        locationManager.requestAuthorization()
+                        findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace) {
+                            UIApplication.shared.endEditing(true)
+                            placeVM.searchText = ""
+                            showCancelButton = false
+                            isActive = true
+                        }
                         
                     } label: {
                         Label {
@@ -47,31 +50,47 @@ struct LocationPicker: View {
             } else {
                 
                 List(placeVM.places){ place in
-                    VStack(alignment: .leading) {
-                        Text(place.name)
+                    HStack{
+                        Image(systemName: "mappin.circle.fill")
                             .font(.title2)
-                        Text(place.address)
-                            .font(.callout)
+                            .foregroundColor(.gray)
+                        
+                        VStack(alignment: .leading) {
+                            Text(place.name)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            
+                            if !place.address.isEmpty {
+                                Text(place.address)
+                                    .font(.callout)
+                            }
+                        }
                     }
                     .onTapGesture {
                         UIApplication.shared.endEditing(true)
                         placeVM.searchText = ""
                         showCancelButton = false
                         returnedPlace = place
-                        dismiss()
+//                        dismiss()
+                        isActive = true
                     }
                 }
                 .listStyle(.plain)
             }
             
         }
+        .navigationTitle("Location")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
                 .padding(.all, 8)
-                .background(Color("secondaryColor"))
+                .background(Color("main-secondary-color"))
                 .clipShape(Circle())
+        })
+        .navigationDestination(isPresented: $isActive, destination: {
+            ConfirmLocationMapView(returnedPlace: $returnedPlace, isActivePrev: $isActivePrev, isActive: $isActive)
+//            TestView()
         })
         .padding(.vertical)
         .frame(maxHeight: .infinity, alignment: .top )
@@ -79,7 +98,7 @@ struct LocationPicker: View {
 }
 
 #Preview {
-    LocationPicker(returnedPlace: .constant(Place(mapItem: MKMapItem())))
+    LocationPicker(returnedPlace: .constant(Place(mapItem: MKMapItem())), isActivePrev: .constant(true))
         .environmentObject(LocationManager())
 }
 

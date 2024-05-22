@@ -108,6 +108,7 @@ class PhotoPickerViewModel: ObservableObject {
     }
     
     private func uploadImageAsync(uiImage: UIImage) async -> Bool {
+        let bucketName = "togeda-post-photos"
         let UUID = NSUUID().uuidString
         guard let jpeg = compressImageIfNeeded(image: uiImage)else {
             print("Image compression failed.")
@@ -115,9 +116,9 @@ class PhotoPickerViewModel: ObservableObject {
         }
         
         do {
-            let response = try await ImageService().generatePresignedPutUrl(bucketName: "togeda-profile-photos", fileName: UUID)
+            let response = try await ImageService().generatePresignedPutUrl(bucketName: bucketName, fileName: UUID)
             try await ImageService().uploadImage(imageData: jpeg, urlString: response)
-            let imageUrl = "https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
+            let imageUrl = "https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
             publishedPhotosURLs.append(imageUrl)
             
             return true

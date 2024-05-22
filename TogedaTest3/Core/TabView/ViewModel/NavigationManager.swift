@@ -16,15 +16,15 @@ enum Screen: Equatable {
 }
 
 enum SelectionPath: Hashable, Codable {
-    case eventDetails(Post)
+    case eventDetails(Components.Schemas.PostResponseDto)
     case usersList(users: [MiniUser], post: Post)
-    case editEvent(post: Post)
+    case editEvent(post: Components.Schemas.PostResponseDto)
     case userRequests(users: [MiniUser])
-    case completedEventDetails(Post)
-    case completedEventUsersList(users: [MiniUser])
-    case allUserEvents(userID: String, posts: [Post])
-    case bookmarkedEvents(userID: String, posts: [Post])
-    case profile(MiniUser)
+    case completedEventDetails(post: Components.Schemas.PostResponseDto)
+    case completedEventUsersList
+    case allUserEvents(userID: String)
+    case bookmarkedEvents(userID: String)
+    case profile(Components.Schemas.MiniUser)
     case userSettings
     case editProfile
     case editProfilePhoneNumberMain

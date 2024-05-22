@@ -17,13 +17,13 @@ struct DescriptionView: View {
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading) {
-                
-                
-                Text("Description")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .padding(.horizontal)
-                
+//                
+//                
+//                Text("Description")
+//                    .font(.title3)
+//                    .fontWeight(.bold)
+//                    .padding(.horizontal)
+//                
                 if showWarning {
                     HStack(spacing: 5){
                         Image(systemName: "exclamationmark.circle")
@@ -39,8 +39,9 @@ struct DescriptionView: View {
                     .lineLimit(20, reservesSpace: true)
                     .padding(.horizontal)
             }
+            .padding(.vertical)
         }
-        .padding(.vertical)
+        .navigationTitle("Description")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {
             if !containsLink(text: description){
@@ -52,7 +53,7 @@ struct DescriptionView: View {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
                 .padding(.all, 8)
-                .background(Color("secondaryColor"))
+                .background(Color("main-secondary-color"))
                 .clipShape(Circle())
         }
         )

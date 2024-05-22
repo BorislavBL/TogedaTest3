@@ -21,7 +21,7 @@ struct NavButtons: View {
                 .foregroundColor(Color("textColor"))
 //                    .padding(8)
                 .frame(width: 35, height: 35)
-                .background(Color("secondaryColor"))
+                .background(Color("main-secondary-color"))
                 .clipShape(Circle())
             
             //Event

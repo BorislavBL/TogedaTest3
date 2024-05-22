@@ -15,30 +15,21 @@ struct ProfileView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @EnvironmentObject var userVm: UserViewModel
-    @State var minYValue: CGFloat = 0
-    @State private var showImageSet: Bool = true
     
     @State var showSheet: Bool = false
     @State var showCreateEvent: Bool = false
     @State var showCreateClub: Bool = false
-    let user = User.MOCK_USERS[0]
     
     var body: some View {
         ZStack(alignment: .top){
-//            if let user = userVm.currentUser {
+            if let user = userVm.currentUser {
                 ScrollView(showsIndicators: false){
                     VStack(alignment: .center){
                         TabView {
                             ForEach(user.profilePhotos, id: \.self) { image in
-//                                KFImage(URL(string: image))
-//                                    .resizable()
-//                                    .scaledToFill()
-//                                    .clipped()
-                                
-                                Image(image)
+                                KFImage(URL(string: image))
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: UIScreen.main.bounds.width)
                                     .clipped()
                             }
                         }
@@ -46,7 +37,7 @@ struct ProfileView: View {
                         .frame(height: UIScreen.main.bounds.width * 1.5)
                         
                         VStack(spacing: 10) {
-                            Text(user.fullName)
+                            Text("\(user.firstName) \(user.lastName)")
                                 .font(.title2)
                                 .fontWeight(.bold)
                             
@@ -75,7 +66,7 @@ struct ProfileView: View {
                             HStack(spacing: 5){
                                 Image(systemName: "mappin.circle")
                                 
-                                Text(user.location.name)
+                                Text(locationCityAndCountry1(user.location))
                                     .font(.footnote)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.gray)
@@ -86,11 +77,11 @@ struct ProfileView: View {
                         }.padding()
                         
                         HStack(alignment: .top, spacing: 30) {
-                            UserStats(value: String(user.details.friendIds.count), title: "Friends")
+                            UserStats(value: String((user.details?.friendIds!.count)!), title: "Friends")
                             Divider()
-                            UserStats(value: String(user.details.createdEventIds.count), title: "Events")
+                            UserStats(value: String((user.details?.createdEventIds!.count)!), title: "Events")
                             Divider()
-                            UserStats(value: "\(10)%", title: "Rating")
+                            UserStats(value: "\(100)%", title: "Rating")
                         }
                         .padding(.bottom)
                         
@@ -99,22 +90,15 @@ struct ProfileView: View {
                     .frame(width: UIScreen.main.bounds.width)
                     .background(.bar)
                     .cornerRadius(10)
-                    .background(
-                        GeometryReader { geo in
-                            Color.clear
-                                .frame(width: 0, height: 0)
-                                .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
-                                    minYValue = newMinY
-                                    
-                                }
-                        }
-                    )
+
                     BadgesTab()
+                    
                     if let user = userVm.currentUser, !user.verifiedPhone {
                         VerifyPhoneProfileTab()
                     }
+                    
                     AboutTab(user: user)
-                    EventTab(userID: user.id)
+                    EventTab(userID: user.id, createEvent: $showCreateEvent)
                     ClubsTab(userID: user.id)
                     
                 }
@@ -123,9 +107,9 @@ struct ProfileView: View {
                 .background(Color("testColor"))
                 navbar()
                 
-//            } else {
-//                UserProfileSkeletonView()
-//            }
+            } else {
+                UserProfileSkeletonView()
+            }
         }
 
         .sheet(isPresented: $showSheet, content: {
@@ -186,5 +170,6 @@ struct ProfileView_Previews: PreviewProvider {
         ProfileView()
             .environmentObject(UserViewModel())
             .environmentObject(PostsViewModel())
+            .environmentObject(ContentViewModel())
     }
 }

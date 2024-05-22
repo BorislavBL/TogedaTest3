@@ -11,14 +11,15 @@ struct MessagePostPreview: View {
     let postID: String
     @EnvironmentObject var postVM: PostsViewModel
     var post: Post? {
-        return postVM.posts.first(where: { $0.id == postID})
+//        return postVM.posts.first(where: { $0.id == postID})
+        return Post.MOCK_POSTS[0]
     }
     
     var body: some View {
 
         VStack(alignment: .leading){
             if let post = post {
-                NavigationLink(value: SelectionPath.eventDetails(post)) {
+                NavigationLink(value: SelectionPath.eventDetails(MockPost)) {
                     VStack(alignment: .leading){
                         Image(post.imageUrl[0])
                             .resizable()

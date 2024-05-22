@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @EnvironmentObject var navigationManager:NavigationManager
+    @EnvironmentObject var navigationManager: NavigationManager
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var contentViewModel: ContentViewModel
     @EnvironmentObject var postsViewModel: PostsViewModel
@@ -60,7 +60,7 @@ struct MainTabView: View {
                 let tabBarAppearance = UITabBarAppearance()
                 tabBarAppearance.configureWithDefaultBackground()
                 UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
-                contentViewModel.userViewModel = userViewModel
+//                contentViewModel.userViewModel = userViewModel
             }
             .onChange(of: navigationManager.screen) { oldValue, newValue in
                 if navigationManager.screen == .add {
@@ -90,14 +90,15 @@ struct MainTabView: View {
                         postsViewModel.selectedOption = "Report"
                     }
                     
-                    if let user = postsViewModel.posts[postsViewModel.clickedPostIndex].user, user.id == userId {
+//                    if let user = postsViewModel.posts[postsViewModel.clickedPostIndex].user, user.id == userId {
                         Button("Delete") {
                             postsViewModel.selectedOption = "Delete"
                         }
-                    }
+//                    }
                 }
                 .presentationDetents([.fraction(0.25)])
                 .presentationDragIndicator(.visible)
+                .scrollDisabled(true)
             })
             .sheet(isPresented: $postsViewModel.showSharePostSheet) {
                 ShareView()
@@ -112,21 +113,21 @@ struct MainTabView: View {
             .navigationDestination(for: SelectionPath.self, destination: { state in
                 switch state {
                 case .eventDetails(let post):
-                    EventView(postID: post.id)
+                    EventView(post: post)
                 case .usersList(users: let users, post: let post):
                     UsersListView(users: users, post: post)
                 case .editEvent(post: let post):
                     EditEventView(post: post)
                 case .userRequests(users: let users):
                     UserRequestView(users: users)
-                case .completedEventDetails(let post):
-                    CompletedEventView(postID: post.id)
-                case .completedEventUsersList(users: let users):
-                    CompletedEventUsersList(users: users)
-                case .allUserEvents(userID: let userID, posts: let posts):
-                    AllUserEventsView(userID: userID, posts: posts)
-                case .bookmarkedEvents(userID: let userID, posts: let posts):
-                    BookmarkedEventsView(userID: userID, posts: posts)
+                case .completedEventDetails(post: let post):
+                    CompletedEventView(post: post)
+                case .completedEventUsersList:
+                    CompletedEventUsersList()
+                case .allUserEvents(userID: let userID):
+                    AllUserEventsView(userID: userID)
+                case .bookmarkedEvents(userID: let userID):
+                    BookmarkedEventsView(userID: userID)
                 case .profile(let miniUser):
                     UserProfileView(miniUser: miniUser)
                 case .userSettings:

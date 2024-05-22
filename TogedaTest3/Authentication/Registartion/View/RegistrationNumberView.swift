@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RegistrationNumberView: View {
     @ObservedObject var vm: RegistrationViewModel
+    @EnvironmentObject var mainVm: ContentViewModel
     @State var presentSheet = false
     
     @State private var searchCountry: String = ""
@@ -17,7 +18,6 @@ struct RegistrationNumberView: View {
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
     
-    @State private var isActive = false
     @State private var isLoading = false
     @State private var errorMessage: String?
 
@@ -74,26 +74,15 @@ struct RegistrationNumberView: View {
 
             Button{
                 isLoading = true
-                print(vm.createdUser)
-                
+
                 Task{
-                    defer { isLoading = false }
-                    do {
-                        vm.userId = try await AuthService.shared.createUser(userData: vm.createdUser)
-                        isActive = true
-                    } catch GeneralError.encodingError{
-                        print("Data encoding error")
-                    } catch GeneralError.badRequest(details: let details){
-                        print(details)
-                        errorMessage = "Invalid phone number."
-                    } catch GeneralError.invalidURL {
-                        print("Invalid URL")
-                    } catch GeneralError.serverError(let statusCode, let details) {
-                        print("Status: \(statusCode) \n \(details)")
-                    } catch {
-                        print("Error message:", error)
+                    let body = vm.addUserInfoModel()
+                    if try await APIClient.shared.addUserInfo(body: body) {
+                        isLoading = false
+                        mainVm.checkAuthStatus()
                     }
                 }
+                    
             } label:{
                 if isLoading {
                     ProgressView()
@@ -104,7 +93,7 @@ struct RegistrationNumberView: View {
                         .cornerRadius(10)
                         .fontWeight(.semibold)
                 } else {
-                    Text("Next")
+                    Text("Submit")
                         .frame(maxWidth: .infinity)
                         .frame(height: 60)
                         .background(Color("blackAndWhite"))
@@ -165,10 +154,6 @@ struct RegistrationNumberView: View {
                 .background(Color(.tertiarySystemFill))
                 .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
         })
-        .navigationDestination(isPresented: $isActive, destination: {
-            RegistrationCodeView(vm: vm)
-        })
-
     }
     
     var filteredResorts: [CPData] {
@@ -198,4 +183,5 @@ struct RegistrationNumberView: View {
 
 #Preview {
     RegistrationNumberView(vm: RegistrationViewModel())
+        .environmentObject(ContentViewModel())
 }

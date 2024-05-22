@@ -17,10 +17,19 @@ func separateDateAndTime(from inputDate: Date) -> (date: String, time: String, w
     } else if calendar.isDateInTomorrow(inputDate) {
         date = "Tomorrow"
     } else {
-        // If not today or tomorrow, format the date as you desire
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy"
-        date = dateFormatter.string(from: inputDate)
+        // Check if the input date is within the current year
+        let currentYear = calendar.component(.year, from: Date())
+        let inputYear = calendar.component(.year, from: inputDate)
+        
+        if currentYear == inputYear {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "dd.MM"
+            date = dateFormatter.string(from: inputDate)
+        } else {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "dd.MM.yyyy"
+            date = dateFormatter.string(from: inputDate)
+        }
     }
 
     // Format the time
@@ -35,6 +44,7 @@ func separateDateAndTime(from inputDate: Date) -> (date: String, time: String, w
 
     return (date, time, weekday)
 }
+
 
 func formatDateAndTime(date: Date) -> String {
     let calendar = Calendar.current
@@ -80,3 +90,21 @@ func calculateAge(from birthdateStr: String) -> Int? {
 }
 
 
+func birthDayFromStringToDate(dateString: String) -> Date? {
+    let dateFormatter = DateFormatter()
+
+    // Set the date format that matches your input string
+    dateFormatter.dateFormat = "yyyy-MM-dd"
+
+    // Optionally, set the locale to posix to ensure the formatter does not use the user's locale
+    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+    // Convert the string to a Date object
+    if let date = dateFormatter.date(from: dateString) {
+        return date
+    } else {
+        print("Invalid date format")
+    }
+    
+    return nil
+}

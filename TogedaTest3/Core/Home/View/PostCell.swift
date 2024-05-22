@@ -7,10 +7,11 @@
 
 import SwiftUI
 import WrappingHStack
+import Kingfisher
 
 struct PostCell: View {
     @EnvironmentObject var viewModel: PostsViewModel
-    var post: Post
+    var post: Components.Schemas.PostResponseDto
     
     @EnvironmentObject var userViewModel: UserViewModel
     
@@ -21,33 +22,27 @@ struct PostCell: View {
                 //MARK: - Post Header
                 
                 HStack(alignment: .center) {
-
-                        if let user = post.user{
-                            NavigationLink(value: SelectionPath.profile(user)) {
-                                
-                                Image(user.profilePhotos[0])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 50, height: 50)
-                                    .background(.gray)
-                                    .cornerRadius(15)
-                            }
+                        NavigationLink(value: SelectionPath.profile(post.owner)) {
                             
-                            VStack(alignment: .leading, spacing: 3){
-                                Text(post.title)
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
-                                    .font(.body)
-                                    .fontWeight(.semibold)
-                                Text(user.fullName)
-                                    .foregroundColor(.gray)
-                                    .fontWeight(.semibold)
-                                    .font(.footnote)
-                            }
+                            KFImage(URL(string: post.owner.profilePhotos[0]))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 50, height: 50)
+                                .background(.gray)
+                                .cornerRadius(15)
+                        }
                         
-                        
-                        
-                    }
+                        VStack(alignment: .leading, spacing: 3){
+                            Text(post.title)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .font(.body)
+                                .fontWeight(.semibold)
+                            Text("\(post.owner.firstName) \(post.owner.lastName)")
+                                .foregroundColor(.gray)
+                                .fontWeight(.semibold)
+                                .font(.footnote)
+                        }
                     
                     Spacer()
                     
@@ -64,7 +59,7 @@ struct PostCell: View {
                 }
  
                 NavigationLink(value: SelectionPath.eventDetails(post)) {
-                    Image(post.imageUrl[0])
+                    KFImage(URL(string: post.images[0]))
                         .resizable()
                         .scaledToFill()
                         .frame(maxHeight: 400)
@@ -78,13 +73,20 @@ struct PostCell: View {
                         viewModel.clickedPostID = post.id
                         viewModel.showJoinRequest = true
                     } label: {
-                        Image(systemName: post.peopleIn.contains(userViewModel.user.id) ? "person.2.circle.fill" : "person.2.circle")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 25, height: 25)
+                        if post.currentUserStatus == .PARTICIPATING {
+                            Image(systemName: "person.2.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 25, height: 25)
+                        } else {
+                            Image(systemName: "person.2.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 25, height: 25)
+                        }
                     }
                     
-                    if post.peopleIn.contains(userViewModel.user.id) || !post.askToJoin{
+                    if post.currentUserStatus == .PARTICIPATING || !post.askToJoin {
                         
                         Button{
                             let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)")
@@ -145,7 +147,7 @@ struct PostCell: View {
 
 struct PostCell_Previews: PreviewProvider {
     static var previews: some View {
-        PostCell(post: Post.MOCK_POSTS[1])
+        PostCell(post: MockPost)
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
     }

@@ -24,8 +24,8 @@ struct RegistrationOccupationView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            TextField("", text: $vm.createdUser.occupation)
-                .placeholder(when: vm.createdUser.occupation.isEmpty) {
+            TextField("", text: $vm.occupation)
+                .placeholder(when: vm.occupation.isEmpty) {
                     Text("Occupation")
                         .foregroundColor(.secondary)
                         .bold()
@@ -35,7 +35,7 @@ struct RegistrationOccupationView: View {
                 .keyboardType(.default)
                 .submitLabel(.next)
                 .onSubmit {
-                    if vm.createdUser.occupation.isEmpty && !isStudent{
+                    if vm.occupation.isEmpty && !isStudent{
                         displayError.toggle()
                     } else {
                         isActive = true
@@ -56,9 +56,9 @@ struct RegistrationOccupationView: View {
             Button{
                 isStudent.toggle()
                 if isStudent {
-                    vm.createdUser.occupation = "Student"
+                    vm.occupation = "Student"
                 } else {
-                    vm.createdUser.occupation = ""
+                    vm.occupation = ""
                 }
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
@@ -84,9 +84,9 @@ struct RegistrationOccupationView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(vm.createdUser.occupation.isEmpty && !isStudent)
+            .disableWithOpacity(vm.occupation.isEmpty && !isStudent)
             .onTapGesture {
-                if vm.createdUser.occupation.isEmpty && !isStudent{
+                if vm.occupation.isEmpty && !isStudent{
                     displayError.toggle()
                 }
             }

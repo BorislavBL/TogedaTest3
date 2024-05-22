@@ -93,9 +93,10 @@ struct DateView: View {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
                 .padding(.all, 8)
-                .background(Color("secondaryColor"))
+                .background(Color("main-secondary-color"))
                 .clipShape(Circle())
         }
+            .navigationTitle("Date")
         )
     }
 }

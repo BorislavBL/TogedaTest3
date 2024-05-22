@@ -18,12 +18,12 @@ struct PhotoPickerView: View {
     var body: some View {
         ScrollView {
             VStack(alignment:.leading, spacing: 10){
-                    Text("Add Photos")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    
-                    
-                    Text("Select photos related to your activity.")
+//                    Text("Add Photos")
+//                        .font(.title3)
+//                        .fontWeight(.bold)
+//                    
+//                    
+                    Text("Add photos related to your activity.")
                         .font(.footnote)
                         .foregroundStyle(.gray)
                 
@@ -39,7 +39,7 @@ struct PhotoPickerView: View {
                                         .cornerRadius(10)
                                         .clipped()
                                 } else {
-                                    Color("secondaryColor")
+                                    Color("main-secondary-color")
                                         .frame(width:imageDimension, height: imageDimension * 1.3)
                                         .cornerRadius(10)
                                     
@@ -65,7 +65,7 @@ struct PhotoPickerView: View {
                                         .cornerRadius(10)
                                         .clipped()
                                 } else {
-                                    Color("secondaryColor")
+                                    Color("main-secondary-color")
                                         .frame(width:imageDimension, height: imageDimension * 1.3)
                                         .cornerRadius(10)
                                     
@@ -82,7 +82,7 @@ struct PhotoPickerView: View {
                     }
                 }
                 
-                if photoPickerVM.selectedImages.allSatisfy({ $0 == nil }), let user = userViewModel.currentUser {
+                if photoPickerVM.selectedImages.allSatisfy({ $0 == nil }), let user = userViewModel.currentUser{
                     
                     Text("Use your ptofile picture as the cover for the event.")
                         .font(.footnote)
@@ -111,12 +111,13 @@ struct PhotoPickerView: View {
         .fullScreenCover(isPresented: $photoPickerVM.showCropView, content: {
             CropPhotoView(selectedImage:photoPickerVM.selectedImage, finalImage: $photoPickerVM.selectedImages[photoPickerVM.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
         })
+        .navigationTitle("Photos")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
                 .padding(.all, 8)
-                .background(Color("secondaryColor"))
+                .background(Color("main-secondary-color"))
                 .clipShape(Circle())
         })
         .padding(.vertical)
