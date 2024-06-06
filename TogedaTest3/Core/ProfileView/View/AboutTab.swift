@@ -9,7 +9,7 @@ import SwiftUI
 import WrappingHStack
 
 struct AboutTab: View {
-    var user: Components.Schemas.User?
+    var user: Components.Schemas.UserInfoDto?
     var body: some View {
         VStack (alignment: .leading) {
             if isAboutInfo {
@@ -17,7 +17,7 @@ struct AboutTab: View {
                     .font(.body)
                     .fontWeight(.bold)
                 WrappingHStack(alignment: .leading){
-                    if let education = user?.details?.education {
+                    if let education = user?.details.education {
                         aboutTag(img: Image(systemName: "graduationcap"), text: education)
                     }
 //                    if let height = user.details.height {
@@ -39,13 +39,13 @@ struct AboutTab: View {
                             aboutTag(img: Image(systemName: "accessibility"), text: user.gender.rawValue.capitalized)
                         }
                         
-                        if let workout = user.details?.workout {
+                        if let workout = user.details.workout {
                             aboutTag(img: Image(systemName: "dumbbell"), text: workout)
                         }
-                        if let personalityType = user.details?.personalityType {
+                        if let personalityType = user.details.personalityType {
                             aboutTag(img: Image(systemName: "puzzlepiece.extension"), text: personalityType)
                         }
-                        if let instagarm = user.details?.instagram, !instagarm.isEmpty {
+                        if let instagarm = user.details.instagram, !instagarm.isEmpty {
                             aboutTag(img:Image("instagram"), text: instagarm)
                         }
                     }
@@ -53,12 +53,15 @@ struct AboutTab: View {
                 }.padding(.bottom, 30)
             }
             
-            Text("Interests")
-                .font(.body)
-                .fontWeight(.bold)
+
             
 //            if user.interests.count <= 11 {
             if let user = user {
+                
+                Text("Interests")
+                    .font(.body)
+                    .fontWeight(.bold)
+                
                 WrappingHStack(alignment: .leading){
                     ForEach(user.interests, id: \.self){interest in
                         Text("\(interest.icon) \(interest.name)")
@@ -73,7 +76,7 @@ struct AboutTab: View {
 //            }
             
             
-            if let user = user, let bio = user.details?.bio, !bio.isEmpty {
+            if let user = user, let bio = user.details.bio, !bio.isEmpty {
                 Text("Bio")
                     .font(.body)
                     .fontWeight(.bold)
@@ -107,7 +110,7 @@ struct AboutTab: View {
     }
     
     var isAboutInfo: Bool {
-        if let user = user, user.details?.education != nil || user.details?.workout != nil || user.details?.personalityType != nil || user.details?.instagram != nil {
+        if let user = user, user.details.education != nil || user.details.workout != nil || user.details.personalityType != nil || user.details.instagram != nil {
             return true
         } else {
             return false

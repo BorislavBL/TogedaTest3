@@ -7,15 +7,16 @@
 
 import SwiftUI
 import WrappingHStack
+import Kingfisher
 
 struct GroupComponent: View {
     var userID: String
-    var club: Club
+    var club: Components.Schemas.ClubDto
     let size: CGSize = CGSize(width: (UIScreen.main.bounds.width / 2) - 16, height: ((UIScreen.main.bounds.width / 2) - 16) * 1.5)
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            Image(club.imagesUrl[0])
+            KFImage(URL(string: club.images[0]))
                 .resizable()
                 .scaledToFill()
                 .frame(size)
@@ -25,13 +26,7 @@ struct GroupComponent: View {
                 .opacity(0.95)
             
             VStack(alignment: .leading){
-                if club.members.contains(where: { ClubMember in
-                    if ClubMember.status == "Admin" && ClubMember.userID == userID {
-                        return true
-                    } else {
-                        return false
-                    }
-                }) {
+                if club.currentUserRole == .ADMIN {
                     Text("Admin")
                         .font(.caption)
                         .fontWeight(.semibold)
@@ -59,7 +54,7 @@ struct GroupComponent: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("light-gray"))
                         } else {
-                            Text(club.visability)
+                            Text(club.accessibility.rawValue.capitalized)
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("light-gray"))
@@ -67,11 +62,11 @@ struct GroupComponent: View {
                     }
                     
                     HStack{
-                        Image(systemName: "person.3.fill")
+                        Image(systemName: "person.2.fill")
                             .font(.caption)
                             .foregroundColor(Color("light-gray"))
                         
-                        Text("\(club.members.count)")
+                        Text("\(club.membersCount)")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(Color("light-gray"))
@@ -87,8 +82,7 @@ struct GroupComponent: View {
                         .font(.caption)
                         .foregroundColor(Color("light-gray"))
                     
-//                    Text(locationCityAndCountry(club.baseLocation))
-                    Text(club.baseLocation.name)
+                    Text(club.location.name)
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(Color("light-gray"))
@@ -107,5 +101,5 @@ struct GroupComponent: View {
 }
 
 #Preview {
-    GroupComponent(userID: User.MOCK_USERS[0].id, club: Club.MOCK_CLUBS[0])
+    GroupComponent(userID: "", club: MockClub)
 }

@@ -14,21 +14,60 @@ struct AllUserGroupsView: View {
         GridItem(.flexible()),
     ]
     @Environment(\.dismiss) var dismiss
+    
+    @State var lastPage: Bool = true
+    @State var clubs: [Components.Schemas.ClubDto] = []
+    @State var page: Int32 = 0
+    @State var size: Int32 = 15
+    @State var isLoading = false
 
     var body: some View {
         ScrollView{
             LazyVGrid(columns: columns){
-                ForEach(0..<6, id:\.self ){ index in
-                    NavigationLink(value: SelectionPath.club(Club.MOCK_CLUBS[0])){
-                        GroupComponent(userID: userID, club: Club.MOCK_CLUBS[0])
+                ForEach(clubs, id:\.id ){ club in
+                    NavigationLink(value: SelectionPath.club(club)){
+                        GroupComponent(userID: userID, club: club)
                     }
                 }
             }
             .padding(.horizontal, 8)
             .padding(.vertical)
+            
+            if isLoading {
+                ProgressView() // Show spinner while loading
+            } else {
+                VStack(spacing: 8){
+                    Divider()
+                    Text("No more clubs")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.gray)
+                }
+                .padding()
+            }
+            
+            Rectangle()
+                .frame(width: 0, height: 0)
+                .onAppear {
+                    if !lastPage{
+                        isLoading = true
+                        Task{
+                            try await fetchClubs()
+                            isLoading = false
+                            
+                        }
+                    }
+                }
         }
         .refreshable {
-            
+            page = 0
+            Task{
+                try await fetchClubs()
+            }
+        }
+        .onAppear(){
+            Task{
+                try await fetchClubs()
+            }
         }
         .scrollIndicators(.hidden)
         .navigationTitle("Clubs")
@@ -42,6 +81,18 @@ struct AllUserGroupsView: View {
             }
         }
         .background(.bar)
+    }
+    
+    func fetchClubs() async throws{
+        if let response = try await APIClient.shared.getUserClubs(userId: userID, page: page, size: size) {
+            clubs += response.data
+            lastPage = response.lastPage
+            
+            if !response.lastPage{
+                page += 1
+            }
+        }
+        
     }
 
 }

@@ -12,7 +12,7 @@ struct FriendRequestPage: View {
     var users: [MiniUser] = MiniUser.MOCK_MINIUSERS
     var body: some View {
         VStack{
-            NavigationLink(value: SelectionPath.userRequest(users: users)){
+            NavigationLink(value: SelectionPath.userRequest){
                 HStack{
                     ZStack(alignment:.top){
                        

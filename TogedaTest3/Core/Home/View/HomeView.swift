@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Refresher
 
 struct HomeView: View {
     @State var showFilter: Bool = true
@@ -17,121 +18,136 @@ struct HomeView: View {
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     
-    @State private var refreshingHeight: CGFloat = 0.0
-
     var body: some View {
-            ZStack{
-                Color("testColor")
-                    .edgesIgnoringSafeArea(.vertical)
+        ZStack{
+            Color("testColor")
+                .edgesIgnoringSafeArea(.vertical)
+            
+            ZStack(alignment: .top) {
                 
-                ZStack(alignment: .top) {
+                VStack {
                     
-                    VStack {
-                        Color.clear
-                            .frame(height: refreshingHeight)
-                        
-                        ScrollView(.vertical, showsIndicators: false){
-                            LazyVStack (spacing: 10){
-                                
-                                ForEach(postsViewModel.feedPosts.indices, id: \.self) { index in
-                                    PostCell(post: postsViewModel.feedPosts[index])
+                    ScrollView(.vertical, showsIndicators: false){
+                        LazyVStack (spacing: 10){
+                            if postsViewModel.feedPosts.count > 0 {
+                                ForEach(Array(postsViewModel.feedPosts.enumerated()), id: \.element.id) {index, post in
+                                    PostCell(post: post)
                                         .onAppear(){
                                             postsViewModel.feedScrollFetch(index: index)
                                         }
                                 }
-                                GroupCell()
-                                
-//                                ForEach(viewModel.feedItems, id:\.self) {item in
-//                                    switch item {
-//                                    case .event(let post):
-//                                        PostCell(post: post)
-//                                    case .group(let club):
-//                                        GroupCell(club: club)
-//                                    }
-//                                    
-//                                }
+                                ClubCell()
                                 
                                 if postsViewModel.isLoading {
-                                    ProgressView() // Show spinner while loading
+                                    PostSkeleton() // Show spinner while loading
+                                } else {
+                                    VStack(spacing: 8){
+                                        Divider()
+                                        Text("No more posts")
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.gray)
+                                    }
+                                    .padding()
                                 }
                                 
-                                Rectangle()
-                                    .frame(width: 0, height: 0)
-                                    .onAppear {
+                            } else {
+                                ForEach(0..<5, id: \.self) { index in
+                                    PostSkeleton()
+                                }
+                            }
+                            
+                            
+                            
+                            
+                            //                                ForEach(viewModel.feedItems, id:\.self) {item in
+                            //                                    switch item {
+                            //                                    case .event(let post):
+                            //                                        PostCell(post: post)
+                            //                                    case .group(let club):
+                            //                                        GroupCell(club: club)
+                            //                                    }
+                            //
+                            //                                }
+                            
+                            
+                            
+                            Rectangle()
+                                .frame(width: 0, height: 0)
+                                .onAppear {
+                                    if !postsViewModel.lastPage{
                                         postsViewModel.isLoading = true
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        Task{
+                                            try await postsViewModel.fetchPosts()
                                             postsViewModel.isLoading = false
+                                            
                                         }
                                     }
-                            }
-                            .padding(.top, navbarHeight - 15)
-                            .padding(.vertical)
-                            .background(
-                                GeometryReader { geo in
-                                    Color.clear
-                                        .frame(width: 0, height: 0)
-                                        .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
-                                            if newMinY < previousMinY && showFilter && newMinY < 0 {
-                                                DispatchQueue.main.async {
-                                                    withAnimation {
-                                                        showFilter = false
-                                                    }
-                                                }
-                                            } else if newMinY > previousMinY && !showFilter{
-                                                DispatchQueue.main.async {
-                                                    withAnimation {
-                                                        showFilter = true
-                                                    }
+                                }
+                        }
+                        .padding(.top, navbarHeight - 10)
+                        .padding(.vertical)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear
+                                    .frame(width: 0, height: 0)
+                                    .onChange(of: geo.frame(in: .global).minY) { oldMinY,  newMinY in
+                                        if newMinY < previousMinY && showFilter && newMinY < 0 {
+                                            DispatchQueue.main.async {
+                                                withAnimation {
+                                                    showFilter = false
                                                 }
                                             }
-                                            
-                                            // Update the previous value
-                                            previousMinY = newMinY
+                                        } else if newMinY > previousMinY && !showFilter{
+                                            DispatchQueue.main.async {
+                                                withAnimation {
+                                                    showFilter = true
+                                                }
+                                            }
                                         }
-                                }
-                            )
-                        }
-                        .onAppear{
-                            viewModel.fetchFeed()
-                        }
-                        .refreshable {
-                            print("feeling kinda refreshed")
-                            refreshingHeight = navbarHeight
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                withAnimation(.linear(duration: 0.1)) {
-                                    refreshingHeight = 0
-                                }
+                                        
+                                        // Update the previous value
+                                        previousMinY = newMinY
+                                    }
                             }
-                        }
+                        )
                     }
-                    .overlay{
-                        if viewModel.showCancelButton {
-                            SearchView(viewModel: viewModel)
+                    .refresher(config: .init(headerShimMaxHeight: 110), refreshView: HomeEmojiRefreshView.init) { done in
+                        Task{
+                            postsViewModel.feedPosts = []
+                            postsViewModel.page = 0
+                            try await postsViewModel.fetchPosts()
+                            done()
                         }
-                    }
-                    .onChange(of: viewModel.showCancelButton){
-                        if viewModel.showCancelButton {
-                            postsViewModel.startSearch()
-                        } else {
-                            postsViewModel.startSearch()
-                        }
-                    }
-                    CustomNavBar(showFilter: $showFilter, filterVM: filterViewModel, homeViewModel: viewModel)
-                }
-                
-            }
-            .sheet(isPresented: $postsViewModel.showJoinRequest){
-                    JoinRequestView()
-            }
-            .sheet(isPresented: $filterViewModel.showAllFilter, content: {
-                AllInOneFilterView(filterVM: filterViewModel)
-//                    .presentationDetents([.fraction(0.99)])
-//                    .presentationDragIndicator(.visible)
-            })
 
+                    }
+                }
+                .overlay{
+                    if viewModel.showCancelButton {
+                        SearchView(viewModel: viewModel)
+                    }
+                }
+                .onChange(of: viewModel.showCancelButton){
+                    if viewModel.showCancelButton {
+                        viewModel.startSearch()
+                    } else {
+                        viewModel.stopSearch()
+                    }
+                }
+                CustomNavBar(showFilter: $showFilter, filterVM: filterViewModel, homeViewModel: viewModel)
+            }
+            
         }
+        .sheet(isPresented: $postsViewModel.showJoinRequest){
+            JoinRequestView(post: $postsViewModel.clickedPost)
+        }
+        .sheet(isPresented: $filterViewModel.showAllFilter, content: {
+            AllInOneFilterView(filterVM: filterViewModel)
+        })
         
+    }
+    
 }
+
 
 
 struct HomeView_Previews: PreviewProvider {

@@ -19,7 +19,7 @@ struct BookmarkedEventsView: View {
         ScrollView{
             LazyVGrid(columns: columns){
                 ForEach(posts, id: \.id){ post in
-                    if post.hasEnded{
+                    if post.status == .HAS_ENDED{
 //                        NavigationLink(value: SelectionPath.completedEventDetails(post)){
 //                            EventComponent(userID: userID, post: post)
 //                        }

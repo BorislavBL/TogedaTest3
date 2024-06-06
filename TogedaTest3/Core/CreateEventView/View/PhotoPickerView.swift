@@ -127,6 +127,6 @@ struct PhotoPickerView: View {
 }
 
 #Preview {
-    PhotoPickerView(photoPickerVM: PhotoPickerViewModel())
+    PhotoPickerView(photoPickerVM: PhotoPickerViewModel(s3BucketName: .user, mode: .normal))
         .environmentObject(UserViewModel())
 }

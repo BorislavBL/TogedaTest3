@@ -13,9 +13,9 @@ struct SearchFilters: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false){
             HStack{
-                ForEach(searchFilters, id: \.self) { filter in
-                    SearchFilterButton(viewModel: viewModel, filter: filter)
-                }
+                SearchFilterButton(viewModel: viewModel, filter: .events)
+                SearchFilterButton(viewModel: viewModel, filter: .users)
+                SearchFilterButton(viewModel: viewModel, filter: .clubs)
             }
             
         }
@@ -26,18 +26,18 @@ struct SearchFilters: View {
 struct SearchFilterButton: View {
     @ObservedObject var viewModel: HomeViewModel
     
-    var filter: String
+    var filter: SearchCases
     
     var body: some View {
             Button {
                 viewModel.selectedFilter = filter
             } label: {
                 if viewModel.selectedFilter == filter {
-                    Text(filter)
+                    Text(filter.toString)
                         .selectedTagTextStyle()
                         .selectedTagCapsuleStyle()
                 } else {
-                    Text(filter)
+                    Text(filter.toString)
                         .normalTagTextStyle()
                         .normalTagCapsuleStyle()
                         

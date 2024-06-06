@@ -9,6 +9,7 @@ import SwiftUI
 
 struct UserSettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var mainVM: ContentViewModel
     var body: some View {
         List{
             Section(header: Text("Profile")){
@@ -61,10 +62,11 @@ struct UserSettingsView: View {
             
             Section(header: Text("More")){
                 Button{
-                    
+                    mainVM.logout()
                 }label:{
                     Text("Log out")
                 }
+                
                 Button{
                     
                 }label:{
@@ -84,4 +86,5 @@ struct UserSettingsView: View {
 
 #Preview {
     UserSettingsView()
+        .environmentObject(ContentViewModel())
 }

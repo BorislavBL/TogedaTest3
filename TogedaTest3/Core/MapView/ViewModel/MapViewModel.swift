@@ -9,6 +9,7 @@
 
 import SwiftUI
 import MapKit
+import Combine
 
 class MapViewModel: ObservableObject{
     @Published var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
@@ -16,60 +17,87 @@ class MapViewModel: ObservableObject{
         span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
     ))
     
-    @Published var mapSelection: Post?
+    @Published var mapSelection: Components.Schemas.PostResponseDto?
     @Published var showPostView: Bool = false
-    @Published var selectedPost: Post = Post.MOCK_POSTS[0]
+    @Published var selectedPost: Components.Schemas.PostResponseDto = MockPost
     
     @Published var visibleRegion: MKCoordinateRegion?
     
     @Published var searchText: String = ""
-    @Published var searchResults: [Post] = Post.MOCK_POSTS.filter{$0.accessability == "PUBLIC"}
     
-    @Published var mapPosts: [Post] = Post.MOCK_POSTS.filter{$0.accessability == "PUBLIC"}
+    @Published var mapPosts: [Components.Schemas.PostResponseDto] = []
+    
+    @Published var searchedPosts: [Components.Schemas.PostResponseDto] = []
+    @Published var lastSearchedPage: Bool = true
+    @Published var searchedPage: Int32 = 0
+    @Published var searchSize: Int32 = 15
+    var cancellable: AnyCancellable?
+    
+    func searchPosts() async throws{
+        Task{
+            if let response = try await APIClient.shared.searchEvent(
+                searchText: searchText,
+                page: searchedPage,
+                size: searchSize,
+                askToJoin: false
+            )
+            {
+                
+                DispatchQueue.main.async { [weak self] in
+                    self?.searchedPosts += response.data
+                    self?.lastSearchedPage = response.lastPage
+                    self?.searchedPage += 1
+                }
+            }
+        }
+    }
+    
+    func startSearch() {
+        cancellable = $searchText
+            .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .sink(receiveValue: { value in
+                if !value.isEmpty {
+                    print("Searching...")
+                    self.toDefault()
+                    Task{
+                        try await self.searchPosts()
+                    }
+                } else {
+                    print("Not Searching...")
+                    self.toDefault()
+                }
+            })
+    }
+    
+    func toDefault() {
+        self.searchedPosts = []
+
+        self.searchedPage = 0
+        self.lastSearchedPage = true
+    }
+    
+    func stopSearch() {
+        cancellable = nil
+    }
+    
+    func getCurrentAreaPosts(region: MKCoordinateRegion) async throws {
+        Task{
+            if let response = try await APIClient.shared.getMapEvents(
+                centerLatitude: region.center.latitude,
+                centerLongitude: region.center.longitude,
+                spanLatitudeDelta: region.span.latitudeDelta,
+                spanLongitudeDelta: region.span.longitudeDelta,
+                page: 0,
+                size: 25
+            ) {
+
+                DispatchQueue.main.async{
+                    self.mapPosts = response.data
+                }
+            }
+        }
+    }
     
 }
 
-//
-//struct UIMap: UIViewRepresentable {
-//    
-//    let mapView = MKMapView()
-//    let locationManager = LocationManager()
-//    
-//    func makeUIView(context: Context) -> some UIView {
-//        mapView.delegate = context.coordinator
-//        mapView.isRotateEnabled = false
-//        mapView.showsUserLocation = true
-//        mapView.userTrackingMode = .follow
-//        mapView.pointOfInterestFilter = .excludingAll
-//        
-//        return mapView
-//    }
-//    
-//    func updateUIView(_ uiView: UIViewType, context: Context) {
-//
-//    }
-//    
-//    func makeCoordinator() -> MapCoordinator {
-//        return MapCoordinator(parent: self)
-//    }
-//}
-//
-//extension UIMap {
-//    class MapCoordinator: NSObject, MKMapViewDelegate {
-//        let parent: UIMap
-//        
-//        init(parent: UIMap) {
-//            self.parent = parent
-//            super.init()
-//        }
-//        
-//        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
-//            let region = MKCoordinateRegion(
-//                center: CLLocationCoordinate2D(latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude),
-//                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
-//            
-//            parent.mapView.setRegion(region, animated: true)
-//        }
-//        
-//    }
-//}

@@ -189,9 +189,9 @@ struct RegistrationView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: focus)
         .padding(.horizontal)
-        .onTapGesture {
-            hideKeyboard()
-        }
+//        .onTapGesture {
+//            hideKeyboard()
+//        }
         .onAppear(){
             focus = .email
         }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "b7810816be3554b484a3475fdbf026f6391527b9fea09a799500b593a0c09bac",
+  "originHash" : "bb374421c2f2c080e588999b2ee7d4b8d4c610ce2b6cb1bf2a7bec4dbb9cfa68",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -170,6 +170,33 @@
       "state" : {
         "revision" : "64889f0c732f210a935a0ad7cda38f77f876262d",
         "version" : "509.1.1"
+      }
+    },
+    {
+      "identity" : "swiftui-introspect",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/siteline/SwiftUI-Introspect.git",
+      "state" : {
+        "revision" : "7dc5b287f8040e4ad5038739850b758e78f77808",
+        "version" : "1.1.4"
+      }
+    },
+    {
+      "identity" : "swiftui-refresher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gh123man/SwiftUI-Refresher.git",
+      "state" : {
+        "revision" : "256f3b7cec857983f2fa66f82d418001d9bb3a7e",
+        "version" : "1.1.8"
+      }
+    },
+    {
+      "identity" : "swiftui-renderlock",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gh123man/SwiftUI-RenderLock",
+      "state" : {
+        "revision" : "11ca0d472dad0053cb8b29701ea3f108b9aa2304",
+        "version" : "1.0.2"
       }
     },
     {

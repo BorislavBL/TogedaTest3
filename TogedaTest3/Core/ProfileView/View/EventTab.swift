@@ -11,7 +11,7 @@ struct EventTab: View {
     var userID: String
     
     @State var lastPage: Bool = false
-    @State var posts: [Components.Schemas.PostResponseDto] = []
+    @Binding var posts: [Components.Schemas.PostResponseDto]
     @Binding var createEvent: Bool
     
     var body: some View {
@@ -44,7 +44,7 @@ struct EventTab: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack{
                         ForEach(posts.indices, id: \.self){ index in
-                            if posts[index].hasEnded {
+                            if posts[index].status == .HAS_ENDED {
                                 //                            NavigationLink(value: SelectionPath.completedEventDetails(posts[index])){
                                 EventComponent(userID: userID, post: posts[index])
                                 //                            }
@@ -92,13 +92,6 @@ struct EventTab: View {
         .padding(.vertical)
         .background(.bar)
         .cornerRadius(10)
-        .onAppear(){
-            Task{
-                if let response = try await APIClient.shared.getUserEvents(userId: userID, page: 0, size: 15) {
-                    posts = response.data
-                }
-            }
-        }
     }
 }
 
@@ -106,7 +99,7 @@ struct EventTab: View {
 
 struct EventTab_Previews: PreviewProvider {
     static var previews: some View {
-        EventTab(userID: "", createEvent: .constant(false))
+        EventTab(userID: "", posts: .constant([MockPost]), createEvent: .constant(false))
 
     }
 }

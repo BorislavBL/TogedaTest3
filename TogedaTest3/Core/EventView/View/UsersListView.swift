@@ -6,71 +6,166 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct UsersListView: View {
     @Environment(\.dismiss) private var dismiss
     let size: ImageSize = .medium
-    var users: [MiniUser]
-    var post: Post
+    @StateObject var eventVM = EventViewModel()
+    
+    @State var isLoading = false
+    
+    var post: Components.Schemas.PostResponseDto
     @State var showUserOptions = false
-    @State var selectedOption: String?
-    @State var selectedUser: MiniUser?
+    @State var selectedExtendedUser: Components.Schemas.ExtendedMiniUser?
+    @State var Init: Bool = true
     
     var body: some View {
         ScrollView{
             LazyVStack(alignment:.leading){
-                if post.joinRequests.count > 0 && post.askToJoin{
-                    NavigationLink(value: SelectionPath.userRequests(users: users)){
-                        UserRequestTab(users: users)
+                if post.status != .HAS_ENDED && post.askToJoin && eventVM.joinRequestParticipantsList.count > 0 && (post.currentUserRole == .CO_HOST || post.currentUserRole == .HOST){
+                    NavigationLink(value: SelectionPath.eventUserJoinRequests(post: post)){
+                        UserRequestTab(users: eventVM.joinRequestParticipantsList)
                     }
                 }
-                ForEach(users, id:\.id) { user in
+                ForEach(eventVM.participantsList, id:\.user.id) { user in
                     HStack{
-                        NavigationLink(value: SelectionPath.profile(MockMiniUser)){
+                        NavigationLink(value: SelectionPath.profile(user.user)){
                             HStack{
-                                Image(user.profilePhotos[0])
+                                KFImage(URL(string: user.user.profilePhotos[0]))
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: size.dimension, height: size.dimension)
                                     .clipShape(Circle())
                                 
-                                
-                                Text(user.fullName)
-                                    .fontWeight(.semibold)
+                                VStack(alignment: .leading){
+                                    Text("\(user.user.firstName) \(user.user.lastName)")
+                                        .fontWeight(.semibold)
+                                    if user._type == .CO_HOST || user._type == .HOST {
+                                        Text(user._type.rawValue.capitalized)
+                                            .foregroundColor(.gray)
+                                            .fontWeight(.semibold)
+                                            .font(.footnote)
+                                    }
+                                    
+                                }
                                 
                                 Spacer()
                                 
-                                Image(systemName: "chevron.right")
+                                Button{
+                                    showUserOptions = true
+                                    selectedExtendedUser = user
+                                } label:{
+                                    Image(systemName: "ellipsis")
+                                        .rotationEffect(.degrees(90))
+                                }
                             }
                             
                         }
-                        Button{
-                            showUserOptions = true
-                            selectedUser = user
-                        } label:{
-                            Image(systemName: "ellipsis")
-                                .rotationEffect(.degrees(90))
-                        }
+                        
+                        
+                        
                     }
                     .padding(.vertical, 5)
                 }
                 
+                if isLoading{
+                    ProgressView()
+                }
+                
+                Rectangle()
+                    .frame(width: 0, height: 0)
+                    .onAppear {
+                        if !eventVM.listLastPage {
+                            isLoading = true
+                            
+                            Task{
+                                try await eventVM.fetchUserList(id: post.id)
+                                isLoading = false
+                                
+                            }
+                        }
+                    }
             }
             .padding(.horizontal)
             
         }
+        .onAppear(){
+            Task{
+                do{
+                    if Init {
+                        try await eventVM.fetchUserList(id: post.id)
+                        Init = false
+                    }
+                    if post.askToJoin {
+                        eventVM.joinRequestParticipantsList = []
+                        eventVM.joinRequestParticipantsPage = 0
+                        try await eventVM.fetchJoinRequestUserList(id: post.id)
+                    }
+                } catch {
+                    print("User list error:", error.localizedDescription)
+                }
+            }
+        }
         .sheet(isPresented: $showUserOptions, content: {
             List {
-                Button("Make a Co-Host") {
-                    selectedOption = "Co-Host"
-                }
+                if let extendedUser = selectedExtendedUser {
+                    if post.currentUserRole == .HOST && extendedUser._type == .NORMAL{
+                        Button("Make a Co-Host") {
+                            Task{
+                                if try await APIClient.shared.addCoHostRoleToEvent(postId: post.id, userId: extendedUser.user.id) {
+                                    
+                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
+                                        eventVM.participantsList[index]._type = .CO_HOST
+                                    }
+                                    
+                                    showUserOptions = false
+                                }
+                            }
+                        }
+                    } else if extendedUser._type == .HOST {
+                        Button("Remove as a Co-Host") {
+                            Task{
+                                if try await APIClient.shared.removeCoHostRoleToEvent(postId: post.id, userId: extendedUser.user.id) {
+                                    
+                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
+                                        eventVM.participantsList[index]._type = .NORMAL
+                                    }
+                                    
+                                    showUserOptions = false
+                                }
+                            }
+                        }
+                    }
+                    
+                    if post.currentUserStatus == .PARTICIPATING {
+                        Button("Report") {
 
-                Button("Remove") {
-                    selectedOption = "Remove"
+                        }
+                    }
+                    
+                    if  post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST {
+                        Button("Remove") {
+                            Task{
+                                if try await APIClient.shared.removeParticipant(postId: post.id, userId: extendedUser.user.id) {
+                                    
+                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
+                                        eventVM.participantsList.remove(at: index)
+                                    }
+                                    
+                                    showUserOptions = false
+                                }
+                            }
+                        }
+                    }
+                    
+                } else {
+                    Text("No extended user")
                 }
             }
             .presentationDetents([.fraction(0.20)])
             .presentationDragIndicator(.visible)
+            .scrollDisabled(true)
         })
         .navigationTitle("Participants")
         .navigationBarTitleDisplayMode(.inline)
@@ -82,5 +177,5 @@ struct UsersListView: View {
 }
 
 #Preview {
-    UsersListView(users: MiniUser.MOCK_MINIUSERS, post: Post.MOCK_POSTS[4])
+    UsersListView(post: MockPost)
 }

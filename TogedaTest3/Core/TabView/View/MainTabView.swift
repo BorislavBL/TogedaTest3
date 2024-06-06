@@ -14,8 +14,6 @@ struct MainTabView: View {
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     
-    let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
-    
     @StateObject var chatVM = ChatViewModel()
     
     var body: some View {
@@ -60,7 +58,7 @@ struct MainTabView: View {
                 let tabBarAppearance = UITabBarAppearance()
                 tabBarAppearance.configureWithDefaultBackground()
                 UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
-//                contentViewModel.userViewModel = userViewModel
+                //                contentViewModel.userViewModel = userViewModel
             }
             .onChange(of: navigationManager.screen) { oldValue, newValue in
                 if navigationManager.screen == .add {
@@ -90,11 +88,11 @@ struct MainTabView: View {
                         postsViewModel.selectedOption = "Report"
                     }
                     
-//                    if let user = postsViewModel.posts[postsViewModel.clickedPostIndex].user, user.id == userId {
-                        Button("Delete") {
-                            postsViewModel.selectedOption = "Delete"
-                        }
-//                    }
+                    
+                    Button("Delete") {
+                        postsViewModel.selectedOption = "Delete"
+                    }
+                    
                 }
                 .presentationDetents([.fraction(0.25)])
                 .presentationDragIndicator(.visible)
@@ -114,16 +112,14 @@ struct MainTabView: View {
                 switch state {
                 case .eventDetails(let post):
                     EventView(post: post)
-                case .usersList(users: let users, post: let post):
-                    UsersListView(users: users, post: post)
-                case .editEvent(post: let post):
-                    EditEventView(post: post)
-                case .userRequests(users: let users):
-                    UserRequestView(users: users)
+                case .usersList(let post):
+                    UsersListView(eventVM: EventViewModel(), post: post)
+                    //                case .editEvent(post: let post):
+                    //                    EditEventView(post: post)
+                case .eventUserJoinRequests(post: let post):
+                    UserJoinRequestsView(post: post)
                 case .completedEventDetails(post: let post):
                     CompletedEventView(post: post)
-                case .completedEventUsersList:
-                    CompletedEventUsersList()
                 case .allUserEvents(userID: let userID):
                     AllUserEventsView(userID: userID)
                 case .bookmarkedEvents(userID: let userID):
@@ -141,33 +137,35 @@ struct MainTabView: View {
                 case .editProfilePhoneCodeVerification:
                     EditProfilePhoneCodeVerificationView()
                 case .club(let club):
-                    GroupView(clubID: club.id)
+                    GroupView(club: club)
+                case .clubJoinRequests(let club):
+                    GroupJoinRequestsView(club: club)
+//                case .editClubView(let club):
+//                    EditGroupView(club: club)
+                case .allClubEventsView(let clubId):
+                    AllGroupEventsView(clubId: clubId)
                 case .allUserGroups(userID: let userID):
                     AllUserGroupsView(userID: userID)
+                case .clubMemersList(let club):
+                    GroupMembersListView(club: club)
                 case .userChat(user: let user):
                     ChatView(user: user)
                 case .notification:
                     NotificationView()
-                case .userRequest(users: let users):
-                    UserRequestView(users: users)
+                case .userRequest:
+                    UserRequestView()
                 case .eventReview:
                     EventReviewView()
                 case .reviewMemories:
                     ReviewMemoriesView()
                 case .test:
                     TestView()
+                case .userFriendsList(let user):
+                    FriendsListView(user: user)
+                case .userFriendRequestsList:
+                    FriendsRequestsView()
                 }
-                
             })
-            //            .navigationDestination(for: Post.self) { post in
-            //                EventView(postID: post.id)
-            //            }
-            //            .navigationDestination(for: Club.self) { club in
-            //                GroupView(clubID: club.id)
-            //            }
-            //            .navigationDestination(for: MiniUser.self) { user in
-            //                UserProfileView(miniUser: user)
-            //            }
         }
         
     }

@@ -11,7 +11,7 @@ import SwiftUI
 class UserViewModel: ObservableObject {
     @Published var user: User = User.MOCK_USERS[0]
     @Published var currentUserOld: User?
-    @Published var currentUser: Components.Schemas.User?
+    @Published var currentUser: Components.Schemas.UserInfoDto?
     
     init(){
         Task{

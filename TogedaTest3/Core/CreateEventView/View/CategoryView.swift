@@ -31,6 +31,8 @@ struct CategoryView: View {
     var text: String
     var minInterests: Int
     
+    @State var displayWarning: Bool = false
+    
     var body: some View {
         VStack {
             ScrollView{
@@ -44,6 +46,10 @@ struct CategoryView: View {
                             .font(.body)
                             .foregroundStyle(.gray)
                             
+                    }
+                    
+                    if displayWarning{
+                        WarningTextComponent(text: "You need to select at least \(minInterests) interests!")
                     }
                     
                     if sport.count > 0 || health.count > 0 {
@@ -160,14 +166,19 @@ struct CategoryView: View {
         }
         .padding(.horizontal)
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading:Button(action: {dismiss()}) {
+        .navigationBarItems(leading:Button(action: {
+            if selectedInterests.count >= minInterests {
+                dismiss()
+            } else {
+                displayWarning.toggle()
+            }
+        }) {
             Image(systemName: "chevron.left")
                 .frame(width: 35, height: 35)
                 .background(Color(.tertiarySystemFill))
                 .clipShape(Circle())
         })
         .navigationTitle("Interests")
-        .disableWithOpacity(selectedInterests.count < minInterests)
     }
     
 }

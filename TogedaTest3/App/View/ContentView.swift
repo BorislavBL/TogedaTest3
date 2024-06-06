@@ -16,7 +16,8 @@ struct ContentView: View {
             ZStack(alignment:.top){
                 switch vm.authenticationState {
                 case .checking:
-                    ProgressView("Checking authentication...")
+                        ProgressView("Checking authentication...")
+                            .frame(height: UIScreen.main.bounds.height)
                 case .authenticated:
                     MainView()
                 case .unauthenticated:
@@ -29,7 +30,7 @@ struct ContentView: View {
 //                    Button("Click"){
 //                        Task{
 //                            do{
-//                               let response = try await APIClient.shared.editEvent()
+//                                let response = try await APIClient.shared.getClub(clubID: "9a37118f-de7c-46d5-a3bc-384ed6e0b235")
 //                                
 //                                print(response)
 //                            } catch {
@@ -40,19 +41,9 @@ struct ContentView: View {
 //                }
 //                .background(.base)
 
-                if !networkManager.isConnected {
-                    Text("No Internet Connection")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                        .padding(.vertical)
-                        .padding(.horizontal, 30)
-                        .background(.red)
-                        .cornerRadius(50)
-                        .padding(.top)
-                }
+                NetworkStatusView(isConnected: $networkManager.isConnected)
+                    .padding(.top, 20)
             }
-            
         }
     }
 }

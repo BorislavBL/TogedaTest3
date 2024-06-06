@@ -43,7 +43,7 @@ class LocationPickerViewModel: ObservableObject {
                     case .all:
                         self?.searchAll(text: value)
                     case .cityAndCountry:
-                        self?.searchCityAndCountry(text: value)
+                        self?.searchCityAndCountry1(text: value)
                     case .none:
                         self?.places = []
                     }
@@ -71,6 +71,25 @@ class LocationPickerViewModel: ObservableObject {
 
     
     func searchCityAndCountry(text: String){
+        let searchRequest = MKLocalSearch.Request()
+        searchRequest.naturalLanguageQuery = text
+//        searchRequest.resultTypes = .address
+        let search = MKLocalSearch(request: searchRequest)
+        
+        search.start { response, error in
+            guard let response = response else {
+                print(":( ERROR: \(error?.localizedDescription ?? "Uknown Error")")
+                return
+            }
+            
+            self.places = response.mapItems.filter { item in
+                (item.placemark.country != nil || item.placemark.locality != nil ) && item.placemark.subThoroughfare == nil
+                && (item.name == item.placemark.country || item.name == item.placemark.locality || item.name == item.placemark.administrativeArea || item.name == item.placemark.thoroughfare)
+            }.map(Place.init)
+        }
+    }
+    
+    func searchCityAndCountry1(text: String){
         let searchRequest = MKLocalSearch.Request()
         searchRequest.naturalLanguageQuery = text
 //        searchRequest.resultTypes = .address

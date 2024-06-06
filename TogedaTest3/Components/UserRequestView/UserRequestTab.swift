@@ -6,14 +6,15 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct UserRequestTab: View {
-    var users: [MiniUser]
+    var users: [Components.Schemas.MiniUser]
     let size: ImageSize = .medium
     var body: some View {
             HStack{
                 if users.count == 1 {
-                    Image(users[0].profilePhotos[0])
+                    KFImage(URL(string: users[0].profilePhotos[0]))
                         .resizable()
                         .scaledToFill()
                         .frame(width: size.dimension, height: size.dimension)
@@ -22,9 +23,9 @@ struct UserRequestTab: View {
                             Circle()
                                 .stroke(Color("base"), lineWidth: 2)
                         )
-                } else {
+                } else if users.count > 0 {
                     ZStack(alignment:.top){
-                        Image(users[0].profilePhotos[0])
+                        KFImage(URL(string: users[0].profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -34,7 +35,7 @@ struct UserRequestTab: View {
                                     .stroke(Color("base"), lineWidth: 2)
                             )
                         
-                        Image(users[1].profilePhotos[0])
+                        KFImage(URL(string: users[1].profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -54,11 +55,11 @@ struct UserRequestTab: View {
                         .font(.footnote)
                         .fontWeight(.semibold)
                     if users.count == 1 {
-                        Text("\(users[0].fullName) is waiting approval")
+                        Text("\(users[0].firstName) \(users[0].lastName) is waiting approval")
                             .font(.footnote)
                             .foregroundStyle(.gray)
-                    } else {
-                        Text("\(users[0].fullName) & \(users.count) more ")
+                    } else if users.count > 0  {
+                        Text("\(users[0].firstName) \(users[0].lastName) & others")
                             .font(.footnote)
                             .foregroundStyle(.gray)
                     }
@@ -71,5 +72,5 @@ struct UserRequestTab: View {
 }
 
 #Preview {
-    UserRequestTab(users: MiniUser.MOCK_MINIUSERS)
+    UserRequestTab(users: [MockMiniUser])
 }

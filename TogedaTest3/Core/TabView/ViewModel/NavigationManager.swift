@@ -17,24 +17,29 @@ enum Screen: Equatable {
 
 enum SelectionPath: Hashable, Codable {
     case eventDetails(Components.Schemas.PostResponseDto)
-    case usersList(users: [MiniUser], post: Post)
-    case editEvent(post: Components.Schemas.PostResponseDto)
-    case userRequests(users: [MiniUser])
+    case usersList(post: Components.Schemas.PostResponseDto)
+//    case editEvent(post: Components.Schemas.PostResponseDto)
+    case eventUserJoinRequests(post: Components.Schemas.PostResponseDto)
     case completedEventDetails(post: Components.Schemas.PostResponseDto)
-    case completedEventUsersList
     case allUserEvents(userID: String)
     case bookmarkedEvents(userID: String)
     case profile(Components.Schemas.MiniUser)
     case userSettings
+    case userFriendsList(Components.Schemas.UserInfoDto)
+    case userFriendRequestsList
     case editProfile
     case editProfilePhoneNumberMain
     case editProfilePhoneNumber
     case editProfilePhoneCodeVerification
-    case club(Club)
+    case club(Components.Schemas.ClubDto)
+    case clubJoinRequests(Components.Schemas.ClubDto)
+//    case editClubView(Components.Schemas.ClubDto)
+    case allClubEventsView(String)
     case allUserGroups(userID: String)
+    case clubMemersList(Components.Schemas.ClubDto)
     case userChat(user: MiniUser)
     case notification
-    case userRequest(users: [MiniUser])
+    case userRequest
     case eventReview
     case reviewMemories
     case test

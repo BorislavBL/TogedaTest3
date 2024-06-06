@@ -9,6 +9,7 @@ import SwiftUI
 import Kingfisher
 import SkeletonUI
 import WrappingHStack
+import Refresher
 
 struct ProfileView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
@@ -19,6 +20,7 @@ struct ProfileView: View {
     @State var showSheet: Bool = false
     @State var showCreateEvent: Bool = false
     @State var showCreateClub: Bool = false
+    @StateObject var viewModel = ProfileViewModel()
     
     var body: some View {
         ZStack(alignment: .top){
@@ -76,14 +78,29 @@ struct ProfileView: View {
                             
                         }.padding()
                         
-                        HStack(alignment: .top, spacing: 30) {
-                            UserStats(value: String((user.details?.friendIds!.count)!), title: "Friends")
+                        HStack(alignment: .top, spacing: 0) {
+                            NavigationLink(value: SelectionPath.userFriendsList(user)){
+                                UserStats(value: String(Int(user.friendsCount)), title: "Friends")
+                                    .frame(width: 105)
+                            }
                             Divider()
-                            UserStats(value: String((user.details?.createdEventIds!.count)!), title: "Events")
+                                .frame(height: 50)
+                            
+                            UserStats(value: String(Int(user.participatedPostsCount)), title: "Events")
+                                .frame(width: 105)
                             Divider()
-                            UserStats(value: "\(100)%", title: "Rating")
+                                .frame(height: 50)
+                            
+                            VStack{
+                                UserStats(value: "\(100)%", title: "Rating")
+                                Text("0 no shows")
+                                    .font(.footnote)
+                                    .foregroundStyle(.gray)
+                            }
+                            .frame(width: 105)
                         }
-                        .padding(.bottom)
+                        .padding(.bottom, 8)
+                        
                         
                     }
                     .padding(.bottom)
@@ -98,13 +115,40 @@ struct ProfileView: View {
                     }
                     
                     AboutTab(user: user)
-                    EventTab(userID: user.id, createEvent: $showCreateEvent)
-                    ClubsTab(userID: user.id)
+                    EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent)
+                        .onAppear(){
+                            Task{
+                                try await viewModel.getUserPosts(userId: user.id)
+                                try await viewModel.getUserClubs(userId: user.id)
+                            }
+                        }
+                    
+                    if viewModel.clubs.count > 0 {
+                        ClubsTab(userID: user.id, clubs: $viewModel.clubs)
+                    }
                     
                 }
+                .refreshable(action: {
+                    Task{
+                        try await userVm.fetchCurrentUser()
+                        try await viewModel.getUserPosts(userId: user.id)
+                        try await viewModel.getUserClubs(userId: user.id)
+                    }
+                })
+//                .refresher(style:.system2 ,config: .init(headerShimMaxHeight: 220)) { done in
+//                    Task{
+//                        try await userVm.fetchCurrentUser()
+//                        try await viewModel.getUserPosts(userId: user.id)
+//                        try await viewModel.getUserClubs(userId: user.id)
+//                        done()
+//                    }
+//
+//                }
                 .edgesIgnoringSafeArea(.top)
                 .frame(maxWidth: .infinity)
                 .background(Color("testColor"))
+
+                
                 navbar()
                 
             } else {
@@ -116,7 +160,13 @@ struct ProfileView: View {
             CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
         })
         .fullScreenCover(isPresented: $showCreateClub, content: {
-            CreateGroupView()
+            CreateClubView(){
+                Task{
+                    if let user = userVm.currentUser {
+                        try await viewModel.getUserClubs(userId: user.id)
+                    }
+                }
+            }
         })
         .fullScreenCover(isPresented: $showCreateEvent, content: {
             CreateEventView()

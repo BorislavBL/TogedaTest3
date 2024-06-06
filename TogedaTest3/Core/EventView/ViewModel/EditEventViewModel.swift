@@ -118,7 +118,6 @@ extension EditEventViewModel {
             interests: post.interests,
             payment: post.payment,
             accessibility: .init(rawValue: post.accessibility.rawValue),
-            hasEnded: post.hasEnded,
             fromDate: fromDate,
             toDate: toDate
         )

@@ -35,6 +35,14 @@ class ContentViewModel: ObservableObject {
         }
     }
     
+    func logout(){
+        Task{
+            AuthClient.shared.loginOut()
+            
+            checkAuthStatus()
+        }
+    }
+    
     func userHasBasicInfoGet() {
         Task{
             if let hasBasicInfo = try await APIClient.shared.hasBasicInfo(){

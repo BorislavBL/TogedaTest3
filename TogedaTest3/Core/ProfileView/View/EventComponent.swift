@@ -58,15 +58,15 @@ struct EventComponent: View {
                         HStack{
                             Image(systemName: "calendar")
                                 .font(.caption)
-                                .foregroundColor(post.hasEnded ? .red : Color("light-gray"))
-                            Text(post.hasEnded ? "Ended" : "\(separateDateAndTime(from: fromDate).date)")
+                                .foregroundColor(post.status == .HAS_ENDED ? .red : Color("light-gray"))
+                            Text(post.status == .HAS_ENDED ? "Ended" : "\(separateDateAndTime(from: fromDate).date)")
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(post.hasEnded ? .red : Color("light-gray"))
+                                .foregroundColor(post.status == .HAS_ENDED ? .red : Color("light-gray"))
                         }
                     }
                     HStack{
-                        Image(systemName: "person.3.fill")
+                        Image(systemName: "person.2.fill")
                             .font(.caption)
                             .foregroundColor(Color("light-gray"))
                         

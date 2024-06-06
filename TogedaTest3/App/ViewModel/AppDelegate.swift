@@ -15,7 +15,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Configure AWS Cognito
         let configuration = AWSServiceConfiguration(region: .EUCentral1, credentialsProvider: nil)
 
-        let poolConfiguration = AWSCognitoIdentityUserPoolConfiguration(clientId: "" ,
+
+        
+        let poolConfiguration = AWSCognitoIdentityUserPoolConfiguration(clientId: "",
                                                                         clientSecret: "", poolId: "")
         AWSCognitoIdentityUserPool.register(with: configuration, userPoolConfiguration: poolConfiguration, forKey: "togeda-main")
 

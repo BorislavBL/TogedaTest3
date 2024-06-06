@@ -8,41 +8,49 @@
 import SwiftUI
 
 struct JoinRequestView: View {
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
-    let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
-    var post: Post? {
-//        return postsViewModel.posts.first(where: {$0.id == postsViewModel.clickedPostID})
-        return Post.MOCK_POSTS[0]
-    }
+    @Binding var post: Components.Schemas.PostResponseDto
     
     var body: some View {
-        if let post = post {
-            VStack(spacing: 30){
-                if let user = post.user, user.id == userId {
-                    Text("How would you like to proceed?")
+        VStack(spacing: 30){
+            if isOwner {
+                Text("How would you like to proceed?")
+                    .font(.headline)
+                    .fontWeight(.bold)
+            } else {
+                if post.payment <= 0 {
+                    Text("Once you join you will be able to cancle it until 1h before the event starts.")
                         .font(.headline)
                         .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
                 } else {
-                    if post.payment <= 0{
-                        Text("Once you join you will be able to cancle it until 1h before the event starts. ")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                    } else {
-                        Text("No refunds.")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                    }
+                    Text("No refunds within the day of the event.")
+                        .font(.headline)
+                        .fontWeight(.bold)
                 }
-                
-                if post.date <= Date() {
-                    if let user = post.user, user.id == userId{
+            }
+            
+            if isOwner {
+                if post.status == .HAS_STARTED {
+                    Button {
                         
+                    } label: {
+                        Text("Stop the Event")
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .cornerRadius(10)
+                    }
+                } else if post.status == .NOT_STARTED {
+                    if post.fromDate != nil {
                         Button {
                             
                         } label: {
-                            Text("Stop the Event")
+                            Text("End the Event")
                                 .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
@@ -50,82 +58,99 @@ struct JoinRequestView: View {
                                 .foregroundColor(Color("testColor"))
                                 .cornerRadius(10)
                         }
-                        
-                    }
-                    else {
-                        Button {
-//                            postsViewModel.likePost(postID: post.id, userID: userViewModel.user.id, user: userViewModel.user)
-                            postsViewModel.showJoinRequest = false
-                        } label: {
-                            HStack(spacing:2){
-                                if post.payment <= 0{
-                                    if post.peopleIn.contains(userViewModel.user.id) {
-                                        Image(systemName:"checkmark")
-                                        Text("Joined")
-                                            .fontWeight(.semibold)
-                                    } else {
-                                        Text("Join")
-                                            .fontWeight(.semibold)
-                                    }
-                                } else {
-                                    if post.peopleIn.contains(userViewModel.user.id) {
-                                        Image(systemName:"checkmark")
-                                        Text("Joined")
-                                            .fontWeight(.semibold)
-                                    } else {
-                                        Text("Buy € \(String(format: "%.2f", post.payment))")
-                                            .fontWeight(.semibold)
-                                    }
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
-                        }
-                    }
-                }
-                else {
-                    if let user = post.user, user.id == userId {
-                        Button {
-                            
-                        } label: {
-                            HStack(spacing:2){
-                                Text("End the event")
-                                    .fontWeight(.semibold)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
-                        }
                     } else {
                         Button {
                             
                         } label: {
-                            HStack(spacing:2){
-                                Text("Ongoing Event")
-                                    .fontWeight(.semibold)
-                            }
+                            Text("Start the Event")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                        }
+                    }
+                }
+                
+            } else {
+                if post.status == .HAS_STARTED {
+                    Button {
+                        
+                    } label: {
+                        Text("Ongoing")
+                            .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
                             .background(Color("blackAndWhite"))
                             .foregroundColor(Color("testColor"))
                             .cornerRadius(10)
+                    }
+                } else if post.status == .NOT_STARTED {
+                    if post.currentUserStatus == .PARTICIPATING {
+                        Button {
+                            
+                        } label: {
+                            Text("Leave")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                        }
+                    } else if post.currentUserStatus == .IN_QUEUE {
+                        Button {
+                            
+                        } label: {
+                            Text("Waiting")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                        }
+                    } else {
+                        Button {
+                            Task{
+                                if try await APIClient.shared.joinEvent(postId: post.id) != nil {
+                                    if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                        try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                        post = response
+                                    }
+                                }
+                            }
+                        } label: {
+                            Text("Join")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
                         }
                     }
+                    
                 }
             }
-            .padding()
-            .presentationDetents([.fraction(0.26)])
+            
+        }
+        .padding()
+        .presentationDetents([.fraction(0.26)])
+    }
+    
+    var isOwner: Bool {
+        if let user = userViewModel.currentUser, user.id == post.owner.id{
+            return true
+        } else {
+            return false
         }
     }
 }
 
 #Preview {
-    JoinRequestView()
+    JoinRequestView(post: .constant(MockPost))
         .environmentObject(PostsViewModel())
         .environmentObject(UserViewModel())
 }

@@ -11,7 +11,7 @@ struct EditProfileGenderView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
 
-    @Binding var gender: Components.Schemas.User.genderPayload
+    @Binding var gender: Components.Schemas.UserInfoDto.genderPayload
     @Binding var showGender: Bool
     
     var body: some View {
@@ -54,7 +54,7 @@ struct EditProfileGenderView: View {
     }
     
     @ViewBuilder
-    func genderButton(title: Components.Schemas.User.genderPayload) -> some View {
+    func genderButton(title: Components.Schemas.UserInfoDto.genderPayload) -> some View {
         Button{
             gender = title
         } label:{

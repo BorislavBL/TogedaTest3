@@ -9,7 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct ReviewMemoriesView: View {
-    @StateObject var photoPickerVM = PhotoPickerViewModel()
+    @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .normal)
     @State var images: [UIImage] = []
     @State var selectedImage: Int = 0
     @State var showImagesViewer: Bool = false

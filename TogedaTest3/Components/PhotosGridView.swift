@@ -6,21 +6,28 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct PhotosGridView: View {
+    @Binding var images: [String]
+    @ObservedObject var vm: PhotoPickerViewModel
     private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 3) - 16
     @Environment(\.dismiss) private var dismiss
-    @Binding var showPhotosPicker: Bool
-    @Binding var selectedImageIndex: Int?
-    @Binding var selectedImages: [UIImage?]
-
+    
     var body: some View {
         Grid {
             GridRow {
                 ForEach(0..<3, id: \.self){ index in
                     ZStack{
-                        if let image = selectedImages[index]{
+                        if let image = vm.selectedImages[index]{
                             Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width:imageDimension, height: imageDimension * 1.3)
+                                .cornerRadius(10)
+                                .clipped()
+                        } else if index < images.count {
+                            KFImage(URL(string: images[index]))
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width:imageDimension, height: imageDimension * 1.3)
@@ -37,8 +44,8 @@ struct PhotosGridView: View {
                         }
                     }
                     .onTapGesture {
-                        selectedImageIndex = index
-                        showPhotosPicker = true
+                        vm.selectedImageIndex = index
+                        vm.showPhotosPicker = true
                     }
                 }
             }
@@ -46,8 +53,15 @@ struct PhotosGridView: View {
             GridRow {
                 ForEach(3..<6, id: \.self){ index in
                     ZStack{
-                        if let image = selectedImages[index]{
+                        if let image = vm.selectedImages[index]{
                             Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width:imageDimension, height: imageDimension * 1.3)
+                                .cornerRadius(10)
+                                .clipped()
+                        } else if index < images.count {
+                            KFImage(URL(string: images[index]))
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width:imageDimension, height: imageDimension * 1.3)
@@ -64,17 +78,21 @@ struct PhotosGridView: View {
                         }
                     }
                     .onTapGesture {
-                        selectedImageIndex = index
-                        showPhotosPicker = true
+                        vm.selectedImageIndex = index
+                        vm.showPhotosPicker = true
                     }
                 }
             }
         }
+        .photosPicker(isPresented: $vm.showPhotosPicker, selection: $vm.imageselection, matching: .images)
+        .fullScreenCover(isPresented: $vm.showCropView, content: {
+            CropPhotoView(selectedImage:vm.selectedImage, finalImage: $vm.selectedImages[vm.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
+        })
         .frame(maxHeight: .infinity, alignment: .top )
     }
     
 }
 
 #Preview {
-    PhotosGridView(showPhotosPicker: .constant(false), selectedImageIndex: .constant(nil), selectedImages: .constant([nil, nil, nil, nil, nil, nil]))
+    PhotosGridView(images: .constant([]), vm: PhotoPickerViewModel(s3BucketName: .club, mode: .edit))
 }

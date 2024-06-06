@@ -18,8 +18,8 @@ enum ProfileTypes {
 
 @MainActor
 class EditProfileViewModel: ObservableObject{
-    @Published var editUser: Components.Schemas.User = MockUser
-    @Published var initialUser: Components.Schemas.User = MockUser
+    @Published var editUser: Components.Schemas.UserInfoDto = MockUser
+    @Published var initialUser: Components.Schemas.UserInfoDto = MockUser
 
     @Published var returnedPlace: Place = Place(mapItem: MKMapItem()){
         didSet{
@@ -40,18 +40,18 @@ class EditProfileViewModel: ObservableObject{
     @Published var description: String = "" {
         didSet{
             if !description.isEmpty{
-                editUser.details?.bio = description
+                editUser.details.bio = description
             } else {
-                editUser.details?.bio = nil
+                editUser.details.bio = nil
             }
         }
     }
     @Published var instagram: String = "" {
         didSet{
             if !instagram.isEmpty {
-                editUser.details?.instagram = instagram
+                editUser.details.instagram = instagram
             } else {
-                editUser.details?.instagram = nil
+                editUser.details.instagram = nil
             }
             
         }
@@ -96,23 +96,23 @@ class EditProfileViewModel: ObservableObject{
 }
 
 extension EditProfileViewModel {
-    func fetchUserData(user: Components.Schemas.User) {
+    func fetchUserData(user: Components.Schemas.UserInfoDto) {
         editUser = user
         initialUser = user
-        description = user.details?.bio ?? ""
-        instagram = user.details?.instagram ?? ""
+        description = user.details.bio ?? ""
+        instagram = user.details.instagram ?? ""
         interests = user.interests.map({ interest in
             Interest(name: interest.name, icon: interest.icon, category: interest.category)
         })
     }
     
-    func convertToPathcUser(currentUser: Components.Schemas.User) -> Components.Schemas.PatchUserDto {
+    func convertToPathcUser(currentUser: Components.Schemas.UserInfoDto) -> Components.Schemas.PatchUserDto {
         let userDetails = Components.Schemas.UserExtraDetailsDto(
-            bio: currentUser.details?.bio,
-            education: currentUser.details?.education,
-            personalityType: currentUser.details?.personalityType,
-            workout: currentUser.details?.workout,
-            instagram: currentUser.details?.instagram)
+            bio: currentUser.details.bio,
+            education: currentUser.details.education,
+            personalityType: currentUser.details.personalityType,
+            workout: currentUser.details.workout,
+            instagram: currentUser.details.instagram)
         
         let user = Components.Schemas.PatchUserDto(
             subToEmail: currentUser.subToEmail,

@@ -62,7 +62,7 @@ struct CustomNavBar: View {
                 }
             } else {
                 VStack(alignment: .leading, spacing:8){
-                    CustomSearchBar(searchText: $postViewModel.searchText, showCancelButton: $homeViewModel.showCancelButton)
+                    CustomSearchBar(searchText: $homeViewModel.searchText, showCancelButton: $homeViewModel.showCancelButton)
                     
                     SearchFilters(viewModel: homeViewModel)
                     

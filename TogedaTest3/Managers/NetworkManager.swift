@@ -5,7 +5,7 @@
 //  Created by Borislav Lorinkov on 8.11.23.
 //
 
-import Foundation
+import SwiftUI
 import Network
 
 class NetworkManager: ObservableObject {
@@ -16,7 +16,9 @@ class NetworkManager: ObservableObject {
     init() {
         monitor.pathUpdateHandler = { path in
             DispatchQueue.main.async {
-                self.isConnected = path.status == .satisfied
+                withAnimation {
+                    self.isConnected = path.status == .satisfied
+                }
             }
         }
         

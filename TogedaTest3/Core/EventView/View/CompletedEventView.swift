@@ -12,7 +12,8 @@ import PhotosUI
 import Kingfisher
 
 struct CompletedEventView: View {
-    @StateObject var photoPickerVM = PhotoPickerViewModel()
+    @StateObject var eventVM = EventViewModel()
+    @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .normal)
     @EnvironmentObject var viewModel: PostsViewModel
     var post: Components.Schemas.PostResponseDto
     
@@ -20,16 +21,13 @@ struct CompletedEventView: View {
     
     @Environment(\.dismiss) private var dismiss
     
-    @State private var peopleIn: Int = 0
-    
-    @State private var address: String?
     @State var showPostOptions = false
     let userId = UserDefaults.standard.string(forKey: "userId") ?? ""
     let images: [String] = ["event_1", "event_2", "event_3", "event_4"]
     @State var showImageViewer: Bool = false
     @State var selectedImage: Int = 0
     
-    let club = Club.MOCK_CLUBS[0]
+    let club = MockClub
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -86,7 +84,7 @@ struct CompletedEventView: View {
                         if post.club != nil {
                             NavigationLink(value: SelectionPath.club(club)){
                                 HStack(alignment: .center, spacing: 10) {
-                                    Image(club.imagesUrl[0])
+                                    KFImage(URL(string:club.images[0]))
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 40, height: 40)
@@ -116,14 +114,25 @@ struct CompletedEventView: View {
                                 if let from = post.fromDate {
                                     VStack(alignment: .leading, spacing: 5) {
                                         
-                                        Text("\(separateDateAndTime(from: from).weekday), \(separateDateAndTime(from: from).date)")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                        
-                                        Text(separateDateAndTime(from: from).time)
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
+                                        if let to = post.toDate{
+                                            Text("\(separateDateAndTime(from: from).date) - \(separateDateAndTime(from: to).date)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                            
+                                            Text("\(separateDateAndTime(from: from).time) - \(separateDateAndTime(from: to).time)")
+                                                .font(.footnote)
+                                                .foregroundColor(.gray)
+                                                .fontWeight(.bold)
+                                        } else {
+                                            Text("\(separateDateAndTime(from: from).date)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                            
+                                            Text(separateDateAndTime(from: from).time)
+                                                .font(.footnote)
+                                                .foregroundColor(.gray)
+                                                .fontWeight(.bold)
+                                        }
                                         
                                     }
                                 } else {
@@ -168,7 +177,7 @@ struct CompletedEventView: View {
                             }
                             
                             
-                            NavigationLink(value: SelectionPath.completedEventUsersList){
+                            NavigationLink(value: SelectionPath.usersList(post: post)){
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "person.2")
                                         .imageScale(.large)
@@ -184,14 +193,14 @@ struct CompletedEventView: View {
                                                 .fontWeight(.semibold)
                                         }
                                         
-                                        
-                                        if Post.MOCK_POSTS[0].participants.count > 0 {
+                                        if eventVM.participantsList.count > 0 {
                                             ZStack{
-                                                ForEach(0..<Post.MOCK_POSTS[0].participants.count, id: \.self){ number in
+                                                ForEach(0..<eventVM.participantsList.count, id: \.self){ number in
                                                     
                                                     if number < 4 {
-                                                        Image(Post.MOCK_POSTS[0].participants[number].profilePhotos[0])
+                                                        KFImage(URL(string:eventVM.participantsList[number].user.profilePhotos[0]))
                                                             .resizable()
+                                                            .background(.gray)
                                                             .scaledToFill()
                                                             .frame(width: 40, height: 40)
                                                             .clipped()
@@ -205,14 +214,14 @@ struct CompletedEventView: View {
                                                     
                                                 }
                                                 
-                                                if Post.MOCK_POSTS[0].peopleIn.count > 4 {
+                                                if eventVM.participantsList.count > 4 {
                                                     
                                                     Circle()
                                                         .fill(.gray)
                                                         .frame(width: 40, height: 40)
                                                         .overlay(
                                                             ZStack(alignment:.center){
-                                                                Text("+\(Post.MOCK_POSTS[0].peopleIn.count - 3)")
+                                                                Text("+\(eventVM.participantsList.count - 3)")
                                                                     .font(.caption2)
                                                                     .fontWeight(.semibold)
                                                                     .foregroundColor(.white)
@@ -226,6 +235,7 @@ struct CompletedEventView: View {
                                             
                                             
                                         }
+                                        
                                     }
                                 }
                             }
@@ -246,7 +256,7 @@ struct CompletedEventView: View {
                                 }
                             }
                             
-                            if post.hasEnded, let rating = post.rating {
+                            if post.status == .HAS_ENDED, let rating = post.rating {
                                 HStack(alignment: .center, spacing: 10) {
                                     Image(systemName: "star")
                                         .imageScale(.large)
@@ -292,7 +302,7 @@ struct CompletedEventView: View {
                             .padding(.vertical, 8)
                         
                         
-                        Text(address ?? "-/--")
+                        Text(locationAddress1(post.location))
                             .normalTagTextStyle()
                             .normalTagCapsuleStyle()
                         
@@ -355,6 +365,15 @@ struct CompletedEventView: View {
                 .background(.bar)
             }
         }
+        .onAppear(){
+            Task{
+                do {
+                    try await eventVM.fetchUserList(id: post.id)
+                } catch {
+                    print("Failed to fetch user list: \(error)")
+                }
+            }
+        }
         .navigationBarBackButtonHidden(true)
         .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imagesSelection, matching: .images)
         .sheet(isPresented: $showPostOptions, content: {
@@ -375,12 +394,6 @@ struct CompletedEventView: View {
         .fullScreenCover(isPresented: $showImageViewer, content: {
             ImageViewer(images: images, selectedImage: $selectedImage)
         })
-        .onAppear {
-            self.peopleIn = Int(post.participantsCount)
-            reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) { result in
-                address = result
-            }
-        }
     }
     
     @ViewBuilder
@@ -395,7 +408,7 @@ struct CompletedEventView: View {
             Spacer()
             Button{
                 showPostOptions = true
-                viewModel.clickedPostID = post.id
+                viewModel.clickedPost = post
             } label: {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))

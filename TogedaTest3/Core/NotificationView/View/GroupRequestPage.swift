@@ -6,17 +6,18 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct GroupRequestPage: View {
     let size: ImageSize = .medium
-    var club: Club = Club.MOCK_CLUBS[0]
+    var club: Components.Schemas.ClubDto = MockClub
     @EnvironmentObject var postsVM: PostsViewModel
     
     var body: some View {
             VStack {
                 NavigationLink(value: SelectionPath.club(club)){
                     HStack(alignment:.top){
-                        Image(club.imagesUrl[0])
+                        KFImage(URL(string: club.images[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)

@@ -22,6 +22,7 @@ struct MainView: View {
             .environmentObject(locationManager)
             .environmentObject(navigationManager)
         
+        
     }
 }
 

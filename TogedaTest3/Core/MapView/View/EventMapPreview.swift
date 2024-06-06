@@ -7,15 +7,15 @@
 
 import SwiftUI
 import MapKit
+import Kingfisher
 
 struct EventMapPreview: View {
-    let post: Post
-    var address: String?
+    let post: Components.Schemas.PostResponseDto
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0){
             HStack(alignment:.top, spacing: 10){
-                Image(post.imageUrl[0])
+                KFImage(URL(string: post.images[0]))
                     .resizable()
                     .scaledToFill()
                     .frame(width: 80, height: 80)
@@ -29,24 +29,62 @@ struct EventMapPreview: View {
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
                     
-                    HStack(alignment: .center, spacing: 10) {
+                    if let from = post.fromDate{
                         HStack(alignment: .center, spacing: 5) {
-                            Text("\(separateDateAndTime(from: post.date).weekday), \(separateDateAndTime(from: post.date).date)")
+                            
+                            Text("from: \(separateDateAndTime(from: from).weekday), \(separateDateAndTime(from: from).date)")
                                 .font(.footnote)
                                 .foregroundColor(.gray)
                                 .fontWeight(.bold)
                             
-                            Text("at \(separateDateAndTime(from: post.date).time)")
+                            Text("at \(separateDateAndTime(from: from).time)")
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .fontWeight(.bold)
+                        }
+                    } else {
+                        Text("Anyday")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+                            .fontWeight(.bold)
+                    }
+                    
+                    if let to = post.toDate{
+                        HStack(alignment: .center, spacing: 5) {
+                            
+                            Text("to: \(separateDateAndTime(from: to).weekday), \(separateDateAndTime(from: to).date)")
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .fontWeight(.bold)
+                            
+                            Text("at \(separateDateAndTime(from: to).time)")
                                 .font(.footnote)
                                 .foregroundColor(.gray)
                                 .fontWeight(.bold)
                         }
                     }
                     
-                    Text(address ?? "")
-                        .font(.footnote)
-                        .foregroundStyle(.gray)
-                        .multilineTextAlignment(.leading)
+                    HStack(alignment: .center, spacing: 5) {
+                        if let address = post.location.address{
+                            Text("\(address),")
+                                .font(.footnote)
+                                .foregroundStyle(.gray)
+                                .multilineTextAlignment(.leading)
+                        }
+                        
+                        if let city = post.location.city{
+                            Text("\(city)")
+                                .font(.footnote)
+                                .foregroundStyle(.gray)
+                                .multilineTextAlignment(.leading)
+                        } else if let country = post.location.country {
+                            Text("\(country)")
+                                .font(.footnote)
+                                .foregroundStyle(.gray)
+                                .multilineTextAlignment(.leading)
+                        }
+                    }
+
                 }
             }
             .padding(.horizontal)
@@ -56,15 +94,15 @@ struct EventMapPreview: View {
             
             HStack(spacing: 30) {
                 HStack(spacing: 3) {
-                    Image(systemName: "person.3")
+                    Image(systemName: "person.2")
                         .foregroundStyle(.gray)
                     if let maxPeople = post.maximumPeople {
-                        Text("\(post.peopleIn.count)/\(maxPeople)")
+                        Text("\(post.participantsCount)/\(maxPeople)")
                             .font(.footnote)
                             .foregroundStyle(.gray)
                             .multilineTextAlignment(.leading)
                     } else {
-                        Text("\(post.peopleIn.count)")
+                        Text("\(post.participantsCount)")
                             .font(.footnote)
                             .foregroundStyle(.gray)
                             .multilineTextAlignment(.leading)
@@ -102,5 +140,5 @@ struct EventMapPreview: View {
 }
 
 #Preview {
-    EventMapPreview(post: Post.MOCK_POSTS[0])
+    EventMapPreview(post: MockPost)
 }

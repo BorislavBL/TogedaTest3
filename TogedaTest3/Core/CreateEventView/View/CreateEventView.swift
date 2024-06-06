@@ -15,7 +15,7 @@ struct CreateEventView: View {
     @StateObject var ceVM = CreateEventViewModel()
     
     //PhotoPicker
-    @StateObject var photoPickerVM = PhotoPickerViewModel()
+    @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .normal)
     
     @State private var showDescriptionView: Bool = false
     @State private var showPhotosView: Bool = false

@@ -14,7 +14,7 @@ class PostsViewModel: ObservableObject {
 //    @Published var posts: [Post] = Post.MOCK_POSTS
 
     @Published var clickedPostIndex: Int = 0
-    @Published var clickedPostID: String = Post.MOCK_POSTS[1].id
+    @Published var clickedPost: Components.Schemas.PostResponseDto = MockPost
     
     @Published var showDetailsPage = false
     @Published var showPostOptions = false
@@ -45,7 +45,7 @@ class PostsViewModel: ObservableObject {
     
     //Monolith implementation
     @Published var feedPosts: [Components.Schemas.PostResponseDto] = []
-    @Published var lastPage: Bool = false
+    @Published var lastPage: Bool = true
     
     @Published var page: Int32 = 0
     @Published var size: Int32 = 15
@@ -54,6 +54,7 @@ class PostsViewModel: ObservableObject {
     @Published var distance: Int = 300
     @Published var from: Date? = nil
     @Published var to: Date? = nil
+    @Published var categories: [String]? = nil
     
     private var locationCancellables = Set<AnyCancellable>()
     private var locationManager = LocationManager()
@@ -73,7 +74,7 @@ class PostsViewModel: ObservableObject {
             .store(in: &locationCancellables)
     }
     
-    func applyFilter(lat: Double, long: Double, distance: Int, from: Date?, to: Date?) async throws {
+    func applyFilter(lat: Double, long: Double, distance: Int, from: Date?, to: Date?, categories: [String]?) async throws {
         page = 0
         feedPosts = []
         
@@ -82,13 +83,16 @@ class PostsViewModel: ObservableObject {
         self.distance = distance
         self.from = from
         self.to = to
+        self.categories = categories
         
         Task{
-           try await self.fetchPosts()
+            try await self.fetchPosts()
         }
     }
     
     func fetchPosts() async throws {
+//        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to)")
+        
         if let response = try await APIClient.shared.getAllEvents(
             page: page,
             size: size,
@@ -96,8 +100,10 @@ class PostsViewModel: ObservableObject {
             lat: lat,
             distance: Int32(distance),
             from: from,
-            to: to) {
-
+            to: to, 
+            categories: categories
+            ) {
+            
             feedPosts += response.data
             lastPage = response.lastPage
             page += 1
@@ -114,24 +120,48 @@ class PostsViewModel: ObservableObject {
         }
     }
     
-    @Published var searchText: String = ""
-    var cancellable: AnyCancellable?
+    func localEventFetch(postId: String) -> Components.Schemas.PostResponseDto? {
+        if let index = feedPosts.firstIndex(where: { $0.id == postId }) {
+            return feedPosts[index]
+        }
+        
+        return nil
+    }
     
-    func startSearch() {
-        cancellable = $searchText
-            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
-            .removeDuplicates()
-            .sink(receiveValue: { value in
-                if !value.isEmpty {
-                    print("Searching...")
-                } else {
-                    print("Not Searching...")
+    func joinRequest(postId: String) async throws {
+        Task{
+            if try await APIClient.shared.joinEvent(postId: postId) != nil {
+                try await self.refreshEventOnAction(postId: postId)
+            }
+        }
+    }
+    
+    func refreshEventOnAction(postId: String) async throws {
+        Task{
+            if let response = try await APIClient.shared.getEvent(postId: postId) {
+                if let index = feedPosts.firstIndex(where: { $0.id == postId }) {
+                    feedPosts[index] = response
                 }
-            })
+            }
+        }
     }
     
-    func stopSearch() {
-        cancellable = nil
+    func refreshEventOnAppear(index: Int, postId: String) async throws {
+        Task{
+            if let response = try await APIClient.shared.getEvent(postId: postId) {
+                feedPosts[index] = response
+            }
+        }
     }
     
+    func deleteEvent(postId: String) async throws {
+        Task{
+            if try await APIClient.shared.deleteEvent(postId: postId) {
+                if let index = feedPosts.firstIndex(where: { $0.id == postId }) {
+                    self.feedPosts.remove(at: index)
+                }
+            }
+        }
+    }
+
 }

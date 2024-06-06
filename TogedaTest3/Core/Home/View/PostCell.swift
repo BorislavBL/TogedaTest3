@@ -50,7 +50,7 @@ struct PostCell: View {
                     
                     Button {
                         viewModel.showPostOptions = true
-                        viewModel.clickedPostID = post.id
+                        viewModel.clickedPost = post
                     } label: {
                         Image(systemName: "ellipsis")
                             .rotationEffect(.degrees(90))
@@ -70,10 +70,10 @@ struct PostCell: View {
                 
                 HStack(alignment: .center, spacing: 20){
                     Button {
-                        viewModel.clickedPostID = post.id
+                        viewModel.clickedPost = post
                         viewModel.showJoinRequest = true
                     } label: {
-                        if post.currentUserStatus == .PARTICIPATING {
+                        if post.currentUserStatus == .PARTICIPATING || post.currentUserStatus == .IN_QUEUE {
                             Image(systemName: "person.2.circle.fill")
                                 .resizable()
                                 .scaledToFit()
@@ -108,7 +108,7 @@ struct PostCell: View {
                     }
                     
                     Button {
-                        viewModel.clickedPostID = post.id
+                        viewModel.clickedPost = post
                         viewModel.showSharePostSheet = true
                     } label: {
                         

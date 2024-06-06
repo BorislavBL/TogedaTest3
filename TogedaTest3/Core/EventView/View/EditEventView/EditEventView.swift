@@ -8,13 +8,16 @@
 import SwiftUI
 
 struct EditEventView: View {
-    var post: Components.Schemas.PostResponseDto
+    @Binding var isActive: Bool
+    @Binding var post: Components.Schemas.PostResponseDto
     @StateObject var vm = EditEventViewModel()
     @State private var displayWarnings: Bool = false
     @Environment(\.dismiss) private var dismiss
     @State private var showLocationView = false
     @State private var showCategoryView = false
     @EnvironmentObject var navManager: NavigationManager
+    @EnvironmentObject var postsVM: PostsViewModel
+    @State var deleteSheet: Bool = false
     
     var body: some View {
         ScrollView{
@@ -240,6 +243,16 @@ struct EditEventView: View {
                     }
                     .createEventTabStyle()
                     
+                    Button{
+                        deleteSheet = true
+                    } label:{
+                        HStack(spacing: 20){
+                            Image(systemName: "trash")
+                            Text("Delete")
+                        }
+                        .foregroundStyle(.red)
+                    }
+                    .createEventTabStyle()
                     
                 }
             }
@@ -251,6 +264,11 @@ struct EditEventView: View {
                 vm.isInit = false
             }
         }
+        .sheet(isPresented: $deleteSheet, content: {
+            onDeleteSheet()
+                .presentationDetents([.height(190)])
+                
+        })
         .scrollIndicators(.hidden)
         .navigationTitle("Edit Profile")
         .navigationBarBackButtonHidden(true)
@@ -300,15 +318,46 @@ struct EditEventView: View {
         }
     }
     
+    func onDeleteSheet() -> some View {
+        VStack(spacing: 30){
+            Text("All of the information including the chat will be deleted!")
+                .multilineTextAlignment(.leading)
+                .font(.headline)
+                .fontWeight(.bold)
+            
+            Button{
+                Task{
+                    try await postsVM.deleteEvent(postId: post.id)
+                }
+                DispatchQueue.main.async {
+                    isActive = false
+                    navManager.selectionPath.removeLast(1)
+                }
+            } label:{
+                Text("Delete")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(.red)
+                    .cornerRadius(10)
+            }
+        }
+        .padding()
+        .presentationDetents([.fraction(0.2)])
+    }
+    
     func save() {
         Task {
             do{
                 if await vm.imageCheckAndMerge(){
                     if vm.editPost != vm.initialPost {
-                        let data = try await APIClient.shared.editEvent(postId: vm.editPost.id, editPost: vm.convertToPathcPost(post: vm.editPost))
-                        print("Success: \(data)")
-                        
-                        //fetch current post here
+                        if try await APIClient.shared.editEvent(postId: vm.editPost.id, editPost: vm.convertToPathcPost(post: vm.editPost)) {
+                            
+                            try await postsVM.refreshEventOnAction(postId: post.id)
+                            post = vm.editPost
+                        }
                         
                         dismiss()
                     } else {
@@ -349,7 +398,7 @@ struct EditEventView: View {
     }
     
     var noPhotos: Bool {
-        if vm.selectedImages.allSatisfy({ $0 == nil }) && displayWarnings{
+        if vm.editPost.images.count == 0 && vm.selectedImages.allSatisfy({ $0 == nil }) && displayWarnings{
             return true
         } else {
             return false
@@ -373,7 +422,7 @@ struct EditEventView: View {
     }
     
     var saveButtonCheck: Bool {
-        if vm.editPost.title.count >= 5, !vm.editPost.title.isEmpty, vm.editPost.location.name != "Unknown Location", vm.selectedImages.contains(where: { $0 != nil }),vm.selectedInterests.count > 0 {
+        if vm.editPost.title.count >= 5, !vm.editPost.title.isEmpty, vm.editPost.location.name != "Unknown Location", (vm.selectedImages.contains(where: { $0 != nil }) || vm.editPost.images.count > 0), vm.selectedInterests.count > 0, vm.editPost != vm.initialPost {
             return true
         } else {
             return false
@@ -383,6 +432,7 @@ struct EditEventView: View {
 }
 
 #Preview {
-    EditEventView(post: MockPost)
+    EditEventView(isActive: .constant(true), post: .constant(MockPost))
         .environmentObject(NavigationManager())
+        .environmentObject(PostsViewModel())
 }

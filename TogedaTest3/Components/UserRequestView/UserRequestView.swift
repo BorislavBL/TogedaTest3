@@ -6,51 +6,18 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct UserRequestView: View {
     private let size: ImageSize = .medium
     @Environment(\.dismiss) private var dismiss
-    var users: [MiniUser]
+    var users: [Components.Schemas.MiniUser] = []
+
     var body: some View {
         ScrollView{
             LazyVStack(spacing: 16){
                 ForEach(users, id: \.id){user in
-                    NavigationLink(value: SelectionPath.profile(MockMiniUser)){
-                        HStack(alignment:.top){
-                                Image(user.profilePhotos[0])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: size.dimension, height: size.dimension)
-                                    .clipShape(Circle())
-                            
-                        }
-                        VStack(alignment:.leading){
-                            Text(user.fullName)
-                                .font(.footnote)
-                                .fontWeight(.semibold)
-                            
-                            
-                            HStack(alignment:.center, spacing: 10) {
-                                Button {
-                                    
-                                } label: {
-                                    Text("Confirm")
-                                        .normalTagTextStyle()
-                                        .frame(maxWidth: .infinity)
-                                        .normalTagRectangleStyle()
-                                }
-                                Button {
-                                    
-                                } label: {
-                                    Text("Delete")
-                                        .normalTagTextStyle()
-                                        .frame(maxWidth: .infinity)
-                                        .normalTagRectangleStyle()
-                                }
-                            }
-                        }
-                        .multilineTextAlignment(.leading)
-                    }
+                    UserRequestComponent(user: user, confirm: {}, delete: {})
                 }
                 
             }
@@ -68,5 +35,5 @@ struct UserRequestView: View {
 }
 
 #Preview {
-    UserRequestView( users: MiniUser.MOCK_MINIUSERS)
+    UserRequestView()
 }

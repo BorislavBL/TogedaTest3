@@ -230,7 +230,7 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if let education = editProfileVM.editUser.details?.education{
+                            if let education = editProfileVM.editUser.details.education{
                                 Text(education)
                                     .foregroundColor(.gray)
                                 
@@ -263,7 +263,7 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if let workout = editProfileVM.editUser.details?.workout{
+                            if let workout = editProfileVM.editUser.details.workout{
                                 Text(workout)
                                     .foregroundColor(.gray)
                                 
@@ -293,7 +293,7 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if let workout = editProfileVM.editUser.details?.workout{
+                            if let workout = editProfileVM.editUser.details.workout{
                                 Text(workout)
                                     .foregroundColor(.gray)
                                 
@@ -330,7 +330,7 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if let personalityType = editProfileVM.editUser.details?.personalityType{
+                            if let personalityType = editProfileVM.editUser.details.personalityType{
                                 Text(personalityType)
                                     .foregroundColor(.gray)
                                 
@@ -360,7 +360,7 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if let instagram = editProfileVM.editUser.details?.instagram, !instagram.isEmpty {
+                            if let instagram = editProfileVM.editUser.details.instagram, !instagram.isEmpty {
                                 Text(instagram)
                                     .foregroundColor(.gray)
                             } else {

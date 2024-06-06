@@ -9,7 +9,9 @@ import SwiftUI
 
 struct ClubsTab: View {
     var userID: String
-    @State var clubs = Club.MOCK_CLUBS
+    
+    @Binding var clubs: [Components.Schemas.ClubDto]
+    
     var body: some View {
         VStack (alignment: .leading, spacing: 20) {
             HStack{
@@ -17,11 +19,12 @@ struct ClubsTab: View {
                     .font(.body)
                     .fontWeight(.bold)
                 
-                    Text("\(30)")
-                        .foregroundStyle(.gray)
+                Text("\(clubs.count)")
+                    .foregroundStyle(.gray)
                 
                 
                 Spacer()
+                
                 
                 NavigationLink(value: SelectionPath.allUserGroups(userID: userID)){
                     Text("View All")
@@ -31,19 +34,18 @@ struct ClubsTab: View {
                 
             }
             .padding(.horizontal)
-
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack{
-                    ForEach(clubs.indices, id: \.self){ index in
-                        NavigationLink(value: SelectionPath.club(clubs[index])){
-                            GroupComponent(userID: userID, club: clubs[index])
+                    ForEach(clubs, id: \.id){ club in
+                        NavigationLink(value: SelectionPath.club(club)){
+                            GroupComponent(userID: userID, club: club)
                         }
                     }
                 }
                 .padding(.horizontal)
             }
-
+            
         }
         .frame(minWidth: 0, maxWidth: .infinity)
         .padding(.vertical)
@@ -55,7 +57,7 @@ struct ClubsTab: View {
 
 struct ClubsTab_Previews: PreviewProvider {
     static var previews: some View {
-        ClubsTab(userID: "")
+        ClubsTab(userID: "", clubs: .constant([MockClub]))
     }
 }
 

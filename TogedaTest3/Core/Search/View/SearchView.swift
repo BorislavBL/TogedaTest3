@@ -6,26 +6,23 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct SearchView: View {
     @ObservedObject var viewModel: HomeViewModel
-    @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     let size: ImageSize = .medium
+    
+    @State var isLoading = false
     
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 15){
-                
-                if viewModel.selectedFilter == "Events"{
-                    ForEach(viewModel.searchPostResults, id:\.id){ post in
-                        //                        Button {
-                        //                            postsViewModel.showDetailsPage = true
-                        //                            postsViewModel.clickedPostIndex = postsViewModel.posts.firstIndex(of: post) ?? 0
-                        //                        } label: {
-                        NavigationLink(value: SelectionPath.eventDetails(MockPost)){
+                if viewModel.selectedFilter == .events{
+                    ForEach(viewModel.searchedPosts, id:\.id){ post in
+                        NavigationLink(value: SelectionPath.eventDetails(post)){
                             HStack(alignment:.center, spacing: 10){
-                                Image(post.imageUrl[0])
+                                KFImage(URL(string: post.images[0]))
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: size.dimension, height: size.dimension)
@@ -39,13 +36,11 @@ struct SearchView: View {
                                         .font(.body)
                                         .fontWeight(.semibold)
                                     
-                                    if let user = post.user {
-                                        Text(user.fullName)
-                                            .multilineTextAlignment(.leading)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.semibold)
-                                            .font(.footnote)
-                                    }
+                                    Text("\(post.owner.firstName) \(post.owner.lastName)")
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundColor(.gray)
+                                        .fontWeight(.semibold)
+                                        .font(.footnote)
                                     
                                 }
                                 Spacer()
@@ -56,17 +51,40 @@ struct SearchView: View {
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         }
                     }
-                } else if viewModel.selectedFilter == "People" {
-                    ForEach(viewModel.searchUserResults, id: \.id) { user in
-                        NavigationLink(value: SelectionPath.profile(MockMiniUser)){
+                } else if viewModel.selectedFilter == .users {
+                    ForEach(viewModel.searchedUsers, id: \.id) { user in
+                        NavigationLink(value: SelectionPath.profile(user)){
                             HStack(alignment:.center, spacing: 10){
-                                Image(user.profilePhotos[0])
+                                KFImage(URL(string: user.profilePhotos[0]))
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: size.dimension, height: size.dimension)
                                     .clipShape(Circle())
                                 
-                                Text(user.fullName)
+                                Text("\(user.firstName) \(user.lastName)")
+                                    .multilineTextAlignment(.leading)
+                                    .fontWeight(.semibold)
+                                    .fontWeight(.bold)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .padding(.trailing, 10)
+                            }
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                } else if viewModel.selectedFilter == .clubs {
+                    ForEach(viewModel.searchedClubs, id: \.id) { club in
+                        NavigationLink(value: SelectionPath.club(club)){
+                            HStack(alignment:.center, spacing: 10){
+                                KFImage(URL(string: club.images[0]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: size.dimension, height: size.dimension)
+                                    .clipShape(Circle())
+                                
+                                Text("\(club.title)")
                                     .multilineTextAlignment(.leading)
                                     .fontWeight(.semibold)
                                     .fontWeight(.bold)
@@ -80,6 +98,35 @@ struct SearchView: View {
                         }
                     }
                 }
+                
+                if isLoading {
+                    ProgressView() // Show spinner while loading
+                }
+                
+                Rectangle()
+                    .frame(width: 0, height: 0)
+                    .onAppear {
+                        if !viewModel.lastSearchedPage{
+                           isLoading = true
+                            Task{
+                                if viewModel.selectedFilter == .events {
+                                    Task{
+                                        try await viewModel.searchPosts()
+                                    }
+                                } else if viewModel.selectedFilter == .users {
+                                    Task{
+                                        try await viewModel.searchUsers()
+                                    }
+                                } else if viewModel.selectedFilter == .clubs {
+                                    Task{
+                                        try await viewModel.searchClubs()
+                                    }
+                                }
+                                isLoading = false
+       
+                            }
+                        }
+                    }
             }
             .padding()
             .padding(.top, 94)
@@ -87,6 +134,7 @@ struct SearchView: View {
         }
         .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: UIScreen.main.bounds.height)
         .background()
+        .ignoresSafeArea(.keyboard)
     }
 }
 
@@ -94,7 +142,6 @@ struct SearchView: View {
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView(viewModel: HomeViewModel())
-            .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
     }
 }

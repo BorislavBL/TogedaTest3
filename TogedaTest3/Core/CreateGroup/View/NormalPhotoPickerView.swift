@@ -9,7 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct NormalPhotoPickerView: View {
-    @ObservedObject var createGroupVM: CreateGroupViewModel
+    @ObservedObject var photoPickerVM: PhotoPickerViewModel
     private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 3) - 16
     @Environment(\.dismiss) private var dismiss
     let message: String
@@ -26,7 +26,7 @@ struct NormalPhotoPickerView: View {
                     GridRow {
                         ForEach(0..<3, id: \.self){ index in
                             ZStack{
-                                if let image = createGroupVM.selectedImages[index]{
+                                if let image = photoPickerVM.selectedImages[index]{
                                     Image(uiImage: image)
                                         .resizable()
                                         .scaledToFill()
@@ -44,15 +44,15 @@ struct NormalPhotoPickerView: View {
                                 }
                             }
                             .onTapGesture {
-                                createGroupVM.selectedImageIndex = index
-                                createGroupVM.showPhotosPicker = true
+                                photoPickerVM.selectedImageIndex = index
+                                photoPickerVM.showPhotosPicker = true
                             }
                         }
                     }
                     GridRow {
                         ForEach(3..<6, id: \.self){ index in
                             ZStack{
-                                if let image = createGroupVM.selectedImages[index]{
+                                if let image = photoPickerVM.selectedImages[index]{
                                     Image(uiImage: image)
                                         .resizable()
                                         .scaledToFill()
@@ -70,8 +70,8 @@ struct NormalPhotoPickerView: View {
                                 }
                             }
                             .onTapGesture {
-                                createGroupVM.selectedImageIndex = index
-                                createGroupVM.showPhotosPicker = true
+                                photoPickerVM.selectedImageIndex = index
+                                photoPickerVM.showPhotosPicker = true
                             }
                         }
                     }
@@ -80,9 +80,9 @@ struct NormalPhotoPickerView: View {
             }
             
         }
-        .photosPicker(isPresented: $createGroupVM.showPhotosPicker, selection: $createGroupVM.imageselection, matching: .images)
-        .fullScreenCover(isPresented: $createGroupVM.showCropView, content: {
-            CropPhotoView(selectedImage:createGroupVM.selectedImage, finalImage: $createGroupVM.selectedImages[createGroupVM.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
+        .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imageselection, matching: .images)
+        .fullScreenCover(isPresented: $photoPickerVM.showCropView, content: {
+            CropPhotoView(selectedImage:photoPickerVM.selectedImage, finalImage: $photoPickerVM.selectedImages[photoPickerVM.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
         })
         .navigationTitle("Photos")
         .navigationBarBackButtonHidden(true)
@@ -101,5 +101,5 @@ struct NormalPhotoPickerView: View {
 
 
 #Preview {
-    NormalPhotoPickerView(createGroupVM: CreateGroupViewModel(), message: "Select photos related to your activity.")
+    NormalPhotoPickerView(photoPickerVM: PhotoPickerViewModel(s3BucketName: .user, mode: .normal), message: "Select photos related to your activity.")
 }

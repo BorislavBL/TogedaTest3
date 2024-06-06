@@ -8,7 +8,7 @@
 import Foundation
 
 
-let MockUser: Components.Schemas.User = .init(
+let MockUser: Components.Schemas.UserInfoDto = .init(
     id: "c3c42802-90f1-7073-03e6-5e761d648d24",
     email: "borkolorinkov@gmail.com",
     subToEmail: true,
@@ -19,7 +19,7 @@ let MockUser: Components.Schemas.User = .init(
     visibleGender: true,
     location: .init(name: "Sofia, Bulgaria", address: nil, city: "Sofia", state: "Sofia", country: "Bulgaria", latitude: 42.6889525, longitude: 23.3188913),
     occupation: "Mechanic",
-    profilePhotos: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/8BAF0323-68E4-4F19-B88C-8BAF86EEF0D2.jpeg"],
+    profilePhotos: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
     interests: [
         .init(name: "Workingout", icon: "💪", category: "sport"),
         .init(name: "Workingout", icon: "💪", category: "sport"),
@@ -39,18 +39,21 @@ let MockUser: Components.Schemas.User = .init(
         personalityType: "INFP",
         instagram: "@Foncho",
         savedPostIds: [],
-        friendIds: [],
         createdEventIds: [],
         participatedEventIds: [],
         clubIds: []
-    )
+    ),
+    participatedPostsCount: 3,
+    friendsCount: 3,
+    currentFriendshipStatus: nil
 )
+
 
 let MockMiniUser = Components.Schemas.MiniUser(
     id: "12345678",
     firstName: "Emily",
     lastName: "Hogwards",
-    profilePhotos: ["https://www.example.com/photo1.jpg", "https://www.example.com/photo2.jpg"],
+    profilePhotos: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg", "https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
     occupation: "Mechanic",
     location: Components.Schemas.BaseLocation.init(
         name: "Sofia, Bulgaria",
@@ -59,7 +62,8 @@ let MockMiniUser = Components.Schemas.MiniUser(
         country: "Bulgaria",
         latitude: 42.6977,
         longitude: 23.3219
-    )
+    ), 
+    birthDate: "2000-07-11"
 )
 
 let MockBasicUserInfo = Components.Schemas.UserDto(
@@ -70,14 +74,14 @@ let MockBasicUserInfo = Components.Schemas.UserDto(
     birthDate: Date(), // Fallback to current date if parsing fails
     visibleGender: true,
     occupation: "Party Animal",
-    profilePhotos: ["https://www.example.com/photo1.jpg", "https://www.example.com/photo2.jpg"],
+    profilePhotos: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg", "https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
     interests: [
-        Components.Schemas.InterestDto.init(name: "InterestName", icon: "0xe52a", category: "MyCategory"),
-        Components.Schemas.InterestDto.init(name: "InterestName2", icon: "0xe52b", category: "MyCategory1"),
-        Components.Schemas.InterestDto.init(name: "InterestName3", icon: "0xe52a", category: "MyCategory2"),
-        Components.Schemas.InterestDto.init(name: "InterestName4", icon: "0xe52a", category: "MyCategory3"),
-        Components.Schemas.InterestDto.init(name: "InterestName5", icon: "0xe52a", category: "MyCategory4"),
-        Components.Schemas.InterestDto.init(name: "InterestName6", icon: "0xe52a", category: "MyCategory5")
+        Components.Schemas.Interest.init(name: "InterestName", icon: "0xe52a", category: "MyCategory"),
+        Components.Schemas.Interest.init(name: "InterestName2", icon: "0xe52b", category: "MyCategory1"),
+        Components.Schemas.Interest.init(name: "InterestName3", icon: "0xe52a", category: "MyCategory2"),
+        Components.Schemas.Interest.init(name: "InterestName4", icon: "0xe52a", category: "MyCategory3"),
+        Components.Schemas.Interest.init(name: "InterestName5", icon: "0xe52a", category: "MyCategory4"),
+        Components.Schemas.Interest.init(name: "InterestName6", icon: "0xe52a", category: "MyCategory5")
     ],
     phoneNumber: "359885230163",
     location: Components.Schemas.BaseLocation.init(
@@ -92,7 +96,7 @@ let MockBasicUserInfo = Components.Schemas.UserDto(
 
 let MockCreatePost = Components.Schemas.CreatePostDto(
     title: "Test Post",
-    images: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/A840DC1D-9D40-4A55-A453-212570A7019F.jpeg"],
+    images: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
     description: "Hello friends wellcome to my event> Todays topic slavery.",
     maximumPeople: 10,
     location: Components.Schemas.BaseLocation.init(
@@ -119,10 +123,12 @@ let MockCreatePost = Components.Schemas.CreatePostDto(
     toDate: nil)
 
 
+let MockExtendedMiniUSer = Components.Schemas.ExtendedMiniUser(user: MockMiniUser, _type: .CO_HOST)
+
 let MockPost = Components.Schemas.PostResponseDto(
     id: "1234567890",
     title: "Hiking in Vitosha Mountain",
-    images: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/8BAF0323-68E4-4F19-B88C-8BAF86EEF0D2.jpeg"],
+    images: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
     description: "Hello friends wellcome to my event> Todays topic slavery.",
     maximumPeople: 10,
     location: Components.Schemas.BaseLocation.init(
@@ -148,7 +154,7 @@ let MockPost = Components.Schemas.PostResponseDto(
         id: "1234567890",
         firstName: "Borko",
         lastName: "Lorinkov",
-        profilePhotos: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/8BAF0323-68E4-4F19-B88C-8BAF86EEF0D2.jpeg"],
+        profilePhotos: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
         occupation: "Mechanic",
         location:  Components.Schemas.BaseLocation.init(
             name: "Sofia, Bulgaria",
@@ -157,14 +163,48 @@ let MockPost = Components.Schemas.PostResponseDto(
             country: "Bulgaria",
             latitude: 42.6977,
             longitude: 23.3219
-        )
+        ), 
+        birthDate: "2000-07-11"
     ),
     payment: 0, 
     currentUserStatus: .NOT_PARTICIPATING,
     accessibility: .PUBLIC,
     askToJoin: false,
     rating: nil,
-    hasEnded: false, 
     club: nil, 
-    participantsCount: 5
+    participantsCount: 5,
+    status: .NOT_STARTED
 )
+
+
+let MockClub = Components.Schemas.ClubDto(
+    id: "2131", 
+    owner: MockMiniUser,
+    title: "Sky Diving Club",
+    images: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
+    description: "Minchagata Minchagata v snejna zima v leten den krasiv si vinagi debel.", location: Components.Schemas.BaseLocation.init(
+        name: "Sofia, Bulgaria",
+        address:"Something",
+        city: "Sofia",
+        country: "Bulgaria",
+        latitude: 42.6977,
+        longitude: 23.3219
+    ),
+    accessibility: .PUBLIC,
+    askToJoin: false, 
+    currentUserStatus: .PARTICIPATING,
+    interests: [
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport")
+    ],
+    memories: [],
+    currentUserRole: .MEMBER, 
+    membersCount: 0,
+    permissions: .ADMINS_ONLY,
+    createdAt: Date())
+
+

@@ -98,7 +98,10 @@ struct AllInOneFilterView: View {
                             long: filterVM.returnedPlace.longitude,
                             distance: filterVM.sliderValue,
                             from: filterVM.selectedTimeFilter.from,
-                            to: filterVM.selectedTimeFilter.to
+                            to: filterVM.selectedTimeFilter.to, 
+                            categories: filterVM.selectedCategories.count > 0 ? filterVM.selectedCategories.map({ Category in
+                                Category.name.lowercased()
+                            }) : nil
                            )
                         }
                         
