@@ -79,7 +79,7 @@ struct GroupEventComponent: View {
                             .font(.caption)
                             .foregroundColor(Color("light-gray"))
                         
-                        Text(locationCityAndCountry1(post.location))
+                        Text(locationCityAndCountry(post.location))
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(Color("light-gray"))

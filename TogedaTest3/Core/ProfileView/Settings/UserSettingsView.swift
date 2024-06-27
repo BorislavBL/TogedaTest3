@@ -19,7 +19,7 @@ struct UserSettingsView: View {
                 NavigationLink(value: SelectionPath.test){
                     Text("Privacy Settings")
                 }
-                NavigationLink(value: SelectionPath.test){
+                NavigationLink(value: SelectionPath.paymentPage){
                     Text("Payment Methods")
                 }
             }

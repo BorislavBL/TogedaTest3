@@ -19,7 +19,7 @@ struct GroupEventsView: View {
                     .fontWeight(.bold)
                 
                 if groupVM.clubEvents.count > 0 {
-                    Text("\(groupVM.clubEvents.count)")
+                    Text("\(groupVM.clubEventsCount)")
                         .foregroundStyle(.gray)
                 }
                 
@@ -58,6 +58,7 @@ struct GroupEventsView: View {
         .padding(.vertical)
         .background(.bar)
         .cornerRadius(10)
+        
     }
 }
 

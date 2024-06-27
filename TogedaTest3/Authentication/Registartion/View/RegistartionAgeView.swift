@@ -12,6 +12,7 @@ struct RegistartionAgeView: View {
         case day,month,year
     }
     @ObservedObject var vm: RegistrationViewModel
+    @ObservedObject var photoVM: PhotoPickerViewModel
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var focus: FocusedField?
     @Environment(\.dismiss) var dismiss
@@ -131,16 +132,17 @@ struct RegistartionAgeView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: focus)
         .padding(.horizontal)
-        .onTapGesture {
-            hideKeyboard()
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
         }
         .onAppear{
             focus = .day
         }
-        .ignoresSafeArea(.keyboard)
         .padding(.vertical)
         .navigationDestination(isPresented: $isActive, destination: {
-            RegistrationGenderView(vm: vm)
+            RegistrationGenderView(vm: vm, photoVM: photoVM)
         })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
@@ -176,5 +178,5 @@ struct RegistartionAgeView: View {
 }
 
 #Preview {
-    RegistartionAgeView(vm: RegistrationViewModel())
+    RegistartionAgeView(vm: RegistrationViewModel(), photoVM: PhotoPickerViewModel(s3BucketName: .user, mode: .normal))
 }

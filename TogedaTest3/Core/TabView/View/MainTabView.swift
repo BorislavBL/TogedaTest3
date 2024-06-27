@@ -13,6 +13,7 @@ struct MainTabView: View {
     @EnvironmentObject var contentViewModel: ContentViewModel
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var clubsViewModel: ClubsViewModel
     
     @StateObject var chatVM = ChatViewModel()
     
@@ -76,27 +77,53 @@ struct MainTabView: View {
             })
             .sheet(isPresented: $postsViewModel.showPostOptions, content: {
                 List {
-                    Button("Save") {
-                        postsViewModel.selectedOption = "Save"
-                    }
                     
                     ShareLink(item: URL(string: "https://www.youtube.com/")!) {
                         Text("Share via")
                     }
                     
-                    Button("Report") {
-                        postsViewModel.selectedOption = "Report"
-                    }
-                    
-                    
-                    Button("Delete") {
-                        postsViewModel.selectedOption = "Delete"
+                    if let user = userViewModel.currentUser, user.id == postsViewModel.clickedPost.owner.id {
+                        
+                    } else {
+                        Button("Report") {
+                            postsViewModel.showPostOptions = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                postsViewModel.showReportEvent = true
+                            }
+                        }
                     }
                     
                 }
                 .presentationDetents([.fraction(0.25)])
                 .presentationDragIndicator(.visible)
                 .scrollDisabled(true)
+            })
+            .sheet(isPresented: $postsViewModel.showReportEvent, content: {
+                ReportEventView(event: postsViewModel.clickedPost)
+            })
+            .sheet(isPresented: $clubsViewModel.showOption, content: {
+                List{
+                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                        Text("Share via")
+                    }
+                    
+                    if let user = userViewModel.currentUser, user.id == clubsViewModel.clickedClub.owner.id {
+                        Button{
+                            clubsViewModel.showOption = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                clubsViewModel.showReport = true
+                            }
+                        } label:{
+                            Text("Report")
+                                .foregroundStyle(.red)
+                        }
+                    }
+                }
+                .scrollDisabled(true)
+                .presentationDetents([.height(200)])
+            })
+            .sheet(isPresented: $clubsViewModel.showReport, content: {
+                ReportClubView(club: clubsViewModel.clickedClub)
             })
             .sheet(isPresented: $postsViewModel.showSharePostSheet) {
                 ShareView()
@@ -154,8 +181,8 @@ struct MainTabView: View {
                     NotificationView()
                 case .userRequest:
                     UserRequestView()
-                case .eventReview:
-                    EventReviewView()
+                case .eventReview(let post):
+                    EventReviewView(post: post)
                 case .reviewMemories:
                     ReviewMemoriesView()
                 case .test:
@@ -164,11 +191,20 @@ struct MainTabView: View {
                     FriendsListView(user: user)
                 case .userFriendRequestsList:
                     FriendsRequestsView()
+                case .rateParticipants(post: let post, rating: let rating):
+                    RateParticipantsView(post: post, rating: rating)
+                case .eventWaitingList(let post):
+                    UserWaitingListView(post: post)
+                case .userReviewView(user: let user):
+                    ReviewProfileView(user: user)
+                case .paymentPage:
+                    CreateStripeView()
                 }
             })
         }
         
     }
+
 }
 
 
@@ -179,6 +215,7 @@ struct MainTabView_Previews: PreviewProvider {
         MainTabView()
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
+            .environmentObject(ClubsViewModel())
             .environmentObject(ContentViewModel())
             .environmentObject(NavigationManager())
             .environmentObject(LocationManager())

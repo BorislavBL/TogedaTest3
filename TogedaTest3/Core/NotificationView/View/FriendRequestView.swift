@@ -6,15 +6,17 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct FriendRequestView: View {
     let size: ImageSize = .medium
-    var user: MiniUser = MiniUser.MOCK_MINIUSERS[0]
+    var user: Components.Schemas.AlertBodyFriendRequestReceived
+    var createDate: Date
     var body: some View {
         VStack {
             NavigationLink(value: SelectionPath.profile(MockMiniUser)){
                 HStack(alignment:.top){
-                        Image(user.profilePhotos[0])
+                    KFImage(URL(string: user.senderProfilePhoto)!)
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -22,15 +24,15 @@ struct FriendRequestView: View {
                     
                 }
                 VStack(alignment:.leading){
-                    Text(user.fullName)
+                    Text(user.senderName)
                         .font(.footnote)
                         .fontWeight(.semibold) +
                     
                     
-                    Text(" Sends you a Friend Request.")
+                    Text(" Sends you a Friend Request. ")
                         .font(.footnote) +
                     
-                    Text(" 1 min ago")
+                    Text(formatDateForNotifications(from: createDate))
                         .foregroundStyle(.gray)
                         .font(.footnote)
                     
@@ -61,5 +63,5 @@ struct FriendRequestView: View {
 }
 
 #Preview {
-    FriendRequestView()
+    FriendRequestView(user: mockAlertBodyFriendRequestReceived, createDate: Date())
 }

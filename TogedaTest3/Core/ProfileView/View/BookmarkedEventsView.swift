@@ -14,27 +14,62 @@ struct BookmarkedEventsView: View {
         GridItem(.flexible()),
     ]
     @Environment(\.dismiss) var dismiss
-    var posts: [Components.Schemas.PostResponseDto] = []
+    
+    @State var lastPage: Bool = true
+    @State var posts: [Components.Schemas.PostResponseDto] = []
+    @State var page: Int32 = 0
+    @State var size: Int32 = 15
+    @State var isLoading = false
+    
     var body: some View {
         ScrollView{
             LazyVGrid(columns: columns){
                 ForEach(posts, id: \.id){ post in
-                    if post.status == .HAS_ENDED{
-//                        NavigationLink(value: SelectionPath.completedEventDetails(post)){
-//                            EventComponent(userID: userID, post: post)
-//                        }
+                    if post.status == .HAS_ENDED {
+                        NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
+                            EventComponent(userID: userID, post: post)
+                        }
                     } else {
-//                        NavigationLink(value: SelectionPath.eventDetails(post)){
-//                            EventComponent(userID: userID, post: post)
-//                        }
+                        NavigationLink(value: SelectionPath.eventDetails(post)){
+                            EventComponent(userID: userID, post: post)
+                        }
                     }
                 }
             }
             .padding(.horizontal, 8)
             .padding(.vertical)
+            
+            if isLoading {
+                ProgressView() // Show spinner while loading
+            } else {
+                VStack(spacing: 8){
+                    Divider()
+                    Text("No more posts")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.gray)
+                }
+                .padding()
+            }
+            
+            Rectangle()
+                .frame(width: 0, height: 0)
+                .onAppear {
+                    if !lastPage{
+                        isLoading = true
+                        Task{
+                            try await fetchEvents()
+                            isLoading = false
+                            
+                        }
+                    }
+                }
         }
         .refreshable {
-            
+            page = 0
+            posts = []
+            Task{
+                try await fetchEvents()
+            }
         }
         .scrollIndicators(.hidden)
         .navigationTitle("Saved Events")
@@ -48,6 +83,23 @@ struct BookmarkedEventsView: View {
             }
         }
         .background(.bar)
+        .onAppear(){
+            Task{
+                try await fetchEvents()
+            }
+        }
+    }
+    
+    func fetchEvents() async throws{
+        if let response = try await APIClient.shared.getUserSavedEvents(page: page, size: size) {
+            posts += response.data
+            lastPage = response.lastPage
+            
+            if !response.lastPage{
+                page += 1
+            }
+        }
+        
     }
 
 }

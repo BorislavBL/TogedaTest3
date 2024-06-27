@@ -112,10 +112,6 @@ struct RegistrationNumberView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)
         .padding(.horizontal)
-        
-        .onTapGesture {
-            hideKeyboard()
-        }
         .sheet(isPresented: $presentSheet) {
             NavigationView {
                 List(filteredResorts) { country in
@@ -145,7 +141,11 @@ struct RegistrationNumberView: View {
             keyIsFocused = true
             countries = vm.loadJsonData()
         }
-        .ignoresSafeArea(.keyboard)
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
+        }
         .padding(.vertical)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

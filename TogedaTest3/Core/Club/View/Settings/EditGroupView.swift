@@ -12,6 +12,7 @@ struct EditGroupView: View {
     @Binding var club: Components.Schemas.ClubDto
     @StateObject var editGroupVM = EditGroupViewModel()
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .club, mode: .edit)
+    @EnvironmentObject var clubsVM: ClubsViewModel
     @Environment(\.dismiss) var dismiss
     @State private var showTypeSheet = false
     @State private var showInstagramSheet = false
@@ -42,6 +43,10 @@ struct EditGroupView: View {
                     PhotosGridView(images: $editGroupVM.editClub.images, vm: photoPickerVM)
                 }
                 
+                if noPhotos {
+                    WarningTextComponent(text: "Add at least one Photo.")
+                }
+                
                 VStack(alignment: .leading, spacing: 10){
                     Text("Group Info")
                         .font(.title3)
@@ -56,7 +61,9 @@ struct EditGroupView: View {
                         .bold()
                         .createEventTabStyle()
                     
-                    if titleChartLimit {
+                    if titleEmpty {
+                        WarningTextComponent(text: "The title can not be empty.")
+                    } else if titleChartLimit {
                         WarningTextComponent(text: "The field should contain at least 5 letters.")
                     }
                     
@@ -80,6 +87,10 @@ struct EditGroupView: View {
                             
                         }
                         .createEventTabStyle()
+                    }
+                    
+                    if noLocation {
+                        WarningTextComponent(text: "Select a location.")
                     }
                     
                     NavigationLink {
@@ -107,6 +118,10 @@ struct EditGroupView: View {
                             
                         }
                         .createEventTabStyle()
+                    }
+                    
+                    if noTag {
+                        WarningTextComponent(text: "Select at leats one interests.")
                     }
                     
                     EditProfileBioView(text: $editGroupVM.description, placeholder: "Description")
@@ -244,12 +259,12 @@ struct EditGroupView: View {
             
             Button{
                 Task{
-                    if try await APIClient.shared.deleteClub(clubId: club.id) {
-                        DispatchQueue.main.async {
-                            isActive = false
-                            navManager.selectionPath.removeLast(1)
-                        }
+                    try await clubsVM.deleteClub(clubId: club.id)
+                    DispatchQueue.main.async {
+                        isActive = false
+                        navManager.selectionPath.removeLast(1)
                     }
+                    
                 }
 
             } label:{
@@ -273,7 +288,7 @@ struct EditGroupView: View {
                 if await photoPickerVM.imageCheckAndMerge(images: $editGroupVM.editClub.images){
                     if editGroupVM.editClub != editGroupVM.initialClub {
                         if try await APIClient.shared.editClub(clubID: club.id, body: editGroupVM.convertToPatchClub()) {
-                            
+                            try await clubsVM.refreshClubOnActionAsync(clubId: club.id)
                             club = editGroupVM.editClub
                         }
                         
@@ -340,7 +355,7 @@ struct EditGroupView: View {
     }
     
     var saveButtonCheck: Bool {
-        if editGroupVM.editClub.title.count >= 5, !editGroupVM.editClub.title.isEmpty, editGroupVM.editClub.location.name != "Unknown Location", (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || editGroupVM.editClub.images.count > 0), editGroupVM.selectedInterests.count > 0, editGroupVM.editClub != editGroupVM.initialClub {
+        if editGroupVM.editClub.title.count >= 5, !editGroupVM.editClub.title.isEmpty, editGroupVM.editClub.location.name != "Unknown Location", (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || editGroupVM.editClub.images.count > 0), editGroupVM.selectedInterests.count > 0, (editGroupVM.editClub != editGroupVM.initialClub || photoPickerVM.imageIsSelected()) {
             return true
         } else {
             return false

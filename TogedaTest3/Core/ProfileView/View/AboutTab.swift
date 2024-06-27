@@ -17,23 +17,24 @@ struct AboutTab: View {
                     .font(.body)
                     .fontWeight(.bold)
                 WrappingHStack(alignment: .leading){
-                    if let education = user?.details.education {
-                        aboutTag(img: Image(systemName: "graduationcap"), text: education)
-                    }
-//                    if let height = user.details.height {
-//                        HStack{
-//                            Image(systemName: "ruler")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 20, height: 20)
-//                                .rotationEffect(.degrees(115))
-//                            
-//                            Text("\(height) cm (\(convertCmToFeetAndInches(height) ?? "feet"))")
-//                                .normalTagTextStyle()
-//                        }
-//                        .normalTagCapsuleStyle()
-//                    }
+
                     if let user = user {
+                        if let education = user.details.education {
+                            aboutTag(img: Image(systemName: "graduationcap"), text: education)
+                        }
+                        if let height = user.details.height {
+                            HStack{
+                                Image(systemName: "ruler")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 20, height: 20)
+                                    .rotationEffect(.degrees(115))
+                                
+                                Text("\(height) cm (\(convertCmToFeetAndInches(String(height)) ?? "feet"))")
+                                    .normalTagTextStyle()
+                            }
+                            .normalTagCapsuleStyle()
+                        }
                         
                         if user.visibleGender {
                             aboutTag(img: Image(systemName: "accessibility"), text: user.gender.rawValue.capitalized)

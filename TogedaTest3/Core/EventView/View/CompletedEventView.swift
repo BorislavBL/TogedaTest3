@@ -27,7 +27,8 @@ struct CompletedEventView: View {
     @State var showImageViewer: Bool = false
     @State var selectedImage: Int = 0
     
-    let club = MockClub
+    @State var club: Components.Schemas.ClubDto?
+    @State var Init = true
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -81,7 +82,7 @@ struct CompletedEventView: View {
                             }
                         }
                         
-                        if post.club != nil {
+                        if let club = self.club {
                             NavigationLink(value: SelectionPath.club(club)){
                                 HStack(alignment: .center, spacing: 10) {
                                     KFImage(URL(string:club.images[0]))
@@ -157,7 +158,7 @@ struct CompletedEventView: View {
                                 VStack(alignment: .leading, spacing: 5) {
                                     
                                     
-                                    Text(locationCityAndCountry1(post.location))
+                                    Text(locationCityAndCountry(post.location))
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                     
@@ -266,7 +267,7 @@ struct CompletedEventView: View {
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                         
-                                        RatingView(rating: .constant(Int(round(rating))))
+                                        RatingView(rating: Int(round(rating)))
                                     }
                                 }
                             }
@@ -302,7 +303,7 @@ struct CompletedEventView: View {
                             .padding(.vertical, 8)
                         
                         
-                        Text(locationAddress1(post.location))
+                        Text(locationAddress(post.location))
                             .normalTagTextStyle()
                             .normalTagCapsuleStyle()
                         
@@ -368,7 +369,16 @@ struct CompletedEventView: View {
         .onAppear(){
             Task{
                 do {
+                    eventVM.participantsList = []
+                    eventVM.participantsPage = 0
                     try await eventVM.fetchUserList(id: post.id)
+                    if Init{
+                        if let clubId = post.clubId, let response = try await APIClient.shared.getClub(clubID: clubId){
+                            self.club = response
+                            
+                            Init = false
+                        }
+                    }
                 } catch {
                     print("Failed to fetch user list: \(error)")
                 }
@@ -423,7 +433,7 @@ struct CompletedEventView: View {
 }
 
 #Preview {
-    CompletedEventView(post: MockPost)
+    CompletedEventView(post: MockPost, club: MockClub)
         .environmentObject(UserViewModel())
         .environmentObject(PostsViewModel())
 }

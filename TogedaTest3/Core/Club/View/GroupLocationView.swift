@@ -18,7 +18,7 @@ struct GroupLocationView: View {
                     .font(.body)
                     .fontWeight(.bold)
                 
-                Text(locationAddress1(club.location))
+                Text(locationAddress(club.location))
                     .foregroundStyle(.gray)
                     .lineLimit(1)
             }

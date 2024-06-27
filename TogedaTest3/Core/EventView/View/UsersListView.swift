@@ -17,8 +17,11 @@ struct UsersListView: View {
     
     var post: Components.Schemas.PostResponseDto
     @State var showUserOptions = false
+    @State var showReportSheet = false
     @State var selectedExtendedUser: Components.Schemas.ExtendedMiniUser?
     @State var Init: Bool = true
+    
+    @EnvironmentObject var userVm: UserViewModel
     
     var body: some View {
         ScrollView{
@@ -28,6 +31,14 @@ struct UsersListView: View {
                         UserRequestTab(users: eventVM.joinRequestParticipantsList)
                     }
                 }
+                
+                
+                if post.status != .HAS_ENDED && !post.askToJoin && eventVM.waitingList.count > 0 && (post.currentUserRole == .CO_HOST || post.currentUserRole == .HOST){
+                    NavigationLink(value: SelectionPath.eventWaitingList(post)){
+                        UserWaitingTab(users: eventVM.waitingList)
+                    }
+                }
+                
                 ForEach(eventVM.participantsList, id:\.user.id) { user in
                     HStack{
                         NavigationLink(value: SelectionPath.profile(user.user)){
@@ -52,12 +63,14 @@ struct UsersListView: View {
                                 
                                 Spacer()
                                 
-                                Button{
-                                    showUserOptions = true
-                                    selectedExtendedUser = user
-                                } label:{
-                                    Image(systemName: "ellipsis")
-                                        .rotationEffect(.degrees(90))
+                                if let currentUser = userVm.currentUser, currentUser.id != user.user.id, post.status != .HAS_ENDED {
+                                    Button{
+                                        showUserOptions = true
+                                        selectedExtendedUser = user
+                                    } label:{
+                                        Image(systemName: "ellipsis")
+                                            .rotationEffect(.degrees(90))
+                                    }
                                 }
                             }
                             
@@ -96,17 +109,28 @@ struct UsersListView: View {
                     if Init {
                         try await eventVM.fetchUserList(id: post.id)
                         Init = false
+                        
                     }
                     if post.askToJoin {
                         eventVM.joinRequestParticipantsList = []
                         eventVM.joinRequestParticipantsPage = 0
                         try await eventVM.fetchJoinRequestUserList(id: post.id)
+                        
+                    } else {
+                        eventVM.waitingList = []
+                        eventVM.waitingListPage = 0
+                        try await eventVM.fetchWaitingList(id: post.id)
                     }
                 } catch {
                     print("User list error:", error.localizedDescription)
                 }
             }
         }
+        .sheet(isPresented: $showReportSheet, content: {
+            if let extendedUser = selectedExtendedUser {
+                ReportUserView(user: extendedUser.user)
+            }
+        })
         .sheet(isPresented: $showUserOptions, content: {
             List {
                 if let extendedUser = selectedExtendedUser {
@@ -139,12 +163,18 @@ struct UsersListView: View {
                     }
                     
                     if post.currentUserStatus == .PARTICIPATING {
-                        Button("Report") {
-
+                        Button{
+                            showUserOptions = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1){
+                                showReportSheet = true
+                            }
+                        } label:{
+                            Text("Report")
+                                .foregroundStyle(.red)
                         }
                     }
-                    
-                    if  post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST {
+
+                    if  post.payment <= 0 && (post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST) {
                         Button("Remove") {
                             Task{
                                 if try await APIClient.shared.removeParticipant(postId: post.id, userId: extendedUser.user.id) {
@@ -163,10 +193,11 @@ struct UsersListView: View {
                     Text("No extended user")
                 }
             }
-            .presentationDetents([.fraction(0.20)])
+            .presentationDetents([.height(200)])
             .presentationDragIndicator(.visible)
             .scrollDisabled(true)
         })
+        .background(.bar)
         .navigationTitle("Participants")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -178,4 +209,5 @@ struct UsersListView: View {
 
 #Preview {
     UsersListView(post: MockPost)
+        .environmentObject(UserViewModel())
 }

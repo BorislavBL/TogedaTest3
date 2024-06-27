@@ -11,6 +11,7 @@ import AWSCognitoIdentityProvider
 class AuthClient: NSObject, ObservableObject {
     static let shared: AuthClient = AuthClient()
     var pool: AWSCognitoIdentityUserPool!
+    var userJustLoggedIn = false
     
     
     override init() {
@@ -96,13 +97,7 @@ class AuthClient: NSObject, ObservableObject {
             } else {
                 print("Logged in succesfully!")
                 completion(true, false, nil)
-                
-                //                if let session = task.result {
-                //                    let accessToken = session.accessToken?.tokenString
-                //                    AccessTokenInterceptor.shared.updateAccessToken(accessToken)
-                //                }
-                
-                //                self.checkAuthStatus()
+                self.userJustLoggedIn = true
             }
             
             return nil
@@ -110,6 +105,9 @@ class AuthClient: NSObject, ObservableObject {
     }
     
     func loginOut(){
+        Task{
+            try await APIClient.shared.removeDiviceToken()
+        }
         pool?.currentUser()?.signOut()
     }
     

@@ -108,7 +108,7 @@ struct MapView: View {
                     .padding(.top, 60)
                     .padding(.vertical)
                     .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: UIScreen.main.bounds.height)
-                    .background()
+                    .background(.bar)
                 }
             }
             .ignoresSafeArea(.keyboard)

@@ -53,6 +53,9 @@ class ContentViewModel: ObservableObject {
                         self.authenticationState = .authenticatedNoInformation
                     }
                 }
+            } else {
+                AuthClient.shared.clearSession()
+                self.authenticationState = .unauthenticated
             }
         }
     }

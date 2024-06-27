@@ -17,6 +17,7 @@ struct RegistrationFullNameView: View {
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
     @State private var isActive: Bool = false
+    @StateObject var photoVM = PhotoPickerViewModel(s3BucketName: .user, mode: .normal)
     
     var body: some View {
         NavigationStack{
@@ -97,19 +98,18 @@ struct RegistrationFullNameView: View {
             }
             .animation(.easeInOut(duration: 0.6), value: focus)
             .padding(.horizontal)
-            
-            .onTapGesture {
-                hideKeyboard()
+            .toolbar{
+                ToolbarItemGroup(placement: .keyboard) {
+                    KeyboardToolbarItems()
+                }
             }
             .onAppear{
                 focus = .first
             }
-            
-            .ignoresSafeArea(.keyboard)
             .padding(.vertical)
             .navigationBarBackButtonHidden(true)
             .navigationDestination(isPresented: $isActive, destination: {
-                RegistartionAgeView(vm: vm)
+                RegistartionAgeView(vm: vm, photoVM: photoVM)
             })
 //            .navigationBarItems(leading:Button(action: {dismiss()}) {
 //                Image(systemName: "chevron.left")

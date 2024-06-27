@@ -36,6 +36,7 @@ struct CreateClubView: View {
                         TextField("What group would you like to make", text: $createGroupVM.title, axis: .vertical)
                             .font(.headline)
                             .fontWeight(.bold)
+                            .autocorrectionDisabled(true)
                             .onChange(of: createGroupVM.title) { oldValue, newValue in
                                 if createGroupVM.title.count > 70 {
                                     createGroupVM.title = String(createGroupVM.title.prefix(70))

@@ -13,6 +13,8 @@ struct EventTab: View {
     @State var lastPage: Bool = false
     @Binding var posts: [Components.Schemas.PostResponseDto]
     @Binding var createEvent: Bool
+    var count: Int32
+    @EnvironmentObject var userVm: UserViewModel
     
     var body: some View {
         VStack (alignment: .leading, spacing: 20) {
@@ -45,9 +47,9 @@ struct EventTab: View {
                     LazyHStack{
                         ForEach(posts.indices, id: \.self){ index in
                             if posts[index].status == .HAS_ENDED {
-                                //                            NavigationLink(value: SelectionPath.completedEventDetails(posts[index])){
+                                NavigationLink(value: SelectionPath.completedEventDetails(post: posts[index])){
                                 EventComponent(userID: userID, post: posts[index])
-                                //                            }
+                                }
                             } else {
                                 NavigationLink(value: SelectionPath.eventDetails(posts[index])){
                                     EventComponent(userID: userID, post: posts[index])
@@ -58,7 +60,7 @@ struct EventTab: View {
                     .padding(.horizontal)
                     
                 }
-            } else {
+            } else if let currentUser = userVm.currentUser, currentUser.id == userID {
                 VStack(alignment: .center, spacing: 10){
                     Image(systemName: "calendar.badge.plus")
                         .resizable()
@@ -99,7 +101,8 @@ struct EventTab: View {
 
 struct EventTab_Previews: PreviewProvider {
     static var previews: some View {
-        EventTab(userID: "", posts: .constant([MockPost]), createEvent: .constant(false))
+        EventTab(userID: "", posts: .constant([MockPost]), createEvent: .constant(false), count: 0)
+            .environmentObject(UserViewModel())
 
     }
 }

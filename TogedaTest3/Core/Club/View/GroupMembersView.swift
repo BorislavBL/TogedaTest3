@@ -22,7 +22,7 @@ struct GroupMembersView: View {
                         .fontWeight(.bold)
                     
                     
-                    Text("\(club.membersCount)")
+                    Text("\(groupVM.membersCount)")
                         .foregroundStyle(.gray)
                     
                 }

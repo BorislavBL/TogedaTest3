@@ -11,11 +11,14 @@ class ProfileViewModel: ObservableObject {
 
     @Published var clubs: [Components.Schemas.ClubDto] = []
     @Published var posts: [Components.Schemas.PostResponseDto] = []
+    @Published var clubsCount: Int32 = 0
+    @Published var postsCount: Int32 = 0
     
     func getUserClubs(userId: String) async throws {
         if let response = try await APIClient.shared.getUserClubs(userId: userId, page: 0, size: 15) {
             DispatchQueue.main.async {
                 self.clubs = response.data
+                self.clubsCount = response.listCount
             }
            
         }
@@ -25,6 +28,28 @@ class ProfileViewModel: ObservableObject {
         if let response = try await APIClient.shared.getUserEvents(userId: userId, page: 0, size: 15) {
             DispatchQueue.main.async {
                 self.posts = response.data
+                self.postsCount = response.listCount
+            }
+        }
+    }
+    
+    func fetchAllData(userId: String) async {
+        // Use a task group to fetch all data concurrently
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                do {
+                    try await self.getUserPosts(userId: userId)
+                } catch {
+                    print("Error fetching user posts: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    try await self.getUserClubs(userId: userId)
+                } catch {
+                    print("Error fetching user clubs: \(error)")
+                }
             }
         }
     }

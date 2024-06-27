@@ -10,14 +10,15 @@ import Kingfisher
 
 struct GroupRequestPage: View {
     let size: ImageSize = .medium
-    var club: Components.Schemas.ClubDto = MockClub
-    @EnvironmentObject var postsVM: PostsViewModel
+    @State var club: Components.Schemas.ClubDto = MockClub
+    var createDate: Date
+    var alertBody: Components.Schemas.AlertBodyReceivedJoinRequest
     
     var body: some View {
             VStack {
                 NavigationLink(value: SelectionPath.club(club)){
                     HStack(alignment:.top){
-                        KFImage(URL(string: club.images[0]))
+                        KFImage(URL(string:alertBody.image))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -26,14 +27,14 @@ struct GroupRequestPage: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 5){
-                        Text(club.title)
+                        Text(alertBody.title)
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
                         Text("Someone wants to join your club.")
                             .font(.footnote) +
                         
-                        Text(" 1 min ago")
+                        Text(" \(formatDateForNotifications(from: createDate))")
                             .foregroundStyle(.gray)
                             .font(.footnote)
                         
@@ -49,5 +50,5 @@ struct GroupRequestPage: View {
 }
 
 #Preview {
-    GroupRequestPage()
+    GroupRequestPage(createDate: Date(), alertBody: mockAlertBodyReceivedJoinRequest)
 }

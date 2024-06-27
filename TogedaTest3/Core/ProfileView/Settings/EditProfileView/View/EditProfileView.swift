@@ -11,6 +11,7 @@ struct EditProfileView: View {
     @StateObject var editProfileVM = EditProfileViewModel()
     @EnvironmentObject var userVM: UserViewModel
     @EnvironmentObject var navManager: NavigationManager
+    @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .user, mode: .edit)
     
     @Environment(\.dismiss) var dismiss
     @State private var showTypeSheet = false
@@ -35,7 +36,8 @@ struct EditProfileView: View {
                         .font(.title3)
                         .fontWeight(.bold)
                     
-                    EditProfilePhotosView(editProfileVM: editProfileVM)
+//                    EditProfilePhotosView(editProfileVM: editProfileVM)
+                    PhotosGridView(images: $editProfileVM.editUser.profilePhotos, vm: photoPickerVM)
                 }
                 
                 VStack(alignment: .leading, spacing: 10){
@@ -90,7 +92,7 @@ struct EditProfileView: View {
                             Image(systemName: "location.circle.fill")
                                 .imageScale(.large)
                             
-                            Text(locationCityAndCountry1(editProfileVM.editUser.location))
+                            Text(locationCityAndCountry(editProfileVM.editUser.location))
                             
                             Spacer()
                             
@@ -293,8 +295,8 @@ struct EditProfileView: View {
                             
                             Spacer()
                             
-                            if let workout = editProfileVM.editUser.details.workout{
-                                Text(workout)
+                            if let height = editProfileVM.editUser.details.height{
+                                Text("\(height) cm")
                                     .foregroundColor(.gray)
                                 
                             } else {
@@ -445,12 +447,13 @@ struct EditProfileView: View {
     func save() {
         Task {
             do{
-                if await editProfileVM.imageCheckAndMerge(){
+                if await photoPickerVM.imageCheckAndMerge(images: $editProfileVM.editUser.profilePhotos){
                     if editProfileVM.editUser != editProfileVM.initialUser {
-                        let data = try await APIClient.shared.updateUserInfo(body: editProfileVM.convertToPathcUser(currentUser: editProfileVM.editUser))
-                        print("Success: \(data)")
-                        try await userVM.fetchCurrentUser()
-                        navManager.selectionPath.removeLast(2)
+                        if let data = try await APIClient.shared.updateUserInfo(body: editProfileVM.convertToPathcUser(currentUser: editProfileVM.editUser)) {
+                            print("Success: \(data)")
+                            try await userVM.fetchCurrentUser()
+                            navManager.selectionPath.removeLast(2)
+                        }
                     } else {
                         print("No changes")
                         navManager.selectionPath.removeLast(2)
@@ -504,8 +507,8 @@ struct EditProfileView: View {
     }
     
     var saveButtonCheck: Bool {
-        if editProfileVM.editUser.occupation.count >= 3 && editProfileVM.editUser.lastName.count >= 3 && editProfileVM.editUser.firstName.count >= 3, editProfileVM.editUser.interests.count >= 5 &&
-            validHeight
+        if editProfileVM.editUser.occupation.count >= 3 && editProfileVM.editUser.lastName.count >= 3 && editProfileVM.editUser.firstName.count >= 3 && editProfileVM.editUser.interests.count >= 5 &&
+            validHeight && (editProfileVM.editUser != editProfileVM.initialUser || photoPickerVM.imageIsSelected())
         {
             return true
         } else {

@@ -24,9 +24,12 @@ struct EventView: View {
     
     @State private var showSharePostSheet: Bool = false
     @State var showPostOptions = false
+    @State var showReportEvent = false
     @State private var showJoinRequest: Bool = false
     
-    let club = MockClub
+    @State var club: Components.Schemas.ClubDto?
+    
+    @State private var Init = true
     
     var body: some View {
         
@@ -80,222 +83,8 @@ struct EventView: View {
                             }
                         }
                         
+                        AllEventTabsView(eventVM: eventVM, post: post, club: club)
                         
-                        if post.club != nil {
-                            NavigationLink(value: SelectionPath.club(club)){
-                                HStack(alignment: .center, spacing: 10) {
-                                    KFImage(URL(string:club.images[0]))
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(Circle())
-                                    
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text(club.title)
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                        
-                                        Text("Club Event")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
-                                    }
-                                }
-                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                                .normalTagRectangleStyle()
-                            }
-                        }
-                        
-                        Group{
-                            
-                            HStack(alignment: .center, spacing: 10) {
-                                Image(systemName: "calendar")
-                                    .imageScale(.large)
-                                if let from = post.fromDate {
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        
-                                        if let to = post.toDate{
-                                            Text("\(separateDateAndTime(from: from).date) - \(separateDateAndTime(from: to).date)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            Text("\(separateDateAndTime(from: from).time) - \(separateDateAndTime(from: to).time)")
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        } else {
-                                            Text("\(separateDateAndTime(from: from).date)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                            
-                                            Text(separateDateAndTime(from: from).time)
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        }
-                                        
-                                    }
-                                } else {
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        
-                                        Text("Any Day")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                        
-                                        Text("There is no fixed Date&Time.")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
-                                    }
-                                }
-                            }
-                            
-                            HStack(alignment: .center, spacing: 10) {
-                                Image(systemName: "mappin.circle")
-                                    .imageScale(.large)
-                                
-                                VStack(alignment: .leading, spacing: 5) {
-                                    
-                                    
-                                    Text(locationCityAndCountry1(post.location))
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                    
-                                    if !post.askToJoin || post.currentUserStatus == .PARTICIPATING {
-                                        if let address = post.location.address {
-                                            Text(address)
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        } else {
-                                            Text(post.location.name)
-                                                .font(.footnote)
-                                                .foregroundColor(.gray)
-                                                .fontWeight(.bold)
-                                        }
-                                    } else {
-                                        Text("The exact location will be revealed upon joining.")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
-                                    }
-                                    
-                                }
-                            }
-                            
-                            NavigationLink(value: SelectionPath.usersList(post: post)){
-                                HStack(alignment: .center, spacing: 10) {
-                                    Image(systemName: "person.2")
-                                        .imageScale(.large)
-                                    
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        if let maxPeople = post.maximumPeople {
-                                            Text("Participants \(post.participantsCount)/\(maxPeople)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                        } else {
-                                            Text("Participants \(post.participantsCount)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                        }
-                                        
-                                        
-                                        if eventVM.participantsList.count > 0 {
-                                            ZStack{
-                                                ForEach(0..<eventVM.participantsList.count, id: \.self){ number in
-                                                    
-                                                    if number < 4 {
-                                                        KFImage(URL(string:eventVM.participantsList[number].user.profilePhotos[0]))
-                                                            .resizable()
-                                                            .background(.gray)
-                                                            .scaledToFill()
-                                                            .frame(width: 40, height: 40)
-                                                            .clipped()
-                                                            .cornerRadius(100)
-                                                            .overlay(
-                                                                Circle()
-                                                                    .stroke(Color("main-secondary-color"), lineWidth: 2)
-                                                            )
-                                                            .offset(x:CGFloat(20 * number))
-                                                    }
-                                                    
-                                                }
-                                                
-                                                if eventVM.participantsList.count > 4 {
-                                                    
-                                                    Circle()
-                                                        .fill(.gray)
-                                                        .frame(width: 40, height: 40)
-                                                        .overlay(
-                                                            ZStack(alignment:.center){
-                                                                Text("+\(eventVM.participantsList.count - 3)")
-                                                                    .font(.caption2)
-                                                                    .fontWeight(.semibold)
-                                                                    .foregroundColor(.white)
-                                                                Circle()
-                                                                    .stroke(Color("main-secondary-color"), lineWidth: 2)
-                                                            }
-                                                        )
-                                                        .offset(x:CGFloat(20 * 4))
-                                                }
-                                            }
-                                            
-                                            
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            HStack(alignment: .center, spacing: 10) {
-                                Image(systemName: "globe.europe.africa.fill")
-                                    .imageScale(.large)
-                                
-                                VStack(alignment: .leading, spacing: 5) {
-                                    Text(post.accessibility.rawValue.capitalized)
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                    
-                                    Text("Everyone can join the event")
-                                        .font(.footnote)
-                                        .foregroundColor(.gray)
-                                        .fontWeight(.bold)
-                                }
-                            }
-                            
-                            HStack(alignment: .center, spacing: 10) {
-                                Image(systemName: "wallet.pass")
-                                //                                    .resizable()
-                                //                                    .scaledToFit()
-                                //                                    .frame(width: 25, height: 25)
-                                    .imageScale(.large)
-                                
-                                VStack(alignment: .leading, spacing: 5) {
-                                    
-                                    if post.payment <= 0 {
-                                        Text("Free")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                        
-                                        Text("No payment required")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
-                                    } else {
-                                        Text("Paid")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                        
-                                        Text("$ \(String(format: "%.2f", post.payment)) per person")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.bold)
-                                    }
-                                }
-                            }
-                            
-                        }
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                        .normalTagRectangleStyle()
                         
                         if let description = post.description {
                             Text("Description")
@@ -310,6 +99,7 @@ struct EventView: View {
                                 .padding(.bottom, 8)
                         }
                         
+                        
                         Text("Location")
                             .font(.title3)
                             .fontWeight(.bold)
@@ -317,7 +107,7 @@ struct EventView: View {
                         
                         if !post.askToJoin || post.currentUserStatus == .PARTICIPATING{
                             
-                            Text(locationAddress1(post.location))
+                            Text(locationAddress(post.location))
                                 .normalTagTextStyle()
                                 .normalTagCapsuleStyle()
                             
@@ -350,6 +140,25 @@ struct EventView: View {
                 .padding(.bottom, 100)
                 .background(.bar)
             }
+            .refreshable {
+                Task{
+                    do {
+
+                        if let response = try await APIClient.shared.getEvent(postId: post.id) {
+                            if let index = postsVM.feedPosts.firstIndex(where: { $0.id == post.id }) {
+                                postsVM.feedPosts[index] = response
+                                post = response
+                            }
+                        }
+
+                        eventVM.participantsList = []
+                        eventVM.participantsPage = 0
+                        try await eventVM.fetchUserList(id: post.id)
+                    } catch {
+                        print("Failed to fetch user list: \(error)")
+                    }
+                }
+            }
             .background(Color("testColor"))
             .scrollIndicators(.hidden)
             .edgesIgnoringSafeArea(.top)
@@ -364,22 +173,15 @@ struct EventView: View {
             }
         }
         .onAppear(){
-            Task{       
-                do {
-                    eventVM.participantsList = []
-                    eventVM.participantsPage = 0
-                    try await eventVM.fetchUserList(id: post.id)
-                } catch {
-                    print("Failed to fetch user list: \(error)")
-                }
+            eventVM.participantsList = []
+            eventVM.participantsPage = 0
+            Task{
+                await fetchAllOnAppear()
             }
         }
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showPostOptions, content: {
             List {
-                Button("Save") {
-                    postsVM.selectedOption = "Save"
-                }
                 
                 ShareLink(item: URL(string: "https://www.youtube.com/")!) {
                     Text("Share via")
@@ -389,7 +191,10 @@ struct EventView: View {
 
                 } else {
                     Button("Report") {
-                        postsVM.selectedOption = "Report"
+                        showPostOptions = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            showReportEvent = true
+                        }
                     }
                 }
             }
@@ -397,12 +202,25 @@ struct EventView: View {
             .presentationDetents([.fraction(0.25)])
             .presentationDragIndicator(.visible)
         })
+        .sheet(isPresented: $showReportEvent, content: {
+            ReportEventView(event: post)
+        })
         .sheet(isPresented: $showJoinRequest){
-            JoinRequestView(post: $post)
+            JoinRequestView(post: $post, isActive: $showJoinRequest, refreshParticipants: {
+                Task{
+                    do {
+                        eventVM.participantsList = []
+                        eventVM.participantsPage = 0
+                        try await eventVM.fetchUserList(id: post.id)
+                    } catch {
+                        print("Failed to fetch user list: \(error)")
+                    }
+                }
+            })
         }
         .sheet(isPresented: $showSharePostSheet) {
             ShareView()
-                .presentationDetents([.fraction(0.8), .fraction(1) ])
+                .presentationDetents([.fraction(0.8), .fraction(1)])
                 .presentationDragIndicator(.visible)
         }
         
@@ -420,11 +238,10 @@ struct EventView: View {
             Spacer()
             
             if isOwner {
-                //NavigationLink(value: SelectionPath.editEvent(post: post))
                 Button{
                     isEditing = true
                 } label:{
-                    Image(systemName: "square.and.pencil")
+                    Image(systemName: "pencil")
                         .frame(width: 35, height: 35)
                         .background(.bar)
                         .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
@@ -451,13 +268,27 @@ struct EventView: View {
             Divider()
             
             HStack{
-                if post.currentUserStatus == .PARTICIPATING {
-                    if isOwner {
-                        if post.status == .HAS_STARTED {
+                
+                if isOwner {
+                    if post.status == .HAS_STARTED {
+                        Button {
+                            showJoinRequest = true
+                        } label: {
+                            Text("Stop the Event")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                        }
+                    }
+                    else if post.status == .NOT_STARTED {
+                        if post.fromDate != nil {
                             Button {
                                 showJoinRequest = true
                             } label: {
-                                Text("Stop the Event")
+                                Text("End the Event")
                                     .fontWeight(.semibold)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 60)
@@ -465,47 +296,54 @@ struct EventView: View {
                                     .foregroundColor(Color("testColor"))
                                     .cornerRadius(10)
                             }
-                        } else if post.status == .NOT_STARTED {
-                            if post.fromDate != nil {
-                                Button {
-                                    showJoinRequest = true
-                                } label: {
-                                    Text("End the Event")
-                                        .fontWeight(.semibold)
-                                        .frame(maxWidth: .infinity)
-                                        .frame(height: 60)
-                                        .background(Color("blackAndWhite"))
-                                        .foregroundColor(Color("testColor"))
-                                        .cornerRadius(10)
-                                }
-                            } else {
-                                Button {
-                                    showJoinRequest = true
-                                } label: {
-                                    Text("Start the Event")
-                                        .fontWeight(.semibold)
-                                        .frame(maxWidth: .infinity)
-                                        .frame(height: 60)
-                                        .background(Color("blackAndWhite"))
-                                        .foregroundColor(Color("testColor"))
-                                        .cornerRadius(10)
-                                }
+                        } else {
+                            Button {
+                                showJoinRequest = true
+                            } label: {
+                                Text("Start the Event")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
                             }
                         }
-                    } else {
-                        if post.status == .HAS_STARTED {
-                            Button {
-                                showJoinRequest = true
-                            } label: {
-                                Text("Ongoing")
-                                    .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 60)
-                                    .background(Color("blackAndWhite"))
-                                    .foregroundColor(Color("testColor"))
-                                    .cornerRadius(10)
-                            }
-                        } else if post.status == .NOT_STARTED {
+                    }
+                    else if post.status == .HAS_ENDED {
+                        Text("Ended")
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .cornerRadius(10)
+                    }
+                    else {
+                        Text("Ended")
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .cornerRadius(10)
+                    }
+                } else {
+                    if post.status == .HAS_STARTED {
+                        Button {
+                            showJoinRequest = true
+                        } label: {
+                            Text("Ongoing")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                        }
+                    }
+                    else if post.status == .NOT_STARTED {
+                        if post.currentUserStatus == .PARTICIPATING {
                             Button {
                                 showJoinRequest = true
                             } label: {
@@ -517,15 +355,34 @@ struct EventView: View {
                                     .foregroundColor(Color("testColor"))
                                     .cornerRadius(10)
                             }
+                        } else if post.currentUserStatus == .IN_QUEUE {
+                            Button {
+                                showJoinRequest = true
+                            } label: {
+                                Text("Waiting")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                            }
+                        } else {
+                            Button {
+                                showJoinRequest = true
+                            } label: {
+                                Text("Join")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                            }
                         }
-
                     }
-
-                } else if post.currentUserStatus == .IN_QUEUE {
-                    Button {
-                        showJoinRequest = true
-                    } label: {
-                        Text("Waiting")
+                    else if post.status == .HAS_ENDED {
+                        Text("Ended")
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
@@ -533,20 +390,21 @@ struct EventView: View {
                             .foregroundColor(Color("testColor"))
                             .cornerRadius(10)
                     }
-
-                } else {
-                    Button {
-                        showJoinRequest = true
-                    } label: {
-                        Text("Join")
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
+                    else {
+                        Button {
+                            showJoinRequest = true
+                        } label: {
+                            Text("Join")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                        }
                     }
                 }
+
                 
                 shareAndSave()
             }
@@ -575,9 +433,13 @@ struct EventView: View {
         }
         
         Button {
-            userViewModel.savePost(postId: post.id)
+            Task{
+                if let saved = try await postsVM.saveEvent(postId: post.id) {
+                    post.savedByCurrentUser = saved
+                }
+            }
         } label: {
-            Image(systemName: userViewModel.user.details.savedPostIds.contains(post.id) ? "bookmark.fill" : "bookmark")
+            Image(systemName: post.savedByCurrentUser ? "bookmark.fill" : "bookmark")
                 .resizable()
                 .scaledToFit()
                 .padding()
@@ -592,6 +454,33 @@ struct EventView: View {
             return true
         } else {
             return false
+        }
+    }
+    
+    func fetchAllOnAppear() async {
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                do {
+                    if let clubId = await post.clubId, let response = try await APIClient.shared.getClub(clubID: clubId){
+                        DispatchQueue.main.async {
+                            self.club = response
+                            
+                            self.Init = false
+                        }
+
+                    }
+                } catch {
+                    print(error)
+                }
+            }
+            
+            group.addTask {
+                do {
+                    try await eventVM.fetchUserList(id: post.id)
+                } catch {
+                    print(error)
+                }
+            }
         }
     }
     

@@ -22,68 +22,11 @@ struct NormalPhotoPickerView: View {
                     .font(.footnote)
                     .foregroundStyle(.gray)
                 
-                Grid {
-                    GridRow {
-                        ForEach(0..<3, id: \.self){ index in
-                            ZStack{
-                                if let image = photoPickerVM.selectedImages[index]{
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width:imageDimension, height: imageDimension * 1.3)
-                                        .cornerRadius(10)
-                                        .clipped()
-                                } else {
-                                    Color("main-secondary-color")
-                                        .frame(width:imageDimension, height: imageDimension * 1.3)
-                                        .cornerRadius(10)
-                                    
-                                    Image(systemName: "plus.circle")
-                                        .foregroundStyle(Color("SelectedFilter"))
-                                        .imageScale(.large)
-                                }
-                            }
-                            .onTapGesture {
-                                photoPickerVM.selectedImageIndex = index
-                                photoPickerVM.showPhotosPicker = true
-                            }
-                        }
-                    }
-                    GridRow {
-                        ForEach(3..<6, id: \.self){ index in
-                            ZStack{
-                                if let image = photoPickerVM.selectedImages[index]{
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width:imageDimension, height: imageDimension * 1.3)
-                                        .cornerRadius(10)
-                                        .clipped()
-                                } else {
-                                    Color("main-secondary-color")
-                                        .frame(width:imageDimension, height: imageDimension * 1.3)
-                                        .cornerRadius(10)
-                                    
-                                    Image(systemName: "plus.circle")
-                                        .foregroundStyle(Color("SelectedFilter"))
-                                        .imageScale(.large)
-                                }
-                            }
-                            .onTapGesture {
-                                photoPickerVM.selectedImageIndex = index
-                                photoPickerVM.showPhotosPicker = true
-                            }
-                        }
-                    }
-                }
+                NormalPhotosGridView(vm: photoPickerVM)
                 
             }
             
         }
-        .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imageselection, matching: .images)
-        .fullScreenCover(isPresented: $photoPickerVM.showCropView, content: {
-            CropPhotoView(selectedImage:photoPickerVM.selectedImage, finalImage: $photoPickerVM.selectedImages[photoPickerVM.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
-        })
         .navigationTitle("Photos")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

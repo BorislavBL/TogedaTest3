@@ -6,26 +6,22 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct AccessibilityView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedVisability: String
     @Binding var askToJoin: Bool
-    @EnvironmentObject var userVM: UserViewModel
+    @Binding var selectedClub: Components.Schemas.ClubDto?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20){
-//            Text("Accessibility")
-//                .font(.title3)
-//                .fontWeight(.bold)
-//                .listRowSeparator(.hidden)
-
             VStack(alignment: .leading){
                 Button{
                     selectedVisability = "PUBLIC"
                 } label:{
                     HStack {
-                        if selectedVisability == "PUBLIC"{
+                        if selectedVisability == "PUBLIC" {
                             Image(systemName: "checkmark.circle.fill")
                                 .imageScale(.large)
                                 .foregroundStyle(.blue)
@@ -90,14 +86,13 @@ struct AccessibilityView: View {
                     .foregroundColor(.gray)
             }
             
-            if userVM.user.details.clubIds.count > 0 {
-                VStack(alignment: .leading){
-                    Text("Is this a personal or club event?")
-                        .fontWeight(.semibold)
-                    
-                    AccessibilityEventType(user: userVM.user)
-                }
+            VStack(alignment: .leading){
+                Text("Is this a personal or club event?")
+                    .fontWeight(.semibold)
+                
+                AccessibilityEventType(selectedClub: $selectedClub)
             }
+        
             
         }
         .padding()
@@ -118,27 +113,46 @@ struct AccessibilityView: View {
 }
 
 struct AccessibilityEventType: View {
-    var user: User
-    var clubs = Club.MOCK_CLUBS
     var size: ImageSize = .small
     @State var showOptions: Bool = false
-    @State var selectedClubID: String?
-    @State var selectedClub: Club?
+    @Binding var selectedClub: Components.Schemas.ClubDto?
+    
+    @State var Init: Bool = true
+    
+    @State var clubs: [Components.Schemas.ClubDto] = []
+    @State var page: Int32 = 0
+    @State var pageSize: Int32 = 10
+    @State var lastPage = true
+    @State var isLoading = false
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Button{
                 showOptions.toggle()
+                if showOptions && Init {
+                    Task{
+                        if let resposne = try await APIClient.shared.getClubsWithCreatePostPermission(page:page ,size: pageSize) {
+                            clubs = resposne.data
+                            lastPage = resposne.lastPage
+                            
+                            page += 1
+                            Init = false
+                        }
+                    }
+                }
             } label: {
                 HStack{
-                    if let club = selectedClub{
-                        Image(club.imagesUrl[0])
+                    if let club = selectedClub {
+                        KFImage(URL(string: club.images[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
                             .cornerRadius(10)
                             .clipped()
+                        
                         Text(club.title)
                             .fontWeight(.semibold)
+                        
                     } else {
                         Text("Personal Event")
                             .fontWeight(.semibold)
@@ -151,37 +165,65 @@ struct AccessibilityEventType: View {
             }
             
             if showOptions{
-                ForEach(clubs, id: \.id) {club in
+                if clubs.count > 0 {
+                    ForEach(clubs, id: \.id) {club in
+                        Button{
+                            selectedClub = club
+                            showOptions = false
+                        } label:{
+                            KFImage(URL(string: club.images[0]))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: size.dimension, height: size.dimension)
+                                .cornerRadius(10)
+                                .clipped()
+                            
+                            Text(club.title)
+                                .fontWeight(.semibold)
+                        }
+                    }
+                    
+                    if isLoading {
+                        ProgressView()
+                    }
+                    
+                    Rectangle()
+                        .frame(width: 0, height: 0)
+                        .onAppear {
+                            if !lastPage{
+                                isLoading = true
+                                Task{
+                                    if let resposne = try await APIClient.shared.getClubsWithCreatePostPermission(page:page ,size: pageSize) {
+                                        clubs = resposne.data
+                                        lastPage = resposne.lastPage
+                                        
+                                        page += 1
+                                        isLoading = false
+                                    }
+                                }
+                                
+                                
+                                
+                            }
+                        }
+                    
+                    Divider()
+                    
                     Button{
-                        selectedClubID = club.id
-                        selectedClub = club
+                        selectedClub = nil
                         showOptions = false
-                    } label:{
-                        Image(club.imagesUrl[0])
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: size.dimension, height: size.dimension)
-                            .cornerRadius(10)
-                            .clipped()
-                        
-                        Text(club.title)
+                    } label: {
+                        Text("Personal Event")
                             .fontWeight(.semibold)
                     }
-                }
-                
-                Divider()
-                
-                Button{
-                    selectedClubID = nil
-                    selectedClub = nil
-                    showOptions = false
-                } label: {
-                    Text("Personal Event")
+                    
+                } else {
+                    Text("No Clubs")
                         .fontWeight(.semibold)
+                        .foregroundStyle(.gray)
+                        .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .center)
                 }
-                
             }
-            
         }
         .frame(maxWidth: .infinity, alignment: .leading )
         .padding(16)
@@ -193,7 +235,6 @@ struct AccessibilityEventType: View {
 
 struct AccessibilityView_Previews: PreviewProvider {
     static var previews: some View {
-        AccessibilityView(selectedVisability: .constant("PUBLIC"), askToJoin: .constant(true))
-            .environmentObject(UserViewModel())
+        AccessibilityView(selectedVisability: .constant("PUBLIC"), askToJoin: .constant(true), selectedClub: .constant(nil))
     }
 }

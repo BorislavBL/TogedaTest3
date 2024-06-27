@@ -26,24 +26,24 @@ struct EditProfilePhoneNumberView: View {
     var body: some View {
         PhoneNumberView(isLoading: $isLoading, countryCode: $countryCode, countryFlag: $countryFlag, countryPattern: $countryPattern, countryLimit: $countryLimit, mobPhoneNumber: $mobPhoneNumber) {
             
-            Task {
-                do{
-                    if try await UserService().editUserDetails(userData: nil, phoneNumber: countryCode+mobPhoneNumber) {
-                        try await userVM.fetchCurrentUser()
-                        nav.selectionPath.append(SelectionPath.editProfilePhoneCodeVerification)
-                        
-                    }
-                } catch GeneralError.badRequest(details: let details){
-                    print(details)
-                } catch GeneralError.invalidURL {
-                    print("Invalid URL")
-                } catch GeneralError.serverError(let statusCode, let details) {
-                    print("Status: \(statusCode) \n \(details)")
-                } catch {
-                    print("Error message:", error)
-                }
-                
-            }
+//            Task {
+//                do{
+//                    if try await UserService().editUserDetails(userData: nil, phoneNumber: countryCode+mobPhoneNumber) {
+//                        try await userVM.fetchCurrentUser()
+//                        nav.selectionPath.append(SelectionPath.editProfilePhoneCodeVerification)
+//                        
+//                    }
+//                } catch GeneralError.badRequest(details: let details){
+//                    print(details)
+//                } catch GeneralError.invalidURL {
+//                    print("Invalid URL")
+//                } catch GeneralError.serverError(let statusCode, let details) {
+//                    print("Status: \(statusCode) \n \(details)")
+//                } catch {
+//                    print("Error message:", error)
+//                }
+//                
+//            }
 
         }
     }

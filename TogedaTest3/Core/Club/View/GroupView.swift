@@ -16,15 +16,24 @@ struct GroupView: View {
     @State var club: Components.Schemas.ClubDto
     @StateObject var vm = GroupViewModel()
     @State var isEditing = false
+    @EnvironmentObject var clubsVM: ClubsViewModel
     
     @EnvironmentObject var userVM: UserViewModel
     @State var showLeaveSheet = false
+    @State var showCancelSheet = false
+    @State var showCreateEvent = false
     
+    @State var showOption = false
+    
+    @State var showReport = false
+    
+    @State var Init = true
+
     var body: some View {
         ZStack(alignment: .top){
             ScrollView(){
                 LazyVStack{
-                    MainGroupView(showShareSheet: $showShareSheet, club: $club, vm: vm, showLeaveSheet: $showLeaveSheet, currentUser: userVM.currentUser)
+                    MainGroupView(showShareSheet: $showShareSheet, club: $club, vm: vm, showLeaveSheet: $showLeaveSheet, showCancelSheet: $showCancelSheet, currentUser: userVM.currentUser)
                     GroupMembersView(club: club, groupVM: vm)
                     GroupAboutView(club: club)
                     if vm.clubEvents.count > 0 {
@@ -34,11 +43,36 @@ struct GroupView: View {
                     GroupMemoryView(groupVM: vm, showImagesViewer: $showImagesViewer)
                 }
             }
-            .onAppear(){
+            .refreshable {
                 Task{
+                    if let response = try await APIClient.shared.getClub(clubID: club.id) {
+                        if let index = clubsVM.feedClubs.firstIndex(where: { $0.id == club.id }) {
+                            clubsVM.feedClubs[index] = response
+                            club = response
+                        }
+                    }
+                    
                     vm.clubMembers = []
                     vm.membersPage = 0
-                    try await vm.fetchClubMembers(clubId: club.id)
+
+                    vm.clubEvents = []
+                    vm.clubEventsPage = 0
+                    
+                    await vm.fetchAllData(clubId: club.id)
+                    
+                }
+            }
+            .onAppear(){
+                Task{
+                    if Init {
+                        vm.clubEvents = []
+                        vm.clubEventsPage = 0
+                        await vm.fetchAllData(clubId: club.id)
+                    } else {
+                        vm.clubMembers = []
+                        vm.membersPage = 0
+                        try await vm.fetchClubMembers(clubId: club.id)
+                    }
                 }
             }
             .navigationDestination(isPresented: $isEditing) {
@@ -56,6 +90,36 @@ struct GroupView: View {
                 onLeaveSheet()
                     .presentationDetents([.height(190)])
                     
+            })
+            .sheet(isPresented: $showOption, content: {
+                List{
+                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                        Text("Share via")
+                    }
+                    
+                    Button{
+                        showOption = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                           showReport = true
+                        }
+                    } label:{
+                        Text("Report")
+                            .foregroundStyle(.red)
+                    }
+                }
+                .scrollDisabled(true)
+                .presentationDetents([.height(200)])
+            })
+            .sheet(isPresented: $showReport, content: {
+                ReportClubView(club: club)
+            })
+            .sheet(isPresented: $showCancelSheet, content: {
+                onCancelSheet()
+                    .presentationDetents([.height(190)])
+                    
+            })
+            .fullScreenCover(isPresented: $showCreateEvent, content: {
+                CreateEventView(fromClub: club)
             })
             .scrollIndicators(.hidden)
             .edgesIgnoringSafeArea(.top)
@@ -82,13 +146,12 @@ struct GroupView: View {
             
             Spacer()
             
-            if club.permissions == .ALL || club.currentUserRole == .ADMIN {
+            if club.currentUserStatus == .PARTICIPATING && (club.permissions == .ALL || club.currentUserRole == .ADMIN) {
                 HStack(spacing: 5){
                     Button{
-                        
+                        showCreateEvent = true
                     } label: {
                         Image(systemName: "plus.square")
-                            .rotationEffect(.degrees(90))
                             .frame(width: 35, height: 35)
                             .background(.bar)
                             .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
@@ -100,24 +163,22 @@ struct GroupView: View {
                     Button{
                         isEditing = true
                     } label:{
-                        Image(systemName: "gear")
-                            .rotationEffect(.degrees(90))
+                        Image(systemName: "pencil")
                             .frame(width: 35, height: 35)
                             .background(.bar)
                             .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
                     }
                 }
-            }
-            
-            
-            Button{
-                
-            } label: {
-                Image(systemName: "ellipsis")
-                    .rotationEffect(.degrees(90))
-                    .frame(width: 35, height: 35)
-                    .background(.bar)
-                    .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+            } else {
+                Button{
+                    showOption = true
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .rotationEffect(.degrees(90))
+                        .frame(width: 35, height: 35)
+                        .background(.bar)
+                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                }
             }
         }
         .padding(.horizontal)
@@ -133,19 +194,22 @@ struct GroupView: View {
             Button{
                 Task{
                     do{
-                        if try await APIClient.shared.leaveClub(clubId: club.id) {
+                        if try await APIClient.shared.leaveClub(clubId: club.id) != nil {
                             if let response = try await APIClient.shared.getClub(clubID: club.id) {
                                 print("Get Club")
                                 club = response
+                                clubsVM.refreshClubOnAction(club: response)
                                 
                                 vm.clubMembers = []
                                 vm.membersPage = 0
                                 
                                 try await vm.fetchClubMembers(clubId: club.id)
+                                showLeaveSheet = false
                             }
                         }
                     } catch{
                         print(error)
+                        showLeaveSheet = false
                     }
                 }
 
@@ -163,9 +227,47 @@ struct GroupView: View {
         .padding()
     }
     
+    func onCancelSheet() -> some View {
+        VStack(spacing: 30){
+            Text("Are you sure you would like to cancel the request?")
+                .multilineTextAlignment(.leading)
+                .font(.headline)
+                .fontWeight(.bold)
+            
+            Button{
+                Task{
+                    do{
+                        if try await APIClient.shared.cancelJoinRequestForClub(clubId: club.id) != nil {
+                            if let response = try await APIClient.shared.getClub(clubID: club.id) {
+                                club = response
+                                clubsVM.refreshClubOnAction(club: response)
+                                showCancelSheet = false
+                            }
+                        }
+                    } catch{
+                        print(error)
+                        showCancelSheet = false
+                    }
+                }
+
+            } label:{
+                Text("Cancel")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(.red)
+                    .cornerRadius(10)
+            }
+        }
+        .padding()
+    }
+    
 }
 
 #Preview {
     GroupView(club: MockClub)
         .environmentObject(UserViewModel())
+        .environmentObject(ClubsViewModel())
 }

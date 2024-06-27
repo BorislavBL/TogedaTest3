@@ -171,9 +171,10 @@ let MockPost = Components.Schemas.PostResponseDto(
     accessibility: .PUBLIC,
     askToJoin: false,
     rating: nil,
-    club: nil, 
+    clubId: nil,
     participantsCount: 5,
-    status: .NOT_STARTED
+    status: .NOT_STARTED,
+    savedByCurrentUser: true
 )
 
 
@@ -208,3 +209,13 @@ let MockClub = Components.Schemas.ClubDto(
     createdAt: Date())
 
 
+let mockAlertBodyFriendRequestReceived: Components.Schemas.AlertBodyFriendRequestReceived = .init(
+    senderName: "Martin Plazov",
+    senderProfilePhoto: "https://scontent.fsof10-1.fna.fbcdn.net/v/t1.6435-9/49249038_2240399619509545_5794904999729299456_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_oinVqLMz_4Q7kNvgHi7pXt&_nc_ht=scontent.fsof10-1.fna&oh=00_AYBu5l78FGNOCUjXFtfnVLq3cctr9arAsV-TdjDKeCJEcQ&oe=66A364B7"
+)
+
+let mockAlertBodyReviewEndedPost: Components.Schemas.AlertBodyReviewEndedPost = .init(image: "https://scontent.fsof10-1.fna.fbcdn.net/v/t1.6435-9/49249038_2240399619509545_5794904999729299456_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_oinVqLMz_4Q7kNvgHi7pXt&_nc_ht=scontent.fsof10-1.fna&oh=00_AYBu5l78FGNOCUjXFtfnVLq3cctr9arAsV-TdjDKeCJEcQ&oe=66A364B7", title: "Martin Plazov Event")
+
+let mockAlertBodyReceivedJoinRequest: Components.Schemas.AlertBodyReceivedJoinRequest = .init(image: "https://scontent.fsof10-1.fna.fbcdn.net/v/t1.6435-9/49249038_2240399619509545_5794904999729299456_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_oinVqLMz_4Q7kNvgHi7pXt&_nc_ht=scontent.fsof10-1.fna&oh=00_AYBu5l78FGNOCUjXFtfnVLq3cctr9arAsV-TdjDKeCJEcQ&oe=66A364B7", title: "Martin Plazov Event", forType: .POST)
+
+let mockAlertBodyAcceptedJoinRequest: Components.Schemas.AlertBodyAcceptedJoinRequest = .init(image: "https://scontent.fsof10-1.fna.fbcdn.net/v/t1.6435-9/49249038_2240399619509545_5794904999729299456_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_oinVqLMz_4Q7kNvgHi7pXt&_nc_ht=scontent.fsof10-1.fna&oh=00_AYBu5l78FGNOCUjXFtfnVLq3cctr9arAsV-TdjDKeCJEcQ&oe=66A364B7", title: "Martin Plazov Event", forType: .POST)

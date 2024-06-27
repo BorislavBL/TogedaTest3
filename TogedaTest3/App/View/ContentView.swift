@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var vm: ContentViewModel
     @StateObject var networkManager = NetworkManager()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some View {
         Group {
@@ -25,18 +26,20 @@ struct ContentView: View {
                 case .authenticatedNoInformation:
                     RegistrationFullNameView()
                 }
-                
+//                CropTestView()
+//                CheckoutView()
+//                
 //                VStack{
 //                    Button("Click"){
 //                        Task{
-//                            do{
-//                                let response = try await APIClient.shared.getClub(clubID: "9a37118f-de7c-46d5-a3bc-384ed6e0b235")
-//                                
-//                                print(response)
-//                            } catch {
-//                                print("Error:", error)
+//                            if let request = try await APIClient.shared.getPaymentSheet(postId: "d9a5945b-35b9-4458-82c6-6d530cbce4fb"){
+//                                    print("\(request)")
 //                            }
+//                            
 //                        }
+//                        
+////                        NotificationsManager().registerForPushNotifications()
+//
 //                    }
 //                }
 //                .background(.base)

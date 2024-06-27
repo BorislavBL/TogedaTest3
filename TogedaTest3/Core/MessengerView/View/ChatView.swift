@@ -72,15 +72,13 @@ struct ChatView: View {
                     }
                 }
                 .defaultScrollAnchor(.bottom)
+                .scrollDismissesKeyboard(.interactively)
             }
             
             Spacer()
             
             MessageInputView(messageText: $messageText, viewModel: viewModel)
             
-        }
-        .onTapGesture {
-            hideKeyboard()
         }
         .navigationTitle(user.fullName)
         .navigationBarTitleDisplayMode(.inline)

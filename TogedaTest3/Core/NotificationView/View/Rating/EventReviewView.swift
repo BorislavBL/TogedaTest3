@@ -6,13 +6,14 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct EventReviewView: View {
     @Environment(\.dismiss) var dismiss
     @State var rating: Int = 0
     @State var displayWarrning: Bool = false
     
-    var post: Post = Post.MOCK_POSTS[0]
+    var post: Components.Schemas.PostResponseDto
     @State var description: String = ""
     
     let placeholder = "Share your experience...\nTell us what you thought about the event. What was the highlight for you? Was there anything that could be improved? Your feedback helps others decide which events to attend and assists organizers in making future events even better. Whether it’s the atmosphere, the music, the people, or the venue, let us know your thoughts! \nRemember to keep your review respectful and constructive – everyone reads these!"
@@ -21,7 +22,7 @@ struct EventReviewView: View {
         VStack(spacing: 0){
             ScrollView(){
                 LazyVStack(alignment:.center, spacing: 30){
-                    Image(post.imageUrl[0])
+                    KFImage(URL(string: post.images[0]))
                         .resizable()
                         .scaledToFill()
                         .frame(height: 250)
@@ -61,7 +62,7 @@ struct EventReviewView: View {
                 Divider()
                 
                 if rating > 0 {
-                    NavigationLink(value: SelectionPath.reviewMemories) {
+                    NavigationLink(value: SelectionPath.rateParticipants(post: post, rating: .init(value: Double(rating), comment: description))) {
                         HStack(spacing:2){
                             
                             Text("Next")
@@ -108,5 +109,5 @@ struct EventReviewView: View {
 
 
 #Preview {
-    EventReviewView()
+    EventReviewView(post: MockPost)
 }

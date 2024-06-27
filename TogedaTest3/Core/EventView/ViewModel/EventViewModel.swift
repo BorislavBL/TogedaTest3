@@ -11,6 +11,7 @@ class EventViewModel: ObservableObject {
     @Published var participantsList: [Components.Schemas.ExtendedMiniUser] = []
     @Published var participantsPage: Int32 = 0
     @Published var participantsSize: Int32 = 15
+    @Published var participantsCount: Int32 = 0
     @Published var listLastPage = true
     
     func fetchUserList(id: String) async throws{
@@ -23,6 +24,7 @@ class EventViewModel: ObservableObject {
                 self.participantsList += response.data
                 self.participantsPage += 1
                 self.listLastPage = response.lastPage
+                self.participantsCount = response.listCount
             }
         }
     }
@@ -42,6 +44,25 @@ class EventViewModel: ObservableObject {
                 self.joinRequestParticipantsList += response.data
                 self.joinRequestParticipantsPage += 1
                 self.joinRequestLastPage = response.lastPage
+            }
+        }
+    }
+    
+    @Published var waitingList: [Components.Schemas.MiniUser] = []
+    @Published var waitingListPage: Int32 = 0
+    @Published var waitingListSize: Int32 = 15
+    @Published var waitingListLastPage = true
+    
+    func fetchWaitingList(id: String) async throws{
+        if let response = try await APIClient.shared.getEventWaitlist(
+            postId: id,
+            page: waitingListPage,
+            size: waitingListSize) {
+            
+            DispatchQueue.main.async {
+                self.waitingList += response.data
+                self.waitingListPage += 1
+                self.waitingListLastPage = response.lastPage
             }
         }
     }

@@ -14,7 +14,9 @@ struct MainGroupView: View {
     @Binding var club: Components.Schemas.ClubDto
     @ObservedObject var vm: GroupViewModel
     @Binding var showLeaveSheet: Bool
+    @Binding var showCancelSheet: Bool
     var currentUser: Components.Schemas.UserInfoDto?
+    @EnvironmentObject var clubsVM: ClubsViewModel
     
     var body: some View {
         VStack(alignment: .center) {
@@ -36,13 +38,14 @@ struct MainGroupView: View {
                     .font(.title2)
                     .fontWeight(.bold)
                 
-                HStack(spacing: 5){
+                HStack(alignment: .top, spacing: 5){
                     Image(systemName: "mappin.circle")
                     
-                    Text(locationAddress1(club.location))
+                    Text(locationAddress(club.location))
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
                 }
                 .foregroundColor(.gray)
                 
@@ -67,7 +70,7 @@ struct MainGroupView: View {
                     
                     if club.currentUserStatus == .IN_QUEUE{
                         Button {
-
+                           showCancelSheet = true
                         } label: {
                             Text("Waiting")
                                 .normalTagTextStyle()
@@ -108,7 +111,7 @@ struct MainGroupView: View {
                                 do{
                                     if try await APIClient.shared.joinClub(clubId: club.id) != nil {
                                         if let response = try await APIClient.shared.getClub(clubID: club.id) {
-                                            print("Get Club")
+                                            clubsVM.refreshClubOnAction(club: response)
                                             club = response
                                             
                                             vm.clubMembers = []
@@ -150,5 +153,6 @@ struct MainGroupView: View {
 }
 
 #Preview {
-    MainGroupView(showShareSheet: .constant(false), club: .constant(MockClub), vm: GroupViewModel(), showLeaveSheet: .constant(false))
+    MainGroupView(showShareSheet: .constant(false), club: .constant(MockClub), vm: GroupViewModel(), showLeaveSheet: .constant(false), showCancelSheet: .constant(false))
+        .environmentObject(ClubsViewModel())
 }

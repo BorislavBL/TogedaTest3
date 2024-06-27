@@ -7,6 +7,23 @@
 
 import MapKit
 
+enum FeedType {
+    case events
+    case clubs
+    case friends
+    
+    var rawValue: String {
+        switch self{
+        case .events:
+            return "Events"
+        case .clubs:
+            return "Clubs"
+        case .friends:
+            return "Friends"
+        }
+    }
+}
+
 class FilterViewModel: ObservableObject {
     @Published var showAllFilter: Bool = false
     @Published var searchText: String = ""
@@ -36,8 +53,8 @@ class FilterViewModel: ObservableObject {
     @Published var selectedCategories: [Category] = []
     var categories: [Category] = Category.Categories
     
-    @Published var selectedType = "All"
-    let types: [String] = ["All", "Events", "Groups", "Challenges", "Friends"]
+    @Published var selectedType: FeedType = .events
+    let types: [FeedType] = [.events, .clubs, .friends]
     
     func resetFilter() {
         self.searchText = ""

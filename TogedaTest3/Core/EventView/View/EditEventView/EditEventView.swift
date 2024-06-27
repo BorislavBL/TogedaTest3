@@ -18,6 +18,7 @@ struct EditEventView: View {
     @EnvironmentObject var navManager: NavigationManager
     @EnvironmentObject var postsVM: PostsViewModel
     @State var deleteSheet: Bool = false
+    @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .edit)
     
     var body: some View {
         ScrollView{
@@ -28,7 +29,8 @@ struct EditEventView: View {
                         .fontWeight(.bold)
                     
                     
-                    EditEventPhotosView(editEventVM: vm)
+//                    EditEventPhotosView(editEventVM: vm)
+                    PhotosGridView(images: $vm.editPost.images, vm: photoPickerVM)
                     
                     if noPhotos {
                         WarningTextComponent(text: "Please add photos.")
@@ -58,6 +60,14 @@ struct EditEventView: View {
                     
                     EditProfileBioView(text: $vm.description, placeholder: "Description")
                     
+
+                    Toggle(isOn: $vm.editPost.askToJoin) {
+                        Text("Ask for permission")
+                            .fontWeight(.semibold)
+                    }
+                    .createEventTabStyle()
+
+                    
                     Button {
                         showLocationView = true
                     } label: {
@@ -82,6 +92,7 @@ struct EditEventView: View {
                         }
                         .createEventTabStyle()
                     }
+                    
                     
                     if noLocation {
                         WarningTextComponent(text: "Please select a location.")
@@ -156,8 +167,17 @@ struct EditEventView: View {
                                 
                                 Spacer()
                                 
-                                Text(vm.isDate ? separateDateAndTime(from: vm.from).date : "Any day")
-                                    .foregroundColor(.gray)
+                                if vm.dateTimeSettings == 0 {
+                                    Text(separateDateAndTime(from:vm.from).date)
+                                        .foregroundColor(.gray)
+                                } else if vm.dateTimeSettings == 1 {
+                                    Text("\(separateDateAndTime(from:vm.from).date) - \(separateDateAndTime(from:vm.to).date)")
+                                        .foregroundColor(.gray)
+                                } else {
+                                    Text("Anyday")
+                                        .foregroundColor(.gray)
+                                }
+                                
                                 
                                 Image(systemName: vm.showTimeSettings ? "chevron.down" : "chevron.right")
                                     .padding(.trailing, 10)
@@ -269,8 +289,13 @@ struct EditEventView: View {
                 .presentationDetents([.height(190)])
                 
         })
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
+        }
         .scrollIndicators(.hidden)
-        .navigationTitle("Edit Profile")
+        .navigationTitle("Edit Event")
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -351,7 +376,7 @@ struct EditEventView: View {
     func save() {
         Task {
             do{
-                if await vm.imageCheckAndMerge(){
+                if await photoPickerVM.imageCheckAndMerge(images: $vm.editPost.images){
                     if vm.editPost != vm.initialPost {
                         if try await APIClient.shared.editEvent(postId: vm.editPost.id, editPost: vm.convertToPathcPost(post: vm.editPost)) {
                             
@@ -398,7 +423,7 @@ struct EditEventView: View {
     }
     
     var noPhotos: Bool {
-        if vm.editPost.images.count == 0 && vm.selectedImages.allSatisfy({ $0 == nil }) && displayWarnings{
+        if vm.editPost.images.count == 0 && photoPickerVM.selectedImages.allSatisfy({ $0 == nil }) && displayWarnings{
             return true
         } else {
             return false
@@ -422,7 +447,7 @@ struct EditEventView: View {
     }
     
     var saveButtonCheck: Bool {
-        if vm.editPost.title.count >= 5, !vm.editPost.title.isEmpty, vm.editPost.location.name != "Unknown Location", (vm.selectedImages.contains(where: { $0 != nil }) || vm.editPost.images.count > 0), vm.selectedInterests.count > 0, vm.editPost != vm.initialPost {
+        if vm.editPost.title.count >= 5, !vm.editPost.title.isEmpty, vm.editPost.location.name != "Unknown Location", (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || vm.editPost.images.count > 0), vm.selectedInterests.count > 0, (vm.editPost != vm.initialPost || photoPickerVM.imageIsSelected()) {
             return true
         } else {
             return false

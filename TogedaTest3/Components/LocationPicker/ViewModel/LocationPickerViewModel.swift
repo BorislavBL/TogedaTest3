@@ -70,7 +70,7 @@ class LocationPickerViewModel: ObservableObject {
     
 
     
-    func searchCityAndCountry(text: String){
+    func searchCityAndCountry1(text: String){
         let searchRequest = MKLocalSearch.Request()
         searchRequest.naturalLanguageQuery = text
 //        searchRequest.resultTypes = .address
@@ -89,7 +89,7 @@ class LocationPickerViewModel: ObservableObject {
         }
     }
     
-    func searchCityAndCountry1(text: String){
+    func searchCityAndCountry(text: String){
         let searchRequest = MKLocalSearch.Request()
         searchRequest.naturalLanguageQuery = text
 //        searchRequest.resultTypes = .address
@@ -101,9 +101,28 @@ class LocationPickerViewModel: ObservableObject {
                 return
             }
             
+//            for item in response.mapItems {
+//                let placemark = item.placemark
+//                print("Placemark details:")
+//                print("Name: \(placemark.name ?? "nil")")
+//                print("Country: \(placemark.country ?? "nil")")
+//                print("Locality: \(placemark.locality ?? "nil")")
+//                print("SubLocality: \(placemark.subLocality ?? "nil")")
+//                print("Administrative Area: \(placemark.administrativeArea ?? "nil")")
+//                print("SubAdministrative Area: \(placemark.subAdministrativeArea ?? "nil")")
+//                print("Thoroughfare: \(placemark.thoroughfare ?? "nil")")
+//                print("SubThoroughfare: \(placemark.subThoroughfare ?? "nil")")
+//                print("Postal Code: \(placemark.postalCode ?? "nil")")
+//                print("ISO Country Code: \(placemark.isoCountryCode ?? "nil")")
+//                print("Postal Code: \(placemark.coordinate.latitude), \(placemark.coordinate.longitude)")
+//                print("-----------")
+//            }
+            
             self.places = response.mapItems.filter { item in
-                (item.placemark.country != nil || item.placemark.locality != nil ) && item.placemark.subThoroughfare == nil
-                && (item.name == item.placemark.country || item.name == item.placemark.locality || item.name == item.placemark.administrativeArea || item.name == item.placemark.thoroughfare)
+                (item.placemark.country != nil || item.placemark.locality != nil ) && 
+                item.placemark.subThoroughfare == nil && item.placemark.postalCode == nil &&
+                item.placemark.thoroughfare == nil && item.placemark.subAdministrativeArea == nil &&
+                (item.name == item.placemark.locality || item.name == item.placemark.administrativeArea)
             }.map(Place.init)
         }
     }

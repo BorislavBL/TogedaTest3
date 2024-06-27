@@ -10,9 +10,10 @@ import Kingfisher
 
 struct ClubCell: View {
     @Environment(\.colorScheme) var colorScheme
-    var club: Components.Schemas.ClubDto = MockClub
-    @EnvironmentObject var userViewModel: UserViewModel
+    var club: Components.Schemas.ClubDto
+    @EnvironmentObject var vm: ClubsViewModel
     var size: ImageSize = .xMedium
+    @EnvironmentObject var userViewModel: UserViewModel
     
     @State var clubMembers: [Components.Schemas.ExtendedMiniUserForClub] = []
     
@@ -33,13 +34,23 @@ struct ClubCell: View {
                 
                 //MARK: - Buttons
                 HStack(alignment: .center, spacing: 20){
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: club.currentUserStatus == .NOT_PARTICIPATING ? "person.2.circle" : "person.2.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 25, height: 25)
+                    if let currentUser = userViewModel.currentUser, currentUser.id == club.owner.id {
+                        NavigationLink(value: SelectionPath.club(club)){
+                           Image(systemName: club.currentUserStatus == .NOT_PARTICIPATING ? "person.2.circle" : "person.2.circle.fill")
+                               .resizable()
+                               .scaledToFit()
+                               .frame(width: 25, height: 25)
+                       }
+                    } else {
+                        Button {
+                            vm.clickedClub = club
+                            vm.showJoinClubSheet = true
+                        } label: {
+                            Image(systemName: club.currentUserStatus == .NOT_PARTICIPATING ? "person.2.circle" : "person.2.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 25, height: 25)
+                        }
                     }
                     
                     
@@ -57,7 +68,8 @@ struct ClubCell: View {
                     
                     
                     Button {
-                        
+                        vm.clickedClub = club
+                        vm.showShareClubSheet = true
                     } label: {
                         
                         Image(systemName: "paperplane")
@@ -102,7 +114,7 @@ struct ClubCell: View {
                 if clubMembers.count > 1 {
                     ZStack(alignment:.top){
                         
-                        Image(clubMembers[1].user.profilePhotos[0])
+                        KFImage(URL(string:clubMembers[1].user.profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -113,7 +125,7 @@ struct ClubCell: View {
                             )
                             .offset(x:size.dimension/5, y: size.dimension/5)
                         
-                        Image(clubMembers[0].user.profilePhotos[0])
+                        KFImage(URL(string:clubMembers[0].user.profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -126,7 +138,7 @@ struct ClubCell: View {
                     .padding([.trailing, .bottom], size.dimension/5)
                     
                 } else if clubMembers.count == 1{
-                    Image(clubMembers[0].user.profilePhotos[0])
+                    KFImage(URL(string:clubMembers[0].user.profilePhotos[0]))
                         .resizable()
                         .scaledToFill()
                         .frame(width: 50, height: 50)
@@ -171,7 +183,8 @@ struct ClubCell: View {
             Spacer()
             
             Button {
-                
+                vm.clickedClub = club
+                vm.showOption = true
             } label: {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
@@ -191,6 +204,7 @@ struct ClubCell: View {
 
 
 #Preview {
-    ClubCell()
+    ClubCell(club: MockClub)
+        .environmentObject(ClubsViewModel())
         .environmentObject(UserViewModel())
 }

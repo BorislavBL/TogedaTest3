@@ -153,6 +153,11 @@ struct EditProfileInterestView: View {
                 education = Interest.EducationInterests
             }
         }
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
+        }
         .padding(.horizontal)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

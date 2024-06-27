@@ -20,6 +20,8 @@ struct AllUserGroupsView: View {
     @State var page: Int32 = 0
     @State var size: Int32 = 15
     @State var isLoading = false
+    
+    @State var Init: Bool = true
 
     var body: some View {
         ScrollView{
@@ -59,14 +61,20 @@ struct AllUserGroupsView: View {
                 }
         }
         .refreshable {
+            clubs = []
             page = 0
             Task{
                 try await fetchClubs()
             }
         }
         .onAppear(){
-            Task{
-                try await fetchClubs()
+            if Init {
+                clubs = []
+                page = 0
+                Task{
+                    try await fetchClubs()
+                    Init = false
+                }
             }
         }
         .scrollIndicators(.hidden)

@@ -79,6 +79,11 @@ struct LocationPicker: View {
             }
             
         }
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
+        }
         .navigationTitle("Location")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

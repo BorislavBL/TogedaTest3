@@ -18,11 +18,11 @@ struct TypeFilters: View {
                         filterVM.selectedType = type
                     } label:{
                         if type == filterVM.selectedType {
-                            Text(type)
+                            Text(type.rawValue)
                                 .selectedTagTextStyle()
                                 .selectedTagCapsuleStyle()
                         } else {
-                            Text(type)
+                            Text(type.rawValue)
                                 .normalTagTextStyle()
                                 .normalTagCapsuleStyle()
                         }

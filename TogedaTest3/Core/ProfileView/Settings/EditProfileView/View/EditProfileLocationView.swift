@@ -14,6 +14,7 @@ struct EditProfileLocationView: View {
     @Environment(\.dismiss) var dismiss
     
     @ObservedObject var editProfileVM: EditProfileViewModel
+    @StateObject var locationVM = LocationPickerViewModel(searchType: .cityAndCountry)
     @State var showCancelButton: Bool = false
     @State var isCurrentLocation: Bool = true
     
@@ -28,7 +29,7 @@ struct EditProfileLocationView: View {
                     HStack {
                         Image(systemName: "magnifyingglass")
                         
-                        TextField("Search", text: $editProfileVM.searchLocationText)
+                        TextField("Search", text: $locationVM.searchText)
                             .foregroundColor(.primary)
                             .autocorrectionDisabled()
                             .focused($keyIsFocused)
@@ -39,9 +40,9 @@ struct EditProfileLocationView: View {
                 
                     
 
-                    if !editProfileVM.searchLocationText.isEmpty && keyIsFocused {
+                    if !locationVM.searchText.isEmpty && keyIsFocused {
                         
-                        ForEach(editProfileVM.places, id: \.id){ place in
+                        ForEach(locationVM.places, id: \.id){ place in
                             VStack(alignment: .leading) {
                                 HStack{
                                     Image(systemName: "mappin.circle")
@@ -54,7 +55,7 @@ struct EditProfileLocationView: View {
                             }
                             .onTapGesture {
                                 UIApplication.shared.endEditing(true)
-                                editProfileVM.searchLocationText = place.addressCountry
+                                locationVM.searchText = place.addressCountry
                                 showCancelButton = false
                                 editProfileVM.returnedPlace = place
                             }
@@ -76,11 +77,11 @@ struct EditProfileLocationView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)
         .padding(.horizontal)
-        
-        .onTapGesture {
-            hideKeyboard()
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
         }
-        .ignoresSafeArea(.keyboard)
         .padding(.vertical)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

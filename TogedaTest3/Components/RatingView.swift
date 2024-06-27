@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RatingView: View {
-    @Binding var rating: Int
+    var rating: Int
     
     var label = ""
     var maximumRating = 5
@@ -48,5 +48,5 @@ struct RatingView: View {
 }
 
 #Preview {
-    RatingView(rating: .constant(4))
+    RatingView(rating: 4)
 }

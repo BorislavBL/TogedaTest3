@@ -6,15 +6,19 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct GroupAcceptanceView: View {
     let size: ImageSize = .medium
-    var post: Post = Post.MOCK_POSTS[0]
+    @State var club: Components.Schemas.ClubDto = MockClub
+    var createDate: Date
+    var alertBody: Components.Schemas.AlertBodyAcceptedJoinRequest
+    
     var body: some View {
         VStack {
-            NavigationLink(value: SelectionPath.eventDetails(MockPost)){
+            NavigationLink(value: SelectionPath.club(club)){
                 HStack(alignment:.top){
-                        Image(post.imageUrl[0])
+                    KFImage(URL(string:alertBody.image))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -22,14 +26,14 @@ struct GroupAcceptanceView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 5){
-                    Text(post.title)
+                    Text(alertBody.title)
                         .font(.footnote)
                         .fontWeight(.semibold)
                     
                     Text("You got accepted.")
                         .font(.footnote) +
                     
-                    Text(" 1 min ago")
+                    Text(" \(formatDateForNotifications(from: createDate))")
                         .foregroundStyle(.gray)
                         .font(.footnote)
                     
@@ -45,5 +49,5 @@ struct GroupAcceptanceView: View {
 }
 
 #Preview {
-    GroupAcceptanceView()
+    GroupAcceptanceView(createDate: Date(), alertBody: mockAlertBodyAcceptedJoinRequest)
 }

@@ -12,11 +12,13 @@ struct HomeView: View {
     @State var showFilter: Bool = true
     @State private var previousMinY: CGFloat = 0
     let navbarHeight: CGFloat = 94
+    @State var isLoading: Bool = false
     
     @StateObject var viewModel = HomeViewModel()
     @StateObject var filterViewModel = FilterViewModel()
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var clubsVM: ClubsViewModel
     
     var body: some View {
         ZStack{
@@ -24,64 +26,96 @@ struct HomeView: View {
                 .edgesIgnoringSafeArea(.vertical)
             
             ZStack(alignment: .top) {
-                
                 VStack {
-                    
                     ScrollView(.vertical, showsIndicators: false){
                         LazyVStack (spacing: 10){
-                            if postsViewModel.feedPosts.count > 0 {
-                                ForEach(Array(postsViewModel.feedPosts.enumerated()), id: \.element.id) {index, post in
-                                    PostCell(post: post)
-                                        .onAppear(){
-                                            postsViewModel.feedScrollFetch(index: index)
-                                        }
-                                }
-                                ClubCell()
-                                
-                                if postsViewModel.isLoading {
-                                    PostSkeleton() // Show spinner while loading
-                                } else {
-                                    VStack(spacing: 8){
-                                        Divider()
-                                        Text("No more posts")
-                                            .fontWeight(.semibold)
-                                            .foregroundStyle(.gray)
+                            switch filterViewModel.selectedType{
+                            case .events:
+                                if postsViewModel.feedPosts.count > 0 {
+                                    ForEach(Array(postsViewModel.feedPosts.enumerated()), id: \.element.id) {index, post in
+                                        PostCell(post: post)
+                                            .onAppear(){
+                                                postsViewModel.feedScrollFetch(index: index)
+                                            }
                                     }
-                                    .padding()
+                                    
+                                    if isLoading {
+                                        PostSkeleton() // Show spinner while loading
+                                    } else {
+                                        VStack(spacing: 8){
+                                            Divider()
+                                                Text("No more posts")
+                                                    .fontWeight(.semibold)
+                                                    .foregroundStyle(.gray)
+
+                                        }
+                                        .padding()
+                                    }
+                                    
+                                } else {
+                                    ForEach(0..<5, id: \.self) { index in
+                                        PostSkeleton()
+                                    }
                                 }
-                                
-                            } else {
-                                ForEach(0..<5, id: \.self) { index in
-                                    PostSkeleton()
+                            case .clubs:
+                                if clubsVM.feedClubs.count > 0 {
+                                    ForEach(Array(clubsVM.feedClubs.enumerated()), id: \.element.id) {index, club in
+                                        ClubCell(club: club)
+                                            .onAppear(){
+                                                clubsVM.feedScrollFetch(index: index)
+                                            }
+                                    }
+                                    
+                                    
+                                    if isLoading {
+                                        PostSkeleton() // Show spinner while loading
+                                    } else {
+                                        VStack(spacing: 8){
+                                            Divider()
+                                                Text("No more clubs")
+                                                    .fontWeight(.semibold)
+                                                    .foregroundStyle(.gray)
+
+                                        }
+                                        .padding()
+                                    }
+                                    
+                                } else {
+                                    ForEach(0..<5, id: \.self) { index in
+                                        PostSkeleton()
+                                    }
                                 }
+                            case .friends:
+                                Text("")
                             }
-                            
-                            
-                            
-                            
-                            //                                ForEach(viewModel.feedItems, id:\.self) {item in
-                            //                                    switch item {
-                            //                                    case .event(let post):
-                            //                                        PostCell(post: post)
-                            //                                    case .group(let club):
-                            //                                        GroupCell(club: club)
-                            //                                    }
-                            //
-                            //                                }
-                            
-                            
-                            
+
+
                             Rectangle()
                                 .frame(width: 0, height: 0)
                                 .onAppear {
-                                    if !postsViewModel.lastPage{
-                                        postsViewModel.isLoading = true
-                                        Task{
-                                            try await postsViewModel.fetchPosts()
-                                            postsViewModel.isLoading = false
-                                            
+                                    switch filterViewModel.selectedType{
+                                    case .events:
+                                        if !postsViewModel.lastPage{
+                                            isLoading = true
+                                            Task{
+                                                try await postsViewModel.fetchPosts()
+                                                isLoading = false
+                                                
+                                            }
                                         }
+                                    case .clubs:
+                                        if !clubsVM.lastPage {
+                                            isLoading = true
+                                            Task{
+                                                try await clubsVM.fetchClubs()
+                                                isLoading = false
+                                                
+                                            }
+                                        }
+                                    case .friends:
+                                        break
                                     }
+
                                 }
                         }
                         .padding(.top, navbarHeight - 10)
@@ -113,12 +147,25 @@ struct HomeView: View {
                     }
                     .refresher(config: .init(headerShimMaxHeight: 110), refreshView: HomeEmojiRefreshView.init) { done in
                         Task{
-                            postsViewModel.feedPosts = []
-                            postsViewModel.page = 0
-                            try await postsViewModel.fetchPosts()
+                            switch filterViewModel.selectedType {
+                                
+                            case .events:
+                                postsViewModel.feedPosts = []
+                                postsViewModel.page = 0
+                                postsViewModel.lastPage = true
+                                try await postsViewModel.fetchPosts()
+                            case .clubs:
+                                clubsVM.feedClubs = []
+                                clubsVM.page = 0
+                                clubsVM.lastPage = true
+                                try await clubsVM.fetchClubs()
+                            case .friends:
+                                print("friends")
+                            }
+
                             done()
                         }
-
+                        
                     }
                 }
                 .overlay{
@@ -137,26 +184,57 @@ struct HomeView: View {
             }
             
         }
+        .onChange(of: filterViewModel.selectedType) {
+            switch filterViewModel.selectedType {
+            case .events:
+                print("Change")
+            case .clubs:
+                if clubsVM.feedClubs.count == 0 {
+                    Task{
+                        clubsVM.page = 0
+                        clubsVM.lastPage = true
+                        try await clubsVM.fetchClubs()
+                    }
+                }
+            case .friends:
+                print("Change")
+            }
+        }
         .sheet(isPresented: $postsViewModel.showJoinRequest){
-            JoinRequestView(post: $postsViewModel.clickedPost)
+            JoinRequestView(post: $postsViewModel.clickedPost, isActive: $postsViewModel.showJoinRequest, refreshParticipants: {})
+        }
+        .sheet(isPresented: $clubsVM.showJoinClubSheet){
+            JoinRequestClubView(club: $clubsVM.clickedClub, isActive: $clubsVM.showJoinClubSheet, refreshParticipants: {})
         }
         .sheet(isPresented: $filterViewModel.showAllFilter, content: {
             AllInOneFilterView(filterVM: filterViewModel)
         })
         
+        
     }
     
 }
-
-
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
             .environmentObject(LocationManager())
             .environmentObject(PostsViewModel())
+            .environmentObject(ClubsViewModel())
             .environmentObject(UserViewModel())
     }
 }
 
 
+
+
+
+//                                ForEach(viewModel.feedItems, id:\.self) {item in
+//                                    switch item {
+//                                    case .event(let post):
+//                                        PostCell(post: post)
+//                                    case .group(let club):
+//                                        GroupCell(club: club)
+//                                    }
+//
+//                                }

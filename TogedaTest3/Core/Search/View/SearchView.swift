@@ -132,8 +132,13 @@ struct SearchView: View {
             .padding(.top, 94)
             
         }
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
+        }
         .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: UIScreen.main.bounds.height)
-        .background()
+        .background(.bar)
         .ignoresSafeArea(.keyboard)
     }
 }

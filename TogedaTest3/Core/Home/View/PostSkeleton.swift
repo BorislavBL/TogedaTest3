@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SkeletonUI
 
 struct PostSkeleton: View {
     var body: some View {
@@ -18,16 +17,20 @@ struct PostSkeleton: View {
                 HStack(alignment: .center) {
                     
                     Rectangle()
-                        .skeleton(with: true, shape: .rounded(.radius(15)))
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true, shape: .rounded(.radius(15)))
                         .frame(width: 50, height: 50)
+                        .cornerRadius(15)
                         
                         VStack(alignment: .leading, spacing: 3){
-                            Rectangle()
-                                .skeleton(with: true, shape: .capsule)
+                            Capsule()
+                                .blinking(duration: 0.75)
+//                                .skeleton(with: true, shape: .capsule)
                                 .frame(width: 200, height: 20)
 
-                            Rectangle()
-                                .skeleton(with: true, shape: .capsule)
+                            Capsule()
+                                .blinking(duration: 0.75)
+//                                .skeleton(with: true, shape: .capsule)
                                 .frame(width: 100, height: 20)
                         }
                     
@@ -36,39 +39,51 @@ struct PostSkeleton: View {
                     //MARK: - Post Options
 
                     Rectangle()
-                        .skeleton(with: true, shape: .rounded(.radius(10)))
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true, shape: .rounded(.radius(10)))
                         .frame(width: 25, height: 25)
+                        .cornerRadius(10)
                 
    
                 }
  
 
                 Rectangle()
-                    .skeleton(with: true, shape: .rounded(.radius(10)))
+                    .blinking(duration: 0.75)
+//                    .skeleton(with: true, shape: .rounded(.radius(10)))
                     .frame(height: 400)
+                    .cornerRadius(10)
                 
                 //MARK: - Buttons
                 
                 HStack(alignment: .center, spacing: 20){
 
                     Rectangle()
-                        .skeleton(with: true, shape: .rounded(.radius(10)))
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true, shape: .rounded(.radius(10)))
                         .frame(width: 25, height: 25)
+                        .cornerRadius(10)
                     
                     Rectangle()
-                        .skeleton(with: true, shape: .rounded(.radius(10)))
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true, shape: .rounded(.radius(10)))
                         .frame(width: 25, height: 25)
+                        .cornerRadius(10)
                     
                     Rectangle()
-                        .skeleton(with: true, shape: .rounded(.radius(10)))
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true, shape: .rounded(.radius(10)))
                         .frame(width: 25, height: 25)
+                        .cornerRadius(10)
                     
                     
                     Spacer()
                     
                     Rectangle()
-                        .skeleton(with: true, shape: .rounded(.radius(10)))
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true, shape: .rounded(.radius(10)))
                         .frame(width: 25, height: 25)
+                        .cornerRadius(10)
                     
                 }
                 .foregroundColor(Color("textColor"))
@@ -76,16 +91,19 @@ struct PostSkeleton: View {
                 //MARK: - Tags
                 HStack(alignment: .center, spacing: 5) {
                     Capsule()
-                        .skeleton(with: true, shape: .capsule)
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true, shape: .capsule)
                         .frame(width: 100, height: 30)
                     Capsule()
-                        .skeleton(with: true, shape: .capsule)
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true, shape: .capsule)
                         .frame(width: 100, height: 30)
                     Capsule()
-                        .skeleton(with: true, shape: .capsule)
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true, shape: .capsule)
                         .frame(width: 100, height: 30)
                 }
-//                .frame(maxWidth: UIScreen.main.bounds.width - 24, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             
         }

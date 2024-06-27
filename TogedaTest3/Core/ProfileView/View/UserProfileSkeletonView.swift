@@ -6,39 +6,44 @@
 //
 
 import SwiftUI
-import SkeletonUI
 
 struct UserProfileSkeletonView: View {
     var body: some View {
         ScrollView(showsIndicators: false){
             VStack{
                 Rectangle()
-                    .skeleton(with: true, shape: .rectangle)
+                    .blinking(duration: 0.75)
+//                    .skeleton(with: true, shape: .rectangle)
                     .frame(height: 500)
                 
                 
                 VStack(spacing: 10) {
                     Rectangle()
-                        .skeleton(with: true)
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true)
                         .frame(height: 16)
                     
                     
                     HStack(spacing: 5){
                         Rectangle()
-                            .skeleton(with: true)
+                            .blinking(duration: 0.75)
+//                            .skeleton(with: true)
                         
                         Rectangle()
-                            .skeleton(with: true)
+                            .blinking(duration: 0.75)
+//                            .skeleton(with: true)
                     }
                     .frame(height: 16)
                     
                     
                     HStack(spacing: 5){
                         Rectangle()
-                            .skeleton(with: true)
+                            .blinking(duration: 0.75)
+//                            .skeleton(with: true)
                         
                         Rectangle()
-                            .skeleton(with: true)
+                            .blinking(duration: 0.75)
+//                            .skeleton(with: true)
                             .font(.footnote)
                             .fontWeight(.semibold)
                     }
@@ -49,13 +54,19 @@ struct UserProfileSkeletonView: View {
                 
                 HStack(alignment: .top, spacing: 30) {
                     Rectangle()
-                        .skeleton(with: true, shape: .rounded(.radius(10)))
+                        .blinking(duration: 0.75)
+                        .cornerRadius(10)
+//                        .skeleton(with: true, shape: .rounded(.radius(10)))
                     
                     Rectangle()
-                        .skeleton(with: true, shape: .rounded(.radius(10)))
+                        .blinking(duration: 0.75)
+                        .cornerRadius(10)
+//                        .skeleton(with: true, shape: .rounded(.radius(10)))
                     
                     Rectangle()
-                        .skeleton(with: true, shape: .rounded(.radius(10)))
+                        .blinking(duration: 0.75)
+                        .cornerRadius(10)
+//                        .skeleton(with: true, shape: .rounded(.radius(10)))
                 }
                 .frame(height: 100)
                 .padding()
@@ -63,12 +74,14 @@ struct UserProfileSkeletonView: View {
                 
                 HStack(alignment:.center, spacing: 10) {
                     Rectangle()
-                        .skeleton(with: true)
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true)
                         .frame(height: 30)
                     
                     
                     Rectangle()
-                        .skeleton(with: true)
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true)
                         .frame(height: 30)
                 }
                 .padding(.horizontal)
@@ -82,13 +95,15 @@ struct UserProfileSkeletonView: View {
             VStack (alignment: .leading) {
                 HStack{
                     Rectangle()
-                        .skeleton(with: true)
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true)
                         .frame(height: 16)
                     
                     Spacer()
                     
                     Rectangle()
-                        .skeleton(with: true)
+                        .blinking(duration: 0.75)
+//                        .skeleton(with: true)
                         .frame(height: 16)
                     
                 }
@@ -96,8 +111,9 @@ struct UserProfileSkeletonView: View {
                 VStack(alignment: .leading){
                     HStack(spacing: 10){
                         ForEach(0..<4, id: \.self){index in
-                            Rectangle()
-                                .skeleton(with: true, shape: .circle)
+                            Circle()
+                                .blinking(duration: 0.75)
+//                                .skeleton(with: true, shape: .circle)
                                 .frame(width: 70, height: 70)
                             
                         }
@@ -113,39 +129,45 @@ struct UserProfileSkeletonView: View {
             VStack (alignment: .leading) {
                 
                 Rectangle()
-                    .skeleton(with: true)
+                    .blinking(duration: 0.75)
+//                    .skeleton(with: true)
                     .frame(height: 16)
 
                 HStack(){
                     ForEach(0..<3, id: \.self){_ in
                         Capsule()
-                            .skeleton(with: true)
+                            .blinking(duration: 0.75)
+//                            .skeleton(with: true)
                             .frame(width: 100, height: 30)
                     }
                     
                 }.padding(.bottom, 30)
                 
                 Rectangle()
-                    .skeleton(with: true)
+                    .blinking(duration: 0.75)
+//                    .skeleton(with: true)
                     .frame(height: 16)
                 
                 HStack(){
                     ForEach(0..<3, id: \.self){_ in
                         Capsule()
-                            .skeleton(with: true)
+                            .blinking(duration: 0.75)
+//                            .skeleton(with: true)
                             .frame(width: 100, height: 30)
                     }
                     
                 }.padding(.bottom, 30)
                 
                 Rectangle()
-                    .skeleton(with: true)
+                    .blinking(duration: 0.75)
+//                    .skeleton(with: true)
                     .frame(height: 16)
                 
                 HStack(){
                     ForEach(0..<3, id: \.self){_ in
                         Capsule()
-                            .skeleton(with: true)
+                            .blinking(duration: 0.75)
+//                            .skeleton(with: true)
                             .frame(width: 100, height: 30)
                     }
                     

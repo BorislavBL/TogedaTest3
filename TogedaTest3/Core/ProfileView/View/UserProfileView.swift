@@ -16,6 +16,9 @@ struct UserProfileView: View {
     @State var user: Components.Schemas.UserInfoDto?
     @EnvironmentObject var userVm: UserViewModel
     
+    @State var Init: Bool = true
+    @State var InitEvent: Bool = true
+    
     @State var showSheet: Bool = false
     @State var showCreateEvent: Bool = false
     @State var showCreateClub: Bool = false
@@ -25,6 +28,8 @@ struct UserProfileView: View {
     @State var showRespondSheet = false
     @State var showRemoveSheet = false
     @State var showCancelSheet = false
+    @State var showOptionsSheet = false
+    @State var showReportSheet = false
     
     var body: some View {
         ZStack(alignment: .top){
@@ -72,37 +77,76 @@ struct UserProfileView: View {
                         }
                         
                         
-                        HStack(spacing: 5){
-                            Image(systemName: "mappin.circle")
-                            
-                            Text(user?.location.name)
-                                .font(.footnote)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.gray)
+                        if let location = user?.location.name {
+                            HStack(spacing: 5){
+                                Image(systemName: "mappin.circle")
+                                
+                                Text(location)
+                                    .font(.footnote)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.gray)
+                            }
+                            .foregroundColor(.gray)
                         }
-                        .foregroundColor(.gray)
                         
                         
                     }.padding()
                     
                     HStack(alignment: .top, spacing: 0
                     ) {
-                        UserStats(value: String(Int(user?.friendsCount ?? 0)), title: "Friends")
-                            .frame(width: 105)
-                        Divider()
-                            .frame(height: 50)
-                        UserStats(value: String(Int(user?.participatedPostsCount ?? 0)), title: "Events")
-                            .frame(width: 105)
-                        Divider()
-                            .frame(height: 50)
-                        
-                        VStack{
-                            UserStats(value: "\(100)%", title: "Rating")
-                            Text("0 no shows")
-                                .font(.footnote)
-                                .foregroundStyle(.gray)
+                        if let user = self.user {
+                            NavigationLink(value: SelectionPath.userFriendsList(user)){
+                                UserStats(value: String(Int(user.friendsCount)), title: "Friends")
+                                    .frame(width: 105)
+                            }
+                            
+                            
+                            Divider()
+                                .frame(height: 50)
+                            
+                            NavigationLink(value: SelectionPath.allUserEvents(userID: user.id)){
+                                UserStats(value: String(Int(user.participatedPostsCount)), title: "Events")
+                                    .frame(width: 105)
+                            }
+                            Divider()
+                                .frame(height: 50)
+                            
+                            NavigationLink(value: SelectionPath.userReviewView(user: user)){
+                                VStack{
+                                    UserStats(value: "\(100)%", title: "Rating")
+                                    Text("0 no shows")
+                                        .font(.footnote)
+                                        .foregroundStyle(.gray)
+                                }
+                                .frame(width: 105)
+                            }
+                            
+                        } else {
+                            UserStats(value: String(Int(0)), title: "Friends")
+                                .frame(width: 105)
+                            
+                            
+                            Divider()
+                                .frame(height: 50)
+                            
+
+                                UserStats(value: "\(0)", title: "Events")
+                                    .frame(width: 105)
+                            
+                            Divider()
+                                .frame(height: 50)
+                            
+     
+                                VStack{
+                                    UserStats(value: "\(100)%", title: "Rating")
+                                    Text("0 no shows")
+                                        .font(.footnote)
+                                        .foregroundStyle(.gray)
+                                }
+                                .frame(width: 105)
+                            
                         }
-                        .frame(width: 105)
+
                     }
                     .padding(.bottom, 8)
                     
@@ -169,32 +213,35 @@ struct UserProfileView: View {
                 .background(.bar)
                 .cornerRadius(10)
                 
-                BadgesTab()
+//                BadgesTab()
                 
                 AboutTab(user: user)
                 
                 if let user = user {
-                    EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent)
-                        .onAppear(){
-                            Task{
-                                try await viewModel.getUserPosts(userId: user.id)
-//                                try await viewModel.getUserClubs(userId: user.id)
-                            }
-                        }
+                    EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: viewModel.postsCount)
+//                        .onAppear(){
+//                            if InitEvent {
+//                                viewModel.posts = []
+//                                viewModel.clubs = []
+//                                Task{
+//                                    try await viewModel.getUserPosts(userId: user.id)
+//                                    try await viewModel.getUserClubs(userId: user.id)
+//                                }
+//                                
+//                                InitEvent = false
+//                            }
+//                        }
                     if viewModel.clubs.count > 0 {
-                        ClubsTab(userID: miniUser.id, clubs:  $viewModel.clubs)
+                        ClubsTab(userID: miniUser.id, count: viewModel.clubsCount, clubs:  $viewModel.clubs)
                     }
                 }
                 
             }
             .refreshable(action: {
+                viewModel.posts = []
+                viewModel.clubs = []
                 Task{
-                    if let user = try await APIClient.shared.getUserInfo(userId: miniUser.id) {
-                        self.user = user
-                        miniUser = .init(id: user.id, firstName: user.firstName, lastName: user.lastName, profilePhotos: user.profilePhotos, occupation: user.occupation, location: user.location, birthDate: user.birthDate)
-                        try await viewModel.getUserPosts(userId: miniUser.id)
-//                        try await viewModel.getUserClubs(userId: miniUser.id)
-                    }
+                    await fetchAll()
                 }
             })
             //            .refresher(style:.system2 ,config: .init(headerShimMaxHeight: 220)) { done in
@@ -217,95 +264,63 @@ struct UserProfileView: View {
             navbar()
         }
         .sheet(isPresented: $showRemoveSheet, content: {
-            VStack(alignment: .leading){
-                Button{
+            AutoSizeSheetView{
+                OneButtonResponseSheet(onClick: {
                     Task {
                         if let user = self.user, try await APIClient.shared.removeFriend(removeUserId: user.id) != nil {
                             self.user?.currentFriendshipStatus = .NOT_FRIENDS
                             showRespondSheet = false
                         }
                     }
-                } label: {
-                    HStack{
-                        Image(systemName: "x.circle.fill")
-                            .frame(width: 35, height: 35)
-                            .foregroundStyle(Color("main-secondary-color"))
-                        
-                        Text("Remove Friend")
-                            .fontWeight(.semibold)
-                    }
-                }
+                }, buttonText: "Remove Friend", image: Image(systemName: "x.circle.fill"))
             }
-            .presentationDetents([.height(150)])
             .presentationDragIndicator(.visible)
         })
         
         .sheet(isPresented: $showCancelSheet, content: {
-            VStack(alignment: .leading){
-                Button{
+            AutoSizeSheetView{
+                OneButtonResponseSheet(onClick: {
                     Task {
                         if let user = self.user, try await APIClient.shared.removeFriendRequest(removeUserId: user.id) != nil {
                             self.user?.currentFriendshipStatus = .NOT_FRIENDS
                             showRespondSheet = false
                         }
                     }
-                } label: {
-                    HStack{
-                        Image(systemName: "x.circle.fill")
-                            .frame(width: 35, height: 35)
-                            .foregroundStyle(Color("main-secondary-color"))
-                        
-                        Text("Cancel Response")
-                            .fontWeight(.semibold)
-                    }
-                }
+                }, buttonText: "Cancel Response", image: Image(systemName: "x.circle.fill"))
             }
-            .presentationDetents([.height(150)])
             .presentationDragIndicator(.visible)
         })
         .sheet(isPresented: $showRespondSheet, content: {
-            VStack(alignment: .leading){
-                Button{
-                    Task {
-                        if try await APIClient.shared.respondToFriendRequest(toUserId: miniUser.id, action:.ACCEPT) != nil {
-                            self.user?.currentFriendshipStatus = .FRIENDS
-                            showRespondSheet = false
-                        }
-                    }
-                } label: {
-                    HStack{
-                        Image(systemName: "checkmark.circle.fill")
-                            .frame(width: 35, height: 35)
-                            .foregroundStyle(Color("main-secondary-color"))
-                        
-                        Text("Accept")
-                            .fontWeight(.semibold)
-                    }
-                }
-                
-                Button{
-                    Task {
-                        if try await APIClient.shared.respondToFriendRequest(toUserId: miniUser.id, action:.DENY) != nil {
-                            self.user?.currentFriendshipStatus = .NOT_FRIENDS
-                            showRespondSheet = false
-                        }
-                    }
-                } label: {
-                    HStack{
-                        Image(systemName: "x.circle.fill")
-                            .frame(width: 35, height: 35)
-                            .foregroundStyle(Color("main-secondary-color"))
-                        
-                        Text("Deny")
-                            .fontWeight(.semibold)
-                    }
-                }
+            AutoSizeSheetView{
+                AcceptDenySheet(showRespondSheet: $showRespondSheet, user: $user, id: miniUser.id)
             }
-            .presentationDetents([.height(250)])
             .presentationDragIndicator(.visible)
         })
         .sheet(isPresented: $showSheet, content: {
             CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
+        })
+        .sheet(isPresented: $showOptionsSheet, content: {
+            List {
+                ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                    Text("Share via")
+                }
+                
+                Button{
+                    showOptionsSheet = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1){
+                        showReportSheet = true
+                    }
+                } label:{
+                    Text("Report")
+                        .foregroundStyle(.red)
+                }
+            }
+            .presentationDetents([.height(200)])
+            .presentationDragIndicator(.visible)
+            .scrollDisabled(true)
+        })
+        .sheet(isPresented: $showReportSheet, content: {
+            ReportUserView(user: miniUser)
         })
         .fullScreenCover(isPresented: $showCreateClub, content: {
             CreateClubView(resetClubsOnCreate: {
@@ -320,12 +335,21 @@ struct UserProfileView: View {
             CreateEventView()
         })
         .onAppear(){
-            if let user = userVm.currentUser, miniUser.id != user.id {
-                Task {
-                    self.user = try await APIClient.shared.getUserInfo(userId: miniUser.id)
+            if Init {
+                if let user = userVm.currentUser, miniUser.id != user.id {
+                    Task {
+                        await fetchAll()
+                        
+                        Init = false
+                    }
+                } else {
+                    user = userVm.currentUser
+                    Task{
+                        await viewModel.fetchAllData(userId: miniUser.id)
+                    }
+                    Init = false
                 }
-            } else {
-                user = userVm.currentUser
+                
             }
         }
     }
@@ -358,9 +382,53 @@ struct UserProfileView: View {
                         .foregroundColor(.accentColor)
                         .navButton3()
                 }
+            } else {
+                Button {
+                    showOptionsSheet = true
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .rotationEffect(.degrees(90))
+                        .imageScale(.large)
+                        .foregroundColor(.accentColor)
+                        .navButton3()
+                }
             }
         }
         .padding(.horizontal)
+    }
+    
+    func fetchAll() async {
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getUserInfo(userId: miniUser.id) {
+                        DispatchQueue.main.async {
+                            self.user = response
+                            self.miniUser = .init(id: response.id, firstName: response.firstName, lastName: response.lastName, profilePhotos: response.profilePhotos, occupation: response.occupation, location: response.location, birthDate: response.birthDate)
+                        }
+                    }
+                    
+                } catch {
+                    print("Error fetching user posts: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    try await viewModel.getUserPosts(userId: miniUser.id)
+                } catch {
+                    print("Error fetching user posts: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    try await viewModel.getUserClubs(userId: miniUser.id)
+                } catch {
+                    print("Error fetching user clubs: \(error)")
+                }
+            }
+        }
     }
 }
 

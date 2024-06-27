@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ClubsTab: View {
     var userID: String
+    var count: Int32
     
     @Binding var clubs: [Components.Schemas.ClubDto]
     
@@ -19,7 +20,7 @@ struct ClubsTab: View {
                     .font(.body)
                     .fontWeight(.bold)
                 
-                Text("\(clubs.count)")
+                Text("\(count)")
                     .foregroundStyle(.gray)
                 
                 
@@ -57,7 +58,7 @@ struct ClubsTab: View {
 
 struct ClubsTab_Previews: PreviewProvider {
     static var previews: some View {
-        ClubsTab(userID: "", clubs: .constant([MockClub]))
+        ClubsTab(userID: "", count: 0, clubs: .constant([MockClub]))
     }
 }
 

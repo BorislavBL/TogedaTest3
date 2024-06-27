@@ -40,7 +40,7 @@ struct CropPhotoView: View {
                 .toolbarColorScheme(.dark, for: .navigationBar)
                 .frame(maxWidth: .infinity,maxHeight: .infinity)
                 .background {
-                    Color.black
+                    Color.black.opacity(0.5)
                         .ignoresSafeArea()
                 }
                 .toolbar {
@@ -201,6 +201,6 @@ struct CropPhotoView: View {
 
 struct CropPhotoView_Previews: PreviewProvider {
     static var previews: some View {
-        CropPhotoView(finalImage: .constant(UIImage(named:"person_1")), crop: .custom(CGSize(width: 300, height: 500)))
+        CropPhotoView(finalImage: .constant(UIImage(named:"person_1")), crop: .custom(CGSize(width: CROPPING_WIDTH, height: CROPPING_HEIGHT)))
     }
 }

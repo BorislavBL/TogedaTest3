@@ -21,6 +21,7 @@ struct AllUserEventsView: View {
     @State var isLoading = false
     
     @State var bookmarkedView: Bool = false
+    @State var Init: Bool = true
     
     var body: some View {
         ScrollView{
@@ -66,9 +67,13 @@ struct AllUserEventsView: View {
                 }
         }
         .refreshable {
-            page = 0
-            Task{
-                try await fetchEvents()
+            if Init {
+                page = 0
+                posts = []
+                Task{
+                    try await fetchEvents()
+                }
+                Init = false
             }
         }
         .scrollIndicators(.hidden)
@@ -90,6 +95,8 @@ struct AllUserEventsView: View {
         }
         .background(.bar)
         .onAppear(){
+            page = 0
+            posts = []
             Task{
                 try await fetchEvents()
             }

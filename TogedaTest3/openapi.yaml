@@ -21,14 +21,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -37,6 +45,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/addBasicInfo:
@@ -96,14 +108,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -112,6 +132,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/acceptOrDenyFriendRequest/{userId}:
@@ -136,14 +160,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -152,6 +184,72 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /stripe/webhook:
+    post:
+      tags:
+      - stripe-controller
+      operationId: stripeWebhookEndpoint
+      parameters:
+      - name: Stripe-Signature
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /stripe/connect/create-account:
+    post:
+      tags:
+      - stripe-controller
+      operationId: createAccount
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StripeResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts:
@@ -207,19 +305,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoPostResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -228,6 +335,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
     post:
@@ -243,14 +354,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessDto'
+                $ref: '#/components/schemas/CreateSuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -259,13 +378,72 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
-  /posts/{postId}/sendJoinRequest:
+  /posts/{postId}/{userId}/rate:
     post:
       tags:
       - post-controller
-      operationId: sendJoinRequest
+      operationId: ratePostParticipant
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParticipationRatingDto'
+        required: true
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /posts/{postId}/tryToJoinPost:
+    post:
+      tags:
+      - post-controller
+      operationId: tryToJoinPost
       parameters:
       - name: postId
         in: path
@@ -275,14 +453,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -291,6 +477,59 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /posts/{postId}/save:
+    post:
+      tags:
+      - post-controller
+      operationId: saveOrUnsavePost
+      parameters:
+      - name: isSave
+        in: query
+        required: true
+        schema:
+          type: boolean
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/{postId}/rate:
@@ -313,14 +552,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -329,6 +576,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/{postId}/participants/acceptJoinRequest/{userId}:
@@ -358,14 +609,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -374,6 +633,54 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /posts/{postId}/cancelJoinRequest:
+    post:
+      tags:
+      - post-controller
+      operationId: cancelJoinRequestForPost
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/{postId}/addCoHostRole/{userId}:
@@ -395,14 +702,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -411,9 +726,185 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /posts/startOrEndPost/{postId}:
+    post:
+      tags:
+      - post-controller
+      operationId: startOrEndPost
+      parameters:
+      - name: action
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - START
+          - END
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /notifications/add-device-token:
+    post:
+      tags:
+      - notification-controller
+      operationId: addDeviceTokenForUser
+      parameters:
+      - name: token
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /clubs:
+    get:
+      tags:
+      - club-controller
+      operationId: getAllClubs
+      parameters:
+      - name: categories
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: longitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: latitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: distance
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoClubDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
     post:
       tags:
       - club-controller
@@ -427,14 +918,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessDto'
+                $ref: '#/components/schemas/CreateSuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -443,6 +942,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /clubs/{clubId}/members:
@@ -466,19 +969,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoExtendedMiniUserForClub'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -487,6 +999,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
     post:
@@ -502,14 +1018,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -518,6 +1042,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /clubs/{clubId}/members/joinRequest/{userId}:
@@ -547,14 +1075,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -563,6 +1099,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /clubs/{clubId}/leave:
@@ -579,14 +1119,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -595,6 +1143,54 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /clubs/{clubId}/cancelJoinRequest:
+    post:
+      tags:
+      - club-controller
+      operationId: cancelJoinRequestForClub
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /clubs/{clubId}/admins/{userId}:
@@ -616,14 +1212,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -632,6 +1236,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
     delete:
@@ -652,14 +1260,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -668,6 +1284,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/updateUserInfo:
@@ -717,18 +1337,27 @@ paths:
                     personalityType: ha3
                     workout: ha4
                     instagram: ha5
+                    height: 180
         required: true
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -737,6 +1366,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/{postId}:
@@ -753,14 +1386,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PostResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -769,6 +1410,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
     delete:
@@ -784,14 +1429,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -800,6 +1453,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
     patch:
@@ -821,14 +1478,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -837,6 +1502,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /clubs/{clubId}:
@@ -853,14 +1522,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClubDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -869,6 +1546,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
     delete:
@@ -884,14 +1565,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -900,6 +1589,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
     patch:
@@ -921,14 +1614,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -937,6 +1638,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/{userId}:
@@ -953,14 +1658,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserInfoDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -969,6 +1682,168 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /users/{userId}/receivedRatingsForParticipatedEvents:
+    get:
+      tags:
+      - user-controller
+      operationId: receivedRatingsForParticipatedEvents
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoParticipationRatingResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /users/{userId}/receivedEventRatings:
+    get:
+      tags:
+      - user-controller
+      operationId: receivedEventRatings
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoRatingResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /users/{userId}/receivedEventRatings/average:
+    get:
+      tags:
+      - user-controller
+      operationId: receivedEventRatingsAverage
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceivedEventRatingsAverageResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/{userId}/posts:
@@ -990,14 +1865,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoPostResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1006,6 +1889,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/{userId}/clubs:
@@ -1034,14 +1921,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoClubDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1050,6 +1945,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/search:
@@ -1078,14 +1977,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoMiniUser'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1094,13 +2001,17 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
-  /users/receivedEventRatings:
+  /users/savedPosts:
     get:
       tags:
       - user-controller
-      operationId: receivedEventRatings
+      operationId: getUserSavedPosts
       parameters:
       - name: pageNumber
         in: query
@@ -1112,19 +2023,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListResponseDtoRatingResponseDto'
+                $ref: '#/components/schemas/ListResponseDtoPostResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1133,6 +2053,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/hasBasicInfo:
@@ -1143,14 +2067,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HasBasicInfoDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1159,6 +2091,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/friends/{userId}:
@@ -1182,19 +2118,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoMiniUser'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1203,6 +2148,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
     delete:
@@ -1218,14 +2167,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1234,6 +2191,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/friendRequests:
@@ -1257,14 +2218,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoMiniUser'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1273,6 +2242,155 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /stripe/connect/onboarding-link/{accountId}:
+    get:
+      tags:
+      - stripe-controller
+      operationId: getOnboardingLink
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StripeResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /stripe/connect/get-payment-sheet/{postId}:
+    get:
+      tags:
+      - stripe-controller
+      operationId: getPaymentSheet
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StripePaymentSheet'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /posts/{postId}/waitRequests:
+    get:
+      tags:
+      - post-controller
+      operationId: getWaitRequestParticipants
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoMiniUser'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/{postId}/participants:
@@ -1296,19 +2414,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoExtendedMiniUser'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1317,6 +2444,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/{postId}/joinRequests:
@@ -1340,19 +2471,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoMiniUser'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1361,6 +2501,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/search:
@@ -1389,19 +2533,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoPostResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1410,6 +2563,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/search/map:
@@ -1452,19 +2609,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoPostResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1473,6 +2639,116 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /notifications:
+    get:
+      tags:
+      - notification-controller
+      operationId: getUserNotifications
+      parameters:
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoNotificationDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /notifications/poll:
+    get:
+      tags:
+      - notification-controller
+      operationId: pollUserNotifications
+      parameters:
+      - name: lastTimestamp
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: lastId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                uniqueItems: true
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /generatePresignedPutUrl:
@@ -1494,14 +2770,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PreSignedUrlResponse'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1510,6 +2794,67 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /clubs/{clubId}/posts:
+    get:
+      tags:
+      - club-controller
+      operationId: getClubPosts
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoPostResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /clubs/{clubId}/joinRequests:
@@ -1533,19 +2878,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoMiniUser'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1554,6 +2908,62 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /clubs/withCreatePostPermission:
+    get:
+      tags:
+      - club-controller
+      operationId: getClubsWithCreatePostPermission
+      parameters:
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoClubDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /clubs/search:
@@ -1577,19 +2987,28 @@ paths:
         in: query
         required: true
         schema:
+          minimum: 1
           type: integer
           format: int32
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListResponseDtoClubDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1598,6 +3017,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /users/friendRequest/{userId}:
@@ -1614,14 +3037,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1630,6 +3061,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/{postId}/removeParticipant/{userId}:
@@ -1651,14 +3086,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1667,6 +3110,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /posts/{postId}/removeCoHostRole/{userId}:
@@ -1688,14 +3135,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1704,6 +3159,98 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /posts/{postId}/leave:
+    delete:
+      tags:
+      - post-controller
+      operationId: leavePost
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+      security:
+      - security_auth: []
+  /notifications/remove-device-token:
+    delete:
+      tags:
+      - notification-controller
+      operationId: removeDeviceTokenForUser
+      parameters:
+      - name: token
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
   /clubs/{clubId}/members/{userId}:
@@ -1725,14 +3272,22 @@ paths:
       responses:
         "403":
           description: Forbidden
-        "409":
-          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
         "400":
           description: Client Error
           content:
@@ -1741,6 +3296,10 @@ paths:
                 $ref: '#/components/schemas/ApiErrorSchema'
         "401":
           description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorSchema'
       security:
       - security_auth: []
 components:
@@ -1939,6 +3498,13 @@ components:
           type: string
         location:
           $ref: '#/components/schemas/BaseLocation'
+    StripeResponseDto:
+      required:
+      - data
+      type: object
+      properties:
+        data:
+          type: string
     CreatePostDto:
       required:
       - accessibility
@@ -1988,9 +3554,24 @@ components:
         toDate:
           type: string
           format: date-time
+    CreateSuccessDto:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+    ParticipationRatingDto:
+      required:
+      - liked
+      type: object
+      properties:
+        liked:
+          type: boolean
+        comment:
+          type: string
     RatingDto:
       required:
-      - comment
       - value
       type: object
       properties:
@@ -2086,6 +3667,9 @@ components:
           type: string
         personalityType:
           type: string
+        height:
+          type: integer
+          format: int32
         workout:
           type: string
         instagram:
@@ -2176,6 +3760,9 @@ components:
           type: string
         instagram:
           type: string
+        height:
+          type: integer
+          format: int32
         savedPostIds:
           type: array
           items:
@@ -2242,6 +3829,8 @@ components:
           type: array
           items:
             type: string
+        stripeAccountId:
+          type: string
         interests:
           uniqueItems: true
           type: array
@@ -2269,89 +3858,22 @@ components:
           - NOT_FRIENDS
           - SENT_FRIEND_REQUEST
           - RECEIVED_FRIEND_REQUEST
-    Pageable:
-      type: object
-      properties:
-        page:
-          minimum: 0
-          type: integer
-          format: int32
-        size:
-          minimum: 1
-          type: integer
-          format: int32
-        sort:
-          type: array
-          items:
-            type: string
-    Club:
-      required:
-      - accessibility
-      - askToJoin
-      - createdAt
-      - id
-      - images
-      - interests
-      - location
-      - permissions
-      - title
-      type: object
-      properties:
-        id:
-          type: string
-        owner:
-          $ref: '#/components/schemas/User'
-        title:
-          type: string
-        images:
-          type: array
-          items:
-            type: string
-        location:
-          $ref: '#/components/schemas/BaseLocation'
-        accessibility:
-          type: string
-          enum:
-          - PUBLIC
-          - PRIVATE
-        askToJoin:
-          type: boolean
-        description:
-          type: string
-        interests:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Interest'
-        memories:
-          type: array
-          items:
-            type: string
-        joinRequests:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        permissions:
-          type: string
-          enum:
-          - ALL
-          - ADMINS_ONLY
-        createdAt:
-          type: string
-          format: date-time
-    ListResponseDtoPostResponseDto:
+    ListResponseDtoParticipationRatingResponseDto:
       required:
       - data
       - lastPage
+      - listCount
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/PostResponseDto'
+            $ref: '#/components/schemas/ParticipationRatingResponseDto'
         lastPage:
           type: boolean
+        listCount:
+          type: integer
+          format: int32
     MiniUser:
       required:
       - birthDate
@@ -2380,6 +3902,40 @@ components:
         birthDate:
           type: string
           format: date
+    ParticipationRatingResponseDto:
+      required:
+      - id
+      - liked
+      - userFrom
+      - userTo
+      type: object
+      properties:
+        id:
+          type: string
+        comment:
+          type: string
+        liked:
+          type: boolean
+        userFrom:
+          $ref: '#/components/schemas/MiniUser'
+        userTo:
+          $ref: '#/components/schemas/MiniUser'
+    ListResponseDtoRatingResponseDto:
+      required:
+      - data
+      - lastPage
+      - listCount
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RatingResponseDto'
+        lastPage:
+          type: boolean
+        listCount:
+          type: integer
+          format: int32
     PostResponseDto:
       required:
       - accessibility
@@ -2393,6 +3949,7 @@ components:
       - owner
       - participantsCount
       - payment
+      - savedByCurrentUser
       - status
       - title
       type: object
@@ -2453,8 +4010,8 @@ components:
         rating:
           type: number
           format: double
-        club:
-          $ref: '#/components/schemas/Club'
+        clubId:
+          type: string
         participantsCount:
           type: integer
           format: int32
@@ -2464,73 +4021,64 @@ components:
           - NOT_STARTED
           - HAS_STARTED
           - HAS_ENDED
-    User:
+        savedByCurrentUser:
+          type: boolean
+    RatingResponseDto:
       required:
-      - birthDate
-      - email
-      - firstName
-      - gender
       - id
-      - interests
-      - lastName
-      - location
-      - occupation
-      - phoneNumber
-      - profilePhotos
-      - subToEmail
-      - verifiedEmail
-      - verifiedPhone
-      - visibleGender
+      - post
+      - user
+      - value
       type: object
       properties:
         id:
           type: string
-        email:
+        comment:
           type: string
-        subToEmail:
-          type: boolean
-        firstName:
-          type: string
-        lastName:
-          type: string
-        gender:
-          type: string
-          enum:
-          - MALE
-          - FEMALE
-        birthDate:
-          type: string
-          format: date
-        visibleGender:
-          type: boolean
-        location:
-          $ref: '#/components/schemas/BaseLocation'
-        occupation:
-          type: string
-        profilePhotos:
+        value:
+          type: number
+          format: double
+        user:
+          $ref: '#/components/schemas/MiniUser'
+        post:
+          $ref: '#/components/schemas/PostResponseDto'
+    ReceivedEventRatingsAverageResponseDto:
+      type: object
+      properties:
+        averageRating:
+          type: number
+          format: double
+    Pageable:
+      type: object
+      properties:
+        page:
+          minimum: 0
+          type: integer
+          format: int32
+        size:
+          minimum: 1
+          type: integer
+          format: int32
+        sort:
           type: array
           items:
             type: string
-        interests:
-          uniqueItems: true
+    ListResponseDtoPostResponseDto:
+      required:
+      - data
+      - lastPage
+      - listCount
+      type: object
+      properties:
+        data:
           type: array
           items:
-            $ref: '#/components/schemas/Interest'
-        phoneNumber:
-          type: string
-        verifiedPhone:
+            $ref: '#/components/schemas/PostResponseDto'
+        lastPage:
           type: boolean
-        verifiedEmail:
-          type: boolean
-        createdDate:
-          type: string
-          format: date-time
-        details:
-          $ref: '#/components/schemas/UserExtraDetails'
-        friendRequests:
-          type: array
-          items:
-            type: string
+        listCount:
+          type: integer
+          format: int32
     ClubDto:
       required:
       - accessibility
@@ -2604,6 +4152,7 @@ components:
       required:
       - data
       - lastPage
+      - listCount
       type: object
       properties:
         data:
@@ -2612,10 +4161,14 @@ components:
             $ref: '#/components/schemas/ClubDto'
         lastPage:
           type: boolean
+        listCount:
+          type: integer
+          format: int32
     ListResponseDtoMiniUser:
       required:
       - data
       - lastPage
+      - listCount
       type: object
       properties:
         data:
@@ -2624,38 +4177,9 @@ components:
             $ref: '#/components/schemas/MiniUser'
         lastPage:
           type: boolean
-    ListResponseDtoRatingResponseDto:
-      required:
-      - data
-      - lastPage
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/RatingResponseDto'
-        lastPage:
-          type: boolean
-    RatingResponseDto:
-      required:
-      - comment
-      - id
-      - post
-      - user
-      - value
-      type: object
-      properties:
-        id:
-          type: string
-        comment:
-          type: string
-        value:
-          type: number
-          format: double
-        user:
-          $ref: '#/components/schemas/MiniUser'
-        post:
-          $ref: '#/components/schemas/PostResponseDto'
+        listCount:
+          type: integer
+          format: int32
     HasBasicInfoDto:
       required:
       - hasBasicInfo
@@ -2663,6 +4187,19 @@ components:
       properties:
         hasBasicInfo:
           type: boolean
+    StripePaymentSheet:
+      required:
+      - clientSecret
+      - ownerStripeAccountId
+      - publishableKey
+      type: object
+      properties:
+        clientSecret:
+          type: string
+        publishableKey:
+          type: string
+        ownerStripeAccountId:
+          type: string
     ExtendedMiniUser:
       required:
       - type
@@ -2681,6 +4218,7 @@ components:
       required:
       - data
       - lastPage
+      - listCount
       type: object
       properties:
         data:
@@ -2689,6 +4227,105 @@ components:
             $ref: '#/components/schemas/ExtendedMiniUser'
         lastPage:
           type: boolean
+        listCount:
+          type: integer
+          format: int32
+    AlertBodyAcceptedJoinRequest:
+      required:
+      - forType
+      - image
+      - title
+      type: object
+      properties:
+        image:
+          type: string
+        title:
+          type: string
+        forType:
+          type: string
+          enum:
+          - POST
+          - CLUB
+        alertBodyTypeAsString:
+          type: string
+    AlertBodyFriendRequestReceived:
+      required:
+      - senderName
+      - senderProfilePhoto
+      type: object
+      properties:
+        senderName:
+          type: string
+        senderProfilePhoto:
+          type: string
+        alertBodyTypeAsString:
+          type: string
+    AlertBodyReceivedJoinRequest:
+      required:
+      - forType
+      - image
+      - title
+      type: object
+      properties:
+        image:
+          type: string
+        title:
+          type: string
+        forType:
+          type: string
+          enum:
+          - POST
+          - CLUB
+        alertBodyTypeAsString:
+          type: string
+    AlertBodyReviewEndedPost:
+      required:
+      - image
+      - title
+      type: object
+      properties:
+        image:
+          type: string
+        title:
+          type: string
+        alertBodyTypeAsString:
+          type: string
+    ListResponseDtoNotificationDto:
+      required:
+      - data
+      - lastPage
+      - listCount
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationDto'
+        lastPage:
+          type: boolean
+        listCount:
+          type: integer
+          format: int32
+    NotificationDto:
+      required:
+      - createdDate
+      - id
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        alertBodyAcceptedJoinRequest:
+          $ref: '#/components/schemas/AlertBodyAcceptedJoinRequest'
+        alertBodyReceivedJoinRequest:
+          $ref: '#/components/schemas/AlertBodyReceivedJoinRequest'
+        alertBodyFriendRequestReceived:
+          $ref: '#/components/schemas/AlertBodyFriendRequestReceived'
+        alertBodyReviewEndedPost:
+          $ref: '#/components/schemas/AlertBodyReviewEndedPost'
+        createdDate:
+          type: string
+          format: date-time
     PreSignedUrlResponse:
       required:
       - url
@@ -2713,6 +4350,7 @@ components:
       required:
       - data
       - lastPage
+      - listCount
       type: object
       properties:
         data:
@@ -2721,6 +4359,9 @@ components:
             $ref: '#/components/schemas/ExtendedMiniUserForClub'
         lastPage:
           type: boolean
+        listCount:
+          type: integer
+          format: int32
   securitySchemes:
     security_auth:
       type: http

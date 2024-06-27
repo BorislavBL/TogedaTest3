@@ -13,6 +13,7 @@ struct RegistrationGenderView: View {
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
     @State private var isActive: Bool = false
+    @ObservedObject var photoVM: PhotoPickerViewModel
 
     var body: some View {
         VStack {
@@ -75,7 +76,7 @@ struct RegistrationGenderView: View {
                 .clipShape(Circle())
         })
         .navigationDestination(isPresented: $isActive) {
-            RegistrationLocationView(vm: vm)
+            RegistrationLocationView(vm: vm, photoVM: photoVM)
         }
     }
     
@@ -112,5 +113,5 @@ struct RegistrationGenderView: View {
 }
 
 #Preview {
-    RegistrationGenderView(vm: RegistrationViewModel())
+    RegistrationGenderView(vm: RegistrationViewModel(), photoVM: PhotoPickerViewModel(s3BucketName: .user, mode: .normal))
 }

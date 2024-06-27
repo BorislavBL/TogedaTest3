@@ -73,6 +73,8 @@ struct AuthenticationMiddleware: ClientMiddleware {
 class APIClient: ObservableObject {
     static let shared = APIClient()
     
+    var notificationToken = ""
+    
     private var client: Client
     private let serverURL = URL(string: "https://api.togeda.net")!
     private weak var viewModel: ContentViewModel?
@@ -175,7 +177,7 @@ extension APIClient {
         return false
     }
     
-    func updateUserInfo(body: Components.Schemas.PatchUserDto) async throws  -> Bool {
+    func updateUserInfo(body: Components.Schemas.PatchUserDto) async throws  -> Bool? {
         let response = try await client.patchUser(body:.json(body))
         switch response{
             
@@ -196,7 +198,7 @@ extension APIClient {
             print("Conflict")
         }
         
-        return false
+        return nil
     }
     
     
@@ -421,45 +423,15 @@ extension APIClient {
         
         return nil
     }
-}
-
-// Event
-extension APIClient {
-    func createEvent(body: Components.Schemas.CreatePostDto) async throws -> Bool {
-
-        let response = try await client.createPost(body: .json(body))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let info):
-                return info.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        }
-        return false
-    }
     
-    func getEvent(postId: String) async throws -> Components.Schemas.PostResponseDto? {
-
-        let response = try await client.getPostById(.init(path: .init(postId: postId)))
+    func getUserSavedEvents(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
+        let response = try await client.getUserSavedPosts(.init(query: .init(pageNumber: page, pageSize: size)))
         
         switch response {
-            
         case .ok(let okResponse):
             switch okResponse.body{
-            case .json(let response):
-                return response
+            case .json(let returnResponse):
+                return returnResponse
             }
         case .undocumented(statusCode: let statusCode, _):
             print("The status code:", statusCode)
@@ -476,8 +448,164 @@ extension APIClient {
         return nil
     }
     
-    func joinEvent(postId: String) async throws -> Bool? {
-        let response = try await client.sendJoinRequest(.init(path: .init(postId: postId)))
+    func getUserLikesList(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoParticipationRatingResponseDto? {
+        let response = try await client.receivedRatingsForParticipatedEvents(.init(path: .init(userId: userId), query: .init(pageNumber: page, pageSize: size)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func getUserRatingAvg(userId: String) async throws -> Components.Schemas.ReceivedEventRatingsAverageResponseDto? {
+        let response = try await client.receivedEventRatingsAverage(.init(path: .init(userId: userId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func getRatingForProfile(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoRatingResponseDto? {
+        let response = try await client.receivedEventRatings(.init(path: .init(userId: userId), query: .init(pageNumber: page, pageSize: size)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+}
+
+// Event
+extension APIClient {
+    func createEvent(body: Components.Schemas.CreatePostDto) async throws -> String? {
+//        do{
+            let response = try await client.createPost(body: .json(body))
+            switch response {
+                
+            case .ok(let okResponse):
+                switch okResponse.body{
+                case .json(let info):
+                    return info.id
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                print("The status code:", statusCode)
+            case .unauthorized(_):
+                print("Unauthorized")
+            case .forbidden(_):
+                print("Forbidden")
+            case .badRequest(_):
+                print("Bad Request")
+            case .conflict(_):
+                print("Conflict")
+            }
+//        } catch {
+//            print("Errorrrrrr: \(error.localizedDescription)")
+//        }
+        
+        return nil
+    }
+    
+    func getEvent(postId: String) async throws -> Components.Schemas.PostResponseDto? {
+
+        let response = try await client.getPostById(.init(path: .init(postId: postId)))
+        
+        switch response {
+            
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response
+            }
+        case .undocumented(statusCode: let statusCode, let message):
+            print("The status code:", statusCode, message)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func saveOrUnsaveEvent(postId: String, isSave: Bool) async throws -> Bool? {
+
+        let response = try await client.saveOrUnsavePost(.init(path: .init(postId: postId), query: .init(isSave: isSave)))
+        
+        switch response {
+            
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func startOrEndEvent(postId: String, action: Operations.startOrEndPost.Input.Query.actionPayload) async throws -> Bool? {
+        let response = try await client.startOrEndPost(.init(path: .init(postId: postId), query: .init(action: action)))
         
         switch response {
         case .ok(let okResponse):
@@ -500,7 +628,55 @@ extension APIClient {
         return nil
     }
     
-    func deleteEvent(postId: String) async throws -> Bool {
+    func joinEvent(postId: String) async throws -> Bool? {
+        let response = try await client.tryToJoinPost(.init(path: .init(postId: postId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func leaveEvent(postId: String) async throws -> Bool? {
+        let response = try await client.leavePost(.init(path: .init(postId: postId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func deleteEvent(postId: String) async throws -> Bool? {
         let response = try await client.deletePost(path: .init(postId: postId))
         
         switch response {
@@ -521,7 +697,7 @@ extension APIClient {
             print("Conflict")
         }
         
-        return false
+        return nil
     }
     
     func getAllEvents(page: Int32, size: Int32, long: Double, lat: Double, distance: Int32, from: Date?, to: Date?, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
@@ -585,6 +761,29 @@ extension APIClient {
         return false
     }
     
+    func cancelJoinRequestForEvent(postId: String) async throws -> Bool? {
+        let response = try await client.cancelJoinRequestForPost(.init(path: .init(postId: postId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
     func searchEvent(searchText: String, page: Int32, size: Int32, askToJoin: Bool?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
         let response = try await client.searchPosts(.init(query: .init(
             query: searchText, 
@@ -616,6 +815,30 @@ extension APIClient {
     
     func getEventParticipants(postId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoExtendedMiniUser? {
         let response = try await client.getPostParticipants(.init(path: .init(postId: postId), query: .init(pageNumber: page, pageSize: size)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func getEventWaitlist(postId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
+        let response = try await client.getWaitRequestParticipants(.init(path: .init(postId: postId), query: .init(pageNumber: page, pageSize: size)))
         
         switch response {
         case .ok(let okResponse):
@@ -756,30 +979,6 @@ extension APIClient {
         return false
     }
     
-    func eventJoinRequest(postId: String) async throws -> Bool {
-        
-        let response = try await client.sendJoinRequest(.init(path: .init(postId: postId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        }
-        
-        return false
-    }
     
     func getMapEvents(
         centerLatitude: Double,
@@ -816,11 +1015,97 @@ extension APIClient {
             
             return nil
     }
+    
+    func giveRatingToEvent(postId: String, ratingBody:Components.Schemas.RatingDto) async throws -> Bool? {
+            
+        let response = try await client.ratePost(.init(path: .init(postId: postId), body: .json(ratingBody)))
+        
+            switch response {
+            case .ok(let okResponse):
+                switch okResponse.body{
+                case .json(let returnResponse):
+                    return returnResponse.success
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                print("The status code:", statusCode)
+            case .unauthorized(_):
+                print("Unauthorized")
+            case .forbidden(_):
+                print("Forbidden")
+            case .badRequest(_):
+                print("Bad Request")
+            case .conflict(_):
+                print("Conflict")
+            }
+            
+            return nil
+    }
+    
+    func giveRatingToParticipant(postId: String, userId: String, ratingBody:Components.Schemas.ParticipationRatingDto) async throws -> Bool? {
+            
+        let response = try await client.ratePostParticipant(.init(path: .init(postId: postId, userId: userId), body: .json(ratingBody)))
+        
+            switch response {
+            case .ok(let okResponse):
+                switch okResponse.body{
+                case .json(let returnResponse):
+                    return returnResponse.success
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                print("The status code:", statusCode)
+            case .unauthorized(_):
+                print("Unauthorized")
+            case .forbidden(_):
+                print("Forbidden")
+            case .badRequest(_):
+                print("Bad Request")
+            case .conflict(_):
+                print("Conflict")
+            }
+            
+            return nil
+    }
+    
+
 }
 
 //Clubs
 
 extension APIClient {
+    func getAllClubs(page: Int32, size: Int32, long: Double, lat: Double, distance: Int32, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoClubDto? {
+//        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to), Category: \(categories)")
+        
+        let response = try await client.getAllClubs(query:(.init(
+            categories: categories,
+            longitude: long,
+            latitude: lat,
+            distance: distance,
+            pageNumber: page,
+            pageSize: size
+        )))
+                
+        switch response {
+            
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
     func searchClubs(searchText: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoClubDto? {
         let response = try await client.searchClubs(.init(query: .init(
             query: searchText,
@@ -849,14 +1134,14 @@ extension APIClient {
         return nil
     }
     
-    func createClub(data: Components.Schemas.CreateClubDto) async throws -> Bool {
+    func createClub(data: Components.Schemas.CreateClubDto) async throws -> String? {
         let response = try await client.createClub(body: .json(data))
         
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
             case .json(let returnResponse):
-                return returnResponse.success
+                return returnResponse.id
             }
         case .undocumented(statusCode: let statusCode, _):
             print("The status code:", statusCode)
@@ -870,7 +1155,7 @@ extension APIClient {
             print("Conflict")
         }
         
-        return false
+        return nil
     }
     
     func getClub(clubID: String) async throws -> Components.Schemas.ClubDto? {
@@ -987,6 +1272,61 @@ extension APIClient {
         return nil
     }
     
+    func getClubEvents(
+        clubId: String,
+        page: Int32,
+        size: Int32
+    ) async throws -> Components.Schemas.ListResponseDtoPostResponseDto?{
+        let response = try await client.getClubPosts(path: .init(clubId: clubId), query: .init(pageNumber: page, pageSize: size))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func getClubsWithCreatePostPermission(
+        page: Int32,
+        size: Int32
+    ) async throws -> Components.Schemas.ListResponseDtoClubDto?{
+        let response = try await client.getClubsWithCreatePostPermission(.init(query: .init(pageNumber: page, pageSize: size)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
     func acceptJoinRequestClub(clubId: String, userId: String, action: Operations.joinRequest.Input.Query.actionPayload) async throws -> Bool {
         
         let response = try await client.joinRequest(.init(path: .init(clubId: clubId, userId: userId), query: .init(action: action)))
@@ -1081,7 +1421,7 @@ extension APIClient {
         return false
     }
     
-    func deleteClub(clubId: String) async throws -> Bool {
+    func deleteClub(clubId: String) async throws -> Bool? {
         let response = try await client.delete(.init(path: .init(clubId: clubId)))
         
         switch response {
@@ -1102,11 +1442,35 @@ extension APIClient {
             print("Conflict")
         }
         
-        return false
+        return nil
     }
     
     func joinClub(clubId: String) async throws -> Bool? {
         let response = try await client.tryToJoinClub(.init(path: .init(clubId: clubId)))
+
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, let message):
+            print("The status code:", statusCode, message)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func leaveClub(clubId: String) async throws -> Bool? {
+        let response = try await client.leaveClub(.init(path: .init(clubId: clubId)))
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
@@ -1128,8 +1492,8 @@ extension APIClient {
         return nil
     }
     
-    func leaveClub(clubId: String) async throws -> Bool {
-        let response = try await client.leaveClub(.init(path: .init(clubId: clubId)))
+    func cancelJoinRequestForClub(clubId: String) async throws -> Bool? {
+        let response = try await client.cancelJoinRequestForClub(.init(path: .init(clubId: clubId)))
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
@@ -1148,7 +1512,198 @@ extension APIClient {
             print("Conflict")
         }
         
-        return false
+        return nil
     }
+}
+
+//Stripe
+
+extension APIClient {
+    func createStripeAccount() async throws -> String? {
+        let response = try await client.createAccount()
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.data
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+            
+        }
+        return nil
+    }
+    
+    func getStripeOnBoardingLink(accountId: String) async throws -> String? {
+        let response = try await client.getOnboardingLink(.init(path: .init(accountId: accountId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.data
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+            
+        }
+        return nil
+    }
+    
+    func getPaymentSheet(postId: String) async throws -> Components.Schemas.StripePaymentSheet? {
+        let response = try await client.getPaymentSheet(.init(path: .init(postId: postId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+            
+        }
+        return nil
+    }
+    
+    
+}
+
+//Notifications
+extension APIClient {
+    func addDiviceToken() async throws -> Bool?{
+        if !notificationToken.isEmpty {
+            let response = try await client.addDeviceTokenForUser(.init(query: .init(token: notificationToken)))
+            
+            switch response {
+            case .ok(let okResponse):
+                switch okResponse.body{
+                case .json(let returnResponse):
+                    return returnResponse.success
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                print("The status code:", statusCode)
+            case .unauthorized(_):
+                print("Unauthorized")
+            case .forbidden(_):
+                print("Forbidden")
+            case .badRequest(_):
+                print("Bad Request")
+            case .conflict(_):
+                print("Conflict")
+                
+            }
+        }
+        return nil
+    }
+    
+    func removeDiviceToken() async throws -> Bool?{
+        if !notificationToken.isEmpty {
+            let response = try await client.removeDeviceTokenForUser(.init(query: .init(token: notificationToken)))
+            
+            switch response {
+            case .ok(let okResponse):
+                switch okResponse.body{
+                case .json(let returnResponse):
+                    return returnResponse.success
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                print("The status code:", statusCode)
+            case .unauthorized(_):
+                print("Unauthorized")
+            case .forbidden(_):
+                print("Forbidden")
+            case .badRequest(_):
+                print("Bad Request")
+            case .conflict(_):
+                print("Conflict")
+                
+            }
+        }
+        return nil
+    }
+    
+    func printToken() {
+        print(notificationToken)
+    }
+    
+    func notificationsList(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoNotificationDto?{
+        let response = try await client.getUserNotifications(.init(query: .init(pageNumber: page, pageSize: size)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from notifications:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        }
+        
+        return nil
+    }
+    
+    func notificationsPoll(lastTimestamp: Date, lastId: Int64, complete: @escaping ([Components.Schemas.NotificationDto]?, String?) -> Void) async throws{
+        let response = try await client.pollUserNotifications(.init(query: .init(lastTimestamp: lastTimestamp, lastId: lastId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                complete(returnResponse, nil)
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+            complete(nil, "The status code: \(statusCode)")
+        case .unauthorized(_):
+            print("Unauthorized")
+            complete(nil, "Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+            complete(nil, "Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+            complete(nil, "Bad Request")
+        case .conflict(_):
+            print("Conflict")
+            complete(nil, "Conflict")
+        }
+        
+        
+    }
+    
 }
 

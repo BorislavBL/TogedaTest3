@@ -15,16 +15,14 @@ struct AllGroupEventsView: View {
     ]
     @Environment(\.dismiss) var dismiss
     @State var lastPage: Bool = true
-    @State var posts: [Components.Schemas.PostResponseDto] = []
-    @State var page: Int32 = 0
-    @State var size: Int32 = 15
     @State var isLoading = false
     @StateObject var vm = GroupViewModel()
+    @State var Init = true
     
     var body: some View {
         ScrollView{
             LazyVGrid(columns: columns){
-                ForEach(posts, id: \.id){ post in
+                ForEach(vm.clubEvents, id: \.id){ post in
                     if post.status == .HAS_ENDED {
                         NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
                             GroupEventComponent(post: post)
@@ -57,7 +55,7 @@ struct AllGroupEventsView: View {
                     if !lastPage{
                         isLoading = true
                         Task{
-                            try await vm.fetchClubMembers(clubId: clubId)
+                            try await vm.fetchClubEvents(clubId: clubId)
                             isLoading = false
                             
                         }
@@ -65,10 +63,10 @@ struct AllGroupEventsView: View {
                 }
         }
         .refreshable {
-            vm.membersPage = 0
-            vm.clubMembers = []
+            vm.clubEvents = []
+            vm.clubEventsPage = 0
             Task{
-                try await vm.fetchClubMembers(clubId: clubId)
+                try await vm.fetchClubEvents(clubId: clubId)
             }
         }
         .scrollIndicators(.hidden)
@@ -86,7 +84,12 @@ struct AllGroupEventsView: View {
         .background(.bar)
         .onAppear(){
             Task{
-                try await vm.fetchClubMembers(clubId: clubId)
+                if Init {
+                    vm.clubEvents = []
+                    vm.clubEventsPage = 0
+                    try await vm.fetchClubEvents(clubId: clubId)
+                    Init = false
+                }
             }
         }
     }

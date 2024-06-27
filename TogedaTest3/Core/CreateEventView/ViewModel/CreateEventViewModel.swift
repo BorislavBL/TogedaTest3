@@ -29,10 +29,16 @@ class CreateEventViewModel: ObservableObject {
     }
 
     //Date View
-    @Published var from = Date().addingTimeInterval(900)
+    @Published var from = Date().addingTimeInterval(900) {
+        didSet{
+            if to < from.addingTimeInterval(599) {
+                to = from.addingTimeInterval(600)
+            }
+        }
+    }
     @Published var to = Date().addingTimeInterval(4500)
     @Published var isDate = true
-    @Published var dateTimeSettings = 0
+    @Published var dateTimeSettings = 2
     @Published var showTimeSettings = false
     
     //Description View
@@ -41,6 +47,7 @@ class CreateEventViewModel: ObservableObject {
     //Accesability
     @Published var selectedVisability: String = ""
     @Published var askToJoin: Bool = false
+    @Published var club: Components.Schemas.ClubDto?
     
     //Tag
     @Published var selectedInterests: [Interest] = []
@@ -67,6 +74,12 @@ class CreateEventViewModel: ObservableObject {
             toDate = nil
         }
         
+        var clubId: String? = nil
+        
+        if let club = self.club {
+            clubId = club.id
+        }
+        
         return .init(
             title: title,
             images: postPhotosURls,
@@ -77,7 +90,7 @@ class CreateEventViewModel: ObservableObject {
             payment: price != nil ? price! : 0,
             accessibility: .init(rawValue: selectedVisability.uppercased())!,
             askToJoin: askToJoin,
-            inClubID: nil,
+            inClubID: clubId,
             fromDate: fromDate,
             toDate: toDate
         )

@@ -27,6 +27,7 @@ class LocationManager: NSObject, ObservableObject {
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        authorizationStatus = manager.authorizationStatus
         switch manager.authorizationStatus {
         case .notDetermined:
             locationManager.requestWhenInUseAuthorization()
@@ -38,7 +39,7 @@ class LocationManager: NSObject, ObservableObject {
             showLocationServicesView = false
         case .authorizedWhenInUse:
             showLocationServicesView = false
-            locationManager.requestAlwaysAuthorization()
+//            locationManager.requestAlwaysAuthorization()
         default:
             print("default")
         }
@@ -50,16 +51,13 @@ class LocationManager: NSObject, ObservableObject {
     }
     
     func requestAuthorization(){
-       locationManager.desiredAccuracy = kCLLocationAccuracyBest
-       locationManager.delegate = self
-        
        if authorizationStatus == .notDetermined{
            locationManager.requestWhenInUseAuthorization()
+           locationManager.startUpdatingLocation()
        }
        else if authorizationStatus == .denied{
            showLocationServicesView = true
        }
-        locationManager.startUpdatingLocation()
    }
     
     func setLocation(cameraPosition: Binding<MapCameraPosition>, span: CLLocationDegrees) {

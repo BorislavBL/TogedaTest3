@@ -12,97 +12,124 @@ import WrappingHStack
 struct AllInOneFilterView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var filterVM: FilterViewModel
-    @EnvironmentObject var postVM: PostsViewModel
+    @EnvironmentObject var postsVM: PostsViewModel
+    @EnvironmentObject var clubsVM: ClubsViewModel
     
     var body: some View {
         VStack(spacing: 0){
             
             navbar()
-            
-            ScrollView{
-                VStack(alignment: .leading, spacing: 25 ){
-                    
-                    VStack(alignment: .leading, spacing: 16){
-                        Text("Time")
-                            .font(.body)
-                            .bold()
+            ZStack(alignment: .bottom){
+                ScrollView{
+                    VStack(alignment: .leading, spacing: 25){
                         
-                        TimeFilterView(vm: filterVM)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 16){
-                        Text("Sort")
-                            .font(.body)
-                            .bold()
-                        
-                        StandartFilterView(selectedFilter: $filterVM.selectedSortFilter, filterOptions: filterVM.sortFilterOptions, image: Image(systemName: "list.bullet"))
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 16){
-                        Text("Location")
-                            .font(.body)
-                            .bold()
-                        
-                        LocationPickerFilterView(returnedPlace: $filterVM.returnedPlace, isCurrentLocation: $filterVM.isCurrentLocation)
-                        
-                    }
-                    .padding(.top, 6)
-                    
-                    VStack(alignment: .leading, spacing: 16){
-                        HStack{
-                            Text("Distance")
-                                .font(.body)
-                                .bold()
-                                
-                            Spacer()
+                        if filterVM.selectedType != .clubs {
                             
-                            Text("\(filterVM.sliderValue) km")
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.gray)
-
-                        }
-    //                    Slider(value: $sliderValue, in: 1...300, step: 1)
-                        
-                        SwiftUISlider(
-                          thumbColor: UIColor(Color("blackAndWhite")),
-                          minTrackColor: UIColor(Color("blackAndWhite")),
-                          value: $filterVM.sliderValue
-                        )
-     
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 16){
-                        HStack{
-                            Text("Categories")
-                                .font(.body)
-                                .bold()
+                            VStack(alignment: .leading, spacing: 16){
+                                Text("Time")
+                                    .font(.body)
+                                    .bold()
                                 
-                            Spacer()
+                                TimeFilterView(vm: filterVM)
+                            }
                             
-                            Text("\(filterVM.selectedCategories.count) selected")
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.gray)
-
+                            VStack(alignment: .leading, spacing: 16){
+                                Text("Sort")
+                                    .font(.body)
+                                    .bold()
+                                
+                                StandartFilterView(selectedFilter: $filterVM.selectedSortFilter, filterOptions: filterVM.sortFilterOptions, image: Image(systemName: "list.bullet"))
+                            }
                         }
                         
-                        CategoryFilterView(selectedCategories: $filterVM.selectedCategories, categories: filterVM.categories)
+                        VStack(alignment: .leading, spacing: 16){
+                            Text("Location")
+                                .font(.body)
+                                .bold()
+                            
+                            LocationPickerFilterView(returnedPlace: $filterVM.returnedPlace, isCurrentLocation: $filterVM.isCurrentLocation)
+                            
+                        }
+                        .padding(.top, 6)
                         
+                        VStack(alignment: .leading, spacing: 16){
+                            HStack{
+                                Text("Distance")
+                                    .font(.body)
+                                    .bold()
+                                
+                                Spacer()
+                                
+                                Text("\(filterVM.sliderValue) km")
+                                    .font(.callout)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.gray)
+                                
+                            }
+                            
+                            SwiftUISlider(
+                                thumbColor: UIColor(Color("blackAndWhite")),
+                                minTrackColor: UIColor(Color("blackAndWhite")),
+                                value: $filterVM.sliderValue
+                            )
+                            
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 16){
+                            HStack{
+                                Text("Categories")
+                                    .font(.body)
+                                    .bold()
+                                
+                                Spacer()
+                                
+                                Text("\(filterVM.selectedCategories.count) selected")
+                                    .font(.callout)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.gray)
+                                
+                            }
+                            
+                            CategoryFilterView(selectedCategories: $filterVM.selectedCategories, categories: filterVM.categories)
+                            
+                        }
                     }
+                    .padding()
+                }
+                .scrollIndicators(.never)
+                .ignoresSafeArea(.keyboard)
+                
+                ZStack(alignment: .bottom){
+                    LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
+                        .ignoresSafeArea(edges: .bottom)
                     
                     Button {
                         Task{
-                           try await postVM.applyFilter(
-                            lat: filterVM.returnedPlace.latitude,
-                            long: filterVM.returnedPlace.longitude,
-                            distance: filterVM.sliderValue,
-                            from: filterVM.selectedTimeFilter.from,
-                            to: filterVM.selectedTimeFilter.to, 
-                            categories: filterVM.selectedCategories.count > 0 ? filterVM.selectedCategories.map({ Category in
-                                Category.name.lowercased()
-                            }) : nil
-                           )
+                            switch filterVM.selectedType {
+                            case .events:
+                                try await postsVM.applyFilter(
+                                    lat: filterVM.returnedPlace.latitude,
+                                    long: filterVM.returnedPlace.longitude,
+                                    distance: filterVM.sliderValue,
+                                    from: filterVM.selectedTimeFilter.from,
+                                    to: filterVM.selectedTimeFilter.to,
+                                    categories: filterVM.selectedCategories.count > 0 ? filterVM.selectedCategories.map({ Category in
+                                        Category.name.lowercased()
+                                    }) : nil
+                                )
+                            case .clubs:
+                                try await clubsVM.applyFilter(
+                                    lat: filterVM.returnedPlace.latitude,
+                                    long: filterVM.returnedPlace.longitude,
+                                    distance: filterVM.sliderValue,
+                                    categories: filterVM.selectedCategories.count > 0 ? filterVM.selectedCategories.map({ Category in
+                                        Category.name.lowercased()
+                                    }) : nil
+                                )
+                            case .friends:
+                                print("Friends")
+                            }
+                            
                         }
                         
                         dismiss()
@@ -113,16 +140,14 @@ struct AllInOneFilterView: View {
                             .background(Color("blackAndWhite"))
                             .foregroundColor(Color("testColor"))
                             .fontWeight(.semibold)
+                            .cornerRadius(10)
                         
                     }
-                    .cornerRadius(10)
-                    .padding(.top, 8)
-                    
+                    .padding()
+                   
                 }
-                .padding()
+                .frame(height: 60)
             }
-            .scrollIndicators(.never)
-        .ignoresSafeArea(.keyboard)
         }
     }
     
@@ -138,7 +163,7 @@ struct AllInOneFilterView: View {
                 
                 Spacer()
                 
-                Text("Filters")
+                Text("\(filterVM.selectedType.rawValue) Filters")
                     .font(.body)
                     .bold()
                 
@@ -182,7 +207,7 @@ struct LocationPickerFilterView: View {
                         
                         Image(systemName: "chevron.down")
                             .foregroundColor(.secondary)
-                            
+                        
                     }
                 }
                 
@@ -224,7 +249,7 @@ struct LocationPickerFilterView: View {
                 }
                 .foregroundColor(.secondary)
                 
-
+                
                 if !locationVM.searchText.isEmpty {
                     
                     ForEach(locationVM.places, id: \.id){ place in
@@ -264,7 +289,7 @@ struct LocationPickerFilterView: View {
                         .padding(.horizontal)
                     
                     Button {
-//                        locationManager.requestAuthorization()
+                        //                        locationManager.requestAuthorization()
                         findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace){
                             UIApplication.shared.endEditing(true)
                             locationVM.searchText = ""
@@ -444,4 +469,5 @@ struct CategoryFilterView: View {
     AllInOneFilterView(filterVM: FilterViewModel())
         .environmentObject(LocationManager())
         .environmentObject(PostsViewModel())
+        .environmentObject(ClubsViewModel())
 }

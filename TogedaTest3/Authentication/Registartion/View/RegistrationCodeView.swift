@@ -117,11 +117,11 @@ struct RegistrationCodeView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)
         .padding(.horizontal)
-        
-        .onTapGesture {
-            hideKeyboard()
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
         }
-        .ignoresSafeArea(.keyboard)
         .padding(.vertical)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

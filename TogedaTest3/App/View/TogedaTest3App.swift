@@ -10,7 +10,9 @@ import SwiftUI
 @main
 struct TogedaTest3App: App {
     @StateObject var vm = ContentViewModel()
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var CognitoClient
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @State var showToken: Bool = true
+    
     
     var body: some Scene {
         WindowGroup {

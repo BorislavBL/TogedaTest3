@@ -33,6 +33,7 @@ enum SelectionPath: Hashable, Codable {
     case editProfilePhoneCodeVerification
     case club(Components.Schemas.ClubDto)
     case clubJoinRequests(Components.Schemas.ClubDto)
+    case eventWaitingList(Components.Schemas.PostResponseDto)
 //    case editClubView(Components.Schemas.ClubDto)
     case allClubEventsView(String)
     case allUserGroups(userID: String)
@@ -40,13 +41,16 @@ enum SelectionPath: Hashable, Codable {
     case userChat(user: MiniUser)
     case notification
     case userRequest
-    case eventReview
+    case eventReview(post: Components.Schemas.PostResponseDto)
     case reviewMemories
+    case rateParticipants(post: Components.Schemas.PostResponseDto, rating: Components.Schemas.RatingDto)
+    case userReviewView(user: Components.Schemas.UserInfoDto)
+    case paymentPage
     case test
 }
 
 class NavigationManager: ObservableObject {
-    @Published var selectionPath = NavigationPath()
+    @Published var selectionPath: [SelectionPath] = [] //NavigationPath()
     
     //MARK: - Router
     @Published var screen: Screen = .home

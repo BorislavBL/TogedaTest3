@@ -108,3 +108,29 @@ func birthDayFromStringToDate(dateString: String) -> Date? {
     
     return nil
 }
+
+
+func formatDateForNotifications(from date: Date) -> String {
+    let calendar = Calendar.current
+    let now = Date()
+    
+    // Calculate the difference in time components between the two dates
+    let components = calendar.dateComponents([.minute, .hour, .day, .weekOfYear], from: date, to: now)
+    
+    // Formatter for full dates (more than a week ago)
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "dd.MM.yyyy"
+    
+    // Check if the difference is less than a week
+    if let week = components.weekOfYear, week > 0 {
+        return dateFormatter.string(from: date)
+    } else if let day = components.day, day > 0 {
+        return "\(day) day\(day > 1 ? "s" : "") ago"
+    } else if let hour = components.hour, hour > 0 {
+        return "\(hour) hour\(hour > 1 ? "s" : "") ago"
+    } else if let minute = components.minute, minute > 0 {
+        return "\(minute) min\(minute > 1 ? "s" : "") ago"
+    } else {
+        return "Just now"
+    }
+}

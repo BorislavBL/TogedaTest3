@@ -83,7 +83,12 @@ struct LoginView: View {
                 .padding(.top, 2)
                 .padding(.bottom, 15)
             
-            if displayError && unvalidPassword {
+            if displayError && (email.isEmpty || password.isEmpty) {
+                WarningTextComponent(text: "")
+                    .padding(.bottom, 15)
+            }
+            
+            else if displayError && unvalidPassword {
                 WarningTextComponent(text: "The password should be at least 6 characters long.")
                     .padding(.bottom, 15)
             }
@@ -146,9 +151,9 @@ struct LoginView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(!isValidEmail(testStr: email) || unvalidPassword)
+            .disableWithOpacity(!isValidEmail(testStr: email) || unvalidPassword || email.isEmpty || password.isEmpty)
             .onTapGesture {
-                if !isValidEmail(testStr: email) {
+                if !isValidEmail(testStr: email) || email.isEmpty || password.isEmpty {
                     displayError.toggle()
                 }
             }
@@ -156,13 +161,14 @@ struct LoginView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: focus)
         .padding(.horizontal)
-        .onTapGesture {
-            hideKeyboard()
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
         }
         .onAppear(){
             focus = .email
         }
-        .ignoresSafeArea(.keyboard)
         .padding(.vertical)
         .navigationDestination(isPresented: $isNotEmailConfirmed, destination: {
             RegistrationCodeView(email: $email, password: $password)

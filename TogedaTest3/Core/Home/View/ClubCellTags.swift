@@ -36,7 +36,7 @@ struct ClubCellTags: View {
             
             
             HStack(spacing: 3) {
-                Image(systemName: "person.3")
+                Image(systemName: "person.2")
                 Text("\(club.membersCount)")
                     .normalTagTextStyle()
             }

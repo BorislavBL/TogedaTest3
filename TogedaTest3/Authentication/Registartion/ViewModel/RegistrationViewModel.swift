@@ -128,7 +128,12 @@ class RegistrationViewModel: ObservableObject {
     private func uploadImageAsync(uiImage: UIImage) async -> Bool {
         let UUID = NSUUID().uuidString
         let bucketName = "togeda-profile-photos"
-        guard let jpeg = compressImageIfNeeded(image: uiImage) else {
+//        guard let jpeg = compressImageIfNeeded(image: uiImage) else {
+//            print("Image compression failed.")
+//            return false
+//        }
+        
+        guard let jpeg = uiImage.jpegData(compressionQuality: 1.0) else {
             print("Image compression failed.")
             return false
         }

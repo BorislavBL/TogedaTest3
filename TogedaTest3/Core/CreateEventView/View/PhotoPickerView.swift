@@ -18,69 +18,11 @@ struct PhotoPickerView: View {
     var body: some View {
         ScrollView {
             VStack(alignment:.leading, spacing: 10){
-//                    Text("Add Photos")
-//                        .font(.title3)
-//                        .fontWeight(.bold)
-//                    
-//                    
                     Text("Add photos related to your activity.")
                         .font(.footnote)
                         .foregroundStyle(.gray)
                 
-                Grid {
-                    GridRow {
-                        ForEach(0..<3, id: \.self){ index in
-                            ZStack{
-                                if let image = photoPickerVM.selectedImages[index]{
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width:imageDimension, height: imageDimension * 1.3)
-                                        .cornerRadius(10)
-                                        .clipped()
-                                } else {
-                                    Color("main-secondary-color")
-                                        .frame(width:imageDimension, height: imageDimension * 1.3)
-                                        .cornerRadius(10)
-                                    
-                                    Image(systemName: "plus.circle")
-                                        .foregroundStyle(Color("SelectedFilter"))
-                                        .imageScale(.large)
-                                }
-                            }
-                            .onTapGesture {
-                                photoPickerVM.selectedImageIndex = index
-                                photoPickerVM.showPhotosPicker = true
-                            }
-                        }
-                    }
-                    GridRow {
-                        ForEach(3..<6, id: \.self){ index in
-                            ZStack{
-                                if let image = photoPickerVM.selectedImages[index]{
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width:imageDimension, height: imageDimension * 1.3)
-                                        .cornerRadius(10)
-                                        .clipped()
-                                } else {
-                                    Color("main-secondary-color")
-                                        .frame(width:imageDimension, height: imageDimension * 1.3)
-                                        .cornerRadius(10)
-                                    
-                                    Image(systemName: "plus.circle")
-                                        .foregroundStyle(Color("SelectedFilter"))
-                                        .imageScale(.large)
-                                }
-                            }
-                            .onTapGesture {
-                                photoPickerVM.selectedImageIndex = index
-                                photoPickerVM.showPhotosPicker = true
-                            }
-                        }
-                    }
-                }
+                NormalPhotosGridView(vm: photoPickerVM)
                 
                 if photoPickerVM.selectedImages.allSatisfy({ $0 == nil }), let user = userViewModel.currentUser{
                     
@@ -98,7 +40,7 @@ struct PhotoPickerView: View {
                         KFImage(URL(string: user.profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
-                            .frame(width:imageDimension, height: imageDimension * 1.3)
+                            .frame(width: imageDimension, height: imageDimension * 1.3)
                             .cornerRadius(10)
                             .clipped()
                     }
@@ -107,10 +49,13 @@ struct PhotoPickerView: View {
             }
 
         }
-        .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imageselection, matching: .images)
-        .fullScreenCover(isPresented: $photoPickerVM.showCropView, content: {
-            CropPhotoView(selectedImage:photoPickerVM.selectedImage, finalImage: $photoPickerVM.selectedImages[photoPickerVM.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
-        })
+//        .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imageselection, matching: .images)
+//        .fullScreenCover(isPresented: $photoPickerVM.showCropView, content: {
+//            CropPhotoView(selectedImage:photoPickerVM.selectedImage, finalImage: $photoPickerVM.selectedImages[photoPickerVM.selectedImageIndex ?? 0], crop: .custom(CGSize(width: CROPPING_WIDTH, height: CROPPING_HEIGHT)))
+//        })
+//        .sheet(isPresented: $photoPickerVM.showPhotosPicker) {
+//            PhotoPicker(selectedImage: $photoPickerVM.selectedImage, cropSize: CGSize(width: CROPPING_WIDTH, height: CROPPING_HEIGHT))
+//        }
         .navigationTitle("Photos")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

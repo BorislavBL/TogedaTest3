@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Kingfisher
-import SkeletonUI
 import WrappingHStack
 import Refresher
 
@@ -21,6 +20,8 @@ struct ProfileView: View {
     @State var showCreateEvent: Bool = false
     @State var showCreateClub: Bool = false
     @StateObject var viewModel = ProfileViewModel()
+    
+    @State var InitEvent: Bool = true
     
     var body: some View {
         ZStack(alignment: .top){
@@ -52,7 +53,7 @@ struct ProfileView: View {
                                         .fontWeight(.semibold)
                                 }
                                 .foregroundColor(.gray)
-
+                                
                                 if let age = calculateAge(from: user.birthDate){
                                     HStack(spacing: 5){
                                         Image(systemName: "birthday.cake")
@@ -68,7 +69,7 @@ struct ProfileView: View {
                             HStack(spacing: 5){
                                 Image(systemName: "mappin.circle")
                                 
-                                Text(locationCityAndCountry1(user.location))
+                                Text(locationCityAndCountry(user.location))
                                     .font(.footnote)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.gray)
@@ -86,18 +87,22 @@ struct ProfileView: View {
                             Divider()
                                 .frame(height: 50)
                             
-                            UserStats(value: String(Int(user.participatedPostsCount)), title: "Events")
-                                .frame(width: 105)
+                            NavigationLink(value: SelectionPath.allUserEvents(userID: user.id)){
+                                UserStats(value: String(Int(user.participatedPostsCount)), title: "Events")
+                                    .frame(width: 105)
+                            }
                             Divider()
                                 .frame(height: 50)
                             
-                            VStack{
-                                UserStats(value: "\(100)%", title: "Rating")
-                                Text("0 no shows")
-                                    .font(.footnote)
-                                    .foregroundStyle(.gray)
+                            NavigationLink(value: SelectionPath.userReviewView(user: user)){
+                                VStack{
+                                    UserStats(value: "\(100)%", title: "Rating")
+                                    Text("0 no shows")
+                                        .font(.footnote)
+                                        .foregroundStyle(.gray)
+                                }
+                                .frame(width: 105)
                             }
-                            .frame(width: 105)
                         }
                         .padding(.bottom, 8)
                         
@@ -107,47 +112,58 @@ struct ProfileView: View {
                     .frame(width: UIScreen.main.bounds.width)
                     .background(.bar)
                     .cornerRadius(10)
-
-                    BadgesTab()
+                    
+                    //                    BadgesTab()
                     
                     if let user = userVm.currentUser, !user.verifiedPhone {
                         VerifyPhoneProfileTab()
                     }
                     
                     AboutTab(user: user)
-                    EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent)
+                    EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: viewModel.postsCount)
                         .onAppear(){
-                            Task{
-                                try await viewModel.getUserPosts(userId: user.id)
-                                try await viewModel.getUserClubs(userId: user.id)
+                            if InitEvent {
+                                viewModel.posts = []
+                                viewModel.clubs = []
+                                Task{
+                                    await viewModel.fetchAllData(userId: user.id)
+                                }
+                                
+                                InitEvent = false
                             }
                         }
                     
                     if viewModel.clubs.count > 0 {
-                        ClubsTab(userID: user.id, clubs: $viewModel.clubs)
+                        ClubsTab(userID: user.id, count: viewModel.clubsCount, clubs: $viewModel.clubs)
                     }
                     
                 }
                 .refreshable(action: {
+                    viewModel.posts = []
+                    viewModel.clubs = []
                     Task{
-                        try await userVm.fetchCurrentUser()
-                        try await viewModel.getUserPosts(userId: user.id)
-                        try await viewModel.getUserClubs(userId: user.id)
+                        do {
+                            try await userVm.fetchCurrentUser()
+                        } catch {
+                            print("Error fetching current user: \(error)")
+                        }
+                        await viewModel.fetchAllData(userId: user.id)
+                        
                     }
                 })
-//                .refresher(style:.system2 ,config: .init(headerShimMaxHeight: 220)) { done in
-//                    Task{
-//                        try await userVm.fetchCurrentUser()
-//                        try await viewModel.getUserPosts(userId: user.id)
-//                        try await viewModel.getUserClubs(userId: user.id)
-//                        done()
-//                    }
-//
-//                }
+                //                .refresher(style:.system2 ,config: .init(headerShimMaxHeight: 220)) { done in
+                //                    Task{
+                //                        try await userVm.fetchCurrentUser()
+                //                        try await viewModel.getUserPosts(userId: user.id)
+                //                        try await viewModel.getUserClubs(userId: user.id)
+                //                        done()
+                //                    }
+                //
+                //                }
                 .edgesIgnoringSafeArea(.top)
                 .frame(maxWidth: .infinity)
                 .background(Color("testColor"))
-
+                
                 
                 navbar()
                 
@@ -155,7 +171,7 @@ struct ProfileView: View {
                 UserProfileSkeletonView()
             }
         }
-
+        
         .sheet(isPresented: $showSheet, content: {
             CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
         })

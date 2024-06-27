@@ -6,17 +6,19 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct EventRequestPage: View {
     let size: ImageSize = .medium
-    var post: Post = Post.MOCK_POSTS[1]
-    @EnvironmentObject var postsVM: PostsViewModel
+    @State var post: Components.Schemas.PostResponseDto = MockPost
+    var createDate: Date
+    var alertBody: Components.Schemas.AlertBodyReceivedJoinRequest
     
     var body: some View {
             VStack {
-                NavigationLink(value: SelectionPath.eventDetails(MockPost)){
+                NavigationLink(value: SelectionPath.eventDetails(post)){
                     HStack(alignment:.top){
-                        Image(post.imageUrl[0])
+                        KFImage(URL(string:alertBody.image))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -25,14 +27,14 @@ struct EventRequestPage: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 5){
-                        Text(post.title)
+                        Text(alertBody.title)
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
                         Text("Someone wants to join your event.")
                             .font(.footnote) +
                         
-                        Text(" 1 min ago")
+                        Text(" \(formatDateForNotifications(from: createDate))")
                             .foregroundStyle(.gray)
                             .font(.footnote)
                         
@@ -48,5 +50,5 @@ struct EventRequestPage: View {
 }
 
 #Preview {
-    EventRequestPage()
+    EventRequestPage(createDate: Date(), alertBody: mockAlertBodyReceivedJoinRequest)
 }

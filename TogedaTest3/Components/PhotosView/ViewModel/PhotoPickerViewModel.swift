@@ -152,7 +152,7 @@ class PhotoPickerViewModel: ObservableObject {
         //            return false
         //        }
                 
-                guard let jpeg = uiImage.jpegData(compressionQuality: 1.0) else {
+        guard let jpeg = uiImage.jpegData(compressionQuality: 0.9) else {
                     print("Image compression failed.")
                     return false
                 }
@@ -179,6 +179,9 @@ class PhotoPickerViewModel: ObservableObject {
         }
     }
     
+    func imageIsSelected() -> Bool {
+        return selectedImages.contains(where: { $0 != nil })
+    }
 }
 
 

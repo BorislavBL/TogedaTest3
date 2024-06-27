@@ -112,62 +112,66 @@ struct GroupMembersListView: View {
             }
         }
         .sheet(isPresented: $showUserOptions, content: {
-            List {
-                if let extendedUser = selectedExtendedUser {
-                    if let user = userVM.currentUser, club.owner.id == user.id, extendedUser._type == .MEMBER  {
-                        Button("Make an Admin") {
-                            Task{
-                                if try await APIClient.shared.addAdminToClub(clubId: club.id, userId: extendedUser.user.id) {
-                                    showUserOptions = false
-                                    
-                                    if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
-                                        groupVM.clubMembers[index]._type = .ADMIN
+
+                List {
+                    if let extendedUser = selectedExtendedUser {
+                        if let user = userVM.currentUser, club.owner.id == user.id{
+                            if extendedUser._type == .MEMBER  {
+                                Button("Make an Admin") {
+                                    Task{
+                                        if try await APIClient.shared.addAdminToClub(clubId: club.id, userId: extendedUser.user.id) {
+                                            showUserOptions = false
+                                            
+                                            if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
+                                                groupVM.clubMembers[index]._type = .ADMIN
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if extendedUser._type == .ADMIN {
+                                Button("Remove as an Admin") {
+                                    Task{
+                                        if try await APIClient.shared.removeAdminRoleForClub(clubId: club.id, userId: extendedUser.user.id) {
+                                            
+                                            if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
+                                                groupVM.clubMembers[index]._type = .MEMBER
+                                            }
+                                            
+                                            showUserOptions = false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if club.currentUserStatus == .PARTICIPATING {
+                            Button("Report") {
+                                
+                            }
+                        }
+                        
+                        if club.currentUserRole == .ADMIN && extendedUser._type != .ADMIN {
+                            Button("Remove") {
+                                Task{
+                                    if try await APIClient.shared.removeClubMemeber(clubId: club.id, userId: extendedUser.user.id) {
+                                        
+                                        if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
+                                            groupVM.clubMembers.remove(at: index)
+                                        }
+                                        
+                                        showUserOptions = false
                                     }
                                 }
                             }
                         }
                         
-                        Button("Remove as an Admin") {
-                            Task{
-                                if try await APIClient.shared.removeAdminRoleForClub(clubId: club.id, userId: extendedUser.user.id) {
-                                    
-                                    if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
-                                        groupVM.clubMembers[index]._type = .MEMBER
-                                    }
-                                    
-                                    showUserOptions = false
-                                }
-                            }
-                        }
+                    } else {
+                        Text("No extended user")
                     }
-                    if club.currentUserStatus == .PARTICIPATING {
-                        Button("Report") {
-
-                        }
-                    }
-                    
-                    if club.currentUserRole == .ADMIN && extendedUser._type != .ADMIN {
-                        Button("Remove") {
-                            Task{
-                                if try await APIClient.shared.removeClubMemeber(clubId: club.id, userId: extendedUser.user.id) {
-                                    
-                                    if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
-                                        groupVM.clubMembers.remove(at: index)
-                                    }
-                                    
-                                    showUserOptions = false
-                                }
-                            }
-                        }
-                    }
-                    
-                } else {
-                    Text("No extended user")
                 }
-            }
-            .presentationDetents([.height(220)])
-            .presentationDragIndicator(.visible)
-            .scrollDisabled(true)
+                .presentationDetents([.height(220)])
+                .presentationDragIndicator(.visible)
+                .scrollDisabled(true)
+            
         })
         .navigationTitle("Participants")
         .navigationBarTitleDisplayMode(.inline)

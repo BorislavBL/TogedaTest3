@@ -13,24 +13,20 @@ struct PostCell: View {
     @EnvironmentObject var viewModel: PostsViewModel
     var post: Components.Schemas.PostResponseDto
     
-    @EnvironmentObject var userViewModel: UserViewModel
-    
     var body: some View {
         VStack {
             VStack(alignment: .center, spacing: 15){
                 
                 //MARK: - Post Header
-                
-                HStack(alignment: .center) {
-                        NavigationLink(value: SelectionPath.profile(post.owner)) {
-                            
-                            KFImage(URL(string: post.owner.profilePhotos[0]))
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 50, height: 50)
-                                .background(.gray)
-                                .cornerRadius(15)
-                        }
+                NavigationLink(value: SelectionPath.profile(post.owner)) {
+                    HStack(alignment: .center) {
+                        KFImage(URL(string: post.owner.profilePhotos[0]))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 50, height: 50)
+                            .background(.gray)
+                            .cornerRadius(15)
+                        
                         
                         VStack(alignment: .leading, spacing: 3){
                             Text(post.title)
@@ -43,6 +39,7 @@ struct PostCell: View {
                                 .fontWeight(.semibold)
                                 .font(.footnote)
                         }
+                    }
                     
                     Spacer()
                     
@@ -55,9 +52,9 @@ struct PostCell: View {
                         Image(systemName: "ellipsis")
                             .rotationEffect(.degrees(90))
                     }
-   
+                    
                 }
- 
+                
                 NavigationLink(value: SelectionPath.eventDetails(post)) {
                     KFImage(URL(string: post.images[0]))
                         .resizable()
@@ -121,9 +118,11 @@ struct PostCell: View {
                     Spacer()
                     
                     Button {
-                        userViewModel.savePost(postId: post.id)
+                        Task{
+                            try await viewModel.saveEvent(postId: post.id)
+                        }
                     } label: {
-                        Image(systemName: userViewModel.user.details.savedPostIds.contains(post.id) ? "bookmark.fill" : "bookmark")
+                        Image(systemName: post.savedByCurrentUser ? "bookmark.fill" : "bookmark")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 25, height: 25)
@@ -135,6 +134,9 @@ struct PostCell: View {
                 //MARK: - Tags
                 PostTags(post: post)
             }
+            
+        }
+        .onAppear(){
             
         }
         .padding(.horizontal, 12)
@@ -149,6 +151,5 @@ struct PostCell_Previews: PreviewProvider {
     static var previews: some View {
         PostCell(post: MockPost)
             .environmentObject(PostsViewModel())
-            .environmentObject(UserViewModel())
     }
 }

@@ -86,6 +86,7 @@ struct GroupComponent: View {
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(Color("light-gray"))
+                        .multilineTextAlignment(.leading)
                     
                 }
             }

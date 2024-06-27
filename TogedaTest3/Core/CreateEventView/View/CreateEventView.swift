@@ -9,10 +9,14 @@ import SwiftUI
 import MapKit
 
 struct CreateEventView: View {
+    var fromClub: Components.Schemas.ClubDto? = nil
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     @State private var showExitSheet: Bool = false
     @State private var displayWarnings: Bool = false
     @StateObject var ceVM = CreateEventViewModel()
+    @State var Init: Bool = true
+    
     
     //PhotoPicker
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .normal)
@@ -25,6 +29,8 @@ struct CreateEventView: View {
     
     let descriptionPlaceholder = "Describe the purpose of your event. What activities are you planning? Mention any special guests who might be attending. Will there be food and drinks? Help attendees know what to expect."
     
+    @EnvironmentObject var userVM: UserViewModel
+    
     var body: some View {
         NavigationStack() {
             ZStack(alignment: .bottom){
@@ -35,6 +41,7 @@ struct CreateEventView: View {
                         TextField("What event would you like to make?", text: $ceVM.title)
                             .font(.headline)
                             .fontWeight(.bold)
+                            .autocorrectionDisabled(true)
                             .onChange(of: ceVM.title) { oldValue, newValue in
                                 if ceVM.title.count > 70 {
                                     ceVM.title = String(ceVM.title.prefix(70))
@@ -255,8 +262,16 @@ struct CreateEventView: View {
                                 
                                 Spacer()
                                 
-                                Text(ceVM.isDate ? separateDateAndTime(from:ceVM.from).date : "Any day")
-                                    .foregroundColor(.gray)
+                                if ceVM.dateTimeSettings == 0 {
+                                    Text(separateDateAndTime(from:ceVM.from).date)
+                                        .foregroundColor(.gray)
+                                } else if ceVM.dateTimeSettings == 1 {
+                                    Text("\(separateDateAndTime(from:ceVM.from).date) - \(separateDateAndTime(from:ceVM.to).date)")
+                                        .foregroundColor(.gray)
+                                } else {
+                                    Text("Anyday")
+                                        .foregroundColor(.gray)
+                                }
                                 
                                 Image(systemName: ceVM.showTimeSettings ? "chevron.down" : "chevron.right")
                                     .padding(.trailing, 10)
@@ -348,54 +363,90 @@ struct CreateEventView: View {
                     }
                     .createEventTabStyle()
                     
-                    VStack(alignment: .leading, spacing: 20){
-                        Button {
-                            ceVM.showPricing.toggle()
-                        } label: {
-                            
-                            HStack(alignment: .center, spacing: 10) {
-                                Image(systemName: "wallet.pass")
-                                    .imageScale(.large)
+                    if let user = userVM.currentUser {
+                        VStack(alignment: .leading, spacing: 20){
+                            Button {
+                                ceVM.showPricing.toggle()
+                            } label: {
                                 
-                                
-                                Text("Price")
-                                
-                                Spacer()
-                                
-                                if let price = ceVM.price{
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "wallet.pass")
+                                        .imageScale(.large)
                                     
-                                    Text(price > 0.0 ? "€ \(price, specifier: "%.2f")" : "Free")
+                                    
+                                    Text("Price")
+                                    
+                                    Spacer()
+                                    
+                                    if let price = ceVM.price{
+                                        
+                                        Text(price > 0.0 ? "€ \(price, specifier: "%.2f")" : "Free")
+                                            .foregroundColor(.gray)
+                                    } else {
+                                        Text("Free")
+                                            .foregroundColor(.gray)
+                                    }
+                                    
+                                    Image(systemName: ceVM.showPricing ? "chevron.down" : "chevron.right")
+                                        .padding(.trailing, 10)
                                         .foregroundColor(.gray)
-                                } else {
-                                    Text("Free")
-                                        .foregroundColor(.gray)
+                                    
                                 }
                                 
-                                Image(systemName: ceVM.showPricing ? "chevron.down" : "chevron.right")
-                                    .padding(.trailing, 10)
-                                    .foregroundColor(.gray)
+                            }
+                            if ceVM.showPricing {
+                                if user.stripeAccountId != nil{
+                                    HStack(alignment: .center, spacing: 10) {
+                                        Text("Write a Price")
+                                        
+                                        Spacer()
+                                        
+                                        TextField("€ 0.00", value: $ceVM.price, format:.currency(code: "EUR"))
+                                            .foregroundColor(.gray)
+                                            .frame(width: 70)
+                                            .textFieldStyle(.roundedBorder)
+                                            .keyboardType(.numberPad)
+                                        
+                                        
+                                    }
+                                } else {
+                                    VStack(alignment: .center){
+                                        Text("To create a paid event frist create a Stripe account!")
+                                            .foregroundColor(Color("blackAndWhite"))
+                                            .fontWeight(.semibold)
+                                            .multilineTextAlignment(.center)
+                                            .padding(.bottom)
+                                        
+                                        Button{
+                                            Task{
+                                                if let accountId = try await APIClient.shared.createStripeAccount() {
+                                                    print(accountId)
+                                                    if let link = try await APIClient.shared.getStripeOnBoardingLink(accountId: accountId) {
+                                                        print(link)
+                                                        openURL(URL(string: link)!)
+                                                        dismiss()
+                                                    }
+                                                }
+                                            }
+                                            
+                                        } label: {
+                                            Text("Go to Stripe")
+                                                .foregroundStyle(Color("base"))
+                                                .fontWeight(.semibold)
+                                                .padding(.horizontal, 12)
+                                                .padding(.vertical, 10)
+                                                .background{Capsule().fill(Color("blackAndWhite"))}
+                                        }
+                                    }
+                                    .padding(.bottom)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                }
                                 
                             }
-                            
                         }
-                        if ceVM.showPricing {
-                            HStack(alignment: .center, spacing: 10) {
-                                Text("Write a Price")
-                                
-                                Spacer()
-                                
-                                TextField("€ 0.00", value: $ceVM.price, format:.currency(code: "EUR"))
-                                    .foregroundColor(.gray)
-                                    .frame(width: 70)
-                                    .textFieldStyle(.roundedBorder)
-                                    .keyboardType(.numberPad)
-                                
-                                
-                            }
-                        }
+                        .createEventTabStyle()
+                        .padding(.bottom, 100)
                     }
-                    .createEventTabStyle()
-                    .padding(.bottom, 100)
                 }
                 .padding(.horizontal)
                 
@@ -411,10 +462,10 @@ struct CreateEventView: View {
                                     if await photoPickerVM.saveImages() {
                                         ceVM.postPhotosURls = photoPickerVM.publishedPhotosURLs
                                         let createPost = ceVM.createPost()
-                                        print(createPost)
-                                        let response = try await APIClient.shared.createEvent(body: createPost)
-                                        print("Post:", response)
+                                        _ = try await APIClient.shared.createEvent(body: createPost)
                                         dismiss()
+                                    } else {
+                                        print("Problem with image")
                                     }
                                 } catch GeneralError.badRequest(details: let details){
                                     print(details)
@@ -460,6 +511,13 @@ struct CreateEventView: View {
                 }
                 
             }
+            .scrollDismissesKeyboard(.immediately)
+            .onAppear(){
+                if Init{
+                    ceVM.club = fromClub
+                    Init = false
+                }
+            }
             .toolbar{
                 ToolbarItemGroup(placement: .keyboard) {
                     KeyboardToolbarItems()
@@ -487,7 +545,7 @@ struct CreateEventView: View {
                 LocationPicker(returnedPlace: $ceVM.returnedPlace, isActivePrev: $showLocationView)
             }
             .navigationDestination(isPresented: $showAccessibilityView) {
-                AccessibilityView(selectedVisability: $ceVM.selectedVisability, askToJoin: $ceVM.askToJoin)
+                AccessibilityView(selectedVisability: $ceVM.selectedVisability, askToJoin: $ceVM.askToJoin, selectedClub: $ceVM.club)
             }
             .navigationDestination(isPresented: $showInterestsView) {
                 CategoryView(selectedInterests: $ceVM.selectedInterests, text: "Select at least one tag related to your event", minInterests: 0)
@@ -578,7 +636,8 @@ struct CreateEventView: View {
     }
     
     var allRequirenments: Bool {
-        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }),ceVM.selectedInterests.count > 0 && !ceVM.selectedVisability.isEmpty && ceVM.from > Date() {
+        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }),
+           ceVM.selectedInterests.count > 0 && !ceVM.selectedVisability.isEmpty && ceVM.from > Date() {
             return true
         } else {
             return false

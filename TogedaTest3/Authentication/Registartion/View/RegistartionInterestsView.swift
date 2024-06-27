@@ -175,6 +175,11 @@ struct RegistartionInterestsView: View {
             }
         }
         .padding(.horizontal)
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
+        }
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

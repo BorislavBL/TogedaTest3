@@ -10,52 +10,44 @@ import SwiftUI
 struct EditProfileHeightView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var heightText: String
-    @State private var sheetHeight: CGFloat = .zero
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 30){
-            HStack{
-                Spacer()
-                Button{
-                    dismiss()
-                } label:{
-                    Image(systemName: "xmark")
-                        .frame(width: 35, height: 35)
-                        .background(Color("main-secondary-color"))
-                        .clipShape(Circle())
-                }
-            }
-            
-            Text("How tall are you?")
-                .font(.title3)
-                .bold()
-            
-            HStack {
-                TextField("", text: $heightText)
-                    .placeholder(when: heightText.isEmpty) {
-                        Text("100")
-                            .foregroundColor(.secondary)
-                            .bold()
+        AutoSizeSheetView{
+            VStack(alignment: .leading, spacing: 30){
+                HStack{
+                    Spacer()
+                    Button{
+                        dismiss()
+                    } label:{
+                        Image(systemName: "xmark")
+                            .frame(width: 35, height: 35)
+                            .background(Color("main-secondary-color"))
+                            .clipShape(Circle())
                     }
-                    .bold()
-                    .autocapitalization(.none)
-                    .keyboardType(.numberPad)
+                }
                 
-                Text("cm (\(convertCmToFeetAndInches(heightText) ?? "feet"))")
+                Text("How tall are you?")
+                    .font(.title3)
+                    .bold()
+                
+                HStack {
+                    TextField("", text: $heightText)
+                        .placeholder(when: heightText.isEmpty) {
+                            Text("100")
+                                .foregroundColor(.secondary)
+                                .bold()
+                        }
+                        .bold()
+                        .autocapitalization(.none)
+                        .keyboardType(.numberPad)
+                    
+                    Text("cm (\(convertCmToFeetAndInches(heightText) ?? "feet"))")
+                }
+                .createEventTabStyle()
+                
             }
-            .createEventTabStyle()
-            
         }
-        .padding()
-        .overlay {
-            GeometryReader { geometry in
-                Color.clear.preference(key: InnerHeightPreferenceKey.self, value: geometry.size.height)
-            }
-        }
-        .onPreferenceChange(InnerHeightPreferenceKey.self) { newHeight in
-            sheetHeight = newHeight
-        }
-        .presentationDetents([.height(sheetHeight + 20)])
+
     }
 }
 

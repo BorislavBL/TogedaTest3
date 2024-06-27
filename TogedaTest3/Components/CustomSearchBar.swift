@@ -38,6 +38,7 @@ struct CustomSearchBar: View {
                         onCommit()
                     }
                 )
+                .autocorrectionDisabled(true)
                 .foregroundColor(.primary)
                 
                 // Clear button

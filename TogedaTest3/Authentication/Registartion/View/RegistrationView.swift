@@ -189,13 +189,14 @@ struct RegistrationView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: focus)
         .padding(.horizontal)
-//        .onTapGesture {
-//            hideKeyboard()
-//        }
         .onAppear(){
             focus = .email
         }
-        .ignoresSafeArea(.keyboard)
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
+        }
         .padding(.vertical)
         .navigationDestination(isPresented: $isActive, destination: {
             RegistrationCodeView(email: $email, password: $password)

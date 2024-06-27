@@ -71,7 +71,7 @@ struct PostTags: View {
             
             HStack(spacing: 3) {
                 Image(systemName: "location")
-                Text(locationCityAndCountry1(post.location))
+                Text(locationCityAndCountry(post.location))
                     .normalTagTextStyle()
             }
             .normalTagCapsuleStyle()

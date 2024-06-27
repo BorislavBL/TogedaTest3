@@ -15,6 +15,7 @@ struct RegistrationPhotosView: View {
     @State private var displayError: Bool = false
     @State private var isActive: Bool = false
     @State private var isLoading: Bool = false
+    @ObservedObject var photoVM: PhotoPickerViewModel
     
     var body: some View {
         VStack(){
@@ -23,60 +24,7 @@ struct RegistrationPhotosView: View {
                 .font(.title).bold()
                 .padding(.top, 20)
             
-            Grid {
-                GridRow {
-                    ForEach(0..<3, id: \.self){ index in
-                        ZStack{
-                            if let image = vm.selectedImages[index]{
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width:imageDimension, height: imageDimension * 1.3)
-                                    .cornerRadius(10)
-                                    .clipped()
-                            } else {
-                                backgroundColor
-                                    .frame(width:imageDimension, height: imageDimension * 1.3)
-                                    .cornerRadius(10)
-                                
-                                Image(systemName: "plus.circle")
-                                    .foregroundStyle(Color("SelectedFilter"))
-                                    .imageScale(.large)
-                            }
-                        }
-                        .onTapGesture {
-                            vm.selectedImageIndex = index
-                            vm.showPhotosPicker = true
-                        }
-                    }
-                }
-                GridRow {
-                    ForEach(3..<6, id: \.self){ index in
-                        ZStack{
-                            if let image = vm.selectedImages[index]{
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width:imageDimension, height: imageDimension * 1.3)
-                                    .cornerRadius(10)
-                                    .clipped()
-                            } else {
-                                backgroundColor
-                                    .frame(width:imageDimension, height: imageDimension * 1.3)
-                                    .cornerRadius(10)
-                                
-                                Image(systemName: "plus.circle")
-                                    .foregroundStyle(Color("SelectedFilter"))
-                                    .imageScale(.large)
-                            }
-                        }
-                        .onTapGesture {
-                            vm.selectedImageIndex = index
-                            vm.showPhotosPicker = true
-                        }
-                    }
-                }
-            }
+            NormalPhotosGridView(vm: photoVM)
             .padding(.top, 20)
             .padding(.bottom, 15)
             
@@ -90,8 +38,8 @@ struct RegistrationPhotosView: View {
             Button{
                 Task{
                     isLoading = true
-                    if await vm.saveImages() {
-                        print(vm.profilePhotos)
+                    if await photoVM.saveImages() {
+                        vm.profilePhotos = photoVM.publishedPhotosURLs
                     isActive = true
                     }
                     isLoading = false
@@ -105,21 +53,15 @@ struct RegistrationPhotosView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(vm.selectedImages.allSatisfy({ $0 == nil }))
+            .disableWithOpacity(photoVM.selectedImages.allSatisfy({ $0 == nil }))
             .onTapGesture {
-                if vm.selectedImages.allSatisfy({ $0 == nil }) {
+                if photoVM.selectedImages.allSatisfy({ $0 == nil }) {
                     displayError.toggle()
                 }
             }
             
         }
-        .padding(.horizontal)
-        
-        .photosPicker(isPresented: $vm.showPhotosPicker, selection: $vm.imageselection, matching: .images)
-        .fullScreenCover(isPresented: $vm.showCropView, content: {
-            CropPhotoView(selectedImage:vm.selectedImage, finalImage: $vm.selectedImages[vm.selectedImageIndex ?? 0], crop: .custom(CGSize(width: 300, height: 500)))
-        })
-        .padding(.vertical)
+        .padding()
         .navigationDestination(isPresented: $isActive, destination: {
             RegistartionInterestsView(vm: vm)
         })
@@ -151,5 +93,5 @@ struct RegistrationPhotosView: View {
 }
 
 #Preview {
-    RegistrationPhotosView(vm: RegistrationViewModel())
+    RegistrationPhotosView(vm: RegistrationViewModel(), photoVM: PhotoPickerViewModel(s3BucketName: .user, mode: .normal))
 }

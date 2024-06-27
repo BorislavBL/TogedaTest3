@@ -165,6 +165,11 @@ struct CategoryView: View {
             }
         }
         .padding(.horizontal)
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
+        }
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {
             if selectedInterests.count >= minInterests {

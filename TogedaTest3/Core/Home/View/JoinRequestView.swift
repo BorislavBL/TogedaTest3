@@ -6,36 +6,40 @@
 //
 
 import SwiftUI
+import StripePaymentSheet
 
 struct JoinRequestView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     @Binding var post: Components.Schemas.PostResponseDto
+    @EnvironmentObject var navManager: NavigationManager
+    @Binding var isActive: Bool
+    var refreshParticipants: () -> ()
+    @Environment(\.openURL) private var openURL
+    @StateObject var paymentVM = StripeAccountViewModel()
     
     var body: some View {
         VStack(spacing: 30){
             if isOwner {
-                Text("How would you like to proceed?")
-                    .font(.headline)
-                    .fontWeight(.bold)
-            } else {
-                if post.payment <= 0 {
-                    Text("Once you join you will be able to cancle it until 1h before the event starts.")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-                } else {
-                    Text("No refunds within the day of the event.")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                }
-            }
-            
-            if isOwner {
                 if post.status == .HAS_STARTED {
+                    Text("How would you like to proceed?")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                    
                     Button {
-                        
+                        Task{
+                            if try await APIClient.shared.startOrEndEvent(postId: post.id, action: .END) != nil {
+                                if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                    if let index = postsViewModel.feedPosts.firstIndex(where: { $0.id == post.id }) {
+                                        postsViewModel.feedPosts.remove(at: index)
+                                    }
+                                    post = response
+                                    
+                                    
+                                }
+                            }
+                        }
                     } label: {
                         Text("Stop the Event")
                             .fontWeight(.semibold)
@@ -47,8 +51,23 @@ struct JoinRequestView: View {
                     }
                 } else if post.status == .NOT_STARTED {
                     if post.fromDate != nil {
+                        Text("Would you like to delete the event?")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                        
                         Button {
-                            
+                            Task{
+                                if try await APIClient.shared.deleteEvent(postId: post.id) != nil {
+                                    if let index = postsViewModel.feedPosts.firstIndex(where: { $0.id == post.id }) {
+                                        postsViewModel.feedPosts.remove(at: index)
+                                        
+                                        if navManager.selectionPath.count > 0 {
+                                            isActive = false
+                                            navManager.selectionPath.removeLast(1)
+                                        }
+                                    }
+                                }
+                            }
                         } label: {
                             Text("End the Event")
                                 .fontWeight(.semibold)
@@ -59,8 +78,19 @@ struct JoinRequestView: View {
                                 .cornerRadius(10)
                         }
                     } else {
+                        Text("Would you like to start the event?")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                        
                         Button {
-                            
+                            Task{
+                                if try await APIClient.shared.startOrEndEvent(postId: post.id, action: .START) != nil {
+                                    if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                        try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                        post = response
+                                    }
+                                }
+                            }
                         } label: {
                             Text("Start the Event")
                                 .fontWeight(.semibold)
@@ -71,10 +101,40 @@ struct JoinRequestView: View {
                                 .cornerRadius(10)
                         }
                     }
+                } else if post.status == .HAS_ENDED {
+                    Text("The event has ended")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                    
+                    Text("Ended")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                }
+                else {
+                    Text("The event has ended")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                    
+                    Text("Ended")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
                 }
                 
             } else {
                 if post.status == .HAS_STARTED {
+                    Text("The event have already started...")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
+                    
                     Button {
                         
                     } label: {
@@ -88,8 +148,21 @@ struct JoinRequestView: View {
                     }
                 } else if post.status == .NOT_STARTED {
                     if post.currentUserStatus == .PARTICIPATING {
+                        Text("Are you sure you want to leave?")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
+                        
                         Button {
-                            
+                            Task{
+                                if try await APIClient.shared.leaveEvent(postId: post.id) != nil {
+                                    if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                        try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                        post = response
+                                        refreshParticipants()
+                                    }
+                                }
+                            }
                         } label: {
                             Text("Leave")
                                 .fontWeight(.semibold)
@@ -100,10 +173,22 @@ struct JoinRequestView: View {
                                 .cornerRadius(10)
                         }
                     } else if post.currentUserStatus == .IN_QUEUE {
+                        Text("Are you sure you want to cancel your request?")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
+                        
                         Button {
-                            
+                            Task{
+                                if try await APIClient.shared.cancelJoinRequestForEvent(postId: post.id) != nil {
+                                    if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                        try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                        post = response
+                                    }
+                                }
+                            }
                         } label: {
-                            Text("Waiting")
+                            Text("Cancel")
                                 .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
@@ -112,26 +197,161 @@ struct JoinRequestView: View {
                                 .cornerRadius(10)
                         }
                     } else {
-                        Button {
-                            Task{
-                                if try await APIClient.shared.joinEvent(postId: post.id) != nil {
-                                    if let response = try await APIClient.shared.getEvent(postId: post.id){
-                                        try await postsViewModel.refreshEventOnAction(postId: post.id)
-                                        post = response
+                        if post.payment <= 0 {
+                            Text("Once you join you will be able to cancel it until 1h before the event starts.")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                            
+                            Button {
+                                Task{
+                                    if try await APIClient.shared.joinEvent(postId: post.id) != nil {
+                                        if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                            try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                            post = response
+                                        }
                                     }
                                 }
+                            } label: {
+                                Text("Join")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
                             }
-                        } label: {
-                            Text("Join")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 60)
-                                .background(Color("blackAndWhite"))
-                                .foregroundColor(Color("testColor"))
-                                .cornerRadius(10)
+                            
+                        } else {
+                            if let error = paymentVM.error {
+                                Text("Error: \(error).")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                            } else {
+                                Text("No refunds within the day of the event.")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                            }
+
+                            
+                            VStack {
+                                if let paymentSheet = paymentVM.paymentSheet {
+                                    PaymentSheet.PaymentButton(
+                                        paymentSheet: paymentSheet,
+                                        onCompletion: paymentVM.onPaymentCompletion
+                                    ) {
+                                        
+                                        if let result = paymentVM.paymentResult {
+                                            switch result {
+                                            case .completed:
+                                                Text("Payment complete.")
+                                                    .fontWeight(.semibold)
+                                                    .frame(maxWidth: .infinity)
+                                                    .frame(height: 60)
+                                                    .background(Color("blackAndWhite"))
+                                                    .foregroundColor(Color("testColor"))
+                                                    .cornerRadius(10)
+                                                    .onAppear(){
+                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                            isActive = false
+                                                        }
+                                                    }
+                                            case .failed(let error):
+                                                Text("Payment failed.")
+                                                    .fontWeight(.semibold)
+                                                    .frame(maxWidth: .infinity)
+                                                    .frame(height: 60)
+                                                    .background(Color("blackAndWhite"))
+                                                    .foregroundColor(Color("testColor"))
+                                                    .cornerRadius(10)
+                                                    .onAppear(){
+                                                        paymentVM.error = error.localizedDescription
+                                                    }
+                                            case .canceled:
+                                                Text("Payment canceled.")
+                                                    .fontWeight(.semibold)
+                                                    .frame(maxWidth: .infinity)
+                                                    .frame(height: 60)
+                                                    .background(Color("blackAndWhite"))
+                                                    .foregroundColor(Color("testColor"))
+                                                    .cornerRadius(10)
+                                                    .onAppear(){
+                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                            isActive = false
+                                                        }
+                                                    }
+                                            }
+                                        } else {
+                                            Text("Buy \(post.payment, specifier: "%.2f")")
+                                                .fontWeight(.semibold)
+                                                .frame(maxWidth: .infinity)
+                                                .frame(height: 60)
+                                                .background(Color("blackAndWhite"))
+                                                .foregroundColor(Color("testColor"))
+                                                .cornerRadius(10)
+
+                                        }
+                                    }
+                                }
+                                else {
+                                   Text("Loading…")
+                                       .fontWeight(.semibold)
+                                       .frame(maxWidth: .infinity)
+                                       .frame(height: 60)
+                                       .background(Color("blackAndWhite"))
+                                       .foregroundColor(Color("testColor"))
+                                       .cornerRadius(10)
+
+                               }
+
+                            }.onAppear {
+                                paymentVM.eventID = post.id
+                                paymentVM.preparePaymentSheet()
+                            }
                         }
+                        
+
                     }
                     
+                } else if post.status == .HAS_ENDED {
+                    Text("Ended")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                }
+                else {
+                    if post.payment <= 0 {
+                        Text("Once you join you will be able to cancel it until 1h before the event starts.")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
+                    } else {
+                        Text("No refunds within the day of the event.")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                    }
+                    
+                    Button {
+                        Task{
+                            if try await APIClient.shared.joinEvent(postId: post.id) != nil {
+                                if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                    try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                    post = response
+                                }
+                            }
+                        }
+                    } label: {
+                        Text("Join")
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .cornerRadius(10)
+                    }
                 }
             }
             
@@ -150,8 +370,9 @@ struct JoinRequestView: View {
 }
 
 #Preview {
-    JoinRequestView(post: .constant(MockPost))
+    JoinRequestView(post: .constant(MockPost), isActive: .constant(true), refreshParticipants: {})
         .environmentObject(PostsViewModel())
         .environmentObject(UserViewModel())
+        .environmentObject(NavigationManager())
 }
 

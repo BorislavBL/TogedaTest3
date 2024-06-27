@@ -16,6 +16,7 @@ struct RegistrationOccupationView: View {
     @State var isStudent: Bool = false
     @State private var displayError: Bool = false
     @State private var isActive: Bool = false
+    @ObservedObject var photoVM: PhotoPickerViewModel
     
     var body: some View {
         VStack {
@@ -97,13 +98,14 @@ struct RegistrationOccupationView: View {
         .onAppear(){
             keyIsFocused = true
         }
-        .onTapGesture {
-            hideKeyboard()
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
         }
-        .ignoresSafeArea(.keyboard)
         .padding(.vertical)
         .navigationDestination(isPresented: $isActive, destination: {
-            RegistrationPhotosView(vm: vm)
+            RegistrationPhotosView(vm: vm, photoVM: photoVM)
         })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
@@ -133,5 +135,5 @@ struct RegistrationOccupationView: View {
 }
 
 #Preview {
-    RegistrationOccupationView(vm: RegistrationViewModel())
+    RegistrationOccupationView(vm: RegistrationViewModel(), photoVM: PhotoPickerViewModel(s3BucketName: .user, mode: .normal))
 }

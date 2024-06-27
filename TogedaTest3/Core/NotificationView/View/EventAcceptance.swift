@@ -6,16 +6,19 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct EventAcceptance: View {
     let size: ImageSize = .medium
-    var post: Post = Post.MOCK_POSTS[2]
-    @EnvironmentObject var postsVM: PostsViewModel
+    @State var post: Components.Schemas.PostResponseDto = MockPost
+    var createDate: Date
+    var alertBody: Components.Schemas.AlertBodyAcceptedJoinRequest
+    
     var body: some View {
             VStack {
-                NavigationLink(value: SelectionPath.eventDetails(MockPost)){
+                NavigationLink(value: SelectionPath.eventDetails(post)){
                     HStack(alignment:.top){
-                        Image(post.imageUrl[0])
+                        KFImage(URL(string:alertBody.image))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -24,14 +27,14 @@ struct EventAcceptance: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 5){
-                        Text(post.title)
+                        Text(alertBody.title)
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
                         Text("You got accepted. Visit the event page for more details.")
                             .font(.footnote) +
                         
-                        Text(" 1 min ago")
+                        Text(" \(formatDateForNotifications(from: createDate))")
                             .foregroundStyle(.gray)
                             .font(.footnote)
                         
@@ -47,6 +50,5 @@ struct EventAcceptance: View {
 }
 
 #Preview {
-    EventAcceptance()
-        .environmentObject(PostsViewModel())
+    EventAcceptance(createDate: Date(), alertBody: mockAlertBodyAcceptedJoinRequest)
 }

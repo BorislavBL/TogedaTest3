@@ -8,114 +8,62 @@
 import SwiftUI
 
 struct Test2View: View {
-    var miniUser: MiniUser = .MOCK_MINIUSERS[0]
-    var user: User = .MOCK_USERS[0]
+    @Binding var showRespondSheet: Bool
+    @Binding var user: Components.Schemas.UserInfoDto?
+    var id: String
     var body: some View {
-        VStack{
-            VStack(alignment: .center) {
-                TabView {
-                    ForEach(miniUser.profilePhotos, id: \.self) { image in
-                        Image(image)
-                            .resizable()
-                            .scaledToFill()
-                            .clipped()
-                        
+        VStack(alignment: .leading){
+            Button{
+                Task {
+                    if try await APIClient.shared.respondToFriendRequest(toUserId: id, action:.ACCEPT) != nil {
+                        self.user?.currentFriendshipStatus = .FRIENDS
+                        showRespondSheet = false
                     }
-                    
                 }
-                .tabViewStyle(PageTabViewStyle())
-                .frame(height: 500)
-                
-                VStack(alignment: .leading, spacing: 15) {
-                    Text(miniUser.fullName)
-                        .font(.title2)
-                        .fontWeight(.bold)
+            } label: {
+                HStack{
+                    Image(systemName: "checkmark.circle.fill")
+                        .frame(width: 35, height: 35)
+                        .foregroundColor(Color("textColor"))
                     
-                    HStack(alignment:.top, spacing: 15){
-                        VStack(alignment: .leading, spacing: 15){
-                            HStack(spacing: 5){
-                                Image(systemName: "suitcase")
-                                
-                                Text("Graphic Designer")
-                                    .font(.footnote)
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundColor(.gray)
-                            
-                            
-                            HStack(spacing: 5){
-                                Image(systemName: "mappin.circle")
-                                
-                                Text(user.location.name)
-                                    .font(.footnote)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.gray)
-                            }
-                            .foregroundColor(.gray)
-                        }
-                        Spacer()
-//                        HStack(alignment: .top, spacing: 10) {
-//                            userStats(value: String(user.friendIDs.count), title: "Friends")
-//
-//                            userStats(value: String(user.createdEventIDs.count), title: "Events")
-//
-//                        }
-
+                    Text("Accept")
+                        .fontWeight(.semibold)
+                        .normalTagTextStyle()
+                }
+                .frame(maxWidth: .infinity)
+                .padding(8)
+                .background{Color("main-secondary-color")}
+                .cornerRadius(10)
+            }
+            
+            Button{
+                Task {
+                    if try await APIClient.shared.respondToFriendRequest(toUserId: id, action:.DENY) != nil {
+                        self.user?.currentFriendshipStatus = .NOT_FRIENDS
+                        showRespondSheet = false
                     }
-                    
-                    
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                
-
-                
-
-                    HStack(alignment:.center, spacing: 10) {
-                        Button {
-                            
-                        } label: {
-                            Text("Add Friend")
-                                .normalTagTextStyle()
-                                .frame(width: UIScreen.main.bounds.width/2 - 36)
-                                .normalTagRectangleStyle()
-                        }
-                        Button {
-                            
-                        } label: {
-                            Text("Message")
-                                .normalTagTextStyle()
-                                .frame(width: UIScreen.main.bounds.width/2 - 36)
-                                .normalTagRectangleStyle()
-                        }
-                    }
-                    .padding(.horizontal)
+            } label: {
+                HStack{
+                    Image(systemName: "x.circle.fill")
+                        .frame(width: 35, height: 35)
+                        .foregroundColor(Color("textColor"))
+                    
+                    Text("Deny")
+                        .fontWeight(.semibold)
+                        .normalTagTextStyle()
                 }
-                
-                
-            .padding(.bottom)
-            .frame(width: UIScreen.main.bounds.width)
-            .background(.bar)
-            .cornerRadius(10)
+                .frame(maxWidth: .infinity)
+                .padding(8)
+                .background{Color("main-secondary-color")}
+                .cornerRadius(10)
+               
+            }
         }
+        .padding()
     }
-    @ViewBuilder
-    func userStats(value: String, title: String) -> some View {
-        VStack(alignment: .center, spacing: 5) {
-            Text(value)
-                .font(.body)
-                .bold()
-            Text(title)
-                .font(.footnote)
-                .bold()
-                .foregroundColor(.gray)
-        }
-        .frame(width: 50, height: 50)
-        .normalTagRectangleStyle()
-    }
-    
 }
 
 #Preview {
-    Test2View()
+    Test2View(showRespondSheet: .constant(true), user: .constant(MockUser), id: "")
 }

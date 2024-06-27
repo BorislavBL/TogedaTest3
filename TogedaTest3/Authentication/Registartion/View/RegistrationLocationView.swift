@@ -16,7 +16,8 @@ struct RegistrationLocationView: View {
     @State private var isActive: Bool = false
     
     @ObservedObject var vm: RegistrationViewModel
-    @StateObject var locationVM = LocationPickerViewModel(searchType: .all)
+    @StateObject var locationVM = LocationPickerViewModel(searchType: .cityAndCountry)
+    @ObservedObject var photoVM: PhotoPickerViewModel
 
     var body: some View {
         VStack {
@@ -105,17 +106,17 @@ struct RegistrationLocationView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)
         .padding(.horizontal)
-        
-        .onTapGesture {
-            hideKeyboard()
+        .toolbar{
+            ToolbarItemGroup(placement: .keyboard) {
+                KeyboardToolbarItems()
+            }
         }
         .onAppear(){
             keyIsFocused = true
         }
-        .ignoresSafeArea(.keyboard)
         .padding(.vertical)
         .navigationDestination(isPresented: $isActive, destination: {
-            RegistrationOccupationView(vm: vm)
+            RegistrationOccupationView(vm: vm, photoVM: photoVM)
         })
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
@@ -145,6 +146,6 @@ struct RegistrationLocationView: View {
 
 
 #Preview {
-    RegistrationLocationView(vm: RegistrationViewModel())
+    RegistrationLocationView(vm: RegistrationViewModel(), photoVM: PhotoPickerViewModel(s3BucketName: .user, mode: .normal))
     
 }
