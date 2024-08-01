@@ -1,0 +1,18 @@
+//
+//  ActivityPostCell.swift
+//  TogedaTest3
+//
+//  Created by Borislav Lorinkov on 9.07.24.
+//
+
+import SwiftUI
+
+struct ActivityPostCell: View {
+    var body: some View {
+        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    }
+}
+
+#Preview {
+    ActivityPostCell()
+}

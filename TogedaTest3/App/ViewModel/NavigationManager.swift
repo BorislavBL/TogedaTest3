@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 enum Screen: Equatable {
     case home
@@ -38,7 +39,7 @@ enum SelectionPath: Hashable, Codable {
     case allClubEventsView(String)
     case allUserGroups(userID: String)
     case clubMemersList(Components.Schemas.ClubDto)
-    case userChat(user: MiniUser)
+    case userChat(toUser: Components.Schemas.MiniUser, chatId: String)
     case notification
     case userRequest
     case eventReview(post: Components.Schemas.PostResponseDto)
@@ -49,6 +50,7 @@ enum SelectionPath: Hashable, Codable {
     case test
 }
 
+
 class NavigationManager: ObservableObject {
     @Published var selectionPath: [SelectionPath] = [] //NavigationPath()
     
@@ -56,8 +58,42 @@ class NavigationManager: ObservableObject {
     @Published var screen: Screen = .home
     @Published var oldScreen: Screen = .home
     @Published var isPresenting = false
+    @Published var homeScrollTop = false
     
     func change(to screen: Screen) {
         self.screen = screen
     }
+    
+    private var cancellable: AnyCancellable?
+    
+    init() {
+        listenForTabSelection()
+    }
+    
+    deinit {
+        cancellable?.cancel()
+        cancellable = nil
+    }
+    
+    private func listenForTabSelection() {
+        cancellable = $screen
+            .sink { [weak self] newTab in
+                guard let self = self else { return }
+                if newTab == self.screen {
+                    switch newTab {
+                    case .home:
+                        homeScrollTop.toggle()
+                    case .map:
+                        print("Map")
+                    case .add:
+                        print("Add")
+                    case .message:
+                        print("Message")
+                    case .profile:
+                        print("Profile")
+                    }
+                }
+            }
+    }
+    
 }
