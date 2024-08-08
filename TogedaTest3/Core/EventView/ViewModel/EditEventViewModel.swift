@@ -27,7 +27,7 @@ class EditEventViewModel: ObservableObject {
     @Published var returnedPlace = Place(mapItem: MKMapItem()){
         didSet{
             editPost.location = .init(
-                name: returnedPlace.name,
+                name: returnedPlace.address,
                 address: returnedPlace.street,
                 city: returnedPlace.city,
                 state: returnedPlace.state,
@@ -61,14 +61,14 @@ class EditEventViewModel: ObservableObject {
     @Published var dateTimeSettings = 0 {
         didSet{
             if dateTimeSettings == 0 {
-                editPost.fromDate = from
+                editPost.fromDate = nil
                 editPost.toDate = nil
             } else if dateTimeSettings == 1 {
                 editPost.fromDate = from
-                editPost.toDate = to
-            } else {
-                editPost.fromDate = nil
                 editPost.toDate = nil
+            } else {
+                editPost.fromDate = from
+                editPost.toDate = to
             }
         }
     }
@@ -86,12 +86,12 @@ extension EditEventViewModel {
         if let fromDate = post.fromDate, let toDate = post.toDate {
             from = fromDate
             to = toDate
-            dateTimeSettings = 1
+            dateTimeSettings = 2
         } else if let fromDate = post.fromDate {
             from = fromDate
-            dateTimeSettings = 0
+            dateTimeSettings = 1
         } else {
-            dateTimeSettings = 2
+            dateTimeSettings = 0
         }
         
         description = post.description ?? ""
@@ -125,7 +125,7 @@ extension EditEventViewModel {
             location: post.location,
             interests: post.interests,
             payment: post.payment,
-            accessibility: .init(rawValue: post.accessibility.rawValue),
+            accessibility: .init(rawValue: post.accessibility.rawValue) ?? .PUBLIC,
             fromDate: fromDate,
             toDate: toDate
         )

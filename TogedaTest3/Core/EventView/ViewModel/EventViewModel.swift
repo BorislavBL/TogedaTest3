@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import SwiftUI
 
 class EventViewModel: ObservableObject {
     @Published var participantsList: [Components.Schemas.ExtendedMiniUser] = []
     @Published var participantsPage: Int32 = 0
     @Published var participantsSize: Int32 = 15
-    @Published var participantsCount: Int32 = 0
+    @Published var participantsCount: Int64 = 0
     @Published var listLastPage = true
     
     func fetchUserList(id: String) async throws{
@@ -66,5 +67,44 @@ class EventViewModel: ObservableObject {
             }
         }
     }
+    
+    func updateEvent(not: Components.Schemas.NotificationDto, post: Binding<Components.Schemas.PostResponseDto>){
+        if let not = not.alertBodyAcceptedJoinRequest {
+            if post.wrappedValue.askToJoin{
+                if let minipost = not.post, minipost.id == post.wrappedValue.id {
+                    updateStatuses(miniUser: not.acceptedUser, miniPost: minipost, post: post)
+                }
+            }
+        } else if let not = not.alertBodyPostHasStarted {
+            post.wrappedValue.status =  .HAS_STARTED
+            post.wrappedValue.currentUserStatus = .init(rawValue: not.post.currentUserStatus.rawValue) ?? post.wrappedValue.currentUserStatus
+            if let role = not.post.currentUserRole{
+                post.wrappedValue.currentUserRole = .init(rawValue: role.rawValue) ?? post.wrappedValue.currentUserRole
+            }
+        } else if let not = not.alertBodyReviewEndedPost {
+            post.wrappedValue.status = .HAS_ENDED
+            post.wrappedValue.currentUserStatus = .init(rawValue: not.post.currentUserStatus.rawValue) ?? post.wrappedValue.currentUserStatus
+            if let role = not.post.currentUserRole{
+                post.wrappedValue.currentUserRole = .init(rawValue: role.rawValue) ?? post.wrappedValue.currentUserRole
+            }
+        }
+        
+    }
+    
+    func updateStatuses(miniUser: Components.Schemas.MiniUser, miniPost:Components.Schemas.MiniPostDto, post: Binding<Components.Schemas.PostResponseDto>) {
+        let currentUserRole = miniPost.currentUserRole?.rawValue ?? "NORMAL"
+        let user = Components.Schemas.ExtendedMiniUser(user: miniUser, _type: .init(rawValue: currentUserRole) ?? .NORMAL, locationStatus: post.wrappedValue.needsLocationalConfirmation ? .NOT_SHOWN : .NONE)
+        if !self.participantsList.contains(user){
+            self.participantsList.insert(user, at: 0)
+        }
+        
+        let role = miniPost.currentUserRole?.rawValue ?? post.wrappedValue.currentUserStatus.rawValue
+        let status = miniPost.currentUserStatus.rawValue
+        post.wrappedValue.currentUserStatus = .init(rawValue: status) ?? post.wrappedValue.currentUserStatus
+        post.wrappedValue.currentUserRole = .init(rawValue: role) ?? post.wrappedValue.currentUserRole
+        post.wrappedValue.participantsCount += 1
+        
+    }
+    
     
 }

@@ -92,6 +92,7 @@ struct AllGroupEventsView: View {
                 }
             }
         }
+        .swipeBack()
     }
     
 }

@@ -24,21 +24,22 @@ class CreateEventViewModel: ObservableObject {
     @Published var location: Components.Schemas.BaseLocation?
     @Published var returnedPlace = Place(mapItem: MKMapItem()){
         didSet{
-            self.location = .init(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+            self.location = .init(name: returnedPlace.address, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
         }
     }
 
     //Date View
-    @Published var from = Date().addingTimeInterval(900) {
+    @Published var from = Date.now.addingTimeInterval(900)
+    {
         didSet{
             if to < from.addingTimeInterval(599) {
                 to = from.addingTimeInterval(600)
             }
         }
     }
-    @Published var to = Date().addingTimeInterval(4500)
+    @Published var to = Date.now.addingTimeInterval(4500)
     @Published var isDate = true
-    @Published var dateTimeSettings = 2
+    @Published var dateTimeSettings = 0
     @Published var showTimeSettings = false
     
     //Description View
@@ -55,6 +56,9 @@ class CreateEventViewModel: ObservableObject {
     //Photos
     @Published var postPhotosURls: [String] = []
     
+    //Location Confirmation
+    @Published var needsLocationalConfirmation = false
+    
     func createPost() -> Components.Schemas.CreatePostDto {
         let interests = selectedInterests.map { interest in
             Components.Schemas.Interest(name: interest.name, icon: interest.icon, category: interest.category)
@@ -64,14 +68,14 @@ class CreateEventViewModel: ObservableObject {
         var toDate: Date?
         
         if dateTimeSettings == 0 {
-            fromDate = from
+            fromDate = nil
             toDate = nil
         } else if dateTimeSettings == 1 {
             fromDate = from
-            toDate = to
-        } else {
-            fromDate = nil
             toDate = nil
+        } else {
+            fromDate = from
+            toDate = to
         }
         
         var clubId: String? = nil
@@ -92,7 +96,8 @@ class CreateEventViewModel: ObservableObject {
             askToJoin: askToJoin,
             inClubID: clubId,
             fromDate: fromDate,
-            toDate: toDate
+            toDate: toDate, 
+            needsLocationalConfirmation: needsLocationalConfirmation
         )
     }
 }

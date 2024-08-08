@@ -81,6 +81,7 @@ struct UserSettingsView: View {
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
         })
+        .swipeBack()
     }
 }
 

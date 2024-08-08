@@ -16,7 +16,7 @@ struct EditProfilePhoneNumberMainView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10){
-            if let user = userVM.currentUserOld {
+            if let user = userVM.currentUser {
                 Text("Phone Number")
                     .font(.title3)
                     .fontWeight(.bold)

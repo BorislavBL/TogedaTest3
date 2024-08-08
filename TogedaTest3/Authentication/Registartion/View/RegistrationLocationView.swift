@@ -115,6 +115,7 @@ struct RegistrationLocationView: View {
             keyIsFocused = true
         }
         .padding(.vertical)
+        .swipeBack()
         .navigationDestination(isPresented: $isActive, destination: {
             RegistrationOccupationView(vm: vm, photoVM: photoVM)
         })

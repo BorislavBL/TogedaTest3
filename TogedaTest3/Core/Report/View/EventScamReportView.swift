@@ -202,6 +202,7 @@ struct EventScamReportView: View {
             .padding()
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBack()
     }
 }
 

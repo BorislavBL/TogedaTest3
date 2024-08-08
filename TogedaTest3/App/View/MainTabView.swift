@@ -56,7 +56,7 @@ struct MainTabView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-//            .toolbar(.hidden, for: .navigationBar)
+            .toolbar(.hidden, for: .navigationBar)
             .onAppear {
                 let tabBarAppearance = UITabBarAppearance()
                 tabBarAppearance.configureWithDefaultBackground()
@@ -75,60 +75,23 @@ struct MainTabView: View {
             .fullScreenCover(isPresented: $locationManager.showLocationServicesView, content: {
                 AllowLocationView()
             })
-            .sheet(isPresented: $postsViewModel.showPostOptions, content: {
-                List {
-                    
-                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
-                        Text("Share via")
-                    }
-                    
-                    if let user = userViewModel.currentUser, user.id == postsViewModel.clickedPost.owner.id {
-                        
-                    } else {
-                        Button("Report") {
-                            postsViewModel.showPostOptions = false
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                postsViewModel.showReportEvent = true
-                            }
-                        }
-                    }
-                    
-                }
-                .presentationDetents([.fraction(0.25)])
-                .presentationDragIndicator(.visible)
-                .scrollDisabled(true)
-            })
             .sheet(isPresented: $postsViewModel.showReportEvent, content: {
                 ReportEventView(event: postsViewModel.clickedPost)
             })
-            //            .sheet(isPresented: $clubsViewModel.showOption, content: {
-            //                List{
-            //                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
-            //                        Text("Share via")
-            //                    }
-            //
-            //                    if let user = userViewModel.currentUser, user.id == clubsViewModel.clickedClub.owner.id {
-            //                        Button{
-            //                            clubsViewModel.showOption = false
-            //                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            //                                clubsViewModel.showReport = true
-            //                            }
-            //                        } label:{
-            //                            Text("Report")
-            //                                .foregroundStyle(.red)
-            //                        }
-            //                    }
-            //                }
-            //                .scrollDisabled(true)
-            //                .presentationDetents([.height(200)])
-            //            })
             .sheet(isPresented: $clubsViewModel.showReport, content: {
                 ReportClubView(club: clubsViewModel.clickedClub)
             })
             .sheet(isPresented: $postsViewModel.showSharePostSheet) {
-                ShareView()
+                ShareView(post: postsViewModel.clickedPost)
                     .presentationDetents([.fraction(0.8), .fraction(1)])
                     .presentationDragIndicator(.visible)
+                
+            }
+            .sheet(isPresented: $clubsViewModel.showShareClubSheet) {
+                ShareView(club: clubsViewModel.clickedClub)
+                    .presentationDetents([.fraction(0.8), .fraction(1)])
+                    .presentationDragIndicator(.visible)
+                
             }
             .navigationDestination(for: SelectionPath.self, destination: { state in
                 switch state {
@@ -172,8 +135,8 @@ struct MainTabView: View {
                     AllUserGroupsView(userID: userID)
                 case .clubMemersList(let club):
                     GroupMembersListView(club: club)
-                case .userChat(toUser: let toUser, chatId: let chatId):
-                    ChatView(user: toUser, chatId: chatId)
+                case .userChat(chatroom: let chatroom):
+                    ChatView(chatRoom: chatroom)
                 case .notification:
                     NotificationView()
                 case .userRequest:
@@ -192,72 +155,6 @@ struct MainTabView: View {
                     TestView()
                 }
             })
-//            .navigationDestination(for: SelectionPath.self, destination: { state in
-//                switch state {
-//                case .eventDetails(let post):
-//                    EventView(post: post)
-//                case .usersList(let post):
-//                    UsersListView(eventVM: EventViewModel(), post: post)
-//                    //                case .editEvent(post: let post):
-//                    //                    EditEventView(post: post)
-//                case .eventUserJoinRequests(post: let post):
-//                    UserJoinRequestsView(post: post)
-//                case .completedEventDetails(post: let post):
-//                    CompletedEventView(post: post)
-//                case .allUserEvents(userID: let userID):
-//                    AllUserEventsView(userID: userID)
-//                case .bookmarkedEvents(userID: let userID):
-//                    BookmarkedEventsView(userID: userID)
-//                case .profile(let miniUser):
-//                    UserProfileView(miniUser: miniUser)
-//                case .userSettings:
-//                    UserSettingsView()
-//                case .editProfile:
-//                    EditProfileView()
-//                case .editProfilePhoneNumberMain:
-//                    EditProfilePhoneNumberMainView()
-//                case .editProfilePhoneNumber:
-//                    EditProfilePhoneNumberView()
-//                case .editProfilePhoneCodeVerification:
-//                    EditProfilePhoneCodeVerificationView()
-//                case .club(let club):
-//                    GroupView(club: club)
-//                case .clubJoinRequests(let club):
-//                    GroupJoinRequestsView(club: club)
-//                    //                case .editClubView(let club):
-//                    //                    EditGroupView(club: club)
-//                case .allClubEventsView(let clubId):
-//                    AllGroupEventsView(clubId: clubId)
-//                case .allUserGroups(userID: let userID):
-//                    AllUserGroupsView(userID: userID)
-//                case .clubMemersList(let club):
-//                    GroupMembersListView(club: club)
-//                case .userChat(toUser: let user, chatId: let chatId):
-//                    ChatView(viewModel: chatVM, user: user, chatId: chatId)
-//                case .notification:
-//                    NotificationView()
-//                case .userRequest:
-//                    UserRequestView()
-//                case .eventReview(let post):
-//                    EventReviewView(post: post)
-//                case .reviewMemories:
-//                    ReviewMemoriesView()
-//                case .test:
-//                    TestView()
-//                case .userFriendsList(let user):
-//                    FriendsListView(user: user)
-//                case .userFriendRequestsList:
-//                    FriendsRequestsView()
-//                case .rateParticipants(post: let post, rating: let rating):
-//                    RateParticipantsView(post: post, rating: rating)
-//                case .eventWaitingList(let post):
-//                    UserWaitingListView(post: post)
-//                case .userReviewView(user: let user):
-//                    ReviewProfileView(user: user)
-//                case .paymentPage:
-//                    CreateStripeView()
-//                }
-//            })
         }
         
     }

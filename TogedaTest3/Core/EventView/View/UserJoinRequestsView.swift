@@ -82,6 +82,7 @@ struct UserJoinRequestsView: View {
                 }
             }
         }
+        
         .navigationTitle("Event Join Requests")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -90,6 +91,7 @@ struct UserJoinRequestsView: View {
         })
         .padding(.top)
         .padding(.horizontal)
+        .swipeBack()
     }
 }
 

@@ -14,6 +14,8 @@ struct AllInOneFilterView: View {
     @ObservedObject var filterVM: FilterViewModel
     @EnvironmentObject var postsVM: PostsViewModel
     @EnvironmentObject var clubsVM: ClubsViewModel
+    @State var displayError: Bool = false
+    @EnvironmentObject var locationManager: LocationManager
     
     var body: some View {
         VStack(spacing: 0){
@@ -47,10 +49,14 @@ struct AllInOneFilterView: View {
                                 .font(.body)
                                 .bold()
                             
-                            LocationPickerFilterView(returnedPlace: $filterVM.returnedPlace, isCurrentLocation: $filterVM.isCurrentLocation)
+                            LocationPickerFilterView(locationManager: locationManager, returnedPlace: $filterVM.returnedPlace, isCurrentLocation: $filterVM.isCurrentLocation)
                             
                         }
                         .padding(.top, 6)
+                        
+                        if displayError && filterVM.returnedPlace.addressCountry.isEmpty {
+                            WarningTextComponent(text: "Please select location")
+                        }
                         
                         VStack(alignment: .leading, spacing: 16){
                             HStack{
@@ -104,35 +110,41 @@ struct AllInOneFilterView: View {
                         .ignoresSafeArea(edges: .bottom)
                     
                     Button {
-                        Task{
-                            switch filterVM.selectedType {
-                            case .events:
-                                try await postsVM.applyFilter(
-                                    lat: filterVM.returnedPlace.latitude,
-                                    long: filterVM.returnedPlace.longitude,
-                                    distance: filterVM.sliderValue,
-                                    from: filterVM.selectedTimeFilter.from,
-                                    to: filterVM.selectedTimeFilter.to,
-                                    categories: filterVM.selectedCategories.count > 0 ? filterVM.selectedCategories.map({ Category in
-                                        Category.name.lowercased()
-                                    }) : nil
-                                )
-                            case .clubs:
-                                try await clubsVM.applyFilter(
-                                    lat: filterVM.returnedPlace.latitude,
-                                    long: filterVM.returnedPlace.longitude,
-                                    distance: filterVM.sliderValue,
-                                    categories: filterVM.selectedCategories.count > 0 ? filterVM.selectedCategories.map({ Category in
-                                        Category.name.lowercased()
-                                    }) : nil
-                                )
-                            case .friends:
-                                print("Friends")
+                        if !filterVM.returnedPlace.addressCountry.isEmpty {
+                            Task{
+                                switch filterVM.selectedType {
+                                case .events:
+                                    try await postsVM.applyFilter(
+                                        lat: filterVM.returnedPlace.latitude,
+                                        long: filterVM.returnedPlace.longitude,
+                                        distance: filterVM.sliderValue,
+                                        from: filterVM.selectedTimeFilter.from,
+                                        to: filterVM.selectedTimeFilter.to,
+                                        categories: filterVM.selectedCategories.count > 0 ? filterVM.selectedCategories.map({ Category in
+                                            Category.name.lowercased()
+                                        }) : nil
+                                    )
+                                case .clubs:
+                                    try await clubsVM.applyFilter(
+                                        lat: filterVM.returnedPlace.latitude,
+                                        long: filterVM.returnedPlace.longitude,
+                                        distance: filterVM.sliderValue,
+                                        categories: filterVM.selectedCategories.count > 0 ? filterVM.selectedCategories.map({ Category in
+                                            Category.name.lowercased()
+                                        }) : nil
+                                    )
+                                case .friends:
+                                    print("Friends")
+                                }
+                                
+                                setLocationUpdates()
+                                
                             }
                             
+                            dismiss()
+                        } else {
+                            displayError.toggle()
                         }
-                        
-                        dismiss()
                     } label: {
                         Text("Submit")
                             .frame(maxWidth: .infinity)
@@ -149,6 +161,40 @@ struct AllInOneFilterView: View {
                 .frame(height: 60)
             }
         }
+    }
+    
+    func setLocationUpdates() {
+        
+        switch filterVM.selectedType {
+            
+        case .events:
+            
+            if clubsVM.long != filterVM.returnedPlace.longitude || clubsVM.lat != filterVM.returnedPlace.latitude {
+                filterVM.updateClubs = true
+            }
+            
+//            clubsVM.lat = filterVM.returnedPlace.latitude
+//            clubsVM.long = filterVM.returnedPlace.longitude
+        case .clubs:
+            
+            if postsVM.long != filterVM.returnedPlace.longitude || postsVM.lat != filterVM.returnedPlace.latitude {
+                filterVM.updateEvents = true
+            }
+            
+
+            
+//            postsVM.long = filterVM.returnedPlace.longitude
+//            postsVM.lat = filterVM.returnedPlace.latitude
+        case .friends: break
+//            clubsVM.lat = filterVM.returnedPlace.latitude
+//            clubsVM.long = filterVM.returnedPlace.longitude
+//            
+//            postsVM.long = filterVM.returnedPlace.longitude
+//            postsVM.lat = filterVM.returnedPlace.latitude
+        }
+        
+
+
     }
     
     @ViewBuilder
@@ -170,7 +216,9 @@ struct AllInOneFilterView: View {
                 Spacer()
                 
                 Button {
-                    filterVM.resetFilter()
+                    findLocationDetails(location: locationManager.location, returnedPlace: $filterVM.returnedPlace){
+                        filterVM.resetFilter()
+                    }
                 } label:{
                     Text("Reset")
                 }
@@ -183,7 +231,7 @@ struct AllInOneFilterView: View {
 }
 
 struct LocationPickerFilterView: View {
-    @EnvironmentObject var locationManager: LocationManager
+    @ObservedObject var locationManager: LocationManager
     @StateObject var locationVM = LocationPickerViewModel(searchType: .cityAndCountry)
     @Environment(\.dismiss) private var dismiss
     @Binding var returnedPlace: Place
@@ -251,7 +299,6 @@ struct LocationPickerFilterView: View {
                 
                 
                 if !locationVM.searchText.isEmpty {
-                    
                     ForEach(locationVM.places, id: \.id){ place in
                         VStack(alignment: .leading) {
                             HStack{
@@ -289,7 +336,6 @@ struct LocationPickerFilterView: View {
                         .padding(.horizontal)
                     
                     Button {
-                        //                        locationManager.requestAuthorization()
                         findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace){
                             UIApplication.shared.endEditing(true)
                             locationVM.searchText = ""
@@ -311,8 +357,10 @@ struct LocationPickerFilterView: View {
             }
         }
         .onAppear(){
-            findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace) {
-                isCurrentLocation = true
+            if returnedPlace.addressCountry.isEmpty {
+                findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace) {
+                    isCurrentLocation = true
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading )

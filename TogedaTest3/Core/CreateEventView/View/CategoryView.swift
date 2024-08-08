@@ -123,6 +123,7 @@ struct CategoryView: View {
             }
             .scrollIndicators(.hidden)
         }
+        .swipeBack()
         .onChange(of: searchText){
             if !searchText.isEmpty {
                 sport = Interest.SportInterests.filter{ result in

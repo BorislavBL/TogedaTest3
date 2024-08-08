@@ -75,6 +75,7 @@ struct NewGroupChatCreateView: View {
                 }
             }
         }
+        .swipeBack()
     }
 }
 

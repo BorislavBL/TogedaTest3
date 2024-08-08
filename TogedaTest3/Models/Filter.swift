@@ -7,37 +7,6 @@
 
 import Foundation
 
-struct Filter: Identifiable, Hashable {
-    let id: String
-    let categoryName: String
-    var isSelected: Bool
-    var selectingCategory: String
-    var selectedCategory: String
-    let options: [Option]
-    
-    mutating func setSelected(state: Bool) {
-        isSelected = state
-    }
-}
-
-struct Option: Identifiable, Hashable {
-    let id: String
-    let name: String
-}
-
-extension Filter {
-    static var FILTERS: [Filter] = [
-        .init(id: NSUUID().uuidString, categoryName: "Time", isSelected: false, selectingCategory: "Any", selectedCategory: "Any",
-              options: TimeOptions),
-        .init(id: NSUUID().uuidString, categoryName: "Category", isSelected: false, selectingCategory: "Any", selectedCategory: "Any",
-              options: CategoryOptions),
-        .init(id: NSUUID().uuidString, categoryName: "Distance", isSelected: false, selectingCategory: "Any", selectedCategory: "Any",
-              options: DistanceOptions),
-        .init(id: NSUUID().uuidString, categoryName: "Type", isSelected: false, selectingCategory: "Any", selectedCategory: "Any",
-              options: TypeOptions)
-    ]
-}
-
 struct TimeFilter: Hashable{
     let name: String
     let from: Date?
@@ -52,4 +21,16 @@ struct TimeFilter: Hashable{
         .init(name: "This Year", from: Date(), to: Date().addingTimeInterval(60 * 60 * 24 * 365)),
         .init(name: "Custom", from: Date(), to: Date().addingTimeInterval(60 * 15)),
     ]
+}
+
+struct EventFeedFilter: Hashable {
+    var lastPage: Bool = true
+    var page: Int32 = 0
+    var size: Int32 = 15
+    var lat: Double = 43
+    var long: Double = 39
+    var distance: Int = 300
+    var from: Date? = nil
+    var to: Date? = nil
+    var categories: [String]? = nil
 }

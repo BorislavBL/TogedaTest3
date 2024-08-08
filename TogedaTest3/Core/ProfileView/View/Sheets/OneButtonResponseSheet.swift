@@ -17,13 +17,17 @@ struct OneButtonResponseSheet: View {
                 onClick()
             } label: {
                 HStack{
+                    Text(buttonText)
+                        .fontWeight(.semibold)
+                        .normalTagTextStyle()
+                    
+                    Spacer()
+                    
                     image
                         .frame(width: 35, height: 35)
                         .foregroundColor(Color("textColor"))
                     
-                    Text(buttonText)
-                        .fontWeight(.semibold)
-                        .normalTagTextStyle()
+
                 }
                 .frame(maxWidth: .infinity)
                 .padding(8)

@@ -42,6 +42,7 @@ struct EditProfileGenderView: View {
             Spacer()
             
         }
+        .swipeBack()
         .padding(.horizontal)
         .padding(.vertical)
         .navigationBarBackButtonHidden(true)

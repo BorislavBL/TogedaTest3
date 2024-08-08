@@ -56,10 +56,13 @@ class FilterViewModel: ObservableObject {
     @Published var selectedType: FeedType = .events
     let types: [FeedType] = [.events, .clubs, .friends]
     
+    @Published var updateEvents = false
+    @Published var updateClubs = false
+    @Published var updateActivity = false
+    
     func resetFilter() {
         self.searchText = ""
         self.isCurrentLocation = true
-        self.returnedPlace = Place(mapItem: MKMapItem())
         self.selectedTimeFilter = .timeFilterOptions[0]
         self.sliderValue = 300
         self.selectedSortFilter = "Relevance"

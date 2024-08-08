@@ -10,15 +10,23 @@ import Kingfisher
 
 struct EventRequestPage: View {
     let size: ImageSize = .medium
-    @State var post: Components.Schemas.PostResponseDto = MockPost
+    var post: Components.Schemas.MiniPostDto
     var createDate: Date
     var alertBody: Components.Schemas.AlertBodyReceivedJoinRequest
-    
+    @Binding var selectionPath: [SelectionPath]
+
     var body: some View {
             VStack {
-                NavigationLink(value: SelectionPath.eventDetails(post)){
+//                NavigationLink(value: SelectionPath.eventDetails(post)){
+                Button{
+                    Task{
+                        if let response = try await APIClient.shared.getEvent(postId: post.id){
+                            selectionPath.append(.eventDetails(response))
+                        }
+                    }
+                } label:{
                     HStack(alignment:.top){
-                        KFImage(URL(string:alertBody.image))
+                        KFImage(URL(string:post.images[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -27,7 +35,7 @@ struct EventRequestPage: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 5){
-                        Text(alertBody.title)
+                        Text(post.title)
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
@@ -50,5 +58,5 @@ struct EventRequestPage: View {
 }
 
 #Preview {
-    EventRequestPage(createDate: Date(), alertBody: mockAlertBodyReceivedJoinRequest)
+    EventRequestPage(post: MockMiniPost, createDate: Date(), alertBody: mockAlertBodyReceivedJoinRequest, selectionPath: .constant([]))
 }

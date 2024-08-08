@@ -8,30 +8,37 @@
 import SwiftUI
 
 struct TestView: View {
-
-    @State private var animateGradient = false
     
-    var body: some View {
-        ZStack {
-            Color(.systemGray5)
-                .frame(height: 200)
-                .cornerRadius(8)
-            
-            LinearGradient(gradient: Gradient(colors: [Color(.systemGray5).opacity(0.6), Color(.systemGray5).opacity(0.3), Color(.systemGray5).opacity(0.6)]),
-                           startPoint: .leading,
-                           endPoint: .trailing)
-                .frame(height: 200)
-                .cornerRadius(8)
-                .offset(x: animateGradient ? 300 : -300)
-                .animation(Animation.linear(duration: 1.5).repeatForever(autoreverses: false))
-                .onAppear {
-                    self.animateGradient.toggle()
-                }
+    @State var from = Date.now.addingTimeInterval(900)
+    {
+        didSet{
+            if to < from.addingTimeInterval(599) {
+                to = from.addingTimeInterval(600)
+            }
         }
-        .padding()
+    }
+    @State var to = Date.now.addingTimeInterval(4500)
+    var body: some View {
+        VStack{
+            Menu{
+                Button{print("flicking")} label: {
+                    Text("Test menu")
+                }
+            } label:{
+                Text("Test menu")
+            }
+            
+            DatePicker("From", selection: $from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
+                .fontWeight(.semibold)
+            
+            
+            DatePicker("To", selection: $to, in: from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
+                .fontWeight(.semibold)
+            
+        }
     }
     
-  }
+}
 
 
 

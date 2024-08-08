@@ -8,10 +8,10 @@
 import SwiftUI
 import Combine
 
-enum FeedItem: Hashable {
-    case event(Post)
-    case group(Club)
-}
+//enum FeedItem: Hashable {
+//    case event(Post)
+//    case group(Club)
+//}
 
 enum SearchCases: Hashable {
     case events
@@ -36,19 +36,24 @@ class HomeViewModel: ObservableObject {
     
     @Published var selectedFilter: SearchCases = .events {
         didSet{
-            self.searchText = ""
+//            self.searchText = ""
             self.toDefault()
+            if !searchText.isEmpty{
+                self.searchType()
+            }
+            
+            
         }
     }
 
-    @Published var feedItems: [FeedItem] = []
-    
-    func fetchFeed() {
-        feedItems.append(contentsOf: Post.MOCK_POSTS.map { FeedItem.event($0) })
-        feedItems.append(contentsOf: Club.MOCK_CLUBS.map { FeedItem.group($0) })
-
-        feedItems.shuffle()
-    }
+//    @Published var feedItems: [FeedItem] = []
+//    
+//    func fetchFeed() {
+//        feedItems.append(contentsOf: Post.MOCK_POSTS.map { FeedItem.event($0) })
+//        feedItems.append(contentsOf: Club.MOCK_CLUBS.map { FeedItem.group($0) })
+//
+//        feedItems.shuffle()
+//    }
     
     
     @Published var searchText: String = ""
@@ -122,24 +127,29 @@ class HomeViewModel: ObservableObject {
                 if !value.isEmpty {
                     print("Searching...")
                     self.toDefault()
-                    if self.selectedFilter == .events {
-                        Task{
-                            try await self.searchPosts()
-                        }
-                    } else if self.selectedFilter == .users {
-                        Task{
-                            try await self.searchUsers()
-                        }
-                    } else if self.selectedFilter == .clubs {
-                        Task{
-                            try await self.searchClubs()
-                        }
-                    }
+                    self.searchType()
+                    
                 } else {
                     print("Not Searching...")
                     self.toDefault()
                 }
             })
+    }
+    
+    func searchType() {
+        if self.selectedFilter == .events {
+            Task{
+                try await self.searchPosts()
+            }
+        } else if self.selectedFilter == .users {
+            Task{
+                try await self.searchUsers()
+            }
+        } else if self.selectedFilter == .clubs {
+            Task{
+                try await self.searchClubs()
+            }
+        }
     }
     
     func toDefault() {
@@ -152,6 +162,7 @@ class HomeViewModel: ObservableObject {
     
     func stopSearch() {
         cancellable = nil
+        toDefault()
     }
     
 

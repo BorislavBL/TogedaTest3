@@ -22,13 +22,17 @@ struct AcceptDenySheet: View {
                 }
             } label: {
                 HStack{
+                    Text("Accept")
+                        .fontWeight(.semibold)
+                        .normalTagTextStyle()
+                    
+                    Spacer()
+                    
                     Image(systemName: "checkmark.circle.fill")
                         .frame(width: 35, height: 35)
                         .foregroundColor(Color("textColor"))
                     
-                    Text("Accept")
-                        .fontWeight(.semibold)
-                        .normalTagTextStyle()
+
                 }
                 .frame(maxWidth: .infinity)
                 .padding(8)
@@ -45,13 +49,17 @@ struct AcceptDenySheet: View {
                 }
             } label: {
                 HStack{
+                    Text("Deny")
+                        .fontWeight(.semibold)
+                        .normalTagTextStyle()
+                    
+                    Spacer()
+                    
                     Image(systemName: "x.circle.fill")
                         .frame(width: 35, height: 35)
                         .foregroundColor(Color("textColor"))
                     
-                    Text("Deny")
-                        .fontWeight(.semibold)
-                        .normalTagTextStyle()
+
                 }
                 .frame(maxWidth: .infinity)
                 .padding(8)

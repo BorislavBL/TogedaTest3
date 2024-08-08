@@ -9,16 +9,33 @@ import SwiftUI
 
 @MainActor
 class UserViewModel: ObservableObject {
-    @Published var user: User = User.MOCK_USERS[0]
-    @Published var currentUserOld: User?
     @Published var currentUser: Components.Schemas.UserInfoDto?
     
     init(){
-        Task{
-            do {
-                try await self.fetchCurrentUser()
-            } catch {
-                print("Error fetching data: \(error)")
+//        self.retryFetchUser()
+//        Task{
+//            do {
+//                try await fetchCurrentUser()
+//                print("End user fetch")
+//            } catch {
+//                // Handle the error if needed
+//                print("Error fetching data: \(error)")
+//            }
+//        }
+    }
+    
+    func retryFetchUser() {
+        Task {
+            while true {
+                do {
+                    try await fetchCurrentUser()
+                    print("End user fetch")
+                    break // Exit loop if fetchPosts succeeds
+                } catch {
+                    // Handle the error if needed
+                    print("Error fetching data: \(error)")
+                    try await Task.sleep(nanoseconds: 20_000_000_000)
+                }
             }
         }
     }
@@ -26,13 +43,4 @@ class UserViewModel: ObservableObject {
     func fetchCurrentUser() async throws{
         currentUser = try await APIClient.shared.getCurrentUserInfo()
     }
-    
-    func savePost(postId: String) {
-        if !user.details.savedPostIds.contains(postId){
-            user.details.savedPostIds.append(postId)
-        } else {
-            user.details.savedPostIds.removeAll(where: { $0 == postId })
-        }
-    }
-    
 }

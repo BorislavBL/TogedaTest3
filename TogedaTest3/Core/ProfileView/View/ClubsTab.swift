@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ClubsTab: View {
     var userID: String
-    var count: Int32
+    var count: Int64
     
     @Binding var clubs: [Components.Schemas.ClubDto]
     

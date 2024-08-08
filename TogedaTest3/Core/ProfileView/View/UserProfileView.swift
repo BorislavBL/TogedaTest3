@@ -28,7 +28,6 @@ struct UserProfileView: View {
     @State var showRespondSheet = false
     @State var showRemoveSheet = false
     @State var showCancelSheet = false
-    @State var showOptionsSheet = false
     @State var showReportSheet = false
     
     var body: some View {
@@ -129,24 +128,24 @@ struct UserProfileView: View {
                             Divider()
                                 .frame(height: 50)
                             
-
-                                UserStats(value: "\(0)", title: "Events")
-                                    .frame(width: 105)
+                            
+                            UserStats(value: "\(0)", title: "Events")
+                                .frame(width: 105)
                             
                             Divider()
                                 .frame(height: 50)
                             
-     
-                                VStack{
-                                    UserStats(value: "\(100)%", title: "Rating")
-                                    Text("0 no shows")
-                                        .font(.footnote)
-                                        .foregroundStyle(.gray)
-                                }
-                                .frame(width: 105)
+                            
+                            VStack{
+                                UserStats(value: "\(100)%", title: "Rating")
+                                Text("0 no shows")
+                                    .font(.footnote)
+                                    .foregroundStyle(.gray)
+                            }
+                            .frame(width: 105)
                             
                         }
-
+                        
                     }
                     .padding(.bottom, 8)
                     
@@ -213,28 +212,19 @@ struct UserProfileView: View {
                 .background(.bar)
                 .cornerRadius(10)
                 
-//                BadgesTab()
+                //                BadgesTab()
                 
                 AboutTab(user: user)
                 
-                if let user = user {
-                    EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: viewModel.postsCount)
-//                        .onAppear(){
-//                            if InitEvent {
-//                                viewModel.posts = []
-//                                viewModel.clubs = []
-//                                Task{
-//                                    try await viewModel.getUserPosts(userId: user.id)
-//                                    try await viewModel.getUserClubs(userId: user.id)
-//                                }
-//                                
-//                                InitEvent = false
-//                            }
-//                        }
-                    if viewModel.clubs.count > 0 {
-                        ClubsTab(userID: miniUser.id, count: viewModel.clubsCount, clubs:  $viewModel.clubs)
-                    }
+
+                if viewModel.posts.count > 0 {
+                    EventTab(userID: miniUser.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: $viewModel.postsCount)
                 }
+                
+                if viewModel.clubs.count > 0 {
+                    ClubsTab(userID: miniUser.id, count: viewModel.clubsCount, clubs:  $viewModel.clubs)
+                }
+                
                 
             }
             .refreshable(action: {
@@ -263,13 +253,14 @@ struct UserProfileView: View {
             
             navbar()
         }
+        .swipeBack()
         .sheet(isPresented: $showRemoveSheet, content: {
             AutoSizeSheetView{
                 OneButtonResponseSheet(onClick: {
                     Task {
                         if let user = self.user, try await APIClient.shared.removeFriend(removeUserId: user.id) != nil {
                             self.user?.currentFriendshipStatus = .NOT_FRIENDS
-                            showRespondSheet = false
+                            showRemoveSheet = false
                         }
                     }
                 }, buttonText: "Remove Friend", image: Image(systemName: "x.circle.fill"))
@@ -283,7 +274,7 @@ struct UserProfileView: View {
                     Task {
                         if let user = self.user, try await APIClient.shared.removeFriendRequest(removeUserId: user.id) != nil {
                             self.user?.currentFriendshipStatus = .NOT_FRIENDS
-                            showRespondSheet = false
+                            showCancelSheet = false
                         }
                     }
                 }, buttonText: "Cancel Response", image: Image(systemName: "x.circle.fill"))
@@ -299,26 +290,6 @@ struct UserProfileView: View {
         .sheet(isPresented: $showSheet, content: {
             CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
         })
-        .sheet(isPresented: $showOptionsSheet, content: {
-            List {
-                ShareLink(item: URL(string: "https://www.youtube.com/")!) {
-                    Text("Share via")
-                }
-                
-                Button{
-                    showOptionsSheet = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1){
-                        showReportSheet = true
-                    }
-                } label:{
-                    Text("Report")
-                        .foregroundStyle(.red)
-                }
-            }
-            .presentationDetents([.height(200)])
-            .presentationDragIndicator(.visible)
-            .scrollDisabled(true)
-        })
         .sheet(isPresented: $showReportSheet, content: {
             ReportUserView(user: miniUser)
         })
@@ -333,6 +304,11 @@ struct UserProfileView: View {
         })
         .fullScreenCover(isPresented: $showCreateEvent, content: {
             CreateEventView()
+        })
+        .onChange(of: user, { oldValue, newValue in
+            if let response = newValue{
+                self.miniUser = .init(id: response.id, firstName: response.firstName, lastName: response.lastName, profilePhotos: response.profilePhotos, occupation: response.occupation, location: response.location, birthDate: response.birthDate)
+            }
         })
         .onAppear(){
             if Init {
@@ -383,8 +359,17 @@ struct UserProfileView: View {
                         .navButton3()
                 }
             } else {
-                Button {
-                    showOptionsSheet = true
+                Menu{
+                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                        Text("Share via")
+                    }
+                    
+                    Button{
+                        showReportSheet = true
+                    } label:{
+                        Text("Report")
+                            .foregroundStyle(.red)
+                    }
                 } label: {
                     Image(systemName: "ellipsis")
                         .rotationEffect(.degrees(90))
@@ -404,7 +389,7 @@ struct UserProfileView: View {
                     if let response = try await APIClient.shared.getUserInfo(userId: miniUser.id) {
                         DispatchQueue.main.async {
                             self.user = response
-                            self.miniUser = .init(id: response.id, firstName: response.firstName, lastName: response.lastName, profilePhotos: response.profilePhotos, occupation: response.occupation, location: response.location, birthDate: response.birthDate)
+
                         }
                     }
                     

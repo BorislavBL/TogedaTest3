@@ -6,14 +6,16 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct InboxView: View {
+    @EnvironmentObject var chatManager: WebSocketManager
     @ObservedObject var chatVM: ChatViewModel
     @State private var showNewMessageView = false
     @State var searchText: String = ""
     @State var messages: [Message] = Message.MOCK_MESSAGES
     @State var isSearching: Bool = false
-    @State var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
+    @State var searchUserResults: [Components.Schemas.MiniUser] = [MockMiniUser]
     
     @State var navHeight: CGFloat = .zero
     
@@ -43,16 +45,14 @@ struct InboxView: View {
             .background(.bar)
             
             List {
-                ForEach(messages){ message in
-                    if let user = message.user{
+                ForEach(chatManager.allChatRooms, id: \.id){ chatroom in
                         ZStack{
-                            NavigationLink(value: SelectionPath.userChat(user: user)){
+                            NavigationLink(value: SelectionPath.userChat(chatroom: chatroom)){
                                 EmptyView()
                             }
                             .opacity(0)
-                            InboxRowView(message: message)
+                            InboxRowView(chatroom: chatroom)
                         }
-                    }
                     
                 }
                 .listRowSeparator(.hidden)
@@ -66,74 +66,103 @@ struct InboxView: View {
                 }
             }
         }
-        //            .searchable(text: $searchText, isPresented: $isSearching, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search")
         .listStyle(PlainListStyle())
-        //            .navigationBarTitleDisplayMode(.inline)
-        //            .navigationTitle("Chats")
         .scrollIndicators(.hidden)
-        .onChange(of: searchText){
-            if !searchText.isEmpty {
-                searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                    result.fullName.lowercased().contains(searchText.lowercased())
-                }
-            } else {
-                searchUserResults = MiniUser.MOCK_MINIUSERS
-            }
-        }
         .fullScreenCover(isPresented: $showNewMessageView, content: {
             NewMessageView(chatVM: chatVM)
         })
-        //            .toolbar {
-        //                ToolbarItem(placement: .navigationBarTrailing) {
-        //                    Image(systemName: "square.and.pencil.circle.fill")
-        //                        .resizable()
-        //                        .frame(width: 28, height: 28)
-        //                        .foregroundStyle(Color("blackAndWhite"), Color(.systemGray5))
-        //                        .onTapGesture {
-        //                            showNewMessageView.toggle()
-        //                            chatVM.selectedUser = nil
-        //                        }
-        //                }
-        //            }
+        
     }
 }
 
 struct InboxRowView: View {
-    var message: Message
+    var chatroom: Components.Schemas.ChatRoomDto
     var size: ImageSize = .medium
     var body: some View {
         HStack(alignment: .top, spacing: 12){
-            if let user = message.user{
-                Image(user.profilePhotos[0])
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: size.dimension, height: size.dimension)
-                    .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+            
+            switch chatroom._type{
+            case .CLUB:
+                if let club = chatroom.club {
+                    KFImage(URL(string: club.images[0]))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size.dimension, height: size.dimension)
+                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                }
+            case .FRIENDS:
+                if chatroom.previewMembers.count > 0 {
+                    KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size.dimension, height: size.dimension)
+                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                }
+            case .GROUP:
+                if chatroom.previewMembers.count > 1 {
+                    KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size.dimension, height: size.dimension)
+                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                }
+            case .POST:
+                if let post = chatroom.post {
+                    KFImage(URL(string: post.images[0]))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size.dimension, height: size.dimension)
+                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                }
+                
             }
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack{
-                    if let user = message.user{
-                        Text(user.fullName)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
+                    switch chatroom._type{
+                    case .CLUB:
+                        if let club = chatroom.club {
+                            Text("\(club.title)")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                        }
+                    case .FRIENDS:
+                        if chatroom.previewMembers.count > 0 {
+                            Text("\(chatroom.previewMembers[0].firstName) \(chatroom.previewMembers[0].lastName)")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                    case .GROUP:
+                        if chatroom.previewMembers.count > 1 {
+                            Text("\(chatroom.previewMembers[0].firstName) \(chatroom.previewMembers[1].firstName)")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                    case .POST:
+                        if let post = chatroom.post {
+                            Text("\(post.title)")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                        }
+                        
                     }
+
                     
                     Spacer(minLength: 10)
                     
-                    Text("\(message.timestamp.formatted())")
+                    Text("\(chatroom.latestMessageTimestamp.formatted())")
                         .font(.footnote)
-                        .foregroundColor(!message.read ? Color(.systemBlue) : .gray)
+                        .foregroundColor(!chatroom.read ? Color(.systemBlue) : .gray)
                         .lineLimit(2)
                 }
                 
                 HStack(alignment: .top){
-                    Text(message.text)
+                    Text(chatroom.latestMessage?.content ?? "")
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .lineLimit(2)
                     
-                    if !message.read{
+                    if !chatroom.read{
                         Spacer(minLength: 10)
                         
                         Circle()
@@ -150,4 +179,5 @@ struct InboxRowView: View {
 #Preview {
     InboxView(chatVM: ChatViewModel())
         .environmentObject(PostsViewModel())
+        .environmentObject(WebSocketManager())
 }

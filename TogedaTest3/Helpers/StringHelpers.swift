@@ -34,17 +34,26 @@ func locationCityAndCountry(_ location: Components.Schemas.BaseLocation) -> Stri
     var locationComponents = [String]()
     
     if let city = location.city {
-        locationComponents.append(city)
+        if let state = location.state {
+            if city != state {
+                locationComponents.append(city)
+                locationComponents.append(state)
+            } else {
+                locationComponents.append(city)
+            }
+        } else {
+            locationComponents.append(city)
+        }
     } else if let state = location.state {
         locationComponents.append(state)
     }
+    
     if let country = location.country {
         locationComponents.append(country)
     }
     
     return locationComponents.joined(separator: ", ")
 }
-
 
 func locationAddress(_ location: Components.Schemas.BaseLocation) -> String {
     var locationComponents = [String]()
@@ -52,18 +61,33 @@ func locationAddress(_ location: Components.Schemas.BaseLocation) -> String {
     if let street = location.address {
         locationComponents.append(street)
     }
+    
+    var cityAndState = ""
     if let city = location.city {
-        locationComponents.append(city)
+        if let state = location.state {
+            if city != state {
+                cityAndState = "\(city), \(state)"
+            } else {
+                cityAndState = city
+            }
+        } else {
+            cityAndState = city
+        }
+    } else if let state = location.state {
+        cityAndState = state
     }
-    if let state = location.state {
-        locationComponents.append(state)
+    
+    if !cityAndState.isEmpty {
+        locationComponents.append(cityAndState)
     }
+    
     if let country = location.country {
         locationComponents.append(country)
     }
     
     return locationComponents.joined(separator: ", ")
 }
+
 
 func convertCmToFeetAndInches(_ centimeters: String) -> String? {
     guard let cm = Double(centimeters) else { return nil }

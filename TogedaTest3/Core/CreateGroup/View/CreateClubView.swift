@@ -25,11 +25,18 @@ struct CreateClubView: View {
     let placeholder = "Provide a brief overview of your group. What is the main focus or interest? Describe the typical activities, meetings, or events you organize. Highlight any unique aspects or notable achievements."
     
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .club, mode: .normal)
+    @State var isLoading = false
+    @State private var errorMessage: String?
     
     var body: some View {
         NavigationStack{
             ZStack(alignment: .bottom){
                 ScrollView{
+                    
+                    if let error = errorMessage {
+                        WarningTextComponent(text: error)
+                    }
+                    
                     VStack(alignment: .leading){
                         Text("Title:")
                             .foregroundStyle(.tint)
@@ -259,17 +266,32 @@ struct CreateClubView: View {
                         LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
                             .ignoresSafeArea(edges: .bottom)
                         Button{
+                            errorMessage = nil
+                            withAnimation{
+                                isLoading = true
+                            }
                             Task{
                                 do{
                                     if await photoPickerVM.saveImages() {
                                         createGroupVM.publishedPhotosURLs = photoPickerVM.publishedPhotosURLs
                                         let createClub = createGroupVM.createClub()
                                         
-                                        let response = try await APIClient.shared.createClub(data: createClub)
-                                        
-                                        resetClubsOnCreate()
-                                        
-                                        dismiss()
+                                        try await APIClient.shared.createClub(data: createClub) { response, error in
+                                            DispatchQueue.main.async {
+                                                if let error = error {
+                                                    withAnimation{
+                                                        self.isLoading = false
+                                                    }
+                                                    self.errorMessage = error
+                                                } else {
+                                                    resetClubsOnCreate()
+                                                    withAnimation{
+                                                        self.isLoading = false
+                                                    }
+                                                    dismiss()
+                                                }
+                                            }
+                                        }
                                     }
                                 } catch GeneralError.badRequest(details: let details){
                                     print(details)
@@ -311,6 +333,11 @@ struct CreateClubView: View {
                             }
                     }
                     .frame(height: 60)
+                }
+            }
+            .overlay {
+                if isLoading {
+                    LoadingScreenView(isVisible: $isLoading)
                 }
             }
             .toolbar{

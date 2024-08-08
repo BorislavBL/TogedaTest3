@@ -7,14 +7,15 @@
 
 import SwiftUI
 import WrappingHStack
+import Kingfisher
 
 struct NewGroupChatView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var newChatVM: NewChatViewModel
     @State var searchText: String = ""
     let size: ImageSize = .small
-    @State var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
-    @State var selectedUsers: [MiniUser] = []
+    @State var searchUserResults: [Components.Schemas.GetFriendsDto] = []
+    @State var selectedUsers: [Components.Schemas.GetFriendsDto] = []
     @State private var showNewGroupChatCreateView = false
     
     var body: some View {
@@ -28,9 +29,9 @@ struct NewGroupChatView: View {
                 if selectedUsers.count > 0{
                     ScrollView{
                         WrappingHStack(alignment: .topLeading){
-                            ForEach(selectedUsers, id: \.id) { user in
+                            ForEach(selectedUsers, id: \.user.id) { user in
                                 ParticipantsChatTags(user: user){
-                                    selectedUsers.removeAll(where: { $0 == user })
+                                    selectedUsers.removeAll(where: { $0.user.id == user.user.id })
                                 }
                             }
                         }
@@ -47,17 +48,17 @@ struct NewGroupChatView: View {
                 
                 
                 LazyVStack {
-                    ForEach(searchUserResults) { user in
+                    ForEach(searchUserResults, id: \.user.id) { user in
                         VStack {
                             Button{
-                                if selectedUsers.contains(user) {
-                                    selectedUsers.removeAll(where: { $0 == user })
+                                if selectedUsers.contains(where:{ $0.user.id == user.user.id}) {
+                                    selectedUsers.removeAll(where: { $0.user.id == user.user.id })
                                 } else {
                                     selectedUsers.append(user)
                                 }
                             } label:{
                                 HStack {
-                                    if selectedUsers.contains(user){
+                                    if selectedUsers.contains(where:{ $0.user.id == user.user.id}){
                                         Image(systemName: "checkmark.circle.fill")
                                             .imageScale(.large)
                                             .foregroundStyle(.blue)
@@ -67,13 +68,13 @@ struct NewGroupChatView: View {
                                             .foregroundStyle(.gray)
                                     }
                                     
-                                    Image(user.profilePhotos[0])
+                                    KFImage(URL(string: user.user.profilePhotos[0]))
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: size.dimension, height: size.dimension)
                                         .clipShape(Circle())
                                     
-                                    Text(user.fullName)
+                                    Text("\(user.user.firstName) \(user.user.lastName)")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                     
@@ -90,13 +91,13 @@ struct NewGroupChatView: View {
             }
             
             .onChange(of: searchText){
-                if !searchText.isEmpty {
-                    searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                        result.fullName.lowercased().contains(searchText.lowercased())
-                    }
-                } else {
-                    searchUserResults = MiniUser.MOCK_MINIUSERS
-                }
+//                if !searchText.isEmpty {
+//                    searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
+//                        result.fullName.lowercased().contains(searchText.lowercased())
+//                    }
+//                } else {
+//                    searchUserResults = MiniUser.MOCK_MINIUSERS
+//                }
             }
             .navigationTitle("New Group")
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
@@ -124,11 +125,12 @@ struct NewGroupChatView: View {
             .navigationDestination(isPresented: $showNewGroupChatCreateView) {
                 NewGroupChatCreateView(newChatVM: newChatVM)
             }
+        
         }
 }
 
 struct ParticipantsChatTags: View {
-    var user: MiniUser
+    var user: Components.Schemas.GetFriendsDto
     let size: ImageSize = .xxSmall
     @State var clicked = false
     var action: () -> Void
@@ -140,7 +142,7 @@ struct ParticipantsChatTags: View {
                         .imageScale(.medium)
                         
                     
-                    Text(user.fullName)
+                    Text("\(user.user.firstName) \(user.user.lastName)")
                         .font(.subheadline)
 
                 }
@@ -152,13 +154,13 @@ struct ParticipantsChatTags: View {
         } else {
             Button{clicked = true} label:{
                 HStack{
-                    Image(user.profilePhotos[0])
+                    KFImage(URL(string: user.user.profilePhotos[0]))
                         .resizable()
                         .scaledToFill()
                         .frame(width: size.dimension, height: size.dimension)
                         .clipShape(Circle())
                     
-                    Text(user.fullName)
+                    Text("\(user.user.firstName) \(user.user.lastName)")
                         .font(.subheadline)
                         .padding(.trailing, 8)
                 }

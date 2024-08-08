@@ -44,7 +44,6 @@ struct EventComponent: View {
 
                 }
                 
-                
                 Text(post.title)
                     .font(.footnote)
                     .foregroundColor(.white)
@@ -63,6 +62,16 @@ struct EventComponent: View {
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(post.status == .HAS_ENDED ? .red : Color("light-gray"))
+                        }
+                    } else if post.status == .HAS_ENDED {
+                        HStack{
+                            Image(systemName: "calendar")
+                                .font(.caption)
+                                .foregroundColor(post.status == .HAS_ENDED ? .red : Color("light-gray"))
+                            Text("Ended")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.red)
                         }
                     }
                     HStack{

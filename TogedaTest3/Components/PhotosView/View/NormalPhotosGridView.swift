@@ -24,55 +24,90 @@ struct NormalPhotosGridView: View {
         Grid {
             GridRow {
                 ForEach(0..<3, id: \.self){ index in
-                    ZStack{
+                    VStack{
                         if let image = vm.selectedImages[index]{
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width:imageDimension, height: imageDimension * 1.3)
-                                .cornerRadius(10)
-                                .clipped()
+                            Menu{
+                                Button(action: {
+                                    vm.selectedImageIndex = index
+                                    vm.showPhotosPicker = true
+                                }) {
+                                    Text("Change Image")
+                                    Image(systemName: "photo.fill")
+                                }
+                                
+                                Button(role: .destructive, action: {
+                                    vm.selectedImages[index] = nil
+                                }) {
+                                    Text("Delete")
+                                    Image(systemName: "trash.fill")
+                                }
+                            } label: {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width:imageDimension, height: imageDimension * 1.3)
+                                    .cornerRadius(10)
+                                    .clipped()
+                            }
                         } else {
-                            Color("main-secondary-color")
-                                .frame(width:imageDimension, height: imageDimension * 1.3)
-                                .cornerRadius(10)
-                            
-                            Image(systemName: "plus.circle")
-                                .foregroundStyle(Color("SelectedFilter"))
-                                .imageScale(.large)
+                            ZStack(){
+                                Color("main-secondary-color")
+                                    .frame(width:imageDimension, height: imageDimension * 1.3)
+                                    .cornerRadius(10)
+                                
+                                Image(systemName: "plus.circle")
+                                    .foregroundStyle(Color("SelectedFilter"))
+                                    .imageScale(.large)
+                            }                    
+                            .onTapGesture {
+                                vm.selectedImageIndex = index
+                                vm.showPhotosPicker = true
+                            }
                         }
                     }
-                    .onTapGesture {
-                        vm.selectedImageIndex = index
-                        vm.showPhotosPicker = true
-                        isShowingPhotoPicker = true
-                    }
+
                 }
             }
             GridRow {
                 ForEach(3..<6, id: \.self){ index in
-                    ZStack{
+                    VStack{
                         if let image = vm.selectedImages[index]{
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width:imageDimension, height: imageDimension * 1.3)
-                                .cornerRadius(10)
-                                .clipped()
+                            Menu{
+                                Button(action: {
+                                    vm.selectedImageIndex = index
+                                    vm.showPhotosPicker = true
+                                }) {
+                                    Text("Change Image")
+                                }
+                                
+                                Button(role: .destructive, action: {
+                                    vm.selectedImages[index] = nil
+                                }) {
+                                    Text("Delete")
+                                }
+                            } label: {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width:imageDimension, height: imageDimension * 1.3)
+                                    .cornerRadius(10)
+                                    .clipped()
+                            }
                         } else {
-                            Color("main-secondary-color")
-                                .frame(width:imageDimension, height: imageDimension * 1.3)
-                                .cornerRadius(10)
-                            
-                            Image(systemName: "plus.circle")
-                                .foregroundStyle(Color("SelectedFilter"))
-                                .imageScale(.large)
+                            ZStack(){
+                                Color("main-secondary-color")
+                                    .frame(width:imageDimension, height: imageDimension * 1.3)
+                                    .cornerRadius(10)
+                                
+                                Image(systemName: "plus.circle")
+                                    .foregroundStyle(Color("SelectedFilter"))
+                                    .imageScale(.large)
+                            }
+                            .onTapGesture {
+                                vm.selectedImageIndex = index
+                                vm.showPhotosPicker = true
+                            }
                         }
-                    }
-                    .onTapGesture {
-                        vm.selectedImageIndex = index
-                        vm.showPhotosPicker = true
-                        isShowingPhotoPicker = true
                     }
                 }
             }
@@ -81,25 +116,21 @@ struct NormalPhotosGridView: View {
 //        .fullScreenCover(isPresented: $vm.showCropView, content: {
 //            CropPhotoView(selectedImage:vm.selectedImage, finalImage: $vm.selectedImages[vm.selectedImageIndex ?? 0], crop: .custom(CGSize(width: CROPPING_WIDTH, height: CROPPING_HEIGHT)))
 //        })
-        .sheet(isPresented: $isShowingPhotoPicker) {
-            PhotoPicker(selectedImage: $imageToCrop, finalImage: $finalImage, cropSize: CGSize(width: 500, height: 1000))
-                .onDisappear {
-                    if let imageToCrop = imageToCrop {
-                        isShowingCropView = true
-                    }
-                }
+        .sheet(isPresented: $vm.showPhotosPicker) {
+            PhotoPicker(selectedImage: $vm.selectedImage, showCropView: $vm.showCropView)
         }
-        .sheet(isPresented: $isShowingCropView) {
-            if let imageToCrop = imageToCrop {
-                CropView(image: imageToCrop, cropSize: CGSize(width: 500, height: 1000)) { croppedImage in
+        .sheet(isPresented: $vm.showCropView) {
+            if let imageToCrop = vm.selectedImage {
+                CropView(image: imageToCrop, cropSize: CGSize(width: CROPPING_WIDTH, height: CROPPING_HEIGHT)) { croppedImage in
                     if let index = vm.selectedImageIndex {
                         vm.selectedImages[index] = croppedImage
                     }
-                    isShowingCropView = false
+                    vm.showCropView = false
                 } onCancel: {
-                    isShowingCropView = false
+                    vm.showCropView = false
                 }
                 .transition(.opacity)
+                .interactiveDismissDisabled()
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)

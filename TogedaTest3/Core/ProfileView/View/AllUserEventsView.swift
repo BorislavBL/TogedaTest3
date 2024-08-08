@@ -77,6 +77,7 @@ struct AllUserEventsView: View {
             }
         }
         .scrollIndicators(.hidden)
+        .swipeBack()
         .navigationTitle("Events")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

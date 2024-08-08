@@ -31,8 +31,13 @@ struct PostTags: View {
             HStack(spacing: 3) {
                 Image(systemName: "calendar")
                 if let from = post.fromDate, let to = post.toDate {
-                    Text("\(separateDateAndTime(from: from).date) - \(separateDateAndTime(from: to).date)")
-                        .normalTagTextStyle()
+                    if separateDateAndTime(from: from).date == separateDateAndTime(from: to).date {
+                        Text("\(separateDateAndTime(from: from).date)")
+                            .normalTagTextStyle()
+                    } else {
+                        Text("\(separateDateAndTime(from: from).date) - \(separateDateAndTime(from: to).date)")
+                            .normalTagTextStyle()
+                    }
                 } else if let from = post.fromDate {
                     Text("\(separateDateAndTime(from: from).date)")
                         .normalTagTextStyle()
@@ -47,8 +52,13 @@ struct PostTags: View {
                 HStack(spacing: 3) {
                     Image(systemName: "clock")
                     if let to = post.toDate {
-                        Text("\(separateDateAndTime(from: from).time) - \(separateDateAndTime(from: to).time)")
-                            .normalTagTextStyle()
+                        if separateDateAndTime(from: from).time == separateDateAndTime(from: to).time {
+                            Text("\(separateDateAndTime(from: from).time)")
+                                .normalTagTextStyle()
+                        } else {
+                            Text("\(separateDateAndTime(from: from).time) - \(separateDateAndTime(from: to).time)")
+                                .normalTagTextStyle()
+                        }
                     } else {
                         Text("\(separateDateAndTime(from: from).time)")
                             .normalTagTextStyle()

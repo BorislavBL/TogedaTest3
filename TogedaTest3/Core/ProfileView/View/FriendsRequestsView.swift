@@ -100,6 +100,7 @@ struct FriendsRequestsView: View {
                 }
             }
         }
+        .swipeBack()
         .navigationTitle("Event Join Requests")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -108,6 +109,7 @@ struct FriendsRequestsView: View {
         })
         .padding(.top)
         .padding(.horizontal)
+        
     }
 }
 

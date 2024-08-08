@@ -36,6 +36,7 @@ struct JoinRequestView: View {
                                     }
                                     post = response
                                     
+                                    isActive = false
                                     
                                 }
                             }
@@ -86,8 +87,9 @@ struct JoinRequestView: View {
                             Task{
                                 if try await APIClient.shared.startOrEndEvent(postId: post.id, action: .START) != nil {
                                     if let response = try await APIClient.shared.getEvent(postId: post.id){
-                                        try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                        postsViewModel.localRefreshEventOnAction(post: response)
                                         post = response
+                                        isActive = false
                                     }
                                 }
                             }
@@ -157,9 +159,10 @@ struct JoinRequestView: View {
                             Task{
                                 if try await APIClient.shared.leaveEvent(postId: post.id) != nil {
                                     if let response = try await APIClient.shared.getEvent(postId: post.id){
-                                        try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                        postsViewModel.localRefreshEventOnAction(post: response)
                                         post = response
                                         refreshParticipants()
+                                        isActive = false
                                     }
                                 }
                             }
@@ -182,8 +185,9 @@ struct JoinRequestView: View {
                             Task{
                                 if try await APIClient.shared.cancelJoinRequestForEvent(postId: post.id) != nil {
                                     if let response = try await APIClient.shared.getEvent(postId: post.id){
-                                        try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                        postsViewModel.localRefreshEventOnAction(post: response)
                                         post = response
+                                        isActive = false
                                     }
                                 }
                             }
@@ -207,8 +211,12 @@ struct JoinRequestView: View {
                                 Task{
                                     if try await APIClient.shared.joinEvent(postId: post.id) != nil {
                                         if let response = try await APIClient.shared.getEvent(postId: post.id){
-                                            try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                            postsViewModel.localRefreshEventOnAction(post: response)
+                                            
+                                            refreshParticipants()
+                                            
                                             post = response
+                                            isActive = false
                                         }
                                     }
                                 }
@@ -338,8 +346,9 @@ struct JoinRequestView: View {
                         Task{
                             if try await APIClient.shared.joinEvent(postId: post.id) != nil {
                                 if let response = try await APIClient.shared.getEvent(postId: post.id){
-                                    try await postsViewModel.refreshEventOnAction(postId: post.id)
+                                    postsViewModel.localRefreshEventOnAction(post: response)
                                     post = response
+                                    isActive = false
                                 }
                             }
                         }

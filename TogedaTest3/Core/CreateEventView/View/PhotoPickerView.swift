@@ -49,6 +49,7 @@ struct PhotoPickerView: View {
             }
 
         }
+        .swipeBack()
 //        .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imageselection, matching: .images)
 //        .fullScreenCover(isPresented: $photoPickerVM.showCropView, content: {
 //            CropPhotoView(selectedImage:photoPickerVM.selectedImage, finalImage: $photoPickerVM.selectedImages[photoPickerVM.selectedImageIndex ?? 0], crop: .custom(CGSize(width: CROPPING_WIDTH, height: CROPPING_HEIGHT)))

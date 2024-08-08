@@ -6,17 +6,29 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct NewMessageView: View {
     @Environment(\.dismiss) var dismiss
     @State var searchText: String = ""
     @ObservedObject var chatVM: ChatViewModel
     @StateObject var newChatVM = NewChatViewModel()
-//    @Binding var selectedUser: MiniUser?
+    
     let size: ImageSize = .small
     @State var showGroupChat = false
-    @State var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
-
+    
+    @EnvironmentObject var navManager: NavigationManager
+    @EnvironmentObject var userVm: UserViewModel
+    @EnvironmentObject var chatManager: WebSocketManager
+    
+    @State var isLoading = false
+    
+    @State var Init: Bool = true
+    @State var friendsList: [Components.Schemas.GetFriendsDto] = []
+    @State var lastPage = true
+    @State var page: Int32 = 0
+    @State var pageSize: Int32 = 15
+    
     
     var body: some View {
         NavigationStack {
@@ -28,25 +40,46 @@ struct NewMessageView: View {
                     .padding()
                 
                 LazyVStack {
-                    ForEach(searchUserResults) { user in
+                    ForEach(friendsList, id:\.user.id) { userData in
                         VStack {
-                            HStack {
-                                Image(user.profilePhotos[0])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: size.dimension, height: size.dimension)
-                                    .clipShape(Circle())
-
-                                Text(user.fullName)
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-
-                                Spacer()
-                            }
-                            .onTapGesture {
-                                dismiss()
-                                chatVM.selectedUser = user
-                                chatVM.showChat = true
+                            Button{
+                                Task{
+                                    if let chatRoom = try await APIClient.shared.getChat(chatId: userData.chatRoomId) {
+                                        dismiss()
+                                        chatVM.selectedUser = userData.user
+                                        navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
+                                        print("Chat id:", userData.chatRoomId)
+                                    }
+                                }
+                                
+//                                else {
+//                                    Task{
+//                                        if let currentUser = userVm.currentUser, let response = try await APIClient.shared.createChatForFriends(senderId: currentUser.id, recipientId:userData.user.id ) {
+//                                            
+//                                            dismiss()
+//                                            
+//                                            chatVM.selectedUser = userData.user
+//                                            navManager.selectionPath.append(.userChat(toUser: userData.user, chatId: response.id))
+//                                            
+//                                            print("Chat id:", response.id)
+//                                        }
+//                                    }
+//                                }
+                                
+                            } label:{
+                                HStack {
+                                    KFImage(URL(string: userData.user.profilePhotos[0]))
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: size.dimension, height: size.dimension)
+                                        .clipShape(Circle())
+                                    
+                                    Text("\(userData.user.firstName) \(userData.user.lastName)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                    
+                                    Spacer()
+                                }
                             }
                             
                             Divider()
@@ -54,15 +87,44 @@ struct NewMessageView: View {
                         }
                         .padding(.leading)
                     }
+                    
+                    if isLoading{
+                        ProgressView()
+                    }
+                    
+                    Rectangle()
+                        .frame(width: 0, height: 0)
+                        .onAppear {
+                            if !lastPage, let currentUser = userVm.currentUser {
+                                isLoading = true
+                                
+                                Task{
+                                    if let response = try await APIClient.shared.getFriendList(userId: currentUser.id, page: page, size: pageSize){
+                                        friendsList = response.data
+                                        page += 1
+                                        lastPage = response.lastPage
+                                    }
+                                    isLoading = false
+                                    
+                                }
+                            }
+                        }
                 }
             }
-            .onChange(of: searchText){
-                if !searchText.isEmpty {
-                    searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                        result.fullName.lowercased().contains(searchText.lowercased())
+            .onAppear(){
+                Task{
+                    do{
+                        if let currentUser = userVm.currentUser, Init {
+                            if let response = try await APIClient.shared.getFriendList(userId: currentUser.id, page: page, size: pageSize){
+                                friendsList = response.data
+                                page += 1
+                                lastPage = response.lastPage
+                            }
+                            Init = false
+                        }
+                    } catch {
+                        print("User list error:", error.localizedDescription)
                     }
-                } else {
-                    searchUserResults = MiniUser.MOCK_MINIUSERS
                 }
             }
             .searchable(text: $searchText)
@@ -89,4 +151,7 @@ struct NewMessageView: View {
 
 #Preview {
     NewMessageView(chatVM: ChatViewModel())
+        .environmentObject(NavigationManager())
+        .environmentObject(UserViewModel())
+        .environmentObject(WebSocketManager())
 }

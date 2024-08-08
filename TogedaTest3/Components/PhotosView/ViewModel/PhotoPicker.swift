@@ -79,9 +79,10 @@ import CropViewController
 
 struct PhotoPicker: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
-    @Binding var finalImage: UIImage?
+//    @Binding var finalImage: UIImage?
+    @Binding var showCropView: Bool
     
-    var cropSize: CGSize
+//    var cropSize: CGSize
     
     class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
         var parent: PhotoPicker
@@ -95,6 +96,7 @@ struct PhotoPicker: UIViewControllerRepresentable {
                 picker.dismiss(animated: true) {
 //                    self.presentCropView(with: image)
                     self.parent.selectedImage = image
+                    self.parent.showCropView = true
                 }
             } else {
                 picker.dismiss(animated: true)

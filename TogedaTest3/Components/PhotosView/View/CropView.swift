@@ -49,13 +49,13 @@ struct CropView: UIViewControllerRepresentable {
 
         func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
             let resizedImage = self.resizeImage(image: image, targetSize: parent.cropSize)
-            guard let compressedData = resizedImage.jpegData(compressionQuality: 0.9),
-                  let compressedImage = UIImage(data: compressedData) else {
-                parent.onCancel()
-//                cropViewController.dismiss(animated: true, completion: nil)
-                return
-            }
-            parent.onCrop(compressedImage)
+//            guard let compressedData = resizedImage.jpegData(compressionQuality: 0.9),
+//                  let compressedImage = UIImage(data: compressedData) else {
+//                parent.onCancel()
+////                cropViewController.dismiss(animated: true, completion: nil)
+//                return
+//            }
+            parent.onCrop(resizedImage)
 //            cropViewController.dismiss(animated: true, completion: nil)
         }
 

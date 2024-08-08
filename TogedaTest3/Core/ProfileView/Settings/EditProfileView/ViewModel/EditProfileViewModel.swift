@@ -23,7 +23,7 @@ class EditProfileViewModel: ObservableObject{
 
     @Published var returnedPlace: Place = Place(mapItem: MKMapItem()){
         didSet{
-            self.editUser.location = .init(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+            self.editUser.location = .init(name: returnedPlace.addressCountry, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
         }
     }
     

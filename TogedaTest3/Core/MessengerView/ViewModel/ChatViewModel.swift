@@ -9,17 +9,23 @@ import Foundation
 import PhotosUI
 import SwiftUI
 
-
 class ChatViewModel: ObservableObject {
     @Published var showChat = false
-    @Published var selectedUser: MiniUser?
-    @Published var messages: [Message] = Message.MOCK_MESSAGES
-    @Published var messageImage: Image?
+    @Published var selectedUser: Components.Schemas.MiniUser?
+    @Published var messages: [Components.Schemas.ReceivedChatMessageDto] = []
+    @Published var lastPage: Bool = true
+    @Published var page: Int32 = 0
+    @Published var size: Int32 = 15
+    
+    @Published var messageImage: UIImage?
+    
+    
     @Published var selectedItem: PhotosPickerItem? = nil {
         didSet {
             setImage(from: selectedItem)
         }
     }
+    
     
     func setImage(from selection: PhotosPickerItem?){
         guard let selection else {return}
@@ -32,8 +38,8 @@ class ChatViewModel: ObservableObject {
                     throw URLError(.badServerResponse)
                 }
                 
-                await MainActor.run {
-                    messageImage = Image(uiImage: uiImage)
+                DispatchQueue.main.async {
+                    self.messageImage = uiImage
                 }
                 
             } catch {
@@ -42,8 +48,56 @@ class ChatViewModel: ObservableObject {
         }
     }
     
-    func nextMessage(forIndex index: Int) -> Message? {
-        return index != messages.count - 1 ? messages[index + 1] : nil
+    
+    func resizeImage(image: UIImage, targetHeight: CGFloat) -> UIImage? {
+        let size = image.size
+        
+        // Return the original image if its height is less than or equal to the target height
+        guard size.height > targetHeight else {
+            return image
+        }
+        
+        let widthRatio = targetHeight / size.height
+        let newSize = CGSize(width: size.width * widthRatio, height: targetHeight)
+        
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0) // Ensure correct scaling factor
+        image.draw(in: CGRect(origin: .zero, size: newSize))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage
     }
+    
+    func uploadImageAsync(uiImage: UIImage) async -> String? {
+        let bucketName = bucketName.user.rawValue
+        let UUID = NSUUID().uuidString
+                
+        guard let resizedImage = resizeImage(image: uiImage, targetHeight: CGFloat(CROPPING_HEIGHT)) else {
+            print("Image resizing failed.")
+            return nil
+        }
+        
+        guard let jpeg = resizedImage.jpegData(compressionQuality: 0.9) else {
+                    print("Image compression failed.")
+                    return nil
+                }
+        
+        do {
+            if let response = try await APIClient.shared.generatePresignedPutUrl(bucketName: bucketName, keyName: UUID) {
+                try await ImageService().uploadImage(imageData: jpeg, urlString: response)
+                let imageUrl = "https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
+                
+                return imageUrl
+            } else {
+                return nil
+            }
+            
+        } catch {
+            print("Upload failed with error: \(error)")
+            
+            return nil
+        }
+    }
+    
 }
 

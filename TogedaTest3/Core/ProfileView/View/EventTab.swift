@@ -13,7 +13,7 @@ struct EventTab: View {
     @State var lastPage: Bool = false
     @Binding var posts: [Components.Schemas.PostResponseDto]
     @Binding var createEvent: Bool
-    var count: Int32
+    @Binding var count: Int64
     @EnvironmentObject var userVm: UserViewModel
     
     var body: some View {
@@ -24,7 +24,7 @@ struct EventTab: View {
                     .fontWeight(.bold)
                 
                 if posts.count > 0 {
-                    Text("\(posts.count)")
+                    Text("\(count)")
                         .foregroundStyle(.gray)
                 }
                 
@@ -48,7 +48,7 @@ struct EventTab: View {
                         ForEach(posts.indices, id: \.self){ index in
                             if posts[index].status == .HAS_ENDED {
                                 NavigationLink(value: SelectionPath.completedEventDetails(post: posts[index])){
-                                EventComponent(userID: userID, post: posts[index])
+                                    EventComponent(userID: userID, post: posts[index])
                                 }
                             } else {
                                 NavigationLink(value: SelectionPath.eventDetails(posts[index])){
@@ -101,7 +101,7 @@ struct EventTab: View {
 
 struct EventTab_Previews: PreviewProvider {
     static var previews: some View {
-        EventTab(userID: "", posts: .constant([MockPost]), createEvent: .constant(false), count: 0)
+        EventTab(userID: "", posts: .constant([MockPost]), createEvent: .constant(false), count: .constant(0))
             .environmentObject(UserViewModel())
 
     }

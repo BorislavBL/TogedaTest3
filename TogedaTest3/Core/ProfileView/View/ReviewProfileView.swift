@@ -23,14 +23,14 @@ struct ReviewProfileView: View {
     @State var likesList: [Components.Schemas.ParticipationRatingResponseDto] = []
     @State var likesPage: Int32 = 0
     @State var likesSize: Int32 = 15
-    @State var likesCount: Int32 = 0
+    @State var likesCount: Int64 = 0
     @State var likesInit: Bool = true
     @State var likesLastPage = true
     
     @State var ratingList: [Components.Schemas.RatingResponseDto] = []
     @State var ratingPage: Int32 = 0
     @State var ratingSize: Int32 = 15
-    @State var ratingCount: Int32 = 0
+    @State var ratingCount: Int64 = 0
     @State var ratingInit: Bool = true
     @State var ratingLastPage = true
     
@@ -241,6 +241,7 @@ struct ReviewProfileView: View {
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
         })
+        .swipeBack()
         .onAppear(){
             Task{
                 if likesInit{
@@ -264,6 +265,7 @@ struct ReviewProfileView: View {
                 }
             }
         }
+        
         
     }
 }

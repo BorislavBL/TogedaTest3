@@ -7,12 +7,26 @@
 
 import SwiftUI
 
-struct SwipeBackModifier: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+struct SwipeBackModifier: ViewModifier {
+    @Environment(\.dismiss) private var dismiss
+    @GestureState private var dragOffset = CGSize.zero
+
+    func body(content: Content) -> some View {
+        content
+            .gesture(
+                DragGesture()
+                    .updating($dragOffset) { (value, state, transaction) in
+                        if value.translation.width > 100 {
+                            dismiss()
+                        }
+                    }
+            )
     }
 }
 
-#Preview {
-    SwipeBackModifier()
+extension View {
+    func swipeBack() -> some View {
+        self.modifier(SwipeBackModifier())
+    }
 }
+

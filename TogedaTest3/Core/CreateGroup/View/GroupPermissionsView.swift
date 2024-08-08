@@ -97,6 +97,7 @@ struct GroupPermissionsView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .swipeBack()
         .navigationTitle("Permissions")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

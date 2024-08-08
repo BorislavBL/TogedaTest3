@@ -82,6 +82,7 @@ struct EditProfileLocationView: View {
                 KeyboardToolbarItems()
             }
         }
+        .swipeBack()
         .padding(.vertical)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

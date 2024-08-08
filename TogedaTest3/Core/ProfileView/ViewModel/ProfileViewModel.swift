@@ -11,8 +11,8 @@ class ProfileViewModel: ObservableObject {
 
     @Published var clubs: [Components.Schemas.ClubDto] = []
     @Published var posts: [Components.Schemas.PostResponseDto] = []
-    @Published var clubsCount: Int32 = 0
-    @Published var postsCount: Int32 = 0
+    @Published var clubsCount: Int64 = 0
+    @Published var postsCount: Int64 = 0
     
     func getUserClubs(userId: String) async throws {
         if let response = try await APIClient.shared.getUserClubs(userId: userId, page: 0, size: 15) {

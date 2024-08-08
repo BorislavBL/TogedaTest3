@@ -38,10 +38,7 @@ let MockUser: Components.Schemas.UserInfoDto = .init(
         workout: "Often",
         personalityType: "INFP",
         instagram: "@Foncho",
-        savedPostIds: [],
-        createdEventIds: [],
-        participatedEventIds: [],
-        clubIds: []
+        referralCode: "fonchoooo"
     ),
     participatedPostsCount: 3,
     friendsCount: 3,
@@ -120,10 +117,32 @@ let MockCreatePost = Components.Schemas.CreatePostDto(
     askToJoin: false,
     inClubID: nil,
     fromDate: Date().addingTimeInterval(15 * 60),
-    toDate: nil)
+    toDate: nil, needsLocationalConfirmation: false)
 
 
-let MockExtendedMiniUSer = Components.Schemas.ExtendedMiniUser(user: MockMiniUser, _type: .CO_HOST)
+let MockExtendedMiniUSer = Components.Schemas.ExtendedMiniUser(user: MockMiniUser, _type: .CO_HOST, locationStatus: .NONE)
+
+let MockMiniPost: Components.Schemas.MiniPostDto = .init(
+    id: NSUUID().uuidString,
+    title: "Test title",
+    images: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"], owner:  .init(
+    id: "1234567890",
+    firstName: "Borko",
+    lastName: "Lorinkov",
+    profilePhotos: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
+    occupation: "Mechanic",
+    location:  Components.Schemas.BaseLocation.init(
+        name: "Sofia, Bulgaria",
+        address:"Something",
+        city: "Sofia",
+        country: "Bulgaria",
+        latitude: 42.6977,
+        longitude: 23.3219
+    ),
+    birthDate: "2000-07-11"
+), currentUserStatus: .NOT_PARTICIPATING, 
+    currentUserRole: .NORMAL,
+    status: .HAS_STARTED)
 
 let MockPost = Components.Schemas.PostResponseDto(
     id: "1234567890",
@@ -170,6 +189,7 @@ let MockPost = Components.Schemas.PostResponseDto(
     currentUserStatus: .NOT_PARTICIPATING,
     accessibility: .PUBLIC,
     askToJoin: false,
+    needsLocationalConfirmation: false, 
     rating: nil,
     clubId: nil,
     participantsCount: 5,
@@ -177,6 +197,14 @@ let MockPost = Components.Schemas.PostResponseDto(
     savedByCurrentUser: true
 )
 
+
+let MockMiniClub: Components.Schemas.MiniClubDto = .init(
+    id: NSUUID().uuidString,
+    owner: MockMiniUser,
+    title: "Sky Diving Club",
+    images: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
+    currentUserStatus: .PARTICIPATING,
+    currentUserRole: .MEMBER)
 
 let MockClub = Components.Schemas.ClubDto(
     id: "2131", 
@@ -204,18 +232,33 @@ let MockClub = Components.Schemas.ClubDto(
     ],
     memories: [],
     currentUserRole: .MEMBER, 
-    membersCount: 0,
+    membersCount: 0, 
+    previewMembers: [MockMiniUser],
     permissions: .ADMINS_ONLY,
     createdAt: Date())
 
 
-let mockAlertBodyFriendRequestReceived: Components.Schemas.AlertBodyFriendRequestReceived = .init(
-    senderName: "Martin Plazov",
-    senderProfilePhoto: "https://scontent.fsof10-1.fna.fbcdn.net/v/t1.6435-9/49249038_2240399619509545_5794904999729299456_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_oinVqLMz_4Q7kNvgHi7pXt&_nc_ht=scontent.fsof10-1.fna&oh=00_AYBu5l78FGNOCUjXFtfnVLq3cctr9arAsV-TdjDKeCJEcQ&oe=66A364B7"
-)
 
-let mockAlertBodyReviewEndedPost: Components.Schemas.AlertBodyReviewEndedPost = .init(image: "https://scontent.fsof10-1.fna.fbcdn.net/v/t1.6435-9/49249038_2240399619509545_5794904999729299456_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_oinVqLMz_4Q7kNvgHi7pXt&_nc_ht=scontent.fsof10-1.fna&oh=00_AYBu5l78FGNOCUjXFtfnVLq3cctr9arAsV-TdjDKeCJEcQ&oe=66A364B7", title: "Martin Plazov Event")
+let mockAlertBodyFriendRequestReceived: Components.Schemas.AlertBodyFriendRequestReceived = .init(sender: MockMiniUser, alertBodyTypeAsString: "Aleeee alee aleee aleee")
 
-let mockAlertBodyReceivedJoinRequest: Components.Schemas.AlertBodyReceivedJoinRequest = .init(image: "https://scontent.fsof10-1.fna.fbcdn.net/v/t1.6435-9/49249038_2240399619509545_5794904999729299456_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_oinVqLMz_4Q7kNvgHi7pXt&_nc_ht=scontent.fsof10-1.fna&oh=00_AYBu5l78FGNOCUjXFtfnVLq3cctr9arAsV-TdjDKeCJEcQ&oe=66A364B7", title: "Martin Plazov Event", forType: .POST)
+let mockAlertBodyReviewEndedPost: Components.Schemas.AlertBodyReviewEndedPost = .init(post: MockMiniPost, alertBodyTypeAsString: "Aleeee alee aleee aleee")
 
-let mockAlertBodyAcceptedJoinRequest: Components.Schemas.AlertBodyAcceptedJoinRequest = .init(image: "https://scontent.fsof10-1.fna.fbcdn.net/v/t1.6435-9/49249038_2240399619509545_5794904999729299456_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_oinVqLMz_4Q7kNvgHi7pXt&_nc_ht=scontent.fsof10-1.fna&oh=00_AYBu5l78FGNOCUjXFtfnVLq3cctr9arAsV-TdjDKeCJEcQ&oe=66A364B7", title: "Martin Plazov Event", forType: .POST)
+let mockAlertBodyReceivedJoinRequest: Components.Schemas.AlertBodyReceivedJoinRequest = .init(post: MockMiniPost, club: nil, fromUser: MockMiniUser, forType: .POST, alertBodyTypeAsString: "Aleeee alee aleee aleee")
+
+let mockAlertBodyAcceptedJoinRequest: Components.Schemas.AlertBodyAcceptedJoinRequest = .init(post: MockMiniPost, club: nil, acceptedUser: MockMiniUser, forType: .POST, alertBodyTypeAsString: "Aleeee alee aleee aleee")
+let mockAlertBodyPostHasStartedRequest: Components.Schemas.AlertBodyPostHasStarted = .init(post: MockMiniPost, alertBodyTypeAsString: "Aaaaaaaaaaaa")
+
+//let mockMessage: Components.Schemas.ChatMessage = .init(id: "", chatId: "", sender: MockBaseUser, content: "Hey how are you?", contentType: .NORMAL, createdAt: Date())
+
+let mockReceivedMessage: Components.Schemas.ReceivedChatMessageDto = .init(id: "", chatId: "", sender: MockMiniUser, content: "Hey how are you?", contentType: .NORMAL, createdAt: Date())
+
+let mockChatRoom: Components.Schemas.ChatRoomDto = .init(id: UUID().uuidString, _type: .FRIENDS, post: nil, club: nil, latestMessage: mockReceivedMessage, previewMembers: [MockMiniUser], read: true, latestMessageTimestamp: Date())
+
+//let MockBaseUser: Components.Schemas.User = .init(id: NSUUID().uuidString, email: "borkolorinkov@gmail.com", subToEmail: true, firstName: "Borko", lastName: "lorinkov", gender: .MALE, birthDate: "2000-07-12", visibleGender: true, location: Components.Schemas.BaseLocation.init(
+//    name: "Sofia, Bulgaria",
+//    address:"Something",
+//    city: "Sofia",
+//    country: "Bulgaria",
+//    latitude: 42.6977,
+//    longitude: 23.3219
+//), occupation: "Mechanic", profilePhotos: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"], interests: [], phoneNumber: "", verifiedPhone: false, verifiedEmail: true, savedPosts: [], status: .ONLINE)

@@ -35,6 +35,7 @@ struct CreateStripeView: View {
                 }
             }
         }
+        .swipeBack()
     }
     
 

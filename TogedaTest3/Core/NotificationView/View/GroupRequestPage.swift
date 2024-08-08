@@ -10,15 +10,23 @@ import Kingfisher
 
 struct GroupRequestPage: View {
     let size: ImageSize = .medium
-    @State var club: Components.Schemas.ClubDto = MockClub
+    var club: Components.Schemas.MiniClubDto
     var createDate: Date
     var alertBody: Components.Schemas.AlertBodyReceivedJoinRequest
+    @Binding var selectionPath: [SelectionPath]
     
     var body: some View {
             VStack {
-                NavigationLink(value: SelectionPath.club(club)){
+//                NavigationLink(value: SelectionPath.club(club)){
+                Button{
+                    Task{
+                        if let response = try await APIClient.shared.getClub(clubID: club.id){
+                            selectionPath.append(.club(response))
+                        }
+                    }
+                } label:{
                     HStack(alignment:.top){
-                        KFImage(URL(string:alertBody.image))
+                        KFImage(URL(string:club.images[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -27,7 +35,7 @@ struct GroupRequestPage: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 5){
-                        Text(alertBody.title)
+                        Text(club.title)
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
@@ -50,5 +58,5 @@ struct GroupRequestPage: View {
 }
 
 #Preview {
-    GroupRequestPage(createDate: Date(), alertBody: mockAlertBodyReceivedJoinRequest)
+    GroupRequestPage(club: MockMiniClub, createDate: Date(), alertBody: mockAlertBodyReceivedJoinRequest, selectionPath: .constant([]))
 }

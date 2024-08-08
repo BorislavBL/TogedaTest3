@@ -123,6 +123,7 @@ struct RegistrationCodeView: View {
             }
         }
         .padding(.vertical)
+        .swipeBack()
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

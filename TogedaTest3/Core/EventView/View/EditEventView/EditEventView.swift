@@ -19,10 +19,18 @@ struct EditEventView: View {
     @EnvironmentObject var postsVM: PostsViewModel
     @State var deleteSheet: Bool = false
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .edit)
+    @State var isLoading = false
+    @State private var errorMessage: String?
     
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .center, spacing: 30){
+                
+                if let errorMessage = errorMessage {
+                    WarningTextComponent(text: errorMessage)
+                    
+                }
+                
                 VStack(alignment: .leading, spacing: 10){
                     Text("Event Images")
                         .font(.title3)
@@ -61,11 +69,11 @@ struct EditEventView: View {
                     EditProfileBioView(text: $vm.description, placeholder: "Description")
                     
 
-                    Toggle(isOn: $vm.editPost.askToJoin) {
-                        Text("Ask for permission")
-                            .fontWeight(.semibold)
-                    }
-                    .createEventTabStyle()
+//                    Toggle(isOn: $vm.editPost.askToJoin) {
+//                        Text("Ask for permission")
+//                            .fontWeight(.semibold)
+//                    }
+//                    .createEventTabStyle()
 
                     
                     Button {
@@ -167,10 +175,10 @@ struct EditEventView: View {
                                 
                                 Spacer()
                                 
-                                if vm.dateTimeSettings == 0 {
+                                if vm.dateTimeSettings == 1 {
                                     Text(separateDateAndTime(from:vm.from).date)
                                         .foregroundColor(.gray)
-                                } else if vm.dateTimeSettings == 1 {
+                                } else if vm.dateTimeSettings == 2 {
                                     Text("\(separateDateAndTime(from:vm.from).date) - \(separateDateAndTime(from:vm.to).date)")
                                         .foregroundColor(.gray)
                                 } else {
@@ -189,17 +197,18 @@ struct EditEventView: View {
                         
                         if vm.showTimeSettings {
                             Picker("Choose Date", selection: $vm.dateTimeSettings){
-                                Text("Exact").tag(0)
-                                Text("Range").tag(1)
-                                Text("Anytime").tag(2)
+                                Text("Anytime").tag(0)
+                                Text("Exact").tag(1)
+                                Text("Range").tag(2)
+                                
                             }
                             .pickerStyle(.segmented)
                             
-                            if vm.dateTimeSettings != 2 {
+                            if vm.dateTimeSettings != 0 {
                                 DatePicker("From", selection: $vm.from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
                                     .fontWeight(.semibold)
                                 
-                                if vm.dateTimeSettings == 1 {
+                                if vm.dateTimeSettings == 2 {
                                     DatePicker("To", selection: $vm.to, in: vm.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
                                         .fontWeight(.semibold)
                                 }
@@ -277,6 +286,12 @@ struct EditEventView: View {
                 }
             }
             .padding()
+        }
+        .swipeBack()
+        .overlay {
+            if isLoading {
+                LoadingScreenView(isVisible: $isLoading)
+            }
         }
         .onAppear {
             if vm.isInit {
@@ -374,20 +389,44 @@ struct EditEventView: View {
     }
     
     func save() {
+        errorMessage = nil
         Task {
             do{
                 if await photoPickerVM.imageCheckAndMerge(images: $vm.editPost.images){
+                    withAnimation{
+                        isLoading = true
+                    }
                     if vm.editPost != vm.initialPost {
-                        if try await APIClient.shared.editEvent(postId: vm.editPost.id, editPost: vm.convertToPathcPost(post: vm.editPost)) {
-                            
-                            try await postsVM.refreshEventOnAction(postId: post.id)
-                            post = vm.editPost
+                        try await APIClient.shared.editEvent(postId: vm.editPost.id, editPost: vm.convertToPathcPost(post: vm.editPost)) { response, error in
+                            if let _ = response {
+                                Task {
+                                    try await postsVM.refreshEventOnAction(postId: post.id)
+                                }
+                                DispatchQueue.main.async {
+                                    self.post = vm.editPost
+                                    withAnimation{
+                                        self.isLoading = false
+                                    }
+                                    dismiss()
+                                }
+
+                            } else if let error = error {
+                                DispatchQueue.main.async {
+                                    withAnimation{
+                                        self.isLoading = false
+                                    }
+                                    
+                                    self.errorMessage = error
+                                }
+                            }
                         }
-                        
-                        dismiss()
+
                     } else {
                         print("No changes")
                         dismiss()
+                        withAnimation{
+                            isLoading = false
+                        }
                     }
                 } else {
                     print("No images")

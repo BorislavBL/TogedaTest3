@@ -8,17 +8,20 @@
 import Foundation
 import Combine
 import MapKit
+import SwiftUI
 
 class ClubsViewModel: ObservableObject {
     @Published var feedClubs: [Components.Schemas.ClubDto] = []
     @Published var lastPage: Bool = true
+    @Published var clubsFeedIsLoading = false
+    @Published var feedClubsInit: Bool = true
     
     @Published var page: Int32 = 0
     @Published var size: Int32 = 15
     
     @Published var lat: Double = 43
     @Published var long: Double = 39
-    @Published var distance: Int = 400000
+    @Published var distance: Int = 300
     @Published var categories: [String]? = nil
     @Published var clickedClub: Components.Schemas.ClubDto = MockClub
     @Published var showShareClubSheet: Bool = false
@@ -45,8 +48,10 @@ class ClubsViewModel: ObservableObject {
     }
     
     func fetchClubs() async throws {
-//        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to)")
-        
+//        print("club Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance)")
+        DispatchQueue.main.async {
+            self.clubsFeedIsLoading = true
+        }
         if let response = try await APIClient.shared.getAllClubs(
             page: page,
             size: size,
@@ -59,7 +64,11 @@ class ClubsViewModel: ObservableObject {
             DispatchQueue.main.async{
                 self.feedClubs += response.data
                 self.lastPage = response.lastPage
-                self.page += 1
+                if !response.lastPage {
+                    self.page += 1
+                }
+                self.clubsFeedIsLoading = false
+                self.feedClubsInit = false
             }
         }
     }
@@ -84,20 +93,22 @@ class ClubsViewModel: ObservableObject {
     }
     
     func applyFilter(lat: Double, long: Double, distance: Int, categories: [String]?) async throws {
-        DispatchQueue.main.async{
-            self.page = 0
-            self.feedClubs = []
-            self.lastPage = true
-            
-            self.lat = lat
-            self.long = long
-            self.distance = distance
-            self.categories = categories
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async{
+                self.page = 0
+                self.feedClubs = []
+                self.lastPage = true
+                
+                self.lat = lat
+                self.long = long
+                self.distance = distance
+                self.categories = categories
+                continuation.resume()
+            }
         }
         
-        Task{
-            try await self.fetchClubs()
-        }
+        try await self.fetchClubs()
+        
     }
     
     
@@ -122,4 +133,25 @@ class ClubsViewModel: ObservableObject {
             }
         }
     }
+    
+    func clubUpdateOnNewNotification(notification: Components.Schemas.NotificationDto) {
+        if let not = notification.alertBodyAcceptedJoinRequest{
+            if let club = not.club {
+                if let index = self.feedClubs.firstIndex(where: {$0.id == club.id}){
+                    self.feedClubs[index] = transferStatusDataFromMiniToNormalClub(miniClub: club, club:  self.feedClubs[index])
+                }
+            }
+        }
+    }
+    
+    func transferStatusDataFromMiniToNormalClub(miniClub: Components.Schemas.MiniClubDto, club:Components.Schemas.ClubDto) -> Components.Schemas.ClubDto {
+        var newClub = club
+        var currentUserStatus = miniClub.currentUserStatus.rawValue
+        newClub.currentUserStatus = .init(rawValue: currentUserStatus) ?? club.currentUserStatus
+        if let currentUserRole = miniClub.currentUserRole?.rawValue {
+            newClub.currentUserRole = .init(rawValue: currentUserRole)
+        }
+        return newClub
+    }
+    
 }

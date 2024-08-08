@@ -15,7 +15,7 @@ import SwiftUI
 //struct AuthenticationMiddleware: ClientMiddleware {
 //    @EnvironmentObject var vm: ContentViewModel
 ////    let accessToken: String
-//    
+//
 //    func intercept(
 //        _ request: HTTPRequest,
 //        body: HTTPBody?,
@@ -36,8 +36,8 @@ import SwiftUI
 //}
 
 struct AuthenticationMiddleware: ClientMiddleware {
-//    @EnvironmentObject var vm: ContentViewModel
-
+    //    @EnvironmentObject var vm: ContentViewModel
+    
     func intercept(
         _ request: HTTPRequest,
         body: HTTPBody?,
@@ -78,21 +78,20 @@ class APIClient: ObservableObject {
     private var client: Client
     private let serverURL = URL(string: "https://api.togeda.net")!
     private weak var viewModel: ContentViewModel?
-
+    
     private init() {
         let middlewares = [AuthenticationMiddleware()]
         client = Client(serverURL: serverURL, transport: URLSessionTransport(), middlewares: middlewares)
     }
     
-    
     func setViewModel(_ viewModel: ContentViewModel) {
         self.viewModel = viewModel
     }
-
+    
     @MainActor func handleAuthenticationFailure() {
         viewModel?.checkAuthStatus()
     }
-
+    
 }
 
 
@@ -106,7 +105,7 @@ extension APIClient {
             case .json(let message):
                 return message.hasBasicInfo
             }
-                
+            
         case .undocumented(statusCode: let statusCode, _):
             print("The status code:", statusCode)
         case .unauthorized(_):
@@ -117,6 +116,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for hasBasicInfo")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         return nil
     }
@@ -133,11 +138,82 @@ extension APIClient {
     
     func getUserInfo(userId: String) async throws -> Components.Schemas.UserInfoDto? {
         let response = try await client.getUserInfo(path: Operations.getUserInfo.Input.Path(userId: userId))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let info):
+                return info
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getUserInfo")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func addUserInfo(body: Components.Schemas.UserDto, completion: @escaping (Bool?, String?) -> Void) async throws {
+        do {
+            let response = try await client.addBasicInfo(body: .json(body))
+            
             switch response {
             case .ok(let okResponse):
-                switch okResponse.body{
+                switch okResponse.body {
                 case .json(let info):
-                    return info
+                    completion(info.success, nil)
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                completion(nil, "The status code: \(statusCode)")
+            case .unauthorized(_):
+                completion(nil, "Unauthorized")
+            case .forbidden(_):
+                completion(nil, "Forbidden")
+            case .badRequest(let error):
+                switch error.body {
+                case .json(let error):
+                    let errorMessage = errorHandler(error: error)
+                    completion(nil, errorMessage)
+                }
+//                completion(nil, "Bad Request")
+            case .conflict(_):
+                completion(nil, "Conflict")
+            case .tooManyRequests(_):
+                completion(nil, "Too many requests for addUserInfo")
+            case .requestTimeout(_):
+                completion(nil, "Request timeout")
+            case .notFound(_):
+                completion(nil, "Not found")
+            }
+        } catch {
+            completion(nil, "Failed with error: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    
+    func generatePresignedPutUrl(bucketName: String, keyName: String) async throws -> String? {
+        let jpegName = "\(keyName).jpeg"
+            let response = try await client.generatePresignedPutUrl(.init(query: .init(bucketName: bucketName, keyName: jpegName)))
+            
+            switch response {
+                
+            case .ok(let okResponse):
+                switch okResponse.body{
+                case .json(let response):
+                    return response.url
                 }
             case .undocumented(statusCode: let statusCode, _):
                 print("The status code:", statusCode)
@@ -149,61 +225,58 @@ extension APIClient {
                 print("Bad Request")
             case .conflict(_):
                 print("Conflict")
+            case .tooManyRequests(_):
+                print("To many Requests for saveOrUnsaveEvent")
+            case .requestTimeout(_):
+                print("Requested timeout")
+            case .notFound(_):
+                print("Not found")
             }
-        
-        return nil
-    }
-    
-    func addUserInfo(body: Components.Schemas.UserDto) async throws -> Bool {        
-        let response = try await client.addBasicInfo(body: .json(body))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let info):
-                 return info.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        }
-        
-        return false
-    }
-    
-    func updateUserInfo(body: Components.Schemas.PatchUserDto) async throws  -> Bool? {
-        let response = try await client.patchUser(body:.json(body))
-        switch response{
             
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let info):
-                return info.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        }
-        
-        return nil
+            return nil
     }
     
+    func updateUserInfo(body: Components.Schemas.PatchUserDto, completion: @escaping (Bool?, String?) -> Void) async throws {
+        do {
+            let response = try await client.patchUser(body: .json(body))
+            
+            switch response {
+            case .ok(let okResponse):
+                switch okResponse.body {
+                case .json(let info):
+                    completion(info.success, nil)
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                completion(nil, "The status code: \(statusCode)")
+            case .unauthorized(_):
+                completion(nil, "Unauthorized")
+            case .forbidden(_):
+                completion(nil, "Forbidden")
+            case .badRequest(let error):
+                switch error.body {
+                case .json(let error):
+                    let errorMessage = errorHandler(error: error)
+                    completion(nil, errorMessage)
+                }
+//                completion(nil, "Bad Request")
+            case .conflict(_):
+                completion(nil, "Conflict")
+            case .tooManyRequests(_):
+                completion(nil, "Too many requests for updateUserInfo")
+            case .requestTimeout(_):
+                completion(nil, "Request timeout")
+            case .notFound(_):
+                completion(nil, "Not found")
+            }
+        } catch {
+            completion(nil, "Failed with error: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
     
     func getUserEvents(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
-        let response = try await client.getUserPosts(.init(path: .init(userId: userId), query: .init(pageable: .init(page: 0, size: 15, sort: nil))))
+        let response = try await client.getUserPosts(.init(path: .init(userId: userId), query: .init(pageable: .init(page: page, size: size, sort: nil))))
         
         switch response {
             
@@ -222,6 +295,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getUserEvents")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -229,7 +308,7 @@ extension APIClient {
     
     func getUserClubs(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoClubDto? {
         let response = try await client.getUserClubs(.init(path: .init(userId: userId), query: .init(pageNumber: page, pageSize: size)))
-
+        
         switch response {
             
         case .ok(let okResponse):
@@ -247,6 +326,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getUserClubs")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -275,6 +360,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for searchUsers")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -299,6 +390,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for sendFriendRequest")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -323,6 +420,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for respondToFriendRequest")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -347,6 +450,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getFriendRequests")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -371,6 +480,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for removeFriend")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -395,12 +510,18 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for removeFriendRequest")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
     }
     
-    func getFriendList(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
+    func getFriendList(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoGetFriendsDto? {
         let response = try await client.getFriends(.init(path: .init(userId: userId), query: .init(pageNumber: page, pageSize: size)))
         
         switch response {
@@ -419,6 +540,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getFriendList")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -443,6 +570,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getUserSavedEvents")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -467,6 +600,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getUserLikesList")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -491,6 +630,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getUserRatingAvg")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -515,6 +660,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getRatingForProfile")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -522,38 +673,71 @@ extension APIClient {
     
 }
 
+extension APIClient {
+    func errorHandler(error: Components.Schemas.ApiError) -> String {
+        var message = ""
+        if let errors = error.subErrors {
+            for subError in errors {
+                if let errorField = subError.field, let errorMessage = subError.message {
+                    message += "\(errorField.capitalized): \(errorMessage) \n"
+                } else if let errorField = subError.field {
+                    message += "\(errorField.capitalized): unknown error \n"
+                } else if let errorMessage = subError.message {
+                    message += "Unknown field: \(errorMessage) \n"
+                } else {
+                    message += "Unknown field: unknown error \n"
+                }
+            }
+        }
+        return message.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
 // Event
 extension APIClient {
-    func createEvent(body: Components.Schemas.CreatePostDto) async throws -> String? {
-//        do{
+    func createEvent(body: Components.Schemas.CreatePostDto, completion: @escaping (String?, String?) -> Void) async throws {
+        do {
             let response = try await client.createPost(body: .json(body))
+            print("\(response)")
+            
             switch response {
                 
             case .ok(let okResponse):
-                switch okResponse.body{
+                switch okResponse.body {
                 case .json(let info):
-                    return info.id
+                    completion(info.id, nil)
                 }
             case .undocumented(statusCode: let statusCode, _):
-                print("The status code:", statusCode)
+                completion(nil, "The status code: \(statusCode)")
             case .unauthorized(_):
-                print("Unauthorized")
+                completion(nil, "Unauthorized")
             case .forbidden(_):
-                print("Forbidden")
-            case .badRequest(_):
-                print("Bad Request")
+                completion(nil, "Forbidden")
+            case .badRequest(let error):
+                switch error.body {
+                case .json(let error):
+                    let errorMessage = errorHandler(error: error)
+                    completion(nil, errorMessage)
+                }
+//                completion(nil, "Bad Request")
             case .conflict(_):
-                print("Conflict")
+                completion(nil, "Conflict")
+            case .tooManyRequests(_):
+                completion(nil, "Too many requests for createEvent")
+            case .requestTimeout(_):
+                completion(nil, "Request timeout")
+            case .notFound(_):
+                completion(nil, "Not found")
             }
-//        } catch {
-//            print("Errorrrrrr: \(error.localizedDescription)")
-//        }
-        
-        return nil
+        } catch {
+            completion(nil, "Failed with error: \(error.localizedDescription)")
+            throw error
+        }
     }
+
     
     func getEvent(postId: String) async throws -> Components.Schemas.PostResponseDto? {
-
+        
         let response = try await client.getPostById(.init(path: .init(postId: postId)))
         
         switch response {
@@ -573,13 +757,19 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
     }
     
     func saveOrUnsaveEvent(postId: String, isSave: Bool) async throws -> Bool? {
-
+        
         let response = try await client.saveOrUnsavePost(.init(path: .init(postId: postId), query: .init(isSave: isSave)))
         
         switch response {
@@ -599,6 +789,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for saveOrUnsaveEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -623,6 +819,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for startOrEndEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -647,6 +849,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for joinEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -671,6 +879,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for leaveEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -695,50 +909,19 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for deleteEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
     }
     
-    func getAllEvents(page: Int32, size: Int32, long: Double, lat: Double, distance: Int32, from: Date?, to: Date?, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
-//        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to), Category: \(categories)")
-        
-        let response = try await client.getAllPosts(query: .init(
-            categories: categories, 
-            toDate: to,
-            fromDate: from,
-            longitude: long,
-            latitude: lat,
-            distance: 3000000,
-            pageNumber: page,
-            pageSize: size
-            )
-        )
-                
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        }
-        
-        return nil
-    }
-    
-    func editEvent(postId: String, editPost: Components.Schemas.PatchPostDto) async throws -> Bool {
-        let response = try await client.patchPost(.init(path: .init(postId: postId), body: .json(editPost)))
+    func shareEvent(postId: String, chatRoomIds: Components.Schemas.ChatRoomIdsDto) async throws -> Bool? {
+        let response = try await client.sharePost(.init(path: .init(postId: postId), body: .json(chatRoomIds)))
         
         switch response {
         case .ok(let okResponse):
@@ -756,10 +939,98 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for deleteEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
-        return false
+        return nil
     }
+    
+    func getAllEvents(page: Int32, size: Int32, long: Double, lat: Double, distance: Int32, from: Date?, to: Date?, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
+        //        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to), Category: \(categories)")
+        
+        let response = try await client.getAllPosts(query: .init(
+            categories: categories,
+            toDate: to,
+            fromDate: from,
+            longitude: long,
+            latitude: lat,
+            distance: distance,
+            pageNumber: page,
+            pageSize: size
+        )
+        )
+        
+        switch response {
+            
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getAllEvents")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func editEvent(postId: String, editPost: Components.Schemas.PatchPostDto, completion: @escaping (Bool?, String?) -> Void) async throws {
+        do {
+            let response = try await client.patchPost(.init(path: .init(postId: postId), body: .json(editPost)))
+            
+            switch response {
+            case .ok(let okResponse):
+                switch okResponse.body {
+                case .json(let response):
+                    completion(response.success, nil)
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                completion(nil, "The status code: \(statusCode)")
+            case .unauthorized(_):
+                completion(nil, "Unauthorized")
+            case .forbidden(_):
+                completion(nil, "Forbidden")
+            case .badRequest(let error):
+                switch error.body {
+                case .json(let error):
+                    let errorMessage = errorHandler(error: error)
+                    completion(nil, errorMessage)
+                }
+//                completion(nil, "Bad Request")
+            case .conflict(_):
+                completion(nil, "Conflict")
+            case .tooManyRequests(_):
+                completion(nil, "Too many requests for editEvent")
+            case .requestTimeout(_):
+                completion(nil, "Request timeout")
+            case .notFound(_):
+                completion(nil, "Not found")
+            }
+        } catch {
+            completion(nil, "Failed with error: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
     
     func cancelJoinRequestForEvent(postId: String) async throws -> Bool? {
         let response = try await client.cancelJoinRequestForPost(.init(path: .init(postId: postId)))
@@ -779,6 +1050,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for cancelJoinRequestForEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -786,7 +1063,7 @@ extension APIClient {
     
     func searchEvent(searchText: String, page: Int32, size: Int32, askToJoin: Bool?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
         let response = try await client.searchPosts(.init(query: .init(
-            query: searchText, 
+            query: searchText,
             askToJoin: askToJoin,
             pageNumber: page,
             pageSize: size
@@ -808,6 +1085,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for searchEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -832,6 +1115,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getEventParticipants")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -856,6 +1145,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getEventWaitlist")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -880,6 +1175,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getEventParticipantsWaitingList")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -903,6 +1204,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for addCoHostRoleToEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return false
@@ -926,6 +1233,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for removeCoHostRoleToEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return false
@@ -949,6 +1262,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for removeParticipant")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return false
@@ -974,6 +1293,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for acceptJoinRequest")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return false
@@ -986,15 +1311,15 @@ extension APIClient {
         spanLatitudeDelta: Double,
         spanLongitudeDelta: Double, page: Int32, size: Int32 ) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
             
-        let response = try await client.findPostsInVisibleRegion(.init(query: .init(
-            regionCenterLatitude: centerLatitude,
-            regionCenterLongitude: centerLongitude,
-            regionSpanLatitudeDelta: spanLatitudeDelta,
-            regionSpanLongitudeDelta: spanLongitudeDelta,
-            pageNumber: page,
-            pageSize: size
-        )))
-        
+            let response = try await client.findPostsInVisibleRegion(.init(query: .init(
+                regionCenterLatitude: centerLatitude,
+                regionCenterLongitude: centerLongitude,
+                regionSpanLatitudeDelta: spanLatitudeDelta,
+                regionSpanLongitudeDelta: spanLongitudeDelta,
+                pageNumber: page,
+                pageSize: size
+            )))
+            
             switch response {
             case .ok(let okResponse):
                 switch okResponse.body{
@@ -1011,69 +1336,87 @@ extension APIClient {
                 print("Bad Request")
             case .conflict(_):
                 print("Conflict")
+            case .tooManyRequests(_):
+                print("To many Requests for getMapEvents")
+            case .requestTimeout(_):
+                print("Requested timeout")
+            case .notFound(_):
+                print("Not found")
             }
             
             return nil
-    }
+        }
     
     func giveRatingToEvent(postId: String, ratingBody:Components.Schemas.RatingDto) async throws -> Bool? {
-            
+        
         let response = try await client.ratePost(.init(path: .init(postId: postId), body: .json(ratingBody)))
         
-            switch response {
-            case .ok(let okResponse):
-                switch okResponse.body{
-                case .json(let returnResponse):
-                    return returnResponse.success
-                }
-            case .undocumented(statusCode: let statusCode, _):
-                print("The status code:", statusCode)
-            case .unauthorized(_):
-                print("Unauthorized")
-            case .forbidden(_):
-                print("Forbidden")
-            case .badRequest(_):
-                print("Bad Request")
-            case .conflict(_):
-                print("Conflict")
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
             }
-            
-            return nil
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for giveRatingToEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
     }
     
     func giveRatingToParticipant(postId: String, userId: String, ratingBody:Components.Schemas.ParticipationRatingDto) async throws -> Bool? {
-            
+        
         let response = try await client.ratePostParticipant(.init(path: .init(postId: postId, userId: userId), body: .json(ratingBody)))
         
-            switch response {
-            case .ok(let okResponse):
-                switch okResponse.body{
-                case .json(let returnResponse):
-                    return returnResponse.success
-                }
-            case .undocumented(statusCode: let statusCode, _):
-                print("The status code:", statusCode)
-            case .unauthorized(_):
-                print("Unauthorized")
-            case .forbidden(_):
-                print("Forbidden")
-            case .badRequest(_):
-                print("Bad Request")
-            case .conflict(_):
-                print("Conflict")
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
             }
-            
-            return nil
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for giveRatingToParticipant")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
     }
     
-
+    
 }
 
 //Clubs
 
 extension APIClient {
     func getAllClubs(page: Int32, size: Int32, long: Double, lat: Double, distance: Int32, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoClubDto? {
-//        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to), Category: \(categories)")
+        //        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to), Category: \(categories)")
         
         let response = try await client.getAllClubs(query:(.init(
             categories: categories,
@@ -1083,7 +1426,7 @@ extension APIClient {
             pageNumber: page,
             pageSize: size
         )))
-                
+        
         switch response {
             
         case .ok(let okResponse):
@@ -1101,6 +1444,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getAllClubs")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -1129,19 +1478,25 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for searchClubs")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
     }
     
-    func createClub(data: Components.Schemas.CreateClubDto) async throws -> String? {
-        let response = try await client.createClub(body: .json(data))
+    func shareClub(clubId: String, chatRoomIds: Components.Schemas.ChatRoomIdsDto) async throws -> Bool? {
+        let response = try await client.shareClub(.init(path: .init(clubId: clubId), body: .json(chatRoomIds)))
         
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.id
+            case .json(let response):
+                return response.success
             }
         case .undocumented(statusCode: let statusCode, _):
             print("The status code:", statusCode)
@@ -1153,10 +1508,55 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for deleteEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
     }
+    
+    func createClub(data: Components.Schemas.CreateClubDto, completion: @escaping (String?, String?) -> Void) async throws {
+        do {
+            let response = try await client.createClub(body: .json(data))
+            
+            switch response {
+            case .ok(let okResponse):
+                switch okResponse.body {
+                case .json(let returnResponse):
+                    completion(returnResponse.id, nil)
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                completion(nil, "The status code: \(statusCode)")
+            case .unauthorized(_):
+                completion(nil, "Unauthorized")
+            case .forbidden(_):
+                completion(nil, "Forbidden")
+            case .badRequest(let error):
+                switch error.body {
+                case .json(let error):
+                    let errorMessage = errorHandler(error: error)
+                    completion(nil, errorMessage)
+                }
+//                completion(nil, "Bad Request")
+            case .conflict(_):
+                completion(nil, "Conflict")
+            case .tooManyRequests(_):
+                completion(nil, "Too many requests for createClub")
+            case .requestTimeout(_):
+                completion(nil, "Request timeout")
+            case .notFound(_):
+                completion(nil, "Not found")
+            }
+        } catch {
+            completion(nil, "Failed with error: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
     
     func getClub(clubID: String) async throws -> Components.Schemas.ClubDto? {
         let response = try await client.getClubById(.init(path: .init(clubId: clubID)))
@@ -1177,37 +1577,54 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getClub")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
     }
     
-    func editClub(clubID: String, body: Components.Schemas.PatchClubDto) async throws -> Bool {
-        let response = try await client.patchClub(.init(path: .init(clubId: clubID), body: .json(body)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
+    func editClub(clubID: String, body: Components.Schemas.PatchClubDto, completion: @escaping (Bool?, String?) -> Void) async throws {
+
+            let response = try await client.patchClub(.init(path: .init(clubId: clubID), body: .json(body)))
+            
+            switch response {
+            case .ok(let okResponse):
+                switch okResponse.body {
+                case .json(let returnResponse):
+                    completion(returnResponse.success, nil)
+                }
+            case .undocumented(statusCode: let statusCode, _):
+                completion(nil, "The status code: \(statusCode)")
+            case .unauthorized(_):
+                completion(nil, "Unauthorized")
+            case .forbidden(_):
+                completion(nil, "Forbidden")
+            case .badRequest(let error):
+                switch error.body {
+                case .json(let error):
+                    let errorMessage = errorHandler(error: error)
+                    completion(nil, errorMessage)
+                }
+//                completion(nil, "Bad Request")
+            case .conflict(_):
+                completion(nil, "Conflict")
+            case .tooManyRequests(_):
+                completion(nil, "Too many requests for editClub")
+            case .requestTimeout(_):
+                completion(nil, "Request timeout")
+            case .notFound(_):
+                completion(nil, "Not found")
             }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        }
-        
-        return false
     }
+
     
     func getClubMembers(
-        clubId: String, 
+        clubId: String,
         page: Int32,
         size: Int32
     ) async throws -> Components.Schemas.ListResponseDtoExtendedMiniUserForClub? {
@@ -1234,6 +1651,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getClubMembers")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -1267,6 +1690,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getClubJoinRequests")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -1295,6 +1724,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getClubEvents")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -1322,6 +1757,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getClubsWithCreatePostPermission")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -1347,6 +1788,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for acceptJoinRequestClub")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return false
@@ -1370,6 +1817,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for addAdminToClub")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return false
@@ -1393,6 +1846,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for removeClubMemeber")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return false
@@ -1416,6 +1875,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for removeAdminRoleForClub")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return false
@@ -1440,6 +1905,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for deleteClub")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -1447,7 +1918,7 @@ extension APIClient {
     
     func joinClub(clubId: String) async throws -> Bool? {
         let response = try await client.tryToJoinClub(.init(path: .init(clubId: clubId)))
-
+        
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
@@ -1464,6 +1935,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -1487,6 +1964,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for leaveClub")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -1510,6 +1993,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for cancelJoinRequestForClub")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
@@ -1538,6 +2027,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createStripeAccount")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
             
         }
         return nil
@@ -1562,6 +2057,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getStripeOnBoardingLink")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
             
         }
         return nil
@@ -1586,6 +2087,12 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getPaymentSheet")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
             
         }
         return nil
@@ -1596,7 +2103,7 @@ extension APIClient {
 
 //Notifications
 extension APIClient {
-    func addDiviceToken() async throws -> Bool?{
+    func addDiviceToken() async throws -> Bool? {
         if !notificationToken.isEmpty {
             let response = try await client.addDeviceTokenForUser(.init(query: .init(token: notificationToken)))
             
@@ -1616,6 +2123,12 @@ extension APIClient {
                 print("Bad Request")
             case .conflict(_):
                 print("Conflict")
+            case .tooManyRequests(_):
+                print("To many Requests for addDiviceToken")
+            case .requestTimeout(_):
+                print("Requested timeout")
+            case .notFound(_):
+                print("Not found")
                 
             }
         }
@@ -1642,6 +2155,12 @@ extension APIClient {
                 print("Bad Request")
             case .conflict(_):
                 print("Conflict")
+            case .tooManyRequests(_):
+                print("To many Requests for removeDiviceToken")
+            case .requestTimeout(_):
+                print("Requested timeout")
+            case .notFound(_):
+                print("Not found")
                 
             }
         }
@@ -1671,39 +2190,291 @@ extension APIClient {
             print("Bad Request")
         case .conflict(_):
             print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for notificationsList")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
         return nil
     }
     
-    func notificationsPoll(lastTimestamp: Date, lastId: Int64, complete: @escaping ([Components.Schemas.NotificationDto]?, String?) -> Void) async throws{
-        let response = try await client.pollUserNotifications(.init(query: .init(lastTimestamp: lastTimestamp, lastId: lastId)))
+    func updateNotifications(lastTimestamp: Date) async throws -> [Components.Schemas.NotificationDto]?{
+        let response = try await client.getNotificationsAfterTimestamp(.init(query: .init(latestNotificationTimestamp: lastTimestamp)))
         
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
             case .json(let returnResponse):
-                complete(returnResponse, nil)
+                return returnResponse
             }
         case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-            complete(nil, "The status code: \(statusCode)")
+            print("The status code from notifications:", statusCode)
         case .unauthorized(_):
             print("Unauthorized")
-            complete(nil, "Unauthorized")
         case .forbidden(_):
             print("Forbidden")
-            complete(nil, "Forbidden")
         case .badRequest(_):
             print("Bad Request")
-            complete(nil, "Bad Request")
         case .conflict(_):
             print("Conflict")
-            complete(nil, "Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for notificationsList")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
         }
         
-        
+        return nil
     }
+    
+//    func notificationsPoll(lastTimestamp: Date, lastId: Int64, complete: @escaping ([Components.Schemas.NotificationDto]?, String?) -> Void) async throws{
+//        let response = try await client.pollUserNotifications(.init(query: .init(lastTimestamp: lastTimestamp, lastId: lastId)))
+//        
+//        switch response {
+//        case .ok(let okResponse):
+//            switch okResponse.body{
+//            case .json(let returnResponse):
+//                complete(returnResponse, nil)
+//            }
+//        case .undocumented(statusCode: let statusCode, _):
+//            print("The status code:", statusCode)
+//            complete(nil, "The status code: \(statusCode)")
+//        case .unauthorized(_):
+//            print("Unauthorized")
+//            complete(nil, "Unauthorized")
+//        case .forbidden(_):
+//            print("Forbidden")
+//            complete(nil, "Forbidden")
+//        case .badRequest(_):
+//            print("Bad Request")
+//            complete(nil, "Bad Request")
+//        case .conflict(_):
+//            print("Conflict")
+//            complete(nil, "Conflict")
+//        case .tooManyRequests(_):
+//            print("To many Requests for")
+//            complete(nil, "To many Requests for notificationsPoll")
+//        case .requestTimeout(_):
+//            print("Requested timeout")
+//        case .notFound(_):
+//            print("Not found")
+//        }
+//        
+//        
+//    }
     
 }
 
+//Chat
+extension APIClient {
+    func chatMessages(chatId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoReceivedChatMessageDto? {
+        let response = try await client.findChatMessagesGroup(path: .init(chatId: chatId), query: .init(pageNumber: page, pageSize: size))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func allChats(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoChatRoomDto? {
+        let response = try await client.findChatRoomsForUser(.init(query: .init(pageNumber: page, pageSize: size)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func getChat(chatId: String) async throws -> Components.Schemas.ChatRoomDto? {
+        let response = try await client.findChatRoomById(.init(path: .init(chatId: chatId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func updateChatRooms(latestDate: Date) async throws -> [Components.Schemas.ChatRoomDto]?{
+        let response = try await client.findChatRoomsWithUpdatedLatestMessageAfterTimestamp(.init(query: .init(latestMessageTimestamp: latestDate)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func createChatForEvent(postId: String) async throws -> String?{
+        let response = try await client.createChatForPost(.init(path: .init(postId: postId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.id
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(let error):
+            print("Bad Request create chat")
+            switch error.body {
+            case .json(let errorMessage):
+                print(errorHandler(error: errorMessage))
+            }
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func createChatForClub(clubId: String) async throws -> String?{
+        let response = try await client.createChatForClub(.init(path: .init(clubId: clubId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.id
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func createGroupChat(friendIds: Components.Schemas.FriendIdsDto) async throws -> String?{
+        let response = try await client.createChatForGroup(.init(body: .json(friendIds)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.id
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+}

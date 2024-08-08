@@ -17,7 +17,7 @@ struct FriendsListView: View {
     
     var user: Components.Schemas.UserInfoDto
     @State var Init: Bool = true
-    @State var friendsList: [Components.Schemas.MiniUser] = []
+    @State var friendsList: [Components.Schemas.GetFriendsDto] = []
     @State var lastPage = true
     @State var page: Int32 = 0
     @State var pageSize: Int32 = 15
@@ -35,17 +35,17 @@ struct FriendsListView: View {
                         UserRequestTab(users: friendsRequestList)
                     }
                 }
-                ForEach(friendsList, id:\.id) { user in
+                ForEach(friendsList, id:\.user.id) { userData in
                     HStack{
-                        NavigationLink(value: SelectionPath.profile(user)){
+                        NavigationLink(value: SelectionPath.profile(userData.user)){
                             HStack{
-                                KFImage(URL(string: user.profilePhotos[0]))
+                                KFImage(URL(string: userData.user.profilePhotos[0]))
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: size.dimension, height: size.dimension)
                                     .clipShape(Circle())
                                 
-                                Text("\(user.firstName) \(user.lastName)")
+                                Text("\(userData.user.firstName) \(userData.user.lastName)")
                                     .fontWeight(.semibold)
                                     
                                 
@@ -54,8 +54,8 @@ struct FriendsListView: View {
                                 if let currentUser = userVm.currentUser, currentUser.id == self.user.id {
                                     Button{
                                         Task{
-                                            if try await APIClient.shared.removeFriend(removeUserId: user.id) != nil {
-                                                if let index = friendsRequestList.firstIndex(where: { $0.id == user.id }) {
+                                            if try await APIClient.shared.removeFriend(removeUserId: userData.user.id) != nil {
+                                                if let index = friendsList.firstIndex(where: { $0.user.id == userData.user.id }) {
                                                     friendsList.remove(at: index)
                                                 }
                                             }
@@ -123,6 +123,7 @@ struct FriendsListView: View {
                 }
             }
         }
+        .swipeBack()
         .navigationTitle("Friends")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

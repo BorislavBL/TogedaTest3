@@ -78,6 +78,7 @@ struct AllUserGroupsView: View {
             }
         }
         .scrollIndicators(.hidden)
+        .swipeBack()
         .navigationTitle("Clubs")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

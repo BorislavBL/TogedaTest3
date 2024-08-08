@@ -144,6 +144,7 @@ struct RegistartionAgeView: View {
         .navigationDestination(isPresented: $isActive, destination: {
             RegistrationGenderView(vm: vm, photoVM: photoVM)
         })
+        .swipeBack()
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

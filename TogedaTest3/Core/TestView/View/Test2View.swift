@@ -6,64 +6,38 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct Test2View: View {
-    @Binding var showRespondSheet: Bool
-    @Binding var user: Components.Schemas.UserInfoDto?
-    var id: String
+    @StateObject var chatVM = WebSocketTestManager()
+    @StateObject var userVM = UserViewModel()
     var body: some View {
-        VStack(alignment: .leading){
-            Button{
-                Task {
-                    if try await APIClient.shared.respondToFriendRequest(toUserId: id, action:.ACCEPT) != nil {
-                        self.user?.currentFriendshipStatus = .FRIENDS
-                        showRespondSheet = false
-                    }
+        VStack{
+            Button {
+                if let currentUser = userVM.currentUser{
+                    chatVM.sendMessage(senderId: currentUser.id, chatId: "7ac08bf6-5f6f-4136-bb76-3d4b7b96ddb8", content: "Test meessage" , type: .NORMAL)
                 }
             } label: {
-                HStack{
-                    Image(systemName: "checkmark.circle.fill")
-                        .frame(width: 35, height: 35)
-                        .foregroundColor(Color("textColor"))
-                    
-                    Text("Accept")
-                        .fontWeight(.semibold)
-                        .normalTagTextStyle()
-                }
-                .frame(maxWidth: .infinity)
-                .padding(8)
-                .background{Color("main-secondary-color")}
-                .cornerRadius(10)
-            }
-            
-            Button{
-                Task {
-                    if try await APIClient.shared.respondToFriendRequest(toUserId: id, action:.DENY) != nil {
-                        self.user?.currentFriendshipStatus = .NOT_FRIENDS
-                        showRespondSheet = false
-                    }
-                }
-            } label: {
-                HStack{
-                    Image(systemName: "x.circle.fill")
-                        .frame(width: 35, height: 35)
-                        .foregroundColor(Color("textColor"))
-                    
-                    Text("Deny")
-                        .fontWeight(.semibold)
-                        .normalTagTextStyle()
-                }
-                .frame(maxWidth: .infinity)
-                .padding(8)
-                .background{Color("main-secondary-color")}
-                .cornerRadius(10)
-               
+                Text("Click")
             }
         }
-        .padding()
+        .onChange(of: userVM.currentUser) {
+            chatVM.currentUserId = userVM.currentUser?.id
+        }
+        .onAppear(){
+            Task{
+                do {
+                    try await userVM.fetchCurrentUser()
+                    print("End user fetch")
+                } catch {
+                    // Handle the error if needed
+                    print("Error fetching data: \(error)")
+                }
+            }
+        }
     }
 }
 
 #Preview {
-    Test2View(showRespondSheet: .constant(true), user: .constant(MockUser), id: "")
+    Test2View()
 }

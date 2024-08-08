@@ -73,26 +73,32 @@ struct RegistrationNumberView: View {
             Spacer()
 
             Button{
-                isLoading = true
+                withAnimation {
+                    isLoading = true
+                }
 
                 Task{
+                    errorMessage = nil
                     let body = vm.addUserInfoModel()
-                    if try await APIClient.shared.addUserInfo(body: body) {
-                        isLoading = false
-                        mainVm.checkAuthStatus()
+                    try await APIClient.shared.addUserInfo(body: body) { response, error in
+                        DispatchQueue.main.async {
+                            if let response = response, response {
+                                withAnimation {
+                                    self.isLoading = false
+                                }
+                                mainVm.checkAuthStatus()
+                            } else if let error = error {
+                                withAnimation {
+                                    self.isLoading = false
+                                }
+                                
+                                self.errorMessage = error
+                            }
+                        }
                     }
                 }
                     
             } label:{
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 60)
-                        .background(Color("blackAndWhite"))
-                        .foregroundColor(Color("testColor"))
-                        .cornerRadius(10)
-                        .fontWeight(.semibold)
-                } else {
                     Text("Submit")
                         .frame(maxWidth: .infinity)
                         .frame(height: 60)
@@ -100,7 +106,6 @@ struct RegistrationNumberView: View {
                         .foregroundColor(Color("testColor"))
                         .cornerRadius(10)
                         .fontWeight(.semibold)
-                }
             }
             .disableWithOpacity(vm.mobPhoneNumber.count < 5)
             .onTapGesture {
@@ -111,7 +116,12 @@ struct RegistrationNumberView: View {
             
         }
         .animation(.easeInOut(duration: 0.6), value: keyIsFocused)
-        .padding(.horizontal)
+        .padding()
+        .overlay {
+            if isLoading {
+                LoadingScreenView(isVisible: $isLoading)
+            }
+        }
         .sheet(isPresented: $presentSheet) {
             NavigationView {
                 List(filteredResorts) { country in
@@ -146,7 +156,7 @@ struct RegistrationNumberView: View {
                 KeyboardToolbarItems()
             }
         }
-        .padding(.vertical)
+        .swipeBack()
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

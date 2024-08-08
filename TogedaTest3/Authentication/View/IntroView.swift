@@ -10,7 +10,7 @@ import AuthenticationServices
 
 struct IntroView: View {
     @StateObject var vm = RegistrationViewModel()
-    @StateObject var googleVM = GoogleAuthService()
+//    @StateObject var googleVM = GoogleAuthService()
     @Environment(\.colorScheme) private var colorScheme
     
     @State private var showLogin = false
@@ -59,58 +59,58 @@ struct IntroView: View {
                                 .cornerRadius(10)
                                 .fontWeight(.semibold)
                         }
-                        Text("Continue with")
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.gray)
-                            .padding(.top, 8)
-                        
-                        HStack(spacing: 16 ){
-                            SignInWithAppleButton(.continue) { request in
-                                request.requestedScopes = [.fullName, .email]
-                            } onCompletion: { result in
-                                switch result {
-                                case .success(let authResults):
-                                    print("Authorization successful.")
-                                    switch authResults.credential{
-                                    case let credential as ASAuthorizationAppleIDCredential :
-                                        let userId = credential.user
-                                        let email = credential.email
-                                        let firstName = credential.fullName?.givenName ?? ""
-                                        let lastName = credential.fullName?.familyName ?? ""
-                                        
-                                        print("firstName: \(firstName) \n lastName: \(lastName) \n userId: \(userId) \n email: \(String(describing: email)) \n ")
-                                    default:
-                                        break
-                                    }
-                                    
-                                case .failure(let error):
-                                    print("Authorization failed: " + error.localizedDescription)
-                                }
-                            }
-                            .labelsHidden()
-                            .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
-                            .frame(width: 70, height: 70)
-                            .cornerRadius(10)
-                            
-                            Button{
-                                googleVM.signIn()
-                            } label: {
-                                    Image(colorScheme == .dark ? "google_black" : "google_light")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 20, height: 20)
-                                
-                            }
-                            .frame(width: 70, height: 70)
-                            .background(colorScheme == .dark ? .white : .black)
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
-                            .fontWeight(.semibold)
-                        }
-                        
+//                        Text("Continue with")
+//                            .font(.footnote)
+//                            .fontWeight(.semibold)
+//                            .foregroundStyle(.gray)
+//                            .padding(.top, 8)
+//                        
+//                        HStack(spacing: 16 ){
+//                            SignInWithAppleButton(.continue) { request in
+//                                request.requestedScopes = [.fullName, .email]
+//                            } onCompletion: { result in
+//                                switch result {
+//                                case .success(let authResults):
+//                                    print("Authorization successful.")
+//                                    switch authResults.credential{
+//                                    case let credential as ASAuthorizationAppleIDCredential :
+//                                        let userId = credential.user
+//                                        let email = credential.email
+//                                        let firstName = credential.fullName?.givenName ?? ""
+//                                        let lastName = credential.fullName?.familyName ?? ""
+//                                        
+//                                        print("firstName: \(firstName) \n lastName: \(lastName) \n userId: \(userId) \n email: \(String(describing: email)) \n ")
+//                                    default:
+//                                        break
+//                                    }
+//                                    
+//                                case .failure(let error):
+//                                    print("Authorization failed: " + error.localizedDescription)
+//                                }
+//                            }
+//                            .labelsHidden()
+//                            .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
+//                            .frame(width: 70, height: 70)
+//                            .cornerRadius(10)
+//                            
+//                            Button{
+//                                googleVM.signIn()
+//                            } label: {
+//                                    Image(colorScheme == .dark ? "google_black" : "google_light")
+//                                        .resizable()
+//                                        .scaledToFit()
+//                                        .frame(width: 20, height: 20)
+//                                
+//                            }
+//                            .frame(width: 70, height: 70)
+//                            .background(colorScheme == .dark ? .white : .black)
+//                            .foregroundColor(Color("testColor"))
+//                            .cornerRadius(10)
+//                            .fontWeight(.semibold)
+//                        }
+//                        
                     }
-                    .padding(.bottom, 10)
+                    .padding(.bottom, 20)
                     
                 }
                 .padding(.vertical, 30)

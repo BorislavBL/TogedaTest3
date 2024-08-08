@@ -17,7 +17,7 @@ class CreateClubViewModel: ObservableObject {
     @Published var location: Components.Schemas.BaseLocation?
     @Published var returnedPlace = Place(mapItem: MKMapItem()){
         didSet{
-            self.location = .init(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+            self.location = .init(name: returnedPlace.address, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
         }
     }
 

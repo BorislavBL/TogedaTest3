@@ -7,14 +7,24 @@
 
 import SwiftUI
 import WrappingHStack
+import Kingfisher
 
 struct ShareView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var userVM: UserViewModel
     @State var searchText: String = ""
     let size: ImageSize = .small
-    @State var searchUserResults: [MiniUser] = MiniUser.MOCK_MINIUSERS
-    @State var selectedUsers: [MiniUser] = []
+    @State var searchUserResults: [Components.Schemas.GetFriendsDto] = []
+    @State var selectedUsers: [Components.Schemas.GetFriendsDto] = []
     @State var showCancelButton: Bool = false
+    var post: Components.Schemas.PostResponseDto?
+    var club: Components.Schemas.ClubDto?
+    
+    @State var friendsList: [Components.Schemas.GetFriendsDto] = []
+    @State var lastPage: Bool = true
+    @State var page: Int32 = 0
+    @State var listSize: Int32 = 15
+    @State var isLoading = false
     
     let testLink = URL(string: "https://www.linkedin.com/in/borislav-lorinkov-724300232/")!
     
@@ -34,7 +44,7 @@ struct ShareView: View {
                 if selectedUsers.count > 0{
                     ScrollView{
                         WrappingHStack(alignment: .topLeading){
-                            ForEach(selectedUsers, id: \.id) { user in
+                            ForEach(selectedUsers, id: \.user.id) { user in
                                 ParticipantsChatTags(user: user){
                                     selectedUsers.removeAll(where: { $0 == user })
                                 }
@@ -46,7 +56,7 @@ struct ShareView: View {
                 }
                 
                 LazyVStack {
-                    ForEach(searchUserResults) { user in
+                    ForEach(friendsList, id: \.user.id) { user in
                         VStack {
                             Button{
                                 if selectedUsers.contains(user) {
@@ -66,13 +76,13 @@ struct ShareView: View {
                                             .foregroundStyle(.gray)
                                     }
                                     
-                                    Image(user.profilePhotos[0])
+                                    KFImage(URL(string: user.user.profilePhotos[0]))
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: size.dimension, height: size.dimension)
                                         .clipShape(Circle())
                                     
-                                    Text(user.fullName)
+                                    Text("\(user.user.firstName) \(user.user.lastName)")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                     
@@ -85,21 +95,57 @@ struct ShareView: View {
                         }
                         .padding(.leading)
                     }
+                    
+                    Rectangle()
+                        .frame(width: 0, height: 0)
+                        .onAppear {
+                            if !lastPage{
+                                isLoading = true
+                                Task{
+                                    try await fetchList()
+                                    isLoading = false
+                                    
+                                }
+                            }
+                            
+                        }
                 }
             }
             .onChange(of: searchText){
-                if !searchText.isEmpty {
-                    searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-                        result.fullName.lowercased().contains(searchText.lowercased())
-                    }
-                } else {
-                    searchUserResults = MiniUser.MOCK_MINIUSERS
-                }
+//                if !searchText.isEmpty {
+//                    searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
+//                        result.fullName.lowercased().contains(searchText.lowercased())
+//                    }
+//                } else {
+//                    searchUserResults = MiniUser.MOCK_MINIUSERS
+//                }
             }
             
-            if selectedUsers.count > 0{
+            if selectedUsers.count > 0 {
                 VStack{
-                    Button{}  label: {
+                    Button{
+                        Task{
+                            if let post = post {
+                                let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: selectedUsers.map { friends in
+                                    return friends.chatRoomId
+                                })
+                                if let response = try await APIClient.shared.shareEvent(postId: post.id, chatRoomIds: chatRoomsIDs) {
+                                    print("\(response)")
+                                    dismiss()
+                                }
+                            }
+                            
+                            else if let club = club {
+                                let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: selectedUsers.map { friends in
+                                    return friends.chatRoomId
+                                })
+                                if let response = try await APIClient.shared.shareClub(clubId: club.id, chatRoomIds: chatRoomsIDs) {
+                                    print("\(response)")
+                                    dismiss()
+                                }
+                            }
+                        }
+                    } label: {
                         Text("Send")
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
@@ -116,52 +162,25 @@ struct ShareView: View {
             
 
         }
-    }
-}
-
-struct ReceiverTags: View {
-    var user: MiniUser
-    let size: ImageSize = .xxSmall
-    @State var clicked = false
-    var action: () -> Void
-    var body: some View {
-        if clicked {
-            Button{action()} label:{
-                HStack{
-                    Image(systemName: "xmark")
-                        .imageScale(.medium)
-                    
-                    
-                    Text(user.fullName)
-                        .font(.subheadline)
-                    
-                }
-                .frame(height: size.dimension)
-                .padding(.horizontal, 8)
-                .background(Color(.tertiarySystemFill))
-                .clipShape(Capsule())
-            }
-        } else {
-            Button { clicked = true } label:{
-                HStack{
-                    Image(user.profilePhotos[0])
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: size.dimension, height: size.dimension)
-                        .clipShape(Circle())
-                    
-                    Text(user.fullName)
-                        .font(.subheadline)
-                        .padding(.trailing, 8)
-                }
-                .background(Color(.tertiarySystemFill))
-                .clipShape(Capsule())
+        .onAppear(){
+            Task{
+                try await fetchList()
             }
         }
-        
+    }
+    
+    func fetchList() async throws {
+        if let currentUser = userVM.currentUser {
+            if let response = try await APIClient.shared.getFriendList(userId: currentUser.id, page: page, size: listSize) {
+                friendsList = response.data
+                page += 1
+                lastPage = response.lastPage
+            }
+        }
     }
 }
 
 #Preview {
     ShareView()
+        .environmentObject(UserViewModel())
 }

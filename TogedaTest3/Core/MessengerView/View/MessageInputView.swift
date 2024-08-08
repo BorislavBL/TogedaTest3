@@ -11,11 +11,12 @@ import PhotosUI
 struct MessageInputView: View {
     @Binding var messageText: String
     @ObservedObject var viewModel: ChatViewModel
+    var onSubmit: () -> ()
     var body: some View {
             HStack(alignment: .top){
-                if let image = viewModel.messageImage {
+                if let uiImage = viewModel.messageImage {
                     ZStack(alignment: .topTrailing) {
-                        image
+                        Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFill()
                             .clipped()
@@ -54,9 +55,7 @@ struct MessageInputView: View {
                 }
                 
                 Button {
-                    Task {
-                        messageText = ""
-                    }
+                    onSubmit()
                 } label: {
                     Text("Send")
                         .fontWeight(.semibold)
@@ -80,5 +79,5 @@ struct MessageInputView: View {
 }
 
 #Preview {
-    MessageInputView(messageText: .constant(""), viewModel: ChatViewModel())
+    MessageInputView(messageText: .constant(""), viewModel: ChatViewModel(), onSubmit: {})
 }

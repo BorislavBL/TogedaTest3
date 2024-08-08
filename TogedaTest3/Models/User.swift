@@ -7,43 +7,6 @@
 
 import Foundation
 
-struct EditUser: Codable, Hashable{
-    var subToEmail: Bool
-    var firstName: String
-    var lastName: String
-    var gender: String
-    var birthDate: String
-    var visibleGender: Bool
-    var location: baseLocation
-    var occupation: String
-    var profilePhotos: [String]
-    var interests: [Interest]
-
-    var details: UserDetails
-    
-    static var example: EditUser = .init(subToEmail: false, firstName: "", lastName: "", gender: "", birthDate: "", visibleGender: false, location: mockLocation, occupation: "", profilePhotos: [], interests: [], details: mockUserDetails)
-}
-
-struct EditProfilePhoneNumber: Codable, Hashable {
-    var phoneNumber: String
-}
-
-struct CreateUser: Codable, Hashable {
-    var profilePhotos: [String]
-    var firstName: String
-    var lastName: String
-    var email: String
-    var subToEmail: Bool
-    var password: String
-    var phoneNumber: String
-    var birthDate: String
-    var occupation: String
-    var location: baseLocation?
-    var gender: String
-    var visibleGender: Bool
-    var interests: [Interest]
-}
-
 struct User: Codable, Identifiable {
     var id: String
     var email: String
@@ -140,7 +103,7 @@ struct birthDay: Hashable, Codable{
 
 
 
-let posts = Post.MOCK_POSTS
+//let posts = Post.MOCK_POSTS
 
 let userDescription = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen"
 let mockAbouts = ["Designer", "ISFP", "Bachelor", "Single", "Non-smoker", "Drinks-often", "Workout-often"]
@@ -306,15 +269,6 @@ extension User {
             details: mockUserDetails
         )
     ]
-    
-//    static var MOCK_USERS: [User] = [
-//        .init(id: NSUUID().uuidString, profileImageUrl: ["person_1", "person_2", "person_3"], firstName: "Alison", lastName: "Hogwards", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Graphic Designer", baseLocation: mockLocation, gender: "Woman", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events, clubIDs: ["1"]),
-//        .init(id: NSUUID().uuidString, profileImageUrl: ["person_2"], firstName: "Emma", lastName: "W", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Programmer", baseLocation: mockLocation, gender: "Woman", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events, clubIDs: []),
-//        .init(id: NSUUID().uuidString, profileImageUrl: ["person_3"], firstName: "Bruce", lastName: "Wayne", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Founder", baseLocation: mockLocation, gender: "Man", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ENTJ", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events, clubIDs: []),
-//        .init(id: NSUUID().uuidString, profileImageUrl: ["person_2", "person_3"], firstName: "Alison", lastName: "Hogwards2", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Graphic Designer", baseLocation: mockLocation, gender: "Woman", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events, clubIDs: []),
-//        .init(id: NSUUID().uuidString, profileImageUrl: ["person_3"], firstName: "B", lastName: "L", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Graphic Designer", baseLocation: mockLocation, gender: "Man", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events, clubIDs: []),
-//        .init(id: NSUUID().uuidString, profileImageUrl: ["person_1", "person_3"], firstName: "Emma", lastName: "L", bio: userDescription, email: "brucethewain@gmail.com", phoneNumber: "+359 892206243", birthDay: mockBirthday, occipation: "Graphic Designer", baseLocation: mockLocation, gender: "Woman", interests: mockInterests, education: "Bachelor degree", workout: "Often", personalityType: "ISFP", instagarm: "@bgAlertTest", savedPosts: [], friendIDs: friends, createdEventIDs: events, participatedEventIDs: events, clubIDs: [])
-//    ]
 }
 
 

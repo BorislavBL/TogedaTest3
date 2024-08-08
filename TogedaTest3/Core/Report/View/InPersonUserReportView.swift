@@ -140,6 +140,7 @@ struct InPersonUserReportView: View {
             .padding()
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBack()
     }
 }
 

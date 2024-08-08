@@ -16,7 +16,6 @@ struct UsersListView: View {
     @State var isLoading = false
     
     var post: Components.Schemas.PostResponseDto
-    @State var showUserOptions = false
     @State var showReportSheet = false
     @State var selectedExtendedUser: Components.Schemas.ExtendedMiniUser?
     @State var Init: Bool = true
@@ -62,17 +61,67 @@ struct UsersListView: View {
                                 }
                                 
                                 Spacer()
+                            }
+                        }
+                        
+                        HStack{
+                            if let currentUser = userVm.currentUser, currentUser.id != user.user.id, post.status != .HAS_ENDED {
                                 
-                                if let currentUser = userVm.currentUser, currentUser.id != user.user.id, post.status != .HAS_ENDED {
-                                    Button{
-                                        showUserOptions = true
-                                        selectedExtendedUser = user
-                                    } label:{
-                                        Image(systemName: "ellipsis")
-                                            .rotationEffect(.degrees(90))
+                                Menu{
+                                    if post.currentUserRole == .HOST && user._type == .NORMAL{
+                                        Button("Make a Co-Host") {
+                                            Task{
+                                                if try await APIClient.shared.addCoHostRoleToEvent(postId: post.id, userId: user.user.id) {
+                                                    
+                                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
+                                                        eventVM.participantsList[index]._type = .CO_HOST
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else if user._type == .HOST {
+                                        Button("Remove as a Co-Host") {
+                                            Task{
+                                                if try await APIClient.shared.removeCoHostRoleToEvent(postId: post.id, userId: user.user.id) {
+                                                    
+                                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
+                                                        eventVM.participantsList[index]._type = .NORMAL
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
+                                    
+                                    if post.currentUserStatus == .PARTICIPATING {
+                                        Button{
+                                            showReportSheet = true
+                                            selectedExtendedUser = user
+                                        } label:{
+                                            Text("Report")
+                                                .foregroundStyle(.red)
+                                        }
+                                    }
+                                    
+                                    if  post.payment <= 0 && (post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST) {
+                                        Button("Remove") {
+                                            Task{
+                                                if try await APIClient.shared.removeParticipant(postId: post.id, userId: user.user.id) {
+                                                    
+                                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
+                                                        eventVM.participantsList.remove(at: index)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    
+                                } label: {
+                                    Image(systemName: "ellipsis")
+                                        .rotationEffect(.degrees(90))
                                 }
                             }
+                            
                             
                         }
                         
@@ -131,72 +180,6 @@ struct UsersListView: View {
                 ReportUserView(user: extendedUser.user)
             }
         })
-        .sheet(isPresented: $showUserOptions, content: {
-            List {
-                if let extendedUser = selectedExtendedUser {
-                    if post.currentUserRole == .HOST && extendedUser._type == .NORMAL{
-                        Button("Make a Co-Host") {
-                            Task{
-                                if try await APIClient.shared.addCoHostRoleToEvent(postId: post.id, userId: extendedUser.user.id) {
-                                    
-                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
-                                        eventVM.participantsList[index]._type = .CO_HOST
-                                    }
-                                    
-                                    showUserOptions = false
-                                }
-                            }
-                        }
-                    } else if extendedUser._type == .HOST {
-                        Button("Remove as a Co-Host") {
-                            Task{
-                                if try await APIClient.shared.removeCoHostRoleToEvent(postId: post.id, userId: extendedUser.user.id) {
-                                    
-                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
-                                        eventVM.participantsList[index]._type = .NORMAL
-                                    }
-                                    
-                                    showUserOptions = false
-                                }
-                            }
-                        }
-                    }
-                    
-                    if post.currentUserStatus == .PARTICIPATING {
-                        Button{
-                            showUserOptions = false
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1){
-                                showReportSheet = true
-                            }
-                        } label:{
-                            Text("Report")
-                                .foregroundStyle(.red)
-                        }
-                    }
-
-                    if  post.payment <= 0 && (post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST) {
-                        Button("Remove") {
-                            Task{
-                                if try await APIClient.shared.removeParticipant(postId: post.id, userId: extendedUser.user.id) {
-                                    
-                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == extendedUser.user.id }) {
-                                        eventVM.participantsList.remove(at: index)
-                                    }
-                                    
-                                    showUserOptions = false
-                                }
-                            }
-                        }
-                    }
-                    
-                } else {
-                    Text("No extended user")
-                }
-            }
-            .presentationDetents([.height(200)])
-            .presentationDragIndicator(.visible)
-            .scrollDisabled(true)
-        })
         .background(.bar)
         .navigationTitle("Participants")
         .navigationBarTitleDisplayMode(.inline)
@@ -204,6 +187,8 @@ struct UsersListView: View {
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
         })
+        .swipeBack()
+
     }
 }
 

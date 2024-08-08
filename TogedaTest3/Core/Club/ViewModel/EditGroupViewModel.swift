@@ -11,7 +11,7 @@ import Combine
 import MapKit
 
 class EditGroupViewModel: ObservableObject {
-    
+
     @Published var editClub: Components.Schemas.ClubDto = MockClub
     @Published var initialClub: Components.Schemas.ClubDto = MockClub
     
@@ -26,7 +26,7 @@ class EditGroupViewModel: ObservableObject {
     }
     @Published var returnedPlace = Place(mapItem: MKMapItem()){
         didSet{
-            editClub.location = .init(name: returnedPlace.name, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+            editClub.location = .init(name: returnedPlace.address, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
         }
     }
 

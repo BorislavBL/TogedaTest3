@@ -15,7 +15,6 @@ enum AuthenticationState {
     case unauthenticated
 }
 
-@MainActor
 class ContentViewModel: ObservableObject {
     @Published var authenticationState: AuthenticationState = .checking
     
@@ -55,7 +54,9 @@ class ContentViewModel: ObservableObject {
                 }
             } else {
                 AuthClient.shared.clearSession()
-                self.authenticationState = .unauthenticated
+                DispatchQueue.main.async {
+                    self.authenticationState = .unauthenticated
+                }
             }
         }
     }

@@ -39,7 +39,7 @@ enum SelectionPath: Hashable, Codable {
     case allClubEventsView(String)
     case allUserGroups(userID: String)
     case clubMemersList(Components.Schemas.ClubDto)
-    case userChat(toUser: Components.Schemas.MiniUser, chatId: String)
+    case userChat(chatroom: Components.Schemas.ChatRoomDto)
     case notification
     case userRequest
     case eventReview(post: Components.Schemas.PostResponseDto)

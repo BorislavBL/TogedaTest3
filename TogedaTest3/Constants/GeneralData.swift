@@ -8,4 +8,4 @@
 import Foundation
 
 let CROPPING_HEIGHT = 1000
-let CROPPING_WIDTH = 500
+let CROPPING_WIDTH = 600

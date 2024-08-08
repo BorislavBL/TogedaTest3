@@ -10,140 +10,206 @@ import WrappingHStack
 import Kingfisher
 
 struct PostCell: View {
-    @EnvironmentObject var viewModel: PostsViewModel
     var post: Components.Schemas.PostResponseDto
     
     var body: some View {
-        VStack {
-            VStack(alignment: .center, spacing: 15){
-                
-                //MARK: - Post Header
-                NavigationLink(value: SelectionPath.profile(post.owner)) {
-                    HStack(alignment: .center) {
-                        KFImage(URL(string: post.owner.profilePhotos[0]))
+        PostCellSkeleton(post: post)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
+        .background(Color("postCellColor"))
+        .cornerRadius(10)
+        .padding(.horizontal, 8)
+    }
+
+}
+
+struct PostCellSkeleton: View {
+    @EnvironmentObject var viewModel: PostsViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
+    var post: Components.Schemas.PostResponseDto
+    
+    var body: some View {
+        VStack(alignment: .center, spacing: 15){
+            ZStack(alignment: .top){
+                VStack(alignment: .center, spacing: 15){
+                    headerSpacer()
+                        .opacity(0)
+                    
+                    NavigationLink(value: SelectionPath.eventDetails(post)) {
+                        KFImage(URL(string: post.images[0]))
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 50, height: 50)
-                            .background(.gray)
-                            .cornerRadius(15)
-                        
-                        
-                        VStack(alignment: .leading, spacing: 3){
-                            Text(post.title)
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-                                .font(.body)
-                                .fontWeight(.semibold)
-                            Text("\(post.owner.firstName) \(post.owner.lastName)")
-                                .foregroundColor(.gray)
-                                .fontWeight(.semibold)
-                                .font(.footnote)
+                            .frame(maxHeight: 400)
+                            .cornerRadius(10)
+                    }
+                }
+                
+                //MARK: - Post Header
+                HStack(alignment: .center) {
+                    NavigationLink(value: SelectionPath.profile(post.owner)) {
+                        HStack(alignment: .center) {
+                            KFImage(URL(string: post.owner.profilePhotos[0]))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 50, height: 50)
+                                .background(.gray)
+                                .cornerRadius(15)
+                            
+                            
+                            VStack(alignment: .leading, spacing: 3){
+                                Text(post.title)
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                                    .font(.body)
+                                    .fontWeight(.semibold)
+                                
+                                Text("\(post.owner.firstName) \(post.owner.lastName)")
+                                    .foregroundColor(.gray)
+                                    .fontWeight(.semibold)
+                                    .font(.footnote)
+                            }
                         }
+                        
                     }
                     
                     Spacer()
                     
                     //MARK: - Post Options
                     
-                    Button {
-                        viewModel.showPostOptions = true
-                        viewModel.clickedPost = post
+                    Menu{
+                        ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                            Text("Share via")
+                        }
+                        //
+                        if isOwner {
+                            
+                        } else {
+                            Button("Report") {
+                                viewModel.showReportEvent = true
+                                viewModel.clickedPost = post
+                            }
+                        }
                     } label: {
                         Image(systemName: "ellipsis")
                             .rotationEffect(.degrees(90))
+                            .padding(8)
                     }
                     
                 }
-                
-                NavigationLink(value: SelectionPath.eventDetails(post)) {
-                    KFImage(URL(string: post.images[0]))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxHeight: 400)
-                        .cornerRadius(10)
-                }
-                
-                //MARK: - Buttons
-                
-                HStack(alignment: .center, spacing: 20){
-                    Button {
-                        viewModel.clickedPost = post
-                        viewModel.showJoinRequest = true
-                    } label: {
-                        if post.currentUserStatus == .PARTICIPATING || post.currentUserStatus == .IN_QUEUE {
-                            Image(systemName: "person.2.circle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25, height: 25)
-                        } else {
-                            Image(systemName: "person.2.circle")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25, height: 25)
-                        }
-                    }
-                    
-                    if post.currentUserStatus == .PARTICIPATING || !post.askToJoin {
-                        
-                        Button{
-                            let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)")
-                            if UIApplication.shared.canOpenURL(url!) {
-                                UIApplication.shared.open(url!, options: [:], completionHandler: nil)
-                            }
-                        } label: {
-                            Image(systemName: "mappin.circle")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25, height: 25)
-                        }
+            }
+            
+            //MARK: - Buttons
+            
+            HStack(alignment: .center, spacing: 20){
+                Button {
+                    viewModel.clickedPost = post
+                    viewModel.showJoinRequest = true
+                } label: {
+                    if post.currentUserStatus == .PARTICIPATING || post.currentUserStatus == .IN_QUEUE {
+                        Image(systemName: "person.2.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25)
                     } else {
+                        Image(systemName: "person.2.circle")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25)
+                    }
+                }
+                
+                if post.currentUserStatus == .PARTICIPATING || !post.askToJoin {
+                    
+                    Button{
+                        let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)")
+                        if UIApplication.shared.canOpenURL(url!) {
+                            UIApplication.shared.open(url!, options: [:], completionHandler: nil)
+                        }
+                    } label: {
                         Image(systemName: "mappin.circle")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 25, height: 25)
-                            .foregroundStyle(.gray)
                     }
-                    
-                    Button {
-                        viewModel.clickedPost = post
-                        viewModel.showSharePostSheet = true
-                    } label: {
-                        
-                        Image(systemName: "paperplane")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 25, height: 25)
-                    }
-                    
-                    Spacer()
-                    
-                    Button {
-                        Task{
-                            try await viewModel.saveEvent(postId: post.id)
-                        }
-                    } label: {
-                        Image(systemName: post.savedByCurrentUser ? "bookmark.fill" : "bookmark")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 25, height: 25)
-                    }
-                    
+                } else {
+                    Image(systemName: "mappin.circle")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 25)
+                        .foregroundStyle(.gray)
                 }
-                .foregroundColor(Color("textColor"))
                 
-                //MARK: - Tags
-                PostTags(post: post)
+                Button {
+                    viewModel.clickedPost = post
+                    viewModel.showSharePostSheet = true
+                } label: {
+                    
+                    Image(systemName: "paperplane")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 25)
+                }
+                
+                Spacer()
+                
+                Button {
+                    Task{
+                        try await viewModel.saveEvent(postId: post.id)
+                    }
+                } label: {
+                    Image(systemName: post.savedByCurrentUser ? "bookmark.fill" : "bookmark")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 25)
+                }
+                
+            }
+            .foregroundColor(Color("textColor"))
+            
+            //MARK: - Tags
+            PostTags(post: post)
+        }
+        
+    }
+    
+    
+    // This view is used to create the perfect height of the header.
+    //The reason thats needed its because the clipped image overlaps the menu button and it doesnt trigger. That minght be fixed in future versions so check regularly.
+    
+    func headerSpacer() -> some View {
+            HStack(alignment: .center) {
+                Rectangle()
+                    .frame(width: 50, height: 50)
+                    .foregroundStyle(.gray)
+                    .cornerRadius(15)
+                
+                
+                VStack(alignment: .leading, spacing: 3){
+                    Text(post.title)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                    
+                    Text("\(post.owner.firstName) \(post.owner.lastName)")
+                        .foregroundColor(.gray)
+                        .fontWeight(.semibold)
+                        .font(.footnote)
+                }
+                
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+                    .padding(8)
             }
             
+    }
+    
+    var isOwner: Bool {
+        if let currentUser = userViewModel.currentUser, currentUser.id == post.owner.id{
+            return true
+        } else {
+            return false
         }
-        .onAppear(){
-            
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 12)
-        .background(Color("postCellColor"))
-        .cornerRadius(10)
-        .padding(.horizontal, 8)
     }
 }
 
@@ -151,5 +217,6 @@ struct PostCell_Previews: PreviewProvider {
     static var previews: some View {
         PostCell(post: MockPost)
             .environmentObject(PostsViewModel())
+            .environmentObject(UserViewModel())
     }
 }

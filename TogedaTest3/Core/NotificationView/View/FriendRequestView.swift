@@ -16,7 +16,7 @@ struct FriendRequestView: View {
         VStack {
             NavigationLink(value: SelectionPath.profile(MockMiniUser)){
                 HStack(alignment:.top){
-                    KFImage(URL(string: user.senderProfilePhoto)!)
+                    KFImage(URL(string: user.sender.profilePhotos[0])!)
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -24,7 +24,7 @@ struct FriendRequestView: View {
                     
                 }
                 VStack(alignment:.leading){
-                    Text(user.senderName)
+                    Text("\(user.sender.firstName) \(user.sender.lastName)")
                         .font(.footnote)
                         .fontWeight(.semibold) +
                     

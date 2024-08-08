@@ -10,15 +10,23 @@ import Kingfisher
 
 struct GroupAcceptanceView: View {
     let size: ImageSize = .medium
-    @State var club: Components.Schemas.ClubDto = MockClub
+    var club: Components.Schemas.MiniClubDto
     var createDate: Date
     var alertBody: Components.Schemas.AlertBodyAcceptedJoinRequest
+    @Binding var selectionPath: [SelectionPath]
     
     var body: some View {
         VStack {
-            NavigationLink(value: SelectionPath.club(club)){
+            /*NavigationLink(value: SelectionPath.club(club))*/
+            Button{
+                Task{
+                    if let response = try await APIClient.shared.getClub(clubID: club.id){
+                        selectionPath.append(.club(response))
+                    }
+                }
+            } label:{
                 HStack(alignment:.top){
-                    KFImage(URL(string:alertBody.image))
+                    KFImage(URL(string:club.images[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -26,7 +34,7 @@ struct GroupAcceptanceView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 5){
-                    Text(alertBody.title)
+                    Text(club.title)
                         .font(.footnote)
                         .fontWeight(.semibold)
                     
@@ -49,5 +57,5 @@ struct GroupAcceptanceView: View {
 }
 
 #Preview {
-    GroupAcceptanceView(createDate: Date(), alertBody: mockAlertBodyAcceptedJoinRequest)
+    GroupAcceptanceView(club: MockMiniClub, createDate: Date(), alertBody: mockAlertBodyAcceptedJoinRequest, selectionPath: .constant([]))
 }

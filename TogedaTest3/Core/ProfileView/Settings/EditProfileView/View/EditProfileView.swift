@@ -28,9 +28,18 @@ struct EditProfileView: View {
     @State private var showInterestsView: Bool = false
     @State private var showPhoneNumberView: Bool = false
     
+    @State var isLoading = false
+    @State private var errorMessage: String?
+    
+    
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 30){
+                
+                if let error = errorMessage {
+                    WarningTextComponent(text: error)
+                }
+                
                 VStack(alignment: .leading, spacing: 10){
                     Text("Profile Photos")
                         .font(.title3)
@@ -160,53 +169,53 @@ struct EditProfileView: View {
                     EditProfileBioView(text: $editProfileVM.description, placeholder: "Bio")
                 }
                 
-                VStack(alignment: .leading, spacing: 10){
-                    Text("Phone Number")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    
-                    NavigationLink(value: SelectionPath.editProfilePhoneNumberMain) {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "phone.fill")
-                                .imageScale(.large)
-                            
-                            if let user = userVM.currentUser{
-                                Text(user.phoneNumber.isEmpty ? "Enter Phone Number" : "+"+user.phoneNumber)
-                            }
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundColor(.gray)
-                            
-                        }
-                    }
-                    .createEventTabStyle()
-                    
-                    if let user = userVM.currentUserOld {
-                        if !user.verifiedPhone{
-                            HStack{
-                                Image(systemName: "x.circle")
-                                Text("You still haven't verified your number.")
-                                    .foregroundStyle(.red)
-                                    .font(.footnote)
-                                    .bold()
-                            }
-                            .foregroundStyle(.red)
-                        } else {
-                            HStack{
-                                Image(systemName: "checkmark.circle")
-
-                                Text("Your phone number is verified")
-                                    .font(.footnote)
-                                    .bold()
-                            }
-                            .foregroundStyle(.green)
-                        }
-                    }
-                    
-                }
+//                VStack(alignment: .leading, spacing: 10){
+//                    Text("Phone Number")
+//                        .font(.title3)
+//                        .fontWeight(.bold)
+//                    
+//                    NavigationLink(value: SelectionPath.editProfilePhoneNumberMain) {
+//                        HStack(alignment: .center, spacing: 10) {
+//                            Image(systemName: "phone.fill")
+//                                .imageScale(.large)
+//                            
+//                            if let user = userVM.currentUser{
+//                                Text(user.phoneNumber.isEmpty ? "Enter Phone Number" : "+"+user.phoneNumber)
+//                            }
+//                            
+//                            Spacer()
+//                            
+//                            Image(systemName: "chevron.right")
+//                                .padding(.trailing, 10)
+//                                .foregroundColor(.gray)
+//                            
+//                        }
+//                    }
+//                    .createEventTabStyle()
+//                    
+//                    if let user = userVM.currentUser {
+//                        if !user.verifiedPhone{
+//                            HStack{
+//                                Image(systemName: "x.circle")
+//                                Text("You still haven't verified your number.")
+//                                    .foregroundStyle(.red)
+//                                    .font(.footnote)
+//                                    .bold()
+//                            }
+//                            .foregroundStyle(.red)
+//                        } else {
+//                            HStack{
+//                                Image(systemName: "checkmark.circle")
+//
+//                                Text("Your phone number is verified")
+//                                    .font(.footnote)
+//                                    .bold()
+//                            }
+//                            .foregroundStyle(.green)
+//                        }
+//                    }
+//                    
+//                }
                 
 //                    if emailError {
 //                        WarningTextComponent(text: "Write a valid email.")
@@ -382,6 +391,11 @@ struct EditProfileView: View {
             }
             .padding()
         }
+        .overlay {
+            if isLoading {
+                LoadingScreenView(isVisible: $isLoading)
+            }
+        }
         .sheet(isPresented: $showTypeSheet, content: {
             SelectTabTypeView(image: sheetImage, title: sheetTitle, types: types, editProfileVM: editProfileVM)
         })
@@ -440,21 +454,46 @@ struct EditProfileView: View {
                 editProfileVM.fetchUserData(user: user)
                 editProfileVM.isInit = false
             }
-        } 
+        }
+        .swipeBack()
         
     }
     
     func save() {
+        errorMessage = nil
         Task {
             do{
                 if await photoPickerVM.imageCheckAndMerge(images: $editProfileVM.editUser.profilePhotos){
+                    withAnimation{
+                        isLoading = true
+                    }
                     if editProfileVM.editUser != editProfileVM.initialUser {
-                        if let data = try await APIClient.shared.updateUserInfo(body: editProfileVM.convertToPathcUser(currentUser: editProfileVM.editUser)) {
-                            print("Success: \(data)")
-                            try await userVM.fetchCurrentUser()
-                            navManager.selectionPath.removeLast(2)
+                       try await APIClient.shared.updateUserInfo(body: editProfileVM.convertToPathcUser(currentUser: editProfileVM.editUser)) { response, error in
+                           if let response = response {
+    
+                               Task{
+                                   try await userVM.fetchCurrentUser()
+                               }
+                               DispatchQueue.main.async {
+                                   withAnimation{
+                                       self.isLoading = false
+                                   }
+                                   navManager.selectionPath.removeLast(2)
+                               }
+                           } else if let error = error {
+                               DispatchQueue.main.async {
+                                   withAnimation{
+                                       self.isLoading = false
+                                   }
+                                   self.errorMessage = error
+                               }
+                           }
+
                         }
                     } else {
+                        withAnimation{
+                            isLoading = false
+                        }
                         print("No changes")
                         navManager.selectionPath.removeLast(2)
                     }

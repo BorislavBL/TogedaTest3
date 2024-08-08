@@ -11,6 +11,7 @@ struct CustomSearchBar: View {
     
     @Binding var searchText: String
     @Binding var showCancelButton: Bool
+    @FocusState private var keyIsFocused: Bool
     var onCommit: () -> Void = {}
     
     var body: some View {
@@ -38,6 +39,7 @@ struct CustomSearchBar: View {
                         onCommit()
                     }
                 )
+                .focused($keyIsFocused)
                 .autocorrectionDisabled(true)
                 .foregroundColor(.primary)
                 
@@ -67,6 +69,9 @@ struct CustomSearchBar: View {
                 .foregroundColor(Color(.systemBlue))
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
+        }
+        .onAppear(){
+            self.keyIsFocused = showCancelButton
         }
     }
 }

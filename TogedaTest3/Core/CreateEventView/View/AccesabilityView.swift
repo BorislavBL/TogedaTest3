@@ -97,6 +97,7 @@ struct AccessibilityView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .swipeBack()
         .navigationTitle("Accessibility")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

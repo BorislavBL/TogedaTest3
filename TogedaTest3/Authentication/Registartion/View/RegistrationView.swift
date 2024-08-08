@@ -201,6 +201,7 @@ struct RegistrationView: View {
         .navigationDestination(isPresented: $isActive, destination: {
             RegistrationCodeView(email: $email, password: $password)
         })
+        .swipeBack()
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

@@ -72,6 +72,7 @@ struct BookmarkedEventsView: View {
             }
         }
         .scrollIndicators(.hidden)
+        .swipeBack()
         .navigationTitle("Saved Events")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

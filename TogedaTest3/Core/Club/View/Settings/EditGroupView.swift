@@ -31,10 +31,18 @@ struct EditGroupView: View {
     @State var deleteSheet: Bool = false
     
     @EnvironmentObject var navManager: NavigationManager
+    @State var isLoading = false
+    
+    @State private var errorMessage: String?
     
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 30){
+                
+                if let errorMessage = errorMessage {
+                    WarningTextComponent(text: errorMessage)
+                }
+                
                 VStack(alignment: .leading, spacing: 10){
                     Text("Group Photos")
                         .font(.title3)
@@ -188,6 +196,12 @@ struct EditGroupView: View {
             }
             .padding()
         }
+        .swipeBack()
+        .overlay {
+            if isLoading {
+                LoadingScreenView(isVisible: $isLoading)
+            }
+        }
         .navigationDestination(isPresented: $showLocation) {
             LocationPicker(returnedPlace: $editGroupVM.returnedPlace, isActivePrev: $showLocation)
         }
@@ -284,17 +298,44 @@ struct EditGroupView: View {
     
     func save() {
         Task {
+            errorMessage = nil
             do{
                 if await photoPickerVM.imageCheckAndMerge(images: $editGroupVM.editClub.images){
+                    withAnimation{
+                        isLoading = true
+                    }
                     if editGroupVM.editClub != editGroupVM.initialClub {
-                        if try await APIClient.shared.editClub(clubID: club.id, body: editGroupVM.convertToPatchClub()) {
-                            try await clubsVM.refreshClubOnActionAsync(clubId: club.id)
-                            club = editGroupVM.editClub
-                        }
-                        
-                        dismiss()
+                       try await APIClient.shared.editClub(clubID: club.id, body: editGroupVM.convertToPatchClub(), completion: {
+                            response, error in
+                           if let response = response, response {
+                               Task{
+                                   try await clubsVM.refreshClubOnActionAsync(clubId: club.id)
+                               }
+                               DispatchQueue.main.async {
+                                   self.club = editGroupVM.editClub
+                                   
+                                   withAnimation{
+                                       self.isLoading = false
+                                   }
+                                   dismiss()
+                               }
+                           } else if let error = error {
+                               DispatchQueue.main.async {
+                                   withAnimation{
+                                       self.isLoading = false
+                                   }
+                                   
+                                   self.errorMessage = error
+                               }
+                           }
+                           
+                        })
+
                     } else {
                         print("No changes")
+                        withAnimation{
+                            isLoading = false
+                        }
                         dismiss()
                     }
                 } else {

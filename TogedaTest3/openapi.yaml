@@ -19,12 +19,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -36,19 +48,157 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /users/changePassword:
+    post:
+      tags:
+      - user-controller
+      operationId: changePassword
+      parameters:
+      - name: prevPassword
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: newPassword
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /users/change-status:
+    post:
+      tags:
+      - user-controller
+      operationId: changeUserStatus
+      parameters:
+      - name: status
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - ONLINE
+          - OFFLINE
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/addBasicInfo:
@@ -104,14 +254,27 @@ paths:
                     icon: 0xe52a
                     category: MyCategory5
                   phoneNumber: "359885230163"
+                  referralCodeUsed: 0391ccc1-2511-4d84-a778-91f6d7099c5b
         required: true
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -123,19 +286,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/acceptOrDenyFriendRequest/{userId}:
@@ -158,12 +327,24 @@ paths:
           - ACCEPT
           - DENY
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -175,19 +356,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /stripe/webhook:
@@ -220,12 +407,24 @@ paths:
       - stripe-controller
       operationId: createAccount
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -237,19 +436,87 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /report:
+    post:
+      tags:
+      - report-controller
+      operationId: sendReport
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportDto'
+        required: true
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts:
@@ -309,12 +576,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -326,19 +605,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
     post:
@@ -352,12 +637,24 @@ paths:
               $ref: '#/components/schemas/CreatePostDto'
         required: true
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -369,19 +666,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/{userId}/rate:
@@ -407,12 +710,24 @@ paths:
               $ref: '#/components/schemas/ParticipationRatingDto'
         required: true
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -424,19 +739,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/tryToJoinPost:
@@ -451,12 +772,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -468,19 +801,93 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /posts/{postId}/share:
+    post:
+      tags:
+      - post-controller
+      operationId: sharePost
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRoomIdsDto'
+        required: true
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/save:
@@ -500,12 +907,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -517,19 +936,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/rate:
@@ -550,12 +975,24 @@ paths:
               $ref: '#/components/schemas/RatingDto'
         required: true
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -567,19 +1004,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/participants/acceptJoinRequest/{userId}:
@@ -607,12 +1050,24 @@ paths:
           - ACCEPT
           - DENY
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -624,19 +1079,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/cancelJoinRequest:
@@ -651,12 +1112,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -668,19 +1141,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/addCoHostRole/{userId}:
@@ -700,12 +1179,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -717,19 +1208,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/startOrEndPost/{postId}:
@@ -752,12 +1249,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -769,19 +1278,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /notifications/add-device-token:
@@ -796,12 +1311,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -813,21 +1340,658 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
+  /messages/createChatForPost/{postId}:
+    post:
+      tags:
+      - chat-controller
+      operationId: createChatForPost
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateChatRoomResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /messages/createChatForGroup:
+    post:
+      tags:
+      - chat-controller
+      operationId: createChatForGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendIdsDto'
+        required: true
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateChatRoomResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /messages/createChatForClub/{clubId}:
+    post:
+      tags:
+      - chat-controller
+      operationId: createChatForClub
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateChatRoomResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /cognito/signUp:
+    post:
+      tags:
+      - cognito-controller
+      operationId: signUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterDto'
+        required: true
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignUpResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /cognito/resendEmailConfirmationCode:
+    post:
+      tags:
+      - cognito-controller
+      operationId: resendEmailConfirmationCode
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /cognito/refreshToken:
+    post:
+      tags:
+      - cognito-controller
+      operationId: refreshToken
+      parameters:
+      - name: refreshToken
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponseDTO'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /cognito/login:
+    post:
+      tags:
+      - cognito-controller
+      operationId: login
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: password
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDTO'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /cognito/forgotPassword:
+    post:
+      tags:
+      - cognito-controller
+      operationId: forgotPassword
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /cognito/confirmSignUp:
+    post:
+      tags:
+      - cognito-controller
+      operationId: confirmSignUp
+      parameters:
+      - name: userId
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: confirmationCode
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /cognito/confirmForgotPassword:
+    post:
+      tags:
+      - cognito-controller
+      operationId: confirmForgotPassword
+      parameters:
+      - name: userEmail
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: newPassword
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: confirmationCode
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
   /clubs:
     get:
       tags:
@@ -873,12 +2037,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -890,19 +2066,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
     post:
@@ -916,12 +2098,24 @@ paths:
               $ref: '#/components/schemas/CreateClubDto'
         required: true
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -933,19 +2127,93 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /clubs/{clubId}/share:
+    post:
+      tags:
+      - club-controller
+      operationId: shareClub
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRoomIdsDto'
+        required: true
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/{clubId}/members:
@@ -973,12 +2241,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -990,19 +2270,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
     post:
@@ -1016,12 +2302,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1033,19 +2331,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/{clubId}/members/joinRequest/{userId}:
@@ -1073,12 +2377,24 @@ paths:
           - ACCEPT
           - DENY
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1090,19 +2406,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/{clubId}/leave:
@@ -1117,12 +2439,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1134,19 +2468,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/{clubId}/cancelJoinRequest:
@@ -1161,12 +2501,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1178,19 +2530,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/{clubId}/admins/{userId}:
@@ -1210,12 +2568,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1227,19 +2597,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
     delete:
@@ -1258,12 +2634,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1275,19 +2663,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/updateUserInfo:
@@ -1340,12 +2734,24 @@ paths:
                     height: 180
         required: true
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1357,19 +2763,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}:
@@ -1384,12 +2796,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1401,19 +2825,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
     delete:
@@ -1427,12 +2857,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1444,19 +2886,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
     patch:
@@ -1476,12 +2924,24 @@ paths:
               $ref: '#/components/schemas/PatchPostDto'
         required: true
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1493,19 +2953,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/{clubId}:
@@ -1520,12 +2986,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1537,19 +3015,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
     delete:
@@ -1563,12 +3047,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1580,19 +3076,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
     patch:
@@ -1612,12 +3114,24 @@ paths:
               $ref: '#/components/schemas/PatchClubDto'
         required: true
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1629,19 +3143,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/{userId}:
@@ -1656,12 +3176,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1673,19 +3205,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/{userId}/receivedRatingsForParticipatedEvents:
@@ -1713,12 +3251,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1730,19 +3280,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/{userId}/receivedEventRatings:
@@ -1770,12 +3326,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1787,19 +3355,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/{userId}/receivedEventRatings/average:
@@ -1814,12 +3388,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1831,19 +3417,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/{userId}/posts:
@@ -1863,12 +3455,24 @@ paths:
         schema:
           $ref: '#/components/schemas/Pageable'
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1880,19 +3484,87 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /users/{userId}/no-shows:
+    get:
+      tags:
+      - user-controller
+      operationId: getUserNoShows
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegerResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/{userId}/clubs:
@@ -1919,12 +3591,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1936,19 +3620,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/search:
@@ -1975,12 +3665,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -1992,19 +3694,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/savedPosts:
@@ -2027,12 +3735,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2044,19 +3764,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/hasBasicInfo:
@@ -2065,12 +3791,24 @@ paths:
       - user-controller
       operationId: hasBasicInfo
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2082,19 +3820,92 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /users/generatePresignedPutUrl:
+    get:
+      tags:
+      - user-controller
+      operationId: generatePresignedPutUrl
+      parameters:
+      - name: bucketName
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: keyName
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreSignedUrlResponse'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/friends/{userId}:
@@ -2122,36 +3933,54 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListResponseDtoMiniUser'
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
         "400":
           description: Client Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoGetFriendsDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
     delete:
@@ -2165,12 +3994,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2182,19 +4023,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/friendRequests:
@@ -2216,12 +4063,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2233,19 +4092,87 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /stripe/connect/onboarding-status/{accountId}:
+    get:
+      tags:
+      - stripe-controller
+      operationId: getOnboardingStatus
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StripeResponseDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /stripe/connect/onboarding-link/{accountId}:
@@ -2260,12 +4187,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2277,19 +4216,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /stripe/connect/get-payment-sheet/{postId}:
@@ -2304,12 +4249,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2321,19 +4278,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/waitRequests:
@@ -2361,12 +4324,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2378,19 +4353,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/participants:
@@ -2418,12 +4399,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2435,19 +4428,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/joinRequests:
@@ -2475,12 +4474,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2492,19 +4503,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/search:
@@ -2537,12 +4554,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2554,19 +4583,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/search/map:
@@ -2613,12 +4648,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2630,19 +4677,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /notifications:
@@ -2665,12 +4718,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2682,52 +4747,63 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-      security:
-      - security_auth: []
-  /notifications/poll:
-    get:
-      tags:
-      - notification-controller
-      operationId: pollUserNotifications
-      parameters:
-      - name: lastTimestamp
-        in: query
-        required: true
-        schema:
-          type: string
-          format: date-time
-      - name: lastId
-        in: query
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
+                $ref: '#/components/schemas/ApiError'
         "403":
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /notifications/updates:
+    get:
+      tags:
+      - notification-controller
+      operationId: getNotificationsAfterTimestamp
+      parameters:
+      - name: latestNotificationTimestamp
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                uniqueItems: true
                 type: array
                 items:
                   $ref: '#/components/schemas/NotificationDto'
@@ -2736,70 +4812,160 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-      security:
-      - security_auth: []
-  /generatePresignedPutUrl:
-    get:
-      tags:
-      - user-controller
-      operationId: generatePresignedPutUrl
-      parameters:
-      - name: bucketName
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: keyName
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
+                $ref: '#/components/schemas/ApiError'
         "403":
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "200":
-          description: successful operation
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PreSignedUrlResponse'
-        "409":
-          description: Conflict
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /messages/{chatId}:
+    get:
+      tags:
+      - chat-controller
+      operationId: findChatMessagesGroup
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
         "400":
           description: Client Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoReceivedChatMessageDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-      security:
-      - security_auth: []
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /cognito/userExistsWithEmail:
+    get:
+      tags:
+      - cognito-controller
+      operationId: userExistsWithEmail
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
   /clubs/{clubId}/posts:
     get:
       tags:
@@ -2825,12 +4991,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2842,19 +5020,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/{clubId}/joinRequests:
@@ -2882,12 +5066,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2899,19 +5095,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/withCreatePostPermission:
@@ -2934,12 +5136,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -2951,19 +5165,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/search:
@@ -2991,12 +5211,24 @@ paths:
           type: integer
           format: int32
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -3008,19 +5240,222 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /chat-room/{chatId}:
+    get:
+      tags:
+      - chat-room-controller
+      operationId: findChatRoomById
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatRoomDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /chat-room/update/rooms:
+    get:
+      tags:
+      - chat-room-controller
+      operationId: findChatRoomsWithUpdatedLatestMessageAfterTimestamp
+      parameters:
+      - name: latestMessageTimestamp
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatRoomDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      security:
+      - security_auth: []
+  /chat-room/rooms:
+    get:
+      tags:
+      - chat-room-controller
+      operationId: findChatRoomsForUser
+      parameters:
+      - name: pageNumber
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "429":
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponseDtoChatRoomDto'
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "401":
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /users/friendRequest/{userId}:
@@ -3035,12 +5470,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -3052,19 +5499,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/removeParticipant/{userId}:
@@ -3084,12 +5537,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -3101,19 +5566,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/removeCoHostRole/{userId}:
@@ -3133,12 +5604,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -3150,19 +5633,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /posts/{postId}/leave:
@@ -3177,12 +5666,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -3194,19 +5695,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /notifications/remove-device-token:
@@ -3221,12 +5728,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -3238,19 +5757,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
   /clubs/{clubId}/members/{userId}:
@@ -3270,12 +5795,24 @@ paths:
         schema:
           type: string
       responses:
-        "403":
-          description: Forbidden
+        "429":
+          description: Rate limit
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/RateLimitError'
+        "400":
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         "200":
           description: successful operation
           content:
@@ -3287,103 +5824,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
-        "400":
-          description: Client Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
         "401":
           description: UNAUTHORIZED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiErrorSchema'
+                $ref: '#/components/schemas/ApiError'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
       security:
       - security_auth: []
 components:
   schemas:
-    ApiError:
+    RateLimitError:
       required:
-      - error
+      - message
       type: object
       properties:
-        status:
+        message:
           type: string
-          enum:
-          - 100 CONTINUE
-          - 101 SWITCHING_PROTOCOLS
-          - 102 PROCESSING
-          - 103 EARLY_HINTS
-          - 103 CHECKPOINT
-          - 200 OK
-          - 201 CREATED
-          - 202 ACCEPTED
-          - 203 NON_AUTHORITATIVE_INFORMATION
-          - 204 NO_CONTENT
-          - 205 RESET_CONTENT
-          - 206 PARTIAL_CONTENT
-          - 207 MULTI_STATUS
-          - 208 ALREADY_REPORTED
-          - 226 IM_USED
-          - 300 MULTIPLE_CHOICES
-          - 301 MOVED_PERMANENTLY
-          - 302 FOUND
-          - 302 MOVED_TEMPORARILY
-          - 303 SEE_OTHER
-          - 304 NOT_MODIFIED
-          - 305 USE_PROXY
-          - 307 TEMPORARY_REDIRECT
-          - 308 PERMANENT_REDIRECT
-          - 400 BAD_REQUEST
-          - 401 UNAUTHORIZED
-          - 402 PAYMENT_REQUIRED
-          - 403 FORBIDDEN
-          - 404 NOT_FOUND
-          - 405 METHOD_NOT_ALLOWED
-          - 406 NOT_ACCEPTABLE
-          - 407 PROXY_AUTHENTICATION_REQUIRED
-          - 408 REQUEST_TIMEOUT
-          - 409 CONFLICT
-          - 410 GONE
-          - 411 LENGTH_REQUIRED
-          - 412 PRECONDITION_FAILED
-          - 413 PAYLOAD_TOO_LARGE
-          - 413 REQUEST_ENTITY_TOO_LARGE
-          - 414 URI_TOO_LONG
-          - 414 REQUEST_URI_TOO_LONG
-          - 415 UNSUPPORTED_MEDIA_TYPE
-          - 416 REQUESTED_RANGE_NOT_SATISFIABLE
-          - 417 EXPECTATION_FAILED
-          - 418 I_AM_A_TEAPOT
-          - 419 INSUFFICIENT_SPACE_ON_RESOURCE
-          - 420 METHOD_FAILURE
-          - 421 DESTINATION_LOCKED
-          - 422 UNPROCESSABLE_ENTITY
-          - 423 LOCKED
-          - 424 FAILED_DEPENDENCY
-          - 425 TOO_EARLY
-          - 426 UPGRADE_REQUIRED
-          - 428 PRECONDITION_REQUIRED
-          - 429 TOO_MANY_REQUESTS
-          - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
-          - 451 UNAVAILABLE_FOR_LEGAL_REASONS
-          - 500 INTERNAL_SERVER_ERROR
-          - 501 NOT_IMPLEMENTED
-          - 502 BAD_GATEWAY
-          - 503 SERVICE_UNAVAILABLE
-          - 504 GATEWAY_TIMEOUT
-          - 505 HTTP_VERSION_NOT_SUPPORTED
-          - 506 VARIANT_ALSO_NEGOTIATES
-          - 507 INSUFFICIENT_STORAGE
-          - 508 LOOP_DETECTED
-          - 509 BANDWIDTH_LIMIT_EXCEEDED
-          - 510 NOT_EXTENDED
-          - 511 NETWORK_AUTHENTICATION_REQUIRED
-        timestamp:
+    ApiError:
+      type: object
+      properties:
+        statusString:
           type: string
-          format: date-time
         message:
           type: string
         debugMessage:
@@ -3391,20 +5866,16 @@ components:
         subErrors:
           type: array
           items:
-            $ref: '#/components/schemas/ApiSubError'
-        error:
-          type: string
-      discriminator:
-        propertyName: error
-    ApiErrorSchema:
-      required:
-      - apiError
+            $ref: '#/components/schemas/ApiValidationError'
+    ApiValidationError:
       type: object
       properties:
-        apiError:
-          $ref: '#/components/schemas/ApiError'
-    ApiSubError:
-      type: object
+        object:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
     SuccessDto:
       required:
       - success
@@ -3498,12 +5969,40 @@ components:
           type: string
         location:
           $ref: '#/components/schemas/BaseLocation'
+        referralCodeUsed:
+          type: string
     StripeResponseDto:
       required:
       - data
       type: object
       properties:
         data:
+          type: string
+    ReportDto:
+      required:
+      - description
+      - reportType
+      type: object
+      properties:
+        reportType:
+          type: string
+          enum:
+          - INAPPROPRIATE_PHOTOS
+          - FAKE_PROFILE
+          - IMPERSONATION
+          - ISSUE_IN_PERSON
+          - ABUSIVE_TEXT
+          - ADVERTISING
+          - SCAM
+          - NOT_SHOWN
+          - OTHER
+        description:
+          type: string
+        reportedUser:
+          type: string
+        reportedPost:
+          type: string
+        reportedClub:
           type: string
     CreatePostDto:
       required:
@@ -3512,6 +6011,7 @@ components:
       - images
       - interests
       - location
+      - needsLocationalConfirmation
       - payment
       - title
       type: object
@@ -3554,6 +6054,8 @@ components:
         toDate:
           type: string
           format: date-time
+        needsLocationalConfirmation:
+          type: boolean
     CreateSuccessDto:
       required:
       - id
@@ -3570,6 +6072,15 @@ components:
           type: boolean
         comment:
           type: string
+    ChatRoomIdsDto:
+      required:
+      - chatRoomIds
+      type: object
+      properties:
+        chatRoomIds:
+          type: array
+          items:
+            type: string
     RatingDto:
       required:
       - value
@@ -3579,6 +6090,59 @@ components:
           type: number
           format: double
         comment:
+          type: string
+    CreateChatRoomResponseDto:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+    FriendIdsDto:
+      required:
+      - friendIds
+      type: object
+      properties:
+        friendIds:
+          type: array
+          items:
+            type: string
+    UserRegisterDto:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    SignUpResponseDto:
+      required:
+      - userId
+      type: object
+      properties:
+        userId:
+          type: string
+    RefreshTokenResponseDTO:
+      type: object
+      properties:
+        idToken:
+          type: string
+        accessToken:
+          type: string
+    LoginResponseDTO:
+      required:
+      - accessToken
+      - refreshToken
+      - userId
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        userId:
           type: string
     CreateClubDto:
       required:
@@ -3675,6 +6239,11 @@ components:
         instagram:
           type: string
     PatchPostDto:
+      required:
+      - accessibility
+      - location
+      - payment
+      - title
       type: object
       properties:
         title:
@@ -3705,8 +6274,6 @@ components:
           enum:
           - PUBLIC
           - PRIVATE
-        hasEnded:
-          type: boolean
         fromDate:
           type: string
           format: date-time
@@ -3746,6 +6313,8 @@ components:
         askToJoin:
           type: boolean
     UserExtraDetails:
+      required:
+      - referralCode
       type: object
       properties:
         id:
@@ -3763,22 +6332,8 @@ components:
         height:
           type: integer
           format: int32
-        savedPostIds:
-          type: array
-          items:
-            type: string
-        createdEventIds:
-          type: array
-          items:
-            type: string
-        participatedEventIds:
-          type: array
-          items:
-            type: string
-        clubIds:
-          type: array
-          items:
-            type: string
+        referralCode:
+          type: string
     UserInfoDto:
       required:
       - birthDate
@@ -3873,7 +6428,7 @@ components:
           type: boolean
         listCount:
           type: integer
-          format: int32
+          format: int64
     MiniUser:
       required:
       - birthDate
@@ -3935,7 +6490,7 @@ components:
           type: boolean
         listCount:
           type: integer
-          format: int32
+          format: int64
     PostResponseDto:
       required:
       - accessibility
@@ -3946,6 +6501,7 @@ components:
       - images
       - interests
       - location
+      - needsLocationalConfirmation
       - owner
       - participantsCount
       - payment
@@ -4007,6 +6563,8 @@ components:
           - PRIVATE
         askToJoin:
           type: boolean
+        needsLocationalConfirmation:
+          type: boolean
         rating:
           type: number
           format: double
@@ -4023,6 +6581,8 @@ components:
           - HAS_ENDED
         savedByCurrentUser:
           type: boolean
+        chatRoomId:
+          type: string
     RatingResponseDto:
       required:
       - id
@@ -4078,6 +6638,14 @@ components:
           type: boolean
         listCount:
           type: integer
+          format: int64
+    IntegerResponseDto:
+      required:
+      - data
+      type: object
+      properties:
+        data:
+          type: integer
           format: int32
     ClubDto:
       required:
@@ -4093,6 +6661,7 @@ components:
       - memories
       - owner
       - permissions
+      - previewMembers
       - title
       type: object
       properties:
@@ -4140,11 +6709,17 @@ components:
         membersCount:
           type: integer
           format: int32
+        previewMembers:
+          type: array
+          items:
+            $ref: '#/components/schemas/MiniUser'
         permissions:
           type: string
           enum:
           - ALL
           - ADMINS_ONLY
+        chatRoomId:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -4163,7 +6738,7 @@ components:
           type: boolean
         listCount:
           type: integer
-          format: int32
+          format: int64
     ListResponseDtoMiniUser:
       required:
       - data
@@ -4179,7 +6754,7 @@ components:
           type: boolean
         listCount:
           type: integer
-          format: int32
+          format: int64
     HasBasicInfoDto:
       required:
       - hasBasicInfo
@@ -4187,6 +6762,39 @@ components:
       properties:
         hasBasicInfo:
           type: boolean
+    PreSignedUrlResponse:
+      required:
+      - url
+      type: object
+      properties:
+        url:
+          type: string
+    GetFriendsDto:
+      required:
+      - chatRoomId
+      - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/MiniUser'
+        chatRoomId:
+          type: string
+    ListResponseDtoGetFriendsDto:
+      required:
+      - data
+      - lastPage
+      - listCount
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GetFriendsDto'
+        lastPage:
+          type: boolean
+        listCount:
+          type: integer
+          format: int64
     StripePaymentSheet:
       required:
       - clientSecret
@@ -4202,6 +6810,7 @@ components:
           type: string
     ExtendedMiniUser:
       required:
+      - locationStatus
       - type
       - user
       type: object
@@ -4214,6 +6823,12 @@ components:
           - HOST
           - CO_HOST
           - NORMAL
+        locationStatus:
+          type: string
+          enum:
+          - ARRIVED
+          - NOT_SHOWN
+          - NONE
     ListResponseDtoExtendedMiniUser:
       required:
       - data
@@ -4229,18 +6844,18 @@ components:
           type: boolean
         listCount:
           type: integer
-          format: int32
+          format: int64
     AlertBodyAcceptedJoinRequest:
       required:
-      - forType
-      - image
-      - title
+      - acceptedUser
       type: object
       properties:
-        image:
-          type: string
-        title:
-          type: string
+        post:
+          $ref: '#/components/schemas/MiniPostDto'
+        club:
+          $ref: '#/components/schemas/MiniClubDto'
+        acceptedUser:
+          $ref: '#/components/schemas/MiniUser'
         forType:
           type: string
           enum:
@@ -4250,27 +6865,33 @@ components:
           type: string
     AlertBodyFriendRequestReceived:
       required:
-      - senderName
-      - senderProfilePhoto
+      - sender
       type: object
       properties:
-        senderName:
+        sender:
+          $ref: '#/components/schemas/MiniUser'
+        alertBodyTypeAsString:
           type: string
-        senderProfilePhoto:
-          type: string
+    AlertBodyPostHasStarted:
+      required:
+      - post
+      type: object
+      properties:
+        post:
+          $ref: '#/components/schemas/MiniPostDto'
         alertBodyTypeAsString:
           type: string
     AlertBodyReceivedJoinRequest:
       required:
-      - forType
-      - image
-      - title
+      - fromUser
       type: object
       properties:
-        image:
-          type: string
-        title:
-          type: string
+        post:
+          $ref: '#/components/schemas/MiniPostDto'
+        club:
+          $ref: '#/components/schemas/MiniClubDto'
+        fromUser:
+          $ref: '#/components/schemas/MiniUser'
         forType:
           type: string
           enum:
@@ -4280,14 +6901,11 @@ components:
           type: string
     AlertBodyReviewEndedPost:
       required:
-      - image
-      - title
+      - post
       type: object
       properties:
-        image:
-          type: string
-        title:
-          type: string
+        post:
+          $ref: '#/components/schemas/MiniPostDto'
         alertBodyTypeAsString:
           type: string
     ListResponseDtoNotificationDto:
@@ -4305,7 +6923,75 @@ components:
           type: boolean
         listCount:
           type: integer
-          format: int32
+          format: int64
+    MiniClubDto:
+      required:
+      - currentUserStatus
+      - id
+      - images
+      - owner
+      - title
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          $ref: '#/components/schemas/MiniUser'
+        title:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        currentUserStatus:
+          type: string
+          enum:
+          - NOT_PARTICIPATING
+          - IN_QUEUE
+          - PARTICIPATING
+        currentUserRole:
+          type: string
+          enum:
+          - ADMIN
+          - MEMBER
+    MiniPostDto:
+      required:
+      - currentUserStatus
+      - id
+      - images
+      - owner
+      - status
+      - title
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        owner:
+          $ref: '#/components/schemas/MiniUser'
+        currentUserStatus:
+          type: string
+          enum:
+          - NOT_PARTICIPATING
+          - IN_QUEUE
+          - PARTICIPATING
+        currentUserRole:
+          type: string
+          enum:
+          - HOST
+          - CO_HOST
+          - NORMAL
+        status:
+          type: string
+          enum:
+          - NOT_STARTED
+          - HAS_STARTED
+          - HAS_ENDED
     NotificationDto:
       required:
       - createdDate
@@ -4323,16 +7009,55 @@ components:
           $ref: '#/components/schemas/AlertBodyFriendRequestReceived'
         alertBodyReviewEndedPost:
           $ref: '#/components/schemas/AlertBodyReviewEndedPost'
+        alertBodyPostHasStarted:
+          $ref: '#/components/schemas/AlertBodyPostHasStarted'
         createdDate:
           type: string
           format: date-time
-    PreSignedUrlResponse:
+    ListResponseDtoReceivedChatMessageDto:
       required:
-      - url
+      - data
+      - lastPage
+      - listCount
       type: object
       properties:
-        url:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReceivedChatMessageDto'
+        lastPage:
+          type: boolean
+        listCount:
+          type: integer
+          format: int64
+    ReceivedChatMessageDto:
+      required:
+      - chatId
+      - content
+      - contentType
+      - createdAt
+      - id
+      - sender
+      type: object
+      properties:
+        id:
           type: string
+        chatId:
+          type: string
+        sender:
+          $ref: '#/components/schemas/MiniUser'
+        content:
+          type: string
+        contentType:
+          type: string
+          enum:
+          - NORMAL
+          - POST
+          - CLUB
+          - IMAGE
+        createdAt:
+          type: string
+          format: date-time
     ExtendedMiniUserForClub:
       required:
       - type
@@ -4361,7 +7086,57 @@ components:
           type: boolean
         listCount:
           type: integer
-          format: int32
+          format: int64
+    ChatRoomDto:
+      required:
+      - id
+      - latestMessageTimestamp
+      - previewMembers
+      - read
+      - type
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+          - FRIENDS
+          - CLUB
+          - POST
+          - GROUP
+        post:
+          $ref: '#/components/schemas/MiniPostDto'
+        club:
+          $ref: '#/components/schemas/MiniClubDto'
+        latestMessage:
+          $ref: '#/components/schemas/ReceivedChatMessageDto'
+        previewMembers:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/MiniUser'
+        read:
+          type: boolean
+        latestMessageTimestamp:
+          type: string
+          format: date-time
+    ListResponseDtoChatRoomDto:
+      required:
+      - data
+      - lastPage
+      - listCount
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatRoomDto'
+        lastPage:
+          type: boolean
+        listCount:
+          type: integer
+          format: int64
   securitySchemes:
     security_auth:
       type: http

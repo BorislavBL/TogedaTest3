@@ -33,7 +33,7 @@ class RegistrationViewModel: ObservableObject {
             }),
             phoneNumber: phoneNumber,
             location: .init(
-                name: returnedPlace.name,
+                name: returnedPlace.addressCountry,
                 address: returnedPlace.street,
                 city: returnedPlace.city,
                 state: returnedPlace.state,
@@ -139,13 +139,15 @@ class RegistrationViewModel: ObservableObject {
         }
         
         do {
-            let response = try await ImageService().generatePresignedPutUrl(bucketName: bucketName, fileName: UUID)
-            try await ImageService().uploadImage(imageData: jpeg, urlString: response)
-            
-            let imageUrl = "https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
-            profilePhotos.append(imageUrl)
-            
-            return true
+            if let response = try await APIClient.shared.generatePresignedPutUrl(bucketName: bucketName, keyName: UUID) {            try await ImageService().uploadImage(imageData: jpeg, urlString: response)
+                
+                let imageUrl = "https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
+                profilePhotos.append(imageUrl)
+                
+                return true
+            } else {
+                return false
+            }
         } catch {
             print("Upload failed with error: \(error)")
             
@@ -153,9 +155,6 @@ class RegistrationViewModel: ObservableObject {
         }
     }
     
-    private func uploadImage(uiImage: UIImage) async {
-        
-    }
     
     @Published var selectedImage: UIImage?
     @Published var showCropView = false

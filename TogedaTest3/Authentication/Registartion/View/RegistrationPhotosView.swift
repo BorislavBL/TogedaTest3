@@ -65,6 +65,7 @@ struct RegistrationPhotosView: View {
         .navigationDestination(isPresented: $isActive, destination: {
             RegistartionInterestsView(vm: vm)
         })
+        .swipeBack()
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

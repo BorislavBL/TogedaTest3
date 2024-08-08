@@ -180,6 +180,7 @@ struct RegistartionInterestsView: View {
                 KeyboardToolbarItems()
             }
         }
+        .swipeBack()
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

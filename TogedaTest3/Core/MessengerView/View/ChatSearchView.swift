@@ -6,22 +6,23 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ChatSearchView: View {
     let size: ImageSize = .medium
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 15){
-                ForEach(MiniUser.MOCK_MINIUSERS, id: \.id) { user in
-                    NavigationLink(value: SelectionPath.userChat(user: user)){
+                ForEach([MockMiniUser], id: \.id) { user in
+                    NavigationLink(value: SelectionPath.userChat(chatroom: mockChatRoom)){
                         HStack(alignment:.center, spacing: 10){
-                            Image(user.profilePhotos[0])
+                            KFImage(URL(string: user.profilePhotos[0]))
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: size.dimension, height: size.dimension)
                                 .clipShape(Circle())
                             
-                            Text(user.fullName)
+                            Text("\(user.firstName) \(user.lastName)")
                                 .multilineTextAlignment(.leading)
                                 .fontWeight(.semibold)
                                 .fontWeight(.bold)

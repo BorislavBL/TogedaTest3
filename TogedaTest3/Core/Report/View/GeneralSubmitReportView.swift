@@ -83,6 +83,7 @@ struct GeneralSubmitReportView: View {
             .padding()
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBack()
     }
 }
 

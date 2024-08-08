@@ -6,22 +6,18 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct MessagePostPreview: View {
     let postID: String
-    @EnvironmentObject var postVM: PostsViewModel
-    var post: Post? {
-//        return postVM.posts.first(where: { $0.id == postID})
-        return Post.MOCK_POSTS[0]
-    }
+    @State var post: Components.Schemas.PostResponseDto?
     
     var body: some View {
-
         VStack(alignment: .leading){
             if let post = post {
-                NavigationLink(value: SelectionPath.eventDetails(MockPost)) {
+                NavigationLink(value: SelectionPath.eventDetails(post)) {
                     VStack(alignment: .leading){
-                        Image(post.imageUrl[0])
+                        KFImage(URL(string: post.images[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: UIScreen.main.bounds.width - 120, height: 220)
@@ -49,11 +45,15 @@ struct MessagePostPreview: View {
         .frame(width: UIScreen.main.bounds.width - 120)
         .background(Color("SecondaryBackground"))
         .cornerRadius(10)
+        .onAppear(){
+            Task{
+                self.post = try await APIClient.shared.getEvent(postId: postID)
+            }
+        }
         
     }
 }
 
 #Preview {
-    MessagePostPreview(postID: Post.MOCK_POSTS[1].id)
-        .environmentObject(PostsViewModel())
+    MessagePostPreview(postID: "")
 }

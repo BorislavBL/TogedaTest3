@@ -1,33 +1,31 @@
 //
-//  EventAcceptance.swift
+//  EventHasStartedView.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 8.11.23.
+//  Created by Borislav Lorinkov on 7.08.24.
 //
 
 import SwiftUI
 import Kingfisher
 
-struct EventAcceptance: View {
+struct EventHasStartedView: View {
     let size: ImageSize = .medium
-    var post: Components.Schemas.MiniPostDto
     var createDate: Date
-    var alertBody: Components.Schemas.AlertBodyAcceptedJoinRequest
+    var alertBody: Components.Schemas.AlertBodyPostHasStarted
     @Binding var selectionPath: [SelectionPath]
 
     
     var body: some View {
             VStack {
-//                NavigationLink(value: SelectionPath.eventDetails(post)){
                 Button{
                     Task{
-                        if let response = try await APIClient.shared.getEvent(postId: post.id){
+                        if let response = try await APIClient.shared.getEvent(postId: alertBody.post.id){
                             selectionPath.append(.eventDetails(response))
                         }
                     }
                 } label:{
                     HStack(alignment:.top){
-                        KFImage(URL(string: post.images[0]))
+                        KFImage(URL(string: alertBody.post.images[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -36,11 +34,11 @@ struct EventAcceptance: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 5){
-                        Text(post.title)
+                        Text(alertBody.post.title)
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
-                        Text("You got accepted. Visit the event page for more details.")
+                        Text("The event has started!")
                             .font(.footnote) +
                         
                         Text(" \(formatDateForNotifications(from: createDate))")
@@ -59,5 +57,5 @@ struct EventAcceptance: View {
 }
 
 #Preview {
-    EventAcceptance(post: MockMiniPost, createDate: Date(), alertBody: mockAlertBodyAcceptedJoinRequest, selectionPath: .constant([]))
+    EventHasStartedView(createDate: Date(), alertBody: mockAlertBodyPostHasStartedRequest, selectionPath: .constant([]))
 }

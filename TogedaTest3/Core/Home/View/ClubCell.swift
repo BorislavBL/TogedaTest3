@@ -9,27 +9,52 @@ import SwiftUI
 import Kingfisher
 
 struct ClubCell: View {
-    @Environment(\.colorScheme) var colorScheme
     var club: Components.Schemas.ClubDto
+
+    var body: some View {
+        ClubCellSkeleton(club: club)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 12)
+            .background(Color("postCellColor"))
+            .cornerRadius(10)
+            .padding(.horizontal, 8)
+
+    }
+
+    
+
+}
+
+
+struct ClubCellSkeleton: View {
+    var club: Components.Schemas.ClubDto
+    
     @EnvironmentObject var vm: ClubsViewModel
     var size: ImageSize = .xMedium
     @EnvironmentObject var userViewModel: UserViewModel
-    
-    @State var clubMembers: [Components.Schemas.ExtendedMiniUserForClub] = []
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack {
             VStack(alignment: .center, spacing: 15){
                 
                 //MARK: - Post Header
-                header()
-                
-                NavigationLink(value: SelectionPath.club(club)){
-                    KFImage(URL(string: club.images[0]))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxHeight: 400)
-                        .cornerRadius(10)
+
+                ZStack(alignment: .top){
+                    VStack(alignment: .center, spacing: 15){
+                        headerSpacer()
+                            .opacity(0)
+                        
+                        NavigationLink(value: SelectionPath.club(club)){
+                            KFImage(URL(string: club.images[0]))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxHeight: 400)
+                                .cornerRadius(10)
+                        }
+                    }
+                    
+                    header()
                 }
                 
                 //MARK: - Buttons
@@ -70,6 +95,7 @@ struct ClubCell: View {
                     Button {
                         vm.clickedClub = club
                         vm.showShareClubSheet = true
+                        print("Clicked")
                     } label: {
                         
                         Image(systemName: "paperplane")
@@ -87,34 +113,16 @@ struct ClubCell: View {
             }
             
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 12)
-        .background(Color("postCellColor"))
-        .cornerRadius(10)
-        .padding(.horizontal, 8)
-        .onAppear(){
-            Task{
-                do{
-                    if let response = try await APIClient.shared.getClubMembers(clubId: club.id, page: 0, size: 3) {
-                        
-                        clubMembers = response.data
-                    }
-                    
-                } catch {
-                    print("Fetch Memebres error:", error.localizedDescription)
-                }
-            }
-        }
     }
     
     @ViewBuilder
     func header() -> some View {
         HStack{
             NavigationLink(value: SelectionPath.club(club)){
-                if clubMembers.count > 1 {
+                if club.previewMembers.count > 1 {
                     ZStack(alignment:.top){
                         
-                        KFImage(URL(string:clubMembers[1].user.profilePhotos[0]))
+                        KFImage(URL(string:club.previewMembers[1].profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -125,7 +133,7 @@ struct ClubCell: View {
                             )
                             .offset(x:size.dimension/5, y: size.dimension/5)
                         
-                        KFImage(URL(string:clubMembers[0].user.profilePhotos[0]))
+                        KFImage(URL(string:club.previewMembers[0].profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
                             .frame(width: size.dimension, height: size.dimension)
@@ -137,8 +145,8 @@ struct ClubCell: View {
                     }
                     .padding([.trailing, .bottom], size.dimension/5)
                     
-                } else if clubMembers.count == 1{
-                    KFImage(URL(string:clubMembers[0].user.profilePhotos[0]))
+                } else if club.previewMembers.count == 1{
+                    KFImage(URL(string:club.previewMembers[0].profilePhotos[0]))
                         .resizable()
                         .scaledToFill()
                         .frame(width: 50, height: 50)
@@ -159,18 +167,18 @@ struct ClubCell: View {
                         .font(.body)
                         .fontWeight(.semibold)
                     
-                    if clubMembers.count > 2 {
-                        Text("\(clubMembers[0].user.firstName), \(clubMembers[1].user.firstName) and more")
+                    if club.previewMembers.count > 2 {
+                        Text("\(club.previewMembers[0].firstName), \(club.previewMembers[1].firstName) and more")
                             .foregroundColor(.gray)
                             .fontWeight(.semibold)
                             .font(.footnote)
-                    } else if clubMembers.count > 1 {
-                        Text("\(clubMembers[0].user.firstName), \(clubMembers[1].user.firstName)")
+                    } else if club.previewMembers.count > 1 {
+                        Text("\(club.previewMembers[0].firstName), \(club.previewMembers[1].firstName)")
                             .foregroundColor(.gray)
                             .fontWeight(.semibold)
                             .font(.footnote)
-                    } else if clubMembers.count == 1 {
-                        Text("\(clubMembers[0].user.firstName)")
+                    } else if club.previewMembers.count == 1 {
+                        Text("\(club.previewMembers[0].firstName)")
                             .foregroundColor(.gray)
                             .fontWeight(.semibold)
                             .font(.footnote)
@@ -180,16 +188,90 @@ struct ClubCell: View {
                     
                 }
             }
+            
             Spacer()
             
-            Button {
-                vm.clickedClub = club
-                vm.showOption = true
+            Menu{
+                ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                    Text("Share via")
+                }
+                
+                if isOwner {
+
+                } else {
+                    Button("Report") {
+                        vm.clickedClub = club
+                        vm.showReport = true
+                    }
+                }
+                
             } label: {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
+                    .padding(8)
+            }
+        }
+    }
+    
+    // This view is used to create the perfect height of the header.
+    //The reason thats needed its because the clipped image overlaps the menu button and it doesnt trigger. That minght be fixed in future versions so check regularly.
+    func headerSpacer() -> some View {
+            HStack(alignment: .center) {
+                if club.previewMembers.count > 1 {
+                    ZStack(alignment:.top){
+                        Rectangle()
+                            .foregroundStyle(.gray)
+                            .frame(width: size.dimension, height: size.dimension)
+                            .cornerRadius(15)
+                            .overlay(
+                                RoundedRectangle(cornerSize: CGSize(width: 15, height: 15))
+                                    .stroke(strokeColor, lineWidth: 2)
+                            )
+                            .offset(x:size.dimension/5, y: size.dimension/5)
+                        
+                        Rectangle()
+                            .foregroundStyle(.gray)
+                            .frame(width: size.dimension, height: size.dimension)
+                            .cornerRadius(15)
+                            .overlay(
+                                RoundedRectangle(cornerSize: CGSize(width: 15, height: 15))
+                                    .stroke(strokeColor, lineWidth: 2)
+                            )
+                    }
+                    .padding([.trailing, .bottom], size.dimension/5)
+                    
+                } else {
+                    Rectangle()
+                        .foregroundStyle(.gray)
+                        .frame(width: 50, height: 50)
+                        .cornerRadius(15)
+                }
+                
+                VStack(alignment: .leading, spacing: 3){
+                    Text(club.title)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                    
+                    Text("\(club.owner.firstName) \(club.owner.lastName)")
+                        .foregroundColor(.gray)
+                        .fontWeight(.semibold)
+                        .font(.footnote)
+                }
+                
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+                    .padding(8)
             }
             
+    }
+    
+    var isOwner: Bool {
+        if let currentUser = userViewModel.currentUser, currentUser.id == club.owner.id{
+            return true
+        } else {
+            return false
         }
     }
     
@@ -201,7 +283,6 @@ struct ClubCell: View {
         }
     }
 }
-
 
 #Preview {
     ClubCell(club: MockClub)

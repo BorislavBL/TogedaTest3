@@ -84,6 +84,7 @@ struct ReviewMemoriesView: View {
             Image(systemName: "chevron.left")
         })
         .photosPicker(isPresented: $photoPickerVM.showPhotosPicker, selection: $photoPickerVM.imagesSelection, matching: .images)
+        
     }
 }
 
@@ -191,5 +192,6 @@ struct ReviewMemoriesTab: View {
                 }
  
         }
+        .swipeBack()
     }
 }

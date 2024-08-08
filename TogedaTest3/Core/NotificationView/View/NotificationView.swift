@@ -9,7 +9,8 @@ import SwiftUI
 
 struct NotificationView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var vm: NotificationsViewModel
+    @EnvironmentObject var vm: WebSocketManager
+    @EnvironmentObject var navManager: NavigationManager
     
     var body: some View {
         ScrollView(showsIndicators: false){
@@ -19,27 +20,40 @@ struct NotificationView: View {
                     if let not = notification.alertBodyAcceptedJoinRequest{
                         switch not.forType {
                         case .CLUB:
-                            GroupAcceptanceView(createDate: notification.createdDate, alertBody: not)
+                            if let club = not.club{
+                                GroupAcceptanceView(club: club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                            }
                         case .POST:
-                            EventAcceptance(createDate: notification.createdDate, alertBody: not)
+                            if let post = not.post{
+                                EventAcceptance(post: post, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                            }
+                        case .none:
+                            EmptyView()
                         }
                     } else if let not = notification.alertBodyReceivedJoinRequest{
                         switch not.forType {
                         case .POST:
-                            EventRequestPage(createDate: notification.createdDate, alertBody: not)
+                            if let post = not.post{
+                                EventRequestPage(post: post, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                            }
                         case .CLUB:
-                            GroupRequestPage(createDate: notification.createdDate, alertBody: not)
+                            if let club = not.club{
+                                GroupRequestPage(club: club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                            }
+                        case .none:
+                            EmptyView()
                         }
                     } else if let not = notification.alertBodyFriendRequestReceived{
                         FriendRequestView(user: not, createDate: notification.createdDate)
-                    } else if let not = notification.alertBodyReviewEndedPost{
-                        ParticipantsEventReview(alertBody: not, createDate: notification.createdDate)
+                    } else if let not = notification.alertBodyReviewEndedPost {
+                        ParticipantsEventReview(alertBody: not, createDate: notification.createdDate, selectionPath: $navManager.selectionPath)
+                    } else if let not = notification.alertBodyPostHasStarted {
+                        EventHasStartedView(createDate: notification.createdDate, alertBody: not, selectionPath:  $navManager.selectionPath)
                     }
                 }
 //                FriendRequestPage()
 //                FriendRequestView()
 //                AddedMemoryView()
-//                ParticipantsEventReview()
 //                SystemNotificationView()
                 
             }
@@ -54,7 +68,9 @@ struct NotificationView: View {
                 .navButton3()
         }
                             
+                            
         )
+        .swipeBack()
         
     }
 }
@@ -62,5 +78,6 @@ struct NotificationView: View {
 
 #Preview {
     NotificationView()
-        .environmentObject(NotificationsViewModel())
+        .environmentObject(WebSocketManager())
+        .environmentObject(NavigationManager())
 }

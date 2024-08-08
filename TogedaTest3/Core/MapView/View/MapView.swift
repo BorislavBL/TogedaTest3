@@ -74,30 +74,44 @@ struct MapView: View {
                 if showSearch {
                     ScrollView{
                         LazyVStack(alignment: .leading, spacing: 10){
-                            ForEach(viewModel.searchedPosts, id:\.id){ post in
+                            ForEach(viewModel.places, id:\.id){ place in
                                 Button {
                                     Task{
                                         viewModel.searchText = ""
                                         UIApplication.shared.endEditing(true)
                                         
-                                        let coordinate = CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)
+                                        let coordinate = CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude)
                                         
                                         let coordinatedRegion = MKCoordinateRegion(center: coordinate, span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
                                         
                                         try await viewModel.getCurrentAreaPosts(region: coordinatedRegion)
                                         
                                         withAnimation(.snappy){
-                                            viewModel.cameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude), latitudinalMeters: 5000, longitudinalMeters: 5000))
-                                            viewModel.mapSelection = post
+                                            viewModel.cameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), latitudinalMeters: 5000, longitudinalMeters: 5000))
+//                                            viewModel.mapSelection = post
                                         }
                                         
                                         showSearch = false
                                     }
                                 } label: {
-                                    Text(post.title)
-                                        .padding(.vertical, 3)
-                                        .padding(.horizontal)
-                                        .multilineTextAlignment(.leading)
+                                    HStack{
+                                        Image(systemName: "mappin.circle.fill")
+                                            .font(.body)
+                                            .foregroundColor(.gray)
+                                        
+                                        VStack(alignment: .leading) {
+                                            Text(place.name)
+                                                .font(.body)
+                                                .fontWeight(.semibold)
+                                            
+                                            if !place.address.isEmpty {
+                                                Text(place.address)
+                                                    .font(.callout)
+                                            }
+                                        }
+                                        
+                                    }
+                                    .padding(.horizontal)
                                 }
                                 Divider()
                             }

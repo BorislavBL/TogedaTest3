@@ -173,6 +173,7 @@ struct LoginView: View {
         .navigationDestination(isPresented: $isNotEmailConfirmed, destination: {
             RegistrationCodeView(email: $email, password: $password)
         })
+        .swipeBack()
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

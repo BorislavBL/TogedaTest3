@@ -17,8 +17,10 @@ struct GroupView: View {
     @StateObject var vm = GroupViewModel()
     @State var isEditing = false
     @EnvironmentObject var clubsVM: ClubsViewModel
-    
+    @EnvironmentObject var navManager: NavigationManager
     @EnvironmentObject var userVM: UserViewModel
+    @EnvironmentObject var websocketVM: WebSocketManager
+    
     @State var showLeaveSheet = false
     @State var showCancelSheet = false
     @State var showCreateEvent = false
@@ -48,8 +50,8 @@ struct GroupView: View {
                     if let response = try await APIClient.shared.getClub(clubID: club.id) {
                         if let index = clubsVM.feedClubs.firstIndex(where: { $0.id == club.id }) {
                             clubsVM.feedClubs[index] = response
-                            club = response
                         }
+                        club = response
                     }
                     
                     vm.clubMembers = []
@@ -67,6 +69,10 @@ struct GroupView: View {
                     if Init {
                         vm.clubEvents = []
                         vm.clubEventsPage = 0
+                        
+                        vm.clubMembers = []
+                        vm.membersPage = 0
+                        
                         await vm.fetchAllData(clubId: club.id)
                     } else {
                         vm.clubMembers = []
@@ -91,25 +97,6 @@ struct GroupView: View {
                     .presentationDetents([.height(190)])
                     
             })
-            .sheet(isPresented: $showOption, content: {
-                List{
-                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
-                        Text("Share via")
-                    }
-                    
-                    Button{
-                        showOption = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                           showReport = true
-                        }
-                    } label:{
-                        Text("Report")
-                            .foregroundStyle(.red)
-                    }
-                }
-                .scrollDisabled(true)
-                .presentationDetents([.height(200)])
-            })
             .sheet(isPresented: $showReport, content: {
                 ReportClubView(club: club)
             })
@@ -129,10 +116,25 @@ struct GroupView: View {
             
             navbar()
         }
-        
+        .swipeBack()
+        .onChange(of: websocketVM.newNotification){ old, new in
+            print("triggered 1")
+            if let not = new {
+                print("triggered 2")
+                if let not = not.alertBodyAcceptedJoinRequest {
+                    if club.askToJoin{
+                        if let miniclub = not.club, miniclub.id == club.id {
+                            vm.updateStatuses(miniUser: not.acceptedUser, miniClub: miniclub, club: $club)
+                        }
+                    }
+                }
+            }
+        }
         
         
     }
+    
+
     
     @ViewBuilder
     func navbar() -> some View {
@@ -160,6 +162,57 @@ struct GroupView: View {
                 
                 if let user = userVM.currentUser, club.owner.id == user.id {
 //                    NavigationLink(value: SelectionPath.editClubView(club)) {
+                    if let chatRoomID = club.chatRoomId {
+                        Button{
+                            Task{
+                                print("\(chatRoomID)")
+                                do {
+                                    if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomID) {
+                                        print("\(chatroom)")
+                                        DispatchQueue.main.async {
+                                            self.navManager.screen = .message
+                                            self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
+                                        }
+                                    } else {
+                                        print("nil")
+                                    }
+                                } catch {
+                                    print(error)
+                                }
+                            }
+                        } label:{
+                            Text("Go To Chat")
+                                .font(.footnote)
+                                .bold()
+                                .frame(height: 35)
+                                .padding(.horizontal)
+                                .background(.bar)
+                                .clipShape(Capsule())
+                        }
+                    } else {
+                        Button{
+                            Task{
+                                if let chatRoomId = try await APIClient.shared.createChatForClub(clubId: club.id) {
+                                    if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomId) {
+                                        print("\(chatroom)")
+                                        DispatchQueue.main.async {
+                                            self.navManager.screen = .message
+                                            self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
+                                        }
+                                    }
+                                }
+                            }
+                        } label:{
+                            Text("Create Chat")
+                                .font(.footnote)
+                                .bold()
+                                .frame(height: 35)
+                                .padding(.horizontal)
+                                .background(.bar)
+                                .clipShape(Capsule())
+                        }
+                    }
+                    
                     Button{
                         isEditing = true
                     } label:{
@@ -170,8 +223,18 @@ struct GroupView: View {
                     }
                 }
             } else {
-                Button{
-                    showOption = true
+                Menu{
+                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                        Text("Share via")
+                    }
+                    
+                    if isOwner {
+
+                    } else {
+                        Button("Report") {
+                            showReport = true
+                        }
+                    }
                 } label: {
                     Image(systemName: "ellipsis")
                         .rotationEffect(.degrees(90))
@@ -179,6 +242,7 @@ struct GroupView: View {
                         .background(.bar)
                         .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
                 }
+                
             }
         }
         .padding(.horizontal)
@@ -264,10 +328,19 @@ struct GroupView: View {
         .padding()
     }
     
+    var isOwner: Bool {
+        if let user = userVM.currentUser, user.id == club.owner.id{
+            return true
+        } else {
+            return false
+        }
+    }
+    
 }
 
 #Preview {
     GroupView(club: MockClub)
         .environmentObject(UserViewModel())
+        .environmentObject(NavigationManager())
         .environmentObject(ClubsViewModel())
 }

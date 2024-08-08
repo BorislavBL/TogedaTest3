@@ -90,6 +90,7 @@ struct GroupJoinRequestsView: View {
         })
         .padding(.top)
         .padding(.horizontal)
+        
     }
 }
 

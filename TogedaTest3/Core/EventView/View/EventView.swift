@@ -11,14 +11,15 @@ import WrappingHStack
 import Kingfisher
 
 struct EventView: View {
-    
     @StateObject var eventVM = EventViewModel()
-    
-    @EnvironmentObject var postsVM: PostsViewModel
+
     @State var post: Components.Schemas.PostResponseDto
     @State var isEditing = false
     
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var postsVM: PostsViewModel
+    @EnvironmentObject var chatVM: WebSocketManager
+    @EnvironmentObject var navManager: NavigationManager
     
     @Environment(\.dismiss) private var dismiss
     
@@ -36,7 +37,6 @@ struct EventView: View {
         ZStack(alignment: .bottom) {
             ScrollView{
                 LazyVStack(alignment: .leading, spacing: 15) {
-                    
                     TabView {
                         ForEach(post.images, id: \.self) { image in
                             KFImage(URL(string: image))
@@ -106,8 +106,8 @@ struct EventView: View {
                             .padding(.vertical, 8)
                         
                         if !post.askToJoin || post.currentUserStatus == .PARTICIPATING{
-                            
-                            Text(locationAddress(post.location))
+
+                            Text(post.location.name)
                                 .normalTagTextStyle()
                                 .normalTagCapsuleStyle()
                             
@@ -147,8 +147,9 @@ struct EventView: View {
                         if let response = try await APIClient.shared.getEvent(postId: post.id) {
                             if let index = postsVM.feedPosts.firstIndex(where: { $0.id == post.id }) {
                                 postsVM.feedPosts[index] = response
-                                post = response
                             }
+                            
+                            post = response
                         }
 
                         eventVM.participantsList = []
@@ -172,6 +173,7 @@ struct EventView: View {
                 
             }
         }
+        .swipeBack()
         .onAppear(){
             eventVM.participantsList = []
             eventVM.participantsPage = 0
@@ -179,29 +181,14 @@ struct EventView: View {
                 await fetchAllOnAppear()
             }
         }
-        .navigationBarBackButtonHidden(true)
-        .sheet(isPresented: $showPostOptions, content: {
-            List {
-                
-                ShareLink(item: URL(string: "https://www.youtube.com/")!) {
-                    Text("Share via")
-                }
-                
-                if isOwner {
-
-                } else {
-                    Button("Report") {
-                        showPostOptions = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            showReportEvent = true
-                        }
-                    }
-                }
+        .onChange(of: chatVM.newNotification){ old, new in
+            print("triggered 1")
+            if let not = new {
+                print("triggered 2")
+                eventVM.updateEvent(not: not, post: $post)
             }
-            .scrollDisabled(true)
-            .presentationDetents([.fraction(0.25)])
-            .presentationDragIndicator(.visible)
-        })
+        }
+        .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showReportEvent, content: {
             ReportEventView(event: post)
         })
@@ -238,6 +225,60 @@ struct EventView: View {
             Spacer()
             
             if isOwner {
+                
+                if let chatRoomID = post.chatRoomId {
+                    Button{
+                        Task{
+                            print("\(chatRoomID)")
+                            do {
+                                if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomID) {
+                                    print("\(chatroom)")
+//                                    chatVM.chatRoomCheck(chatRoom: chatroom)
+                                    DispatchQueue.main.async {
+                                        self.navManager.screen = .message
+                                        self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
+                                    }
+                                } else {
+                                    print("nil")
+                                }
+                            } catch {
+                                print(error)
+                            }
+                        }
+                    } label:{
+                        Text("Go To Chat")
+                            .font(.footnote)
+                            .bold()
+                            .frame(height: 35)
+                            .padding(.horizontal)
+                            .background(.bar)
+                            .clipShape(Capsule())
+                    }
+                } else {
+                    Button{
+                        Task{
+                            if let chatRoomId = try await APIClient.shared.createChatForEvent(postId: post.id) {
+                                if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomId) {
+                                    print("\(chatroom)")
+//                                    chatVM.chatRoomCheck(chatRoom: chatroom)
+                                    DispatchQueue.main.async {
+                                        self.navManager.screen = .message
+                                        self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
+                                    }
+                                }
+                            }
+                        }
+                    } label:{
+                        Text("Create Chat")
+                            .font(.footnote)
+                            .bold()
+                            .frame(height: 35)
+                            .padding(.horizontal)
+                            .background(.bar)
+                            .clipShape(Capsule())
+                    }
+                }
+
                 Button{
                     isEditing = true
                 } label:{
@@ -248,9 +289,19 @@ struct EventView: View {
                 }
             }
             
-            Button{
-                showPostOptions = true
-                postsVM.clickedPost = post
+            Menu{
+                ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                    Text("Share via")
+                }
+                
+                if isOwner {
+
+                } else {
+                    Button("Report") {
+                        showPostOptions = false
+                        showReportEvent = true
+                    }
+                }
             } label: {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
@@ -258,6 +309,7 @@ struct EventView: View {
                     .background(.bar)
                     .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
             }
+            
         }
         .padding(.horizontal)
     }
@@ -457,14 +509,27 @@ struct EventView: View {
         }
     }
     
+    
     func fetchAllOnAppear() async {
         await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getEvent(postId: post.id){
+                        DispatchQueue.main.async {
+                            self.post = response
+                        }
+
+                    }
+                } catch {
+                    print(error)
+                }
+            }
+            
             group.addTask {
                 do {
                     if let clubId = await post.clubId, let response = try await APIClient.shared.getClub(clubID: clubId){
                         DispatchQueue.main.async {
                             self.club = response
-                            
                             self.Init = false
                         }
 
@@ -493,5 +558,7 @@ struct EventView_Previews: PreviewProvider {
         EventView(post: MockPost)
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
+            .environmentObject(WebSocketManager())
+            .environmentObject(NavigationManager())
     }
 }

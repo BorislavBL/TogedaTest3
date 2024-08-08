@@ -148,6 +148,7 @@ struct InappropriatePhotoReport: View {
             .padding()
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBack()
     }
 }
 

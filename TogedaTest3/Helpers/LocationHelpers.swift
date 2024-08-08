@@ -101,3 +101,24 @@ func findLocationDetails(location: CLLocation?, returnedPlace: Binding<Place>, c
         }
     }
 }
+
+func findLocationDetailsWithResult(location: CLLocation?) -> Place? {
+    guard let location = location else { return nil }
+    let geocoder = CLGeocoder()
+    
+    var result: Place?
+    
+    geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+        if let error = error {
+            print("Error reverse geocoding: \(error.localizedDescription)")
+            result = nil
+        } else if let firstPlacemark = placemarks?.first {
+            result = Place(mapItem: mapItem(from: firstPlacemark))
+        } else {
+            print("else")
+            result = nil
+        }
+    }
+    
+    return result
+}

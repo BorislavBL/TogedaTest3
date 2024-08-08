@@ -18,7 +18,7 @@ struct baseLocation: Hashable, Codable {
     var longitude: Double
 }
 
-struct Place: Identifiable {
+struct Place: Identifiable{
     var id = UUID().uuidString
     var mapItem: MKMapItem
     
@@ -73,9 +73,18 @@ struct Place: Identifiable {
         var cityAndState = ""
         var address = ""
         
-        cityAndState = placemark.locality ?? "" //city
-        if let state = placemark.administrativeArea {
-            cityAndState = cityAndState.isEmpty ? state : "\(cityAndState), \(state)"
+        if let city = placemark.locality {
+            if let state = placemark.administrativeArea {
+                if city != state {
+                    cityAndState = "\(city), \(state)"
+                } else {
+                    cityAndState = city
+                }
+            } else {
+                cityAndState = city
+            }
+        } else if let state = placemark.administrativeArea {
+            cityAndState = state
         }
         
         address = placemark.subThoroughfare ?? "" // address #
@@ -92,16 +101,24 @@ struct Place: Identifiable {
         
         return address
     }
+
     
     var addressCountry: String {
         let placemark = self.mapItem.placemark
         var locationComponents = [String]()
 
         if let city = placemark.locality {
-            locationComponents.append(city)
-        }
-        
-        if let state = placemark.administrativeArea {
+            if let state = placemark.administrativeArea {
+                if city != state {
+                    locationComponents.append(city)
+                    locationComponents.append(state)
+                } else {
+                    locationComponents.append(city)
+                }
+            } else {
+                locationComponents.append(city)
+            }
+        } else if let state = placemark.administrativeArea {
             locationComponents.append(state)
         }
 
@@ -111,29 +128,7 @@ struct Place: Identifiable {
         
         return locationComponents.joined(separator: ", ")
     }
-    
-    var addressCity: String {
-        let placemark = self.mapItem.placemark
-        var locationComponents = [String]()
 
-        if let street = placemark.thoroughfare {
-            locationComponents.append(street)
-        }
-        
-        if let city = placemark.locality {
-            locationComponents.append(city)
-        }
-        
-        if let state = placemark.administrativeArea {
-            locationComponents.append(state)
-        }
-
-        if let country = placemark.country {
-            locationComponents.append(country)
-        }
-        
-        return locationComponents.joined(separator: ", ")
-    }
     
     var latitude: Double {
         self.mapItem.placemark.coordinate.latitude

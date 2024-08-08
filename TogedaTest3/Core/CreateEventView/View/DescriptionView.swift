@@ -41,6 +41,7 @@ struct DescriptionView: View {
             }
             .padding(.vertical)
         }
+        .swipeBack()
         .navigationTitle("Description")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {
@@ -57,6 +58,7 @@ struct DescriptionView: View {
                 .clipShape(Circle())
         }
         )
+        
     }
 
 }

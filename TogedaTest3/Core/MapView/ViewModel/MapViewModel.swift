@@ -31,6 +31,9 @@ class MapViewModel: ObservableObject{
     @Published var lastSearchedPage: Bool = true
     @Published var searchedPage: Int32 = 0
     @Published var searchSize: Int32 = 15
+    
+    @Published var places: [Place] = []
+    
     var cancellable: AnyCancellable?
     
     func searchPosts() async throws{
@@ -52,20 +55,36 @@ class MapViewModel: ObservableObject{
         }
     }
     
+    func searchLocation(){
+        let searchRequest = MKLocalSearch.Request()
+        searchRequest.naturalLanguageQuery = searchText
+        let search = MKLocalSearch(request: searchRequest)
+        
+        search.start { response, error in
+            guard let response = response else {
+                print(":( ERROR: \(error?.localizedDescription ?? "Uknown Error")")
+                return
+            }
+            
+            self.places = response.mapItems.map(Place.init)
+        }
+    }
+    
     func startSearch() {
         cancellable = $searchText
-            .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
+            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink(receiveValue: { value in
                 if !value.isEmpty {
                     print("Searching...")
-                    self.toDefault()
-                    Task{
-                        try await self.searchPosts()
-                    }
+//                    self.toDefault()
+//                    Task{
+//                        try await self.searchPosts()
+//                    }
+                    self.searchLocation()
                 } else {
                     print("Not Searching...")
-                    self.toDefault()
+//                    self.toDefault()
                 }
             })
     }

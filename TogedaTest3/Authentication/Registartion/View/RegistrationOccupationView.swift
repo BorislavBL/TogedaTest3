@@ -104,6 +104,7 @@ struct RegistrationOccupationView: View {
             }
         }
         .padding(.vertical)
+        .swipeBack()
         .navigationDestination(isPresented: $isActive, destination: {
             RegistrationPhotosView(vm: vm, photoVM: photoVM)
         })

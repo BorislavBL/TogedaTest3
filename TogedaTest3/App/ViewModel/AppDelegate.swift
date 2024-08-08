@@ -41,18 +41,25 @@ extension AppDelegate{
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
       let token = deviceToken.reduce("") { $0 + String(format: "%02x", $1) }
         APIClient.shared.notificationToken = token
-        if NotificationsManager.shared.authorizationStatus != .denied && NotificationsManager.shared.initialAuthorizationStatus == .notDetermined {
+//        if NotificationsManager.shared.authorizationStatus != .denied && NotificationsManager.shared.initialAuthorizationStatus == .notDetermined {
+//            Task{
+//                try await APIClient.shared.addDiviceToken()
+//            }
+//        } else if AuthClient.shared.userJustLoggedIn {
+//            Task{
+//                try await APIClient.shared.addDiviceToken()
+//            }
+//        } else {
+//            print("Nooooo")
+//        }
+        
+        if NotificationsManager.shared.authorizationStatus != .denied {
             Task{
                 try await APIClient.shared.addDiviceToken()
             }
-        } else if AuthClient.shared.userJustLoggedIn {
-            Task{
-                try await APIClient.shared.addDiviceToken()
-            }
-        } else {
-            print("Nooooo")
         }
-      print(token)
+        
+        print(token)
     }
 
 

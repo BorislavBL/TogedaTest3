@@ -27,6 +27,7 @@ struct NormalPhotoPickerView: View {
             }
             
         }
+        .swipeBack()
         .navigationTitle("Photos")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
@@ -38,6 +39,7 @@ struct NormalPhotoPickerView: View {
         })
         .padding(.vertical)
         .frame(maxHeight: .infinity, alignment: .top )
+        
     }
     
 }

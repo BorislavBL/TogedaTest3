@@ -51,11 +51,11 @@ class PhotoPickerViewModel: ObservableObject {
     
     @Published var editPublishedPhotosURLs: [String?] = [nil, nil, nil, nil, nil, nil]
     
-    @Published var imageselection: PhotosPickerItem? = nil {
-        didSet {
-            setImage(from: imageselection)
-        }
-    }
+//    @Published var imageselection: PhotosPickerItem? = nil {
+//        didSet {
+//            setImage(from: imageselection)
+//        }
+//    }
     
     
     @Published var eventSelectedImages: [UIImage] = []
@@ -83,24 +83,24 @@ class PhotoPickerViewModel: ObservableObject {
         }
     }
     
-    private func setImage(from selection: PhotosPickerItem?){
-        guard let selection else {return}
-        
-        Task {
-            do {
-                let data = try await selection.loadTransferable(type: Data.self)
-                guard let data, let uiImage = UIImage(data: data) else {
-                    throw URLError(.badServerResponse)
-                }
-                
-                selectedImage = uiImage
-                showCropView = true
-            } catch {
-                print(error)
-            }
-        }
-    }
-    
+//    private func setImage(from selection: PhotosPickerItem?){
+//        guard let selection else {return}
+//        
+//        Task {
+//            do {
+//                let data = try await selection.loadTransferable(type: Data.self)
+//                guard let data, let uiImage = UIImage(data: data) else {
+//                    throw URLError(.badServerResponse)
+//                }
+//                
+//                selectedImage = uiImage
+//                showCropView = true
+//            } catch {
+//                print(error)
+//            }
+//        }
+//    }
+//    
  
     private func setImages(from selections: [PhotosPickerItem]){
         Task {
@@ -158,20 +158,25 @@ class PhotoPickerViewModel: ObservableObject {
                 }
         
         do {
-            let response = try await ImageService().generatePresignedPutUrl(bucketName: bucketName, fileName: UUID)
-            try await ImageService().uploadImage(imageData: jpeg, urlString: response)
-            let imageUrl = "https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
-            
-            switch mode {
-            case .normal:
-                publishedPhotosURLs.append(imageUrl)
-            case .edit:
-                editPublishedPhotosURLs[index] = imageUrl
+            if let response = try await APIClient.shared.generatePresignedPutUrl(bucketName: bucketName, keyName: UUID) {
+                print("generated shit:", response)
+                try await ImageService().uploadImage(imageData: jpeg, urlString: response)
+                let imageUrl = "https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
+                
+                switch mode {
+                case .normal:
+                    publishedPhotosURLs.append(imageUrl)
+                case .edit:
+                    editPublishedPhotosURLs[index] = imageUrl
+                }
+                                
+                return true
+            } else {
+                
+                
+                return false
             }
-            
-            
-            
-            return true
+
         } catch {
             print("Upload failed with error: \(error)")
             

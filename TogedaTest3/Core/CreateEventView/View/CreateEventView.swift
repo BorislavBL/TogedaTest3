@@ -16,7 +16,7 @@ struct CreateEventView: View {
     @State private var displayWarnings: Bool = false
     @StateObject var ceVM = CreateEventViewModel()
     @State var Init: Bool = true
-    
+    @State var isLoading = false
     
     //PhotoPicker
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .normal)
@@ -26,6 +26,7 @@ struct CreateEventView: View {
     @State private var showLocationView: Bool = false
     @State private var showAccessibilityView: Bool = false
     @State private var showInterestsView: Bool = false
+    @State private var serverErrorMessage: String?
     
     let descriptionPlaceholder = "Describe the purpose of your event. What activities are you planning? Mention any special guests who might be attending. Will there be food and drinks? Help attendees know what to expect."
     
@@ -35,6 +36,11 @@ struct CreateEventView: View {
         NavigationStack() {
             ZStack(alignment: .bottom){
                 ScrollView(showsIndicators: false){
+                    
+                    if let error = serverErrorMessage {
+                        WarningTextComponent(text: error)
+                    }
+                    
                     VStack(alignment: .leading){
                         Text("Title:")
                             .foregroundStyle(.tint)
@@ -262,10 +268,10 @@ struct CreateEventView: View {
                                 
                                 Spacer()
                                 
-                                if ceVM.dateTimeSettings == 0 {
+                                if ceVM.dateTimeSettings == 1 {
                                     Text(separateDateAndTime(from:ceVM.from).date)
                                         .foregroundColor(.gray)
-                                } else if ceVM.dateTimeSettings == 1 {
+                                } else if ceVM.dateTimeSettings == 2 {
                                     Text("\(separateDateAndTime(from:ceVM.from).date) - \(separateDateAndTime(from:ceVM.to).date)")
                                         .foregroundColor(.gray)
                                 } else {
@@ -283,18 +289,19 @@ struct CreateEventView: View {
                         
                         if ceVM.showTimeSettings {
                             Picker("Choose Date", selection: $ceVM.dateTimeSettings){
-                                Text("Exact").tag(0)
-                                Text("Range").tag(1)
-                                Text("Anytime").tag(2)
+                                Text("Anytime").tag(0)
+                                Text("Exact").tag(1)
+                                Text("Range").tag(2)
+                                
                             }
                             .pickerStyle(.segmented)
                             
-                            if ceVM.dateTimeSettings != 2 {
+                            if ceVM.dateTimeSettings != 0 {
                                 DatePicker("From", selection: $ceVM.from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
                                     .fontWeight(.semibold)
                                 
-                                if ceVM.dateTimeSettings == 1 {
-                                    DatePicker("To", selection: $ceVM.to, in: ceVM.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
+                                if ceVM.dateTimeSettings == 2 {
+                                    DatePicker("To", selection: $ceVM.to, in: Date().addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
                                         .fontWeight(.semibold)
                                 }
                             } else {
@@ -311,7 +318,7 @@ struct CreateEventView: View {
                     .createEventTabStyle()
                     
                     if pastDate {
-                        WarningTextComponent(text: "Chnage your timeframe. You can't create an event in the past.")
+                        WarningTextComponent(text: "Change your timeframe. You can't create an event in the past.")
                         
                     }
                     
@@ -457,22 +464,37 @@ struct CreateEventView: View {
                             .ignoresSafeArea(edges: .bottom)
 
                         Button{
+                            withAnimation{
+                                isLoading = true
+                                serverErrorMessage = nil
+                            }
                             Task{
                                 do{
                                     if await photoPickerVM.saveImages() {
                                         ceVM.postPhotosURls = photoPickerVM.publishedPhotosURLs
                                         let createPost = ceVM.createPost()
-                                        _ = try await APIClient.shared.createEvent(body: createPost)
-                                        dismiss()
+                                        try await APIClient.shared.createEvent(body: createPost) { response, error in
+                                            DispatchQueue.main.async {
+                                                if response != nil {
+                                                    withAnimation{
+                                                        self.isLoading = false
+                                                    }
+                                                    dismiss()
+                                                } else if let error = error {
+                                                    withAnimation{
+                                                        self.isLoading = false
+                                                    }
+                                                    
+                                                    self.serverErrorMessage = error
+                                                }
+                                            }
+                                        }
+
                                     } else {
                                         print("Problem with image")
+                                        self.isLoading = false
+                                        self.serverErrorMessage = "Problem with images"
                                     }
-                                } catch GeneralError.badRequest(details: let details){
-                                    print(details)
-                                } catch GeneralError.invalidURL {
-                                    print("Invalid URL")
-                                } catch GeneralError.serverError(let statusCode, let details) {
-                                    print("Status: \(statusCode) \n \(details)")
                                 } catch {
                                     print("Error message:", error)
                                 }
@@ -512,6 +534,11 @@ struct CreateEventView: View {
                 
             }
             .scrollDismissesKeyboard(.immediately)
+            .overlay {
+                if isLoading {
+                    LoadingScreenView(isVisible: $isLoading)
+                }
+            }
             .onAppear(){
                 if Init{
                     ceVM.club = fromClub

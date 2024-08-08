@@ -25,7 +25,7 @@ struct EventReviewView: View {
                     KFImage(URL(string: post.images[0]))
                         .resizable()
                         .scaledToFill()
-                        .frame(height: 250)
+                        .frame(height: 500)
                         .cornerRadius(10)
                         .clipped()
                     
@@ -98,6 +98,7 @@ struct EventReviewView: View {
             .background(.bar)
         
         }
+        .swipeBack()
         .navigationTitle("Rating")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
