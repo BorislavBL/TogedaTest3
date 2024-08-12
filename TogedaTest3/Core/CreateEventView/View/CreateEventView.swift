@@ -363,8 +363,16 @@ struct CreateEventView: View {
                                     .frame(width: 70)
                                     .textFieldStyle(.roundedBorder)
                                     .keyboardType(.numberPad)
+                                    .onChange(of: ceVM.participants) { old, new in
+                                        if let number = ceVM.participants {
+                                            if number > 1000000 {
+                                                ceVM.participants = old
+                                            }
+                                        }
+                                    }
                                 
                             }
+
                             
                         }
                     }

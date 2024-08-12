@@ -23,46 +23,48 @@ struct BookmarkedEventsView: View {
     
     var body: some View {
         ScrollView{
-            LazyVGrid(columns: columns){
-                ForEach(posts, id: \.id){ post in
-                    if post.status == .HAS_ENDED {
-                        NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
-                            EventComponent(userID: userID, post: post)
-                        }
-                    } else {
-                        NavigationLink(value: SelectionPath.eventDetails(post)){
-                            EventComponent(userID: userID, post: post)
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical)
-            
-            if isLoading {
-                ProgressView() // Show spinner while loading
-            } else {
-                VStack(spacing: 8){
-                    Divider()
-                    Text("No more posts")
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.gray)
-                }
-                .padding()
-            }
-            
-            Rectangle()
-                .frame(width: 0, height: 0)
-                .onAppear {
-                    if !lastPage{
-                        isLoading = true
-                        Task{
-                            try await fetchEvents()
-                            isLoading = false
-                            
+            LazyVStack{
+                LazyVGrid(columns: columns){
+                    ForEach(posts, id: \.id){ post in
+                        if post.status == .HAS_ENDED {
+                            NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
+                                EventComponent(userID: userID, post: post)
+                            }
+                        } else {
+                            NavigationLink(value: SelectionPath.eventDetails(post)){
+                                EventComponent(userID: userID, post: post)
+                            }
                         }
                     }
                 }
+                .padding(.horizontal, 8)
+                .padding(.vertical)
+                
+                if isLoading {
+                    ProgressView() // Show spinner while loading
+                } else if lastPage {
+                    VStack(spacing: 8){
+                        Divider()
+                        Text("No more posts")
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.gray)
+                    }
+                    .padding()
+                }
+                
+                Rectangle()
+                    .frame(width: 0, height: 0)
+                    .onAppear {
+                        if !lastPage{
+                            isLoading = true
+                            Task{
+                                try await fetchEvents()
+                                isLoading = false
+                                
+                            }
+                        }
+                    }
+            }
         }
         .refreshable {
             page = 0
@@ -95,14 +97,12 @@ struct BookmarkedEventsView: View {
         if let response = try await APIClient.shared.getUserSavedEvents(page: page, size: size) {
             posts += response.data
             lastPage = response.lastPage
+            page += 1
             
-            if !response.lastPage{
-                page += 1
-            }
         }
         
     }
-
+    
 }
 
 #Preview {

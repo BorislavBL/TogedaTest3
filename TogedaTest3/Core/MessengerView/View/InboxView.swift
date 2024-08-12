@@ -18,6 +18,7 @@ struct InboxView: View {
     @State var searchUserResults: [Components.Schemas.MiniUser] = [MockMiniUser]
     
     @State var navHeight: CGFloat = .zero
+    @State var isLoading = false
     
     var body: some View {
         VStack(spacing: 0){
@@ -44,21 +45,34 @@ struct InboxView: View {
             }
             .background(.bar)
             
-            List {
-                ForEach(chatManager.allChatRooms, id: \.id){ chatroom in
-                        ZStack{
-                            NavigationLink(value: SelectionPath.userChat(chatroom: chatroom)){
-                                EmptyView()
-                            }
-                            .opacity(0)
+            ScrollView {
+                LazyVStack {
+                    ForEach(chatManager.allChatRooms, id: \.id){ chatroom in
+                        NavigationLink(value: SelectionPath.userChat(chatroom: chatroom)){
                             InboxRowView(chatroom: chatroom)
                         }
+                        
+                    }
+                    .padding(.top)
+                    .padding(.horizontal)
                     
+                    if isLoading {
+                        ProgressView() // Show spinner while loading
+                    }
+                    
+                    Rectangle()
+                        .frame(width: 0, height: 0)
+                        .onAppear {
+                            if !chatManager.lastChatPage{
+                                isLoading = true
+                                Task{
+                                    try await chatManager.getAllChats()
+                                    isLoading = false
+                                    
+                                }
+                            }
+                        }
                 }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets())
-                .padding(.top)
-                .padding(.horizontal)
             }
             .overlay{
                 if isSearching {
@@ -100,11 +114,32 @@ struct InboxRowView: View {
                 }
             case .GROUP:
                 if chatroom.previewMembers.count > 1 {
-                    KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: size.dimension, height: size.dimension)
-                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                    ZStack(alignment:.top){
+                       
+                        KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 2 * size.dimension/3, height: 2 * size.dimension/3)
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color("base"), lineWidth: 2)
+                                )
+                                .offset(y: -size.dimension/6)
+                                
+                        KFImage(URL(string: chatroom.previewMembers[1].profilePhotos[0]))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 2 * size.dimension/3, height: 2 * size.dimension/3)
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color("base"), lineWidth: 2)
+                                )
+                                .offset(x: size.dimension/6, y: size.dimension/6)
+
+                    }
+                    .padding([.trailing, .bottom], size.dimension/3)
                 }
             case .POST:
                 if let post = chatroom.post {
@@ -134,7 +169,7 @@ struct InboxRowView: View {
                         }
                     case .GROUP:
                         if chatroom.previewMembers.count > 1 {
-                            Text("\(chatroom.previewMembers[0].firstName) \(chatroom.previewMembers[1].firstName)")
+                            Text("\(chatroom.previewMembers[0].firstName), \(chatroom.previewMembers[1].firstName) Group")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                         }
@@ -157,10 +192,36 @@ struct InboxRowView: View {
                 }
                 
                 HStack(alignment: .top){
-                    Text(chatroom.latestMessage?.content ?? "")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
-                        .lineLimit(2)
+                    if let message = chatroom.latestMessage {
+                        switch message.contentType {
+                        case .CLUB:
+                            Text("Sent Club")
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .lineLimit(2)
+                        case .IMAGE:
+                            Text("Sent Image")
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .lineLimit(2)
+                        case .POST:
+                            Text("Sent Post")
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .lineLimit(2)
+                        case .NORMAL:
+                            Text(message.content)
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .lineLimit(2)
+                        }
+
+                    } else {
+                        Text("")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+                            .lineLimit(2)
+                    }
                     
                     if !chatroom.read{
                         Spacer(minLength: 10)

@@ -39,7 +39,7 @@ struct EventsFeedView: View {
                         
                         if isLoading {
                             PostSkeleton() // Show spinner while loading
-                        } else {
+                        } else if postsViewModel.lastPage {
                             VStack(spacing: 8){
                                 Divider()
                                 Text("No more posts")
@@ -70,7 +70,7 @@ struct EventsFeedView: View {
                                 .padding(.bottom)
                             
                             Button {
-                                navManager.isPresenting = true
+                                navManager.isPresentingEvent = true
                             } label: {
                                 Text("Create Event")
                                     .font(.subheadline)

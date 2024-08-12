@@ -2208,6 +2208,7 @@ extension APIClient {
         case .ok(let okResponse):
             switch okResponse.body{
             case .json(let returnResponse):
+                print("\(lastTimestamp), \(returnResponse.count), \(returnResponse)")
                 return returnResponse
             }
         case .undocumented(statusCode: let statusCode, _):
@@ -2364,6 +2365,7 @@ extension APIClient {
         case .ok(let okResponse):
             switch okResponse.body{
             case .json(let returnResponse):
+                print("\(returnResponse.count), \(returnResponse)")
                 return returnResponse
             }
         case .undocumented(statusCode: let statusCode, _):

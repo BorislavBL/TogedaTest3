@@ -48,7 +48,7 @@ class ClubsViewModel: ObservableObject {
     }
     
     func fetchClubs() async throws {
-//        print("club Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance)")
+        //        print("club Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance)")
         DispatchQueue.main.async {
             self.clubsFeedIsLoading = true
         }
@@ -59,14 +59,12 @@ class ClubsViewModel: ObservableObject {
             lat: lat,
             distance: Int32(distance),
             categories: categories
-            ) {
+        ) {
             
             DispatchQueue.main.async{
                 self.feedClubs += response.data
                 self.lastPage = response.lastPage
-                if !response.lastPage {
-                    self.page += 1
-                }
+                self.page += 1
                 self.clubsFeedIsLoading = false
                 self.feedClubsInit = false
             }
@@ -116,7 +114,7 @@ class ClubsViewModel: ObservableObject {
         if !lastPage {
             if index == feedClubs.count - 7 {
                 Task{
-                   try await self.fetchClubs()
+                    try await self.fetchClubs()
                 }
             }
         }

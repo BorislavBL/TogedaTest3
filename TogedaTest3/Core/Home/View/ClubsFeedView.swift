@@ -39,7 +39,7 @@ struct ClubsFeedView: View {
                         
                         if isLoading {
                             PostSkeleton() // Show spinner while loading
-                        } else {
+                        } else if clubsVM.lastPage{
                             VStack(spacing: 8){
                                 Divider()
                                 Text("No more clubs")
@@ -70,9 +70,9 @@ struct ClubsFeedView: View {
                                 .padding(.bottom)
                             
                             Button {
-                                navManager.isPresenting = true
+                                navManager.isPresentingClub = true
                             } label: {
-                                Text("Create Event")
+                                Text("Create Club")
                                     .font(.subheadline)
                                     .foregroundStyle(Color("base"))
                                     .fontWeight(.semibold)

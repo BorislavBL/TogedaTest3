@@ -127,7 +127,7 @@ struct AccessibilityEventType: View {
     @State var isLoading = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        LazyVStack(alignment: .leading, spacing: 20) {
             Button{
                 showOptions.toggle()
                 if showOptions && Init {

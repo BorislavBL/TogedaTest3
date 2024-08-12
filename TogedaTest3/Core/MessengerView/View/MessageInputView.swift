@@ -10,8 +10,11 @@ import PhotosUI
 
 struct MessageInputView: View {
     @Binding var messageText: String
+    @Binding var isActive: Bool
     @ObservedObject var viewModel: ChatViewModel
+    @FocusState var isFocused: Bool
     var onSubmit: () -> ()
+    
     var body: some View {
             HStack(alignment: .top){
                 if let uiImage = viewModel.messageImage {
@@ -42,7 +45,7 @@ struct MessageInputView: View {
                     Spacer()
                 } else {
                     if messageText.isEmpty {
-                        PhotosPicker(selection: $viewModel.selectedItem) {
+                        PhotosPicker(selection: $viewModel.selectedItem, matching: .images) {
                             Image(systemName: "photo")
                                 .padding(.horizontal, 4)
                                 .foregroundColor(.gray)
@@ -50,8 +53,12 @@ struct MessageInputView: View {
                     }
                     
                     TextField("Message..", text: $messageText, axis: .vertical)
+                        .focused($isFocused)
                         .padding(.leading, 4)
                         .font(.subheadline)
+                        .onChange(of: isFocused) {
+                            isActive = isFocused
+                        }
                 }
                 
                 Button {
@@ -79,5 +86,5 @@ struct MessageInputView: View {
 }
 
 #Preview {
-    MessageInputView(messageText: .constant(""), viewModel: ChatViewModel(), onSubmit: {})
+    MessageInputView(messageText: .constant(""), isActive: .constant(false), viewModel: ChatViewModel(), onSubmit: {})
 }

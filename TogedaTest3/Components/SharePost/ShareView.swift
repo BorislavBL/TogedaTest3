@@ -111,15 +111,6 @@ struct ShareView: View {
                         }
                 }
             }
-            .onChange(of: searchText){
-//                if !searchText.isEmpty {
-//                    searchUserResults = MiniUser.MOCK_MINIUSERS.filter{result in
-//                        result.fullName.lowercased().contains(searchText.lowercased())
-//                    }
-//                } else {
-//                    searchUserResults = MiniUser.MOCK_MINIUSERS
-//                }
-            }
             
             if selectedUsers.count > 0 {
                 VStack{

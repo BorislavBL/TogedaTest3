@@ -60,7 +60,7 @@ struct GroupView: View {
                     vm.clubEvents = []
                     vm.clubEventsPage = 0
                     
-                    await vm.fetchAllData(clubId: club.id)
+                    try await fetchAllData(clubId: club.id)
                     
                 }
             }
@@ -73,7 +73,7 @@ struct GroupView: View {
                         vm.clubMembers = []
                         vm.membersPage = 0
                         
-                        await vm.fetchAllData(clubId: club.id)
+                        try await fetchAllData(clubId: club.id)
                     } else {
                         vm.clubMembers = []
                         vm.membersPage = 0
@@ -88,7 +88,7 @@ struct GroupView: View {
                 ImageViewer(images: vm.images, selectedImage: $vm.selectedImage)
             })
             .sheet(isPresented: $showShareSheet, content: {
-                ShareView()
+                ShareView(club: club)
                     .presentationDetents([.fraction(0.8), .fraction(1)])
                     .presentationDragIndicator(.visible)
             })
@@ -130,11 +130,42 @@ struct GroupView: View {
                 }
             }
         }
-        
-        
     }
     
 
+    func fetchAllData(clubId: String) async throws {
+        // Use a task group to fetch all data concurrently
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                do {
+                    try await vm.fetchClubMembers(clubId: clubId)
+                } catch {
+                    print("Error fetching user posts: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    try await vm.fetchClubEvents(clubId: clubId)
+                } catch {
+                    print("Error fetching user clubs: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getClub(clubID: clubId) {
+                        DispatchQueue.main.async {
+                            self.club = response
+                        }
+                    }
+                } catch {
+                    print("Error fetching user clubs: \(error)")
+                }
+            }
+        }
+    }
+    
     
     @ViewBuilder
     func navbar() -> some View {

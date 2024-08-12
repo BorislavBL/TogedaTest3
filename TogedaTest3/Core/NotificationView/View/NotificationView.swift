@@ -11,6 +11,7 @@ struct NotificationView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var vm: WebSocketManager
     @EnvironmentObject var navManager: NavigationManager
+    @State var isLoading = false
     
     var body: some View {
         ScrollView(showsIndicators: false){
@@ -55,6 +56,23 @@ struct NotificationView: View {
 //                FriendRequestView()
 //                AddedMemoryView()
 //                SystemNotificationView()
+                
+                if isLoading {
+                    ProgressView() // Show spinner while loading
+                }
+                
+                Rectangle()
+                    .frame(width: 0, height: 0)
+                    .onAppear {
+                        if !vm.lastPage{
+                            isLoading = true
+                            Task{
+                                try await vm.fetchInitialNotification(){ success in
+                                    isLoading = false
+                                }
+                            }
+                        }
+                    }
                 
             }
             .padding()

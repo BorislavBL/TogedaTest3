@@ -22,43 +22,45 @@ struct AllUserGroupsView: View {
     @State var isLoading = false
     
     @State var Init: Bool = true
-
+    
     var body: some View {
         ScrollView{
-            LazyVGrid(columns: columns){
-                ForEach(clubs, id:\.id ){ club in
-                    NavigationLink(value: SelectionPath.club(club)){
-                        GroupComponent(userID: userID, club: club)
-                    }
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical)
-            
-            if isLoading {
-                ProgressView() // Show spinner while loading
-            } else {
-                VStack(spacing: 8){
-                    Divider()
-                    Text("No more clubs")
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.gray)
-                }
-                .padding()
-            }
-            
-            Rectangle()
-                .frame(width: 0, height: 0)
-                .onAppear {
-                    if !lastPage{
-                        isLoading = true
-                        Task{
-                            try await fetchClubs()
-                            isLoading = false
-                            
+            LazyVStack{
+                LazyVGrid(columns: columns){
+                    ForEach(clubs, id:\.id ){ club in
+                        NavigationLink(value: SelectionPath.club(club)){
+                            GroupComponent(userID: userID, club: club)
                         }
                     }
                 }
+                .padding(.horizontal, 8)
+                .padding(.vertical)
+                
+                if isLoading {
+                    ProgressView() // Show spinner while loading
+                } else {
+                    VStack(spacing: 8){
+                        Divider()
+                        Text("No more clubs")
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.gray)
+                    }
+                    .padding()
+                }
+                
+                Rectangle()
+                    .frame(width: 0, height: 0)
+                    .onAppear {
+                        if !lastPage{
+                            isLoading = true
+                            Task{
+                                try await fetchClubs()
+                                isLoading = false
+                                
+                            }
+                        }
+                    }
+            }
         }
         .refreshable {
             clubs = []
@@ -97,13 +99,11 @@ struct AllUserGroupsView: View {
             clubs += response.data
             lastPage = response.lastPage
             
-            if !response.lastPage{
-                page += 1
-            }
+            page += 1
         }
         
     }
-
+    
 }
 
 #Preview {

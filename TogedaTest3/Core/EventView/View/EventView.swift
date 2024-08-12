@@ -206,7 +206,7 @@ struct EventView: View {
             })
         }
         .sheet(isPresented: $showSharePostSheet) {
-            ShareView()
+            ShareView(post: post)
                 .presentationDetents([.fraction(0.8), .fraction(1)])
                 .presentationDragIndicator(.visible)
         }

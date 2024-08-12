@@ -14,6 +14,8 @@ class ProfileViewModel: ObservableObject {
     @Published var clubsCount: Int64 = 0
     @Published var postsCount: Int64 = 0
     
+    @Published var likesCount: Int64 = 0
+    
     func getUserClubs(userId: String) async throws {
         if let response = try await APIClient.shared.getUserClubs(userId: userId, page: 0, size: 15) {
             DispatchQueue.main.async {
@@ -47,6 +49,18 @@ class ProfileViewModel: ObservableObject {
             group.addTask {
                 do {
                     try await self.getUserClubs(userId: userId)
+                } catch {
+                    print("Error fetching user clubs: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getUserLikesList(userId: userId, page: 0, size: 1) {
+                        DispatchQueue.main.async {
+                            self.likesCount = response.listCount
+                        }
+                    }
                 } catch {
                     print("Error fetching user clubs: \(error)")
                 }

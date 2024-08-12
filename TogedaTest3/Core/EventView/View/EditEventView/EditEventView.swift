@@ -265,6 +265,13 @@ struct EditEventView: View {
                                     .frame(width: 70)
                                     .textFieldStyle(.roundedBorder)
                                     .keyboardType(.numberPad)
+                                    .onChange(of: vm.editPost.maximumPeople) { old, new in
+                                        if let number = vm.editPost.maximumPeople {
+                                            if number > 1000000 {
+                                                vm.editPost.maximumPeople = old
+                                            }
+                                        }
+                                    }
                                 
                             }
                             

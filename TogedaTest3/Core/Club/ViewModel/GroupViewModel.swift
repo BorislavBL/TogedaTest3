@@ -21,18 +21,20 @@ class GroupViewModel: ObservableObject {
     @Published var clubs: [Components.Schemas.ClubDto] = [MockClub]
     @Published var clickedClubID: String = ""
     
-//    func fetchClub(clubId: String) async throws{
-//        if let response = try await APIClient.shared.getClub(clubID: clubId) {
-//            club = response
-//        }
-//    }
+    //    func fetchClub(clubId: String) async throws{
+    //        if let response = try await APIClient.shared.getClub(clubID: clubId) {
+    //            club = response
+    //        }
+    //    }
     
     func fetchClubMembers(clubId: String) async throws {
         if let response = try await APIClient.shared.getClubMembers(clubId: clubId, page: membersPage, size: membersSize) {
             DispatchQueue.main.async { [self] in
                 self.clubMembers += response.data
                 self.membersLastPage = response.lastPage
+                
                 self.membersPage += 1
+                
                 self.membersCount = response.listCount
             }
         }
@@ -49,7 +51,9 @@ class GroupViewModel: ObservableObject {
             DispatchQueue.main.async { [weak self] in
                 self?.clubEvents += response.data
                 self?.clubEventsLastPage = response.lastPage
+                
                 self?.clubEventsPage += 1
+                
                 self?.clubEventsCount = response.listCount
             }
         }
@@ -66,32 +70,15 @@ class GroupViewModel: ObservableObject {
             DispatchQueue.main.async { [weak self] in
                 self?.joinRequestParticipantsList += response.data
                 self?.joinRequestLastPage = response.lastPage
+                
                 self?.joinRequestParticipantsPage += 1
+                
                 self?.joinRequestParticipantsCount = response.listCount
             }
         }
     }
     
-    func fetchAllData(clubId: String) async {
-        // Use a task group to fetch all data concurrently
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask {
-                do {
-                    try await self.fetchClubMembers(clubId: clubId)
-                } catch {
-                    print("Error fetching user posts: \(error)")
-                }
-            }
-            
-            group.addTask {
-                do {
-                    try await self.fetchClubEvents(clubId: clubId)
-                } catch {
-                    print("Error fetching user clubs: \(error)")
-                }
-            }
-        }
-    }
+    
     
     func updateStatuses(miniUser: Components.Schemas.MiniUser, miniClub:Components.Schemas.MiniClubDto, club: Binding<Components.Schemas.ClubDto>) {
         let user = Components.Schemas.ExtendedMiniUserForClub(user: miniUser, _type: .MEMBER)
@@ -104,5 +91,5 @@ class GroupViewModel: ObservableObject {
         club.wrappedValue.membersCount += 1
         
     }
-
+    
 }

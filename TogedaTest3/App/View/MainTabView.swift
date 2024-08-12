@@ -65,13 +65,15 @@ struct MainTabView: View {
             }
             .onChange(of: navigationManager.screen) { oldValue, newValue in
                 if navigationManager.screen == .add {
-                    navigationManager.isPresenting = true
+                    navigationManager.isPresentingEvent = true
                     navigationManager.screen = navigationManager.oldScreen
-                } else if (navigationManager.isPresenting == false) {
+                } else if (navigationManager.isPresentingEvent == false) {
                     navigationManager.oldScreen = newValue
                 }
             }
-
+            .fullScreenCover(isPresented: $navigationManager.isPresentingClub) {
+                CreateClubView(resetClubsOnCreate: {})
+            }
             .fullScreenCover(isPresented: $locationManager.showLocationServicesView, content: {
                 AllowLocationView()
             })

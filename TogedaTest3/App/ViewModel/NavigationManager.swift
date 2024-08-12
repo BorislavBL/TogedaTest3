@@ -57,7 +57,8 @@ class NavigationManager: ObservableObject {
     //MARK: - Router
     @Published var screen: Screen = .home
     @Published var oldScreen: Screen = .home
-    @Published var isPresenting = false
+    @Published var isPresentingEvent = false
+    @Published var isPresentingClub = false
     @Published var homeScrollTop = false
     
     func change(to screen: Screen) {

@@ -21,46 +21,48 @@ struct AllGroupEventsView: View {
     
     var body: some View {
         ScrollView{
-            LazyVGrid(columns: columns){
-                ForEach(vm.clubEvents, id: \.id){ post in
-                    if post.status == .HAS_ENDED {
-                        NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
-                            GroupEventComponent(post: post)
-                        }
-                    } else {
-                        NavigationLink(value: SelectionPath.eventDetails(post)){
-                            GroupEventComponent(post: post)
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical)
-            
-            if isLoading {
-                ProgressView() // Show spinner while loading
-            } else {
-                VStack(spacing: 8){
-                    Divider()
-                    Text("No more posts")
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.gray)
-                }
-                .padding()
-            }
-            
-            Rectangle()
-                .frame(width: 0, height: 0)
-                .onAppear {
-                    if !lastPage{
-                        isLoading = true
-                        Task{
-                            try await vm.fetchClubEvents(clubId: clubId)
-                            isLoading = false
-                            
+            LazyVStack{
+                LazyVGrid(columns: columns){
+                    ForEach(vm.clubEvents, id: \.id){ post in
+                        if post.status == .HAS_ENDED {
+                            NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
+                                GroupEventComponent(post: post)
+                            }
+                        } else {
+                            NavigationLink(value: SelectionPath.eventDetails(post)){
+                                GroupEventComponent(post: post)
+                            }
                         }
                     }
                 }
+                .padding(.horizontal, 8)
+                .padding(.vertical)
+                
+                if isLoading {
+                    ProgressView() // Show spinner while loading
+                } else if lastPage {
+                    VStack(spacing: 8){
+                        Divider()
+                        Text("No more posts")
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.gray)
+                    }
+                    .padding()
+                }
+                
+                Rectangle()
+                    .frame(width: 0, height: 0)
+                    .onAppear {
+                        if !lastPage{
+                            isLoading = true
+                            Task{
+                                try await vm.fetchClubEvents(clubId: clubId)
+                                isLoading = false
+                                
+                            }
+                        }
+                    }
+            }
         }
         .refreshable {
             vm.clubEvents = []

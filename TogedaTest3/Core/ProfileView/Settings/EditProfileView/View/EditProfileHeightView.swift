@@ -40,6 +40,13 @@ struct EditProfileHeightView: View {
                         .bold()
                         .autocapitalization(.none)
                         .keyboardType(.numberPad)
+                        .onChange(of: heightText) { old, new in
+                            if let number = Int(heightText) {
+                                if number > 300 {
+                                    heightText = old
+                                }
+                            }
+                        }
                     
                     Text("cm (\(convertCmToFeetAndInches(heightText) ?? "feet"))")
                 }

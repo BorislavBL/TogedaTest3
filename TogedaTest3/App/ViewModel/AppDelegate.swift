@@ -12,9 +12,16 @@ import AWSCore
 import UserNotifications
 
 class AppDelegate: UIResponder, UIApplicationDelegate , ObservableObject{
+    
+   @Published var urlHandler: URLHandler?
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Configure AWS Cognito
 
+        
+//        requestNotificationPermissions(application: application)
+        
+        UNUserNotificationCenter.current().delegate = self
         
         return true
     }
@@ -37,7 +44,25 @@ extension AppDelegate {
 }
 
 
-extension AppDelegate{
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        if let deepLink = response.notification.request.content.userInfo["link"] as? String {
+            print("\(deepLink)")
+            if let url = URL(string: deepLink) {
+                Task{
+                    urlHandler?.handleURL(_: url)
+                }
+            }
+        }
+        
+        print("Kvo da gi pravq tiq pari beeeeee\(response.notification.request.content.userInfo)")
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        return [.sound, .banner, .badge, .list]
+    }
+    
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
       let token = deviceToken.reduce("") { $0 + String(format: "%02x", $1) }
         APIClient.shared.notificationToken = token
@@ -70,14 +95,6 @@ extension AppDelegate{
         print("Fail to fetch divice token")
     }
     
-//    // Handle notification when app is in foreground
-//    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-//        completionHandler([.sound, .badge, .banner])
-//        
-//        print("togeda listens 2")
-////        handleNotification(notification: notification)
-//    }
-//
 //    // Handle notification when app is in background or closed
 //    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
 ////        handleNotification(notification: response.notification)

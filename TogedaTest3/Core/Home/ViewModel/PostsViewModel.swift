@@ -16,7 +16,7 @@ class PostsViewModel: ObservableObject {
     @Published var clickedPost: Components.Schemas.PostResponseDto = MockPost
     
     @Published var showDetailsPage = false
-//    @Published var showPostOptions = false
+    //    @Published var showPostOptions = false
     @Published var selectedOption = "None"
     @Published var showJoinRequest = false
     
@@ -47,9 +47,9 @@ class PostsViewModel: ObservableObject {
             .first() // Take only the first non-nil location
             .sink { [weak self] location in
                 guard let self = self else { return }
-
                 
-//                self.retryFetchPosts()        
+                
+                //                self.retryFetchPosts()        
                 Task {
                     await withCheckedContinuation { continuation in
                         DispatchQueue.main.async{
@@ -93,23 +93,23 @@ class PostsViewModel: ObservableObject {
                 self.page = 0
                 self.feedPosts = []
                 self.lastPage = true
-
+                
                 self.lat = lat
                 self.long = long
                 self.distance = distance
                 self.from = from
                 self.to = to
                 self.categories = categories
-
+                
                 continuation.resume()
             }
         }
         
         try await self.fetchPosts()
     }
-
+    
     func fetchPosts() async throws {
-//        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to)")
+        //        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to)")
         DispatchQueue.main.async{
             self.feedIsLoading = true
         }
@@ -132,9 +132,9 @@ class PostsViewModel: ObservableObject {
                 
                 self.feedPosts += uniqueNewPosts
                 self.lastPage = response.lastPage
-                if !response.lastPage {
-                    self.page += 1
-                }
+                
+                self.page += 1
+                
                 self.feedIsLoading = false
                 self.feedPostsInit = false
             }

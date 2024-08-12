@@ -60,69 +60,73 @@ struct UsersListView: View {
                                     
                                 }
                                 
-                                Spacer()
+                                
                             }
                         }
                         
-                        HStack{
-                            if let currentUser = userVm.currentUser, currentUser.id != user.user.id, post.status != .HAS_ENDED {
-                                
-                                Menu{
-                                    if post.currentUserRole == .HOST && user._type == .NORMAL{
-                                        Button("Make a Co-Host") {
-                                            Task{
-                                                if try await APIClient.shared.addCoHostRoleToEvent(postId: post.id, userId: user.user.id) {
-                                                    
-                                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
-                                                        eventVM.participantsList[index]._type = .CO_HOST
+                        Spacer()
+                        
+                        if post.currentUserStatus == .PARTICIPATING {
+                            HStack{
+                                if let currentUser = userVm.currentUser, currentUser.id != user.user.id, post.status != .HAS_ENDED {
+                                    
+                                    Menu{
+                                        if post.currentUserRole == .HOST && user._type == .NORMAL{
+                                            Button("Make a Co-Host") {
+                                                Task{
+                                                    if try await APIClient.shared.addCoHostRoleToEvent(postId: post.id, userId: user.user.id) {
+                                                        
+                                                        if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
+                                                            eventVM.participantsList[index]._type = .CO_HOST
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } else if post.currentUserRole == .HOST {
+                                            Button("Remove as a Co-Host") {
+                                                Task{
+                                                    if try await APIClient.shared.removeCoHostRoleToEvent(postId: post.id, userId: user.user.id) {
+                                                        
+                                                        if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
+                                                            eventVM.participantsList[index]._type = .NORMAL
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    } else if user._type == .HOST {
-                                        Button("Remove as a Co-Host") {
-                                            Task{
-                                                if try await APIClient.shared.removeCoHostRoleToEvent(postId: post.id, userId: user.user.id) {
-                                                    
-                                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
-                                                        eventVM.participantsList[index]._type = .NORMAL
+                                        
+                                        if post.currentUserStatus == .PARTICIPATING {
+                                            Button{
+                                                showReportSheet = true
+                                                selectedExtendedUser = user
+                                            } label:{
+                                                Text("Report")
+                                                    .foregroundStyle(.red)
+                                            }
+                                        }
+                                        
+                                        if  post.payment <= 0 && (post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST) {
+                                            Button("Remove") {
+                                                Task{
+                                                    if try await APIClient.shared.removeParticipant(postId: post.id, userId: user.user.id) {
+                                                        
+                                                        if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
+                                                            eventVM.participantsList.remove(at: index)
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
+                                        
+                                        
+                                    } label: {
+                                        Image(systemName: "ellipsis")
+                                            .rotationEffect(.degrees(90))
                                     }
-                                    
-                                    if post.currentUserStatus == .PARTICIPATING {
-                                        Button{
-                                            showReportSheet = true
-                                            selectedExtendedUser = user
-                                        } label:{
-                                            Text("Report")
-                                                .foregroundStyle(.red)
-                                        }
-                                    }
-                                    
-                                    if  post.payment <= 0 && (post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST) {
-                                        Button("Remove") {
-                                            Task{
-                                                if try await APIClient.shared.removeParticipant(postId: post.id, userId: user.user.id) {
-                                                    
-                                                    if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
-                                                        eventVM.participantsList.remove(at: index)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    
-                                    
-                                } label: {
-                                    Image(systemName: "ellipsis")
-                                        .rotationEffect(.degrees(90))
                                 }
+                                
+                                
                             }
-                            
-                            
                         }
                         
                         

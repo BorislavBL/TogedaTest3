@@ -19,6 +19,7 @@ struct ChatView: View {
     @State var shouldNotScrollToBottom: Bool = false
     @EnvironmentObject var chatManager: WebSocketManager
     @EnvironmentObject var userVm: UserViewModel
+    @State var isChatActive: Bool = false
     
     var body: some View {
         VStack{
@@ -88,7 +89,7 @@ struct ChatView: View {
                             Color.clear
                                 .frame(width: 0, height: 0)
                                 .onChange(of: geo.frame(in: .global).minY) { oldMinY, newMinY in
-                                    if newMinY >= 130 && !isLoading && !chatManager.lastMessagesPage && shouldStartLoading {
+                                    if newMinY >= 130 && !isLoading && !chatManager.lastMessagesPage && shouldStartLoading && !isInitialLoad {
                                             shouldNotScrollToBottom = true
                                             shouldStartLoading = false
                                             isLoading = true
@@ -126,12 +127,19 @@ struct ChatView: View {
                     
                     shouldNotScrollToBottom = false
                 }
+                .onChange(of: isChatActive) { oldValue, newValue in
+                    if newValue {
+                        withAnimation(.spring()) {
+                            proxy.scrollTo("Bottom", anchor:.bottom)
+                        }
+                    }
+                }
 
             }
             
 //            Spacer()
             
-            MessageInputView(messageText: $messageText, viewModel: viewModel) {
+            MessageInputView(messageText: $messageText, isActive: $isChatActive, viewModel: viewModel) {
                 if let currentUser = userVm.currentUser {
                     if let uiImage = viewModel.messageImage {
                         Task {
@@ -150,6 +158,9 @@ struct ChatView: View {
             }
             
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            onInit()
+        }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -158,27 +169,33 @@ struct ChatView: View {
         })
         .swipeBack()
         .onAppear(){
-            Task{
-                defer {
-                    Task{
-                        Init = false
-                        try await Task.sleep(nanoseconds: 1_000_000_000)
-                        isInitialLoad = false
-                    }
-                }
-                await withCheckedContinuation { continuation in
-                    chatManager.messagesToDefault()
-                    continuation.resume()
-                }
-                
-                try await chatManager.getMessages(chatId: chatRoom.id)
-              
-            }
+            onInit()
         }
         .onDisappear(){
             chatManager.messagesToDefault()
         }
         
+    }
+    
+    func onInit() {
+        Task{
+            defer {
+                Task{
+                    Init = false
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                    isInitialLoad = false
+                }
+            }
+            await withCheckedContinuation { continuation in
+                chatManager.messages = []
+                chatManager.lastMessagesPage = true
+                chatManager.messagesPage = 0
+                continuation.resume()
+            }
+            
+            try await chatManager.getMessages(chatId: chatRoom.id)
+          
+        }
     }
     
     var title: String {
