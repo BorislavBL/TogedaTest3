@@ -109,7 +109,11 @@ struct AllUserEventsView: View {
     
     func fetchEvents() async throws{
         if let response = try await APIClient.shared.getUserEvents(userId: userID, page: page, size: size) {
-            posts += response.data
+            let newResponse = response.data
+            let existingResponseIDs = Set(self.posts.suffix(30).map { $0.id })
+            let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+            
+            posts += uniqueNewResponse
             lastPage = response.lastPage
 
             page += 1

@@ -14,6 +14,7 @@ struct HomeView: View {
     @StateObject var filterViewModel = FilterViewModel()
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var clubsVM: ClubsViewModel
+    @EnvironmentObject var activityVM: ActivityViewModel
     
     var body: some View {
         ZStack{
@@ -40,6 +41,16 @@ struct HomeView: View {
                         
                         FriendsFeedView(showFilter: $showFilter, filterViewModel: filterViewModel, viewModel: viewModel)
                             .tag(FeedType.friends)
+                            .onAppear(){
+                                print("Appear Activity")
+                                if activityVM.activityFeed.count == 0 {
+                                    Task{
+                                        activityVM.page = 0
+                                        activityVM.lastPage = true
+                                        try await activityVM.fetchFeed()
+                                    }
+                                }
+                            }
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     .ignoresSafeArea()
@@ -89,6 +100,7 @@ struct HomeView_Previews: PreviewProvider {
             .environmentObject(ClubsViewModel())
             .environmentObject(UserViewModel())
             .environmentObject(NavigationManager())
+            .environmentObject(ActivityViewModel())
     }
 }
 

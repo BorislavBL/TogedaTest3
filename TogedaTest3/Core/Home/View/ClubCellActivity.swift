@@ -10,26 +10,35 @@ import Kingfisher
 
 struct ClubCellActivity: View {
     var club: Components.Schemas.ClubDto
-    var miniUser: Components.Schemas.MiniUser = MockMiniUser
+    var activity: Components.Schemas.ActivityDto
     var body: some View {
         VStack{
             HStack(alignment: .center) {
-                NavigationLink(value: SelectionPath.profile(miniUser)) {
+                NavigationLink(value: SelectionPath.profile(activity.user)) {
                     HStack(alignment: .center) {
-                        KFImage(URL(string: miniUser.profilePhotos[0]))
+                        KFImage(URL(string: activity.user.profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 50, height: 50)
+                            .frame(width: 30, height: 30)
                             .background(.gray)
                             .clipShape(Circle())
                             
-                        Text("\(miniUser.firstName) \(miniUser.lastName) ")
-                            .fontWeight(.semibold)
-                            .font(.footnote) +
-                        
-                        Text("Joined this club")
-                            .foregroundColor(.gray)
-                            .font(.footnote)
+                        if activity.activityType == .JOINED_CLUB {
+                            Text("\(activity.user.firstName) \(activity.user.lastName) ")
+                                .fontWeight(.semibold)
+                                .font(.footnote) +
+                            Text("Joined this club.")
+                                .foregroundColor(.gray)
+                                .font(.footnote)
+                        } else if activity.activityType == .CREATED_CLUB {
+                            Text("\(activity.user.firstName) \(activity.user.lastName) ")
+                                .fontWeight(.semibold)
+                                .font(.footnote) +
+                            
+                            Text("Created this club.")
+                                .foregroundColor(.gray)
+                                .font(.footnote)
+                        }
                         
                     }
                     .multilineTextAlignment(.leading)
@@ -55,7 +64,7 @@ struct ClubCellActivity: View {
 }
 
 #Preview {
-    ClubCellActivity(club: MockClub)
+    ClubCellActivity(club: MockClub, activity: mockActivityDto)
         .environmentObject(ClubsViewModel())
         .environmentObject(UserViewModel())
 }

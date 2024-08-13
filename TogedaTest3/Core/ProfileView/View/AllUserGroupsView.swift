@@ -96,7 +96,11 @@ struct AllUserGroupsView: View {
     
     func fetchClubs() async throws{
         if let response = try await APIClient.shared.getUserClubs(userId: userID, page: page, size: size) {
-            clubs += response.data
+            let newResponse = response.data
+            let existingResponseIDs = Set(self.clubs.suffix(30).map { $0.id })
+            let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+            
+            clubs += uniqueNewResponse
             lastPage = response.lastPage
             
             page += 1

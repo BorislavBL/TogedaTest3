@@ -132,7 +132,7 @@ struct AccessibilityEventType: View {
                 showOptions.toggle()
                 if showOptions && Init {
                     Task{
-                        if let resposne = try await APIClient.shared.getClubsWithCreatePostPermission(page:page ,size: pageSize) {
+                        if let resposne = try await APIClient.shared.getClubsWithCreatePostPermission(page: page, size: pageSize) {
                             clubs = resposne.data
                             lastPage = resposne.lastPage
                             
@@ -194,9 +194,14 @@ struct AccessibilityEventType: View {
                             if !lastPage{
                                 isLoading = true
                                 Task{
-                                    if let resposne = try await APIClient.shared.getClubsWithCreatePostPermission(page:page ,size: pageSize) {
-                                        clubs = resposne.data
-                                        lastPage = resposne.lastPage
+                                    if let response = try await APIClient.shared.getClubsWithCreatePostPermission(page: page, size: pageSize) {
+                                        
+                                        let newResponse = response.data
+                                        let existingResponseIDs = Set(self.clubs.suffix(30).map { $0.id })
+                                        let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                                        
+                                        clubs = uniqueNewResponse
+                                        lastPage = response.lastPage
                                         
                                         page += 1
                                         isLoading = false

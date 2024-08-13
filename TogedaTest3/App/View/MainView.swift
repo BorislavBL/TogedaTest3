@@ -13,6 +13,7 @@ import StripeCore
 
 struct MainView: View {
     @StateObject var postsViewModel = PostsViewModel()
+    @StateObject var activityViewModel = ActivityViewModel()
     @StateObject var clubsViewModel = ClubsViewModel()
     @StateObject var userViewModel = UserViewModel()
     @EnvironmentObject var navigationManager: NavigationManager
@@ -28,6 +29,7 @@ struct MainView: View {
                 CreateEventView()
             }
             .environmentObject(postsViewModel)
+            .environmentObject(activityViewModel)
             .environmentObject(clubsViewModel)
             .environmentObject(userViewModel)
             .environmentObject(locationManager)

@@ -56,11 +56,13 @@ struct ClubsFeedView: View {
                         }
                     } else if !clubsVM.feedClubsInit{
                         VStack(spacing: 15){
-                            Image(systemName: "doc.text.magnifyingglass")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 120, height: 120)
-                                .foregroundStyle(.gray)
+//                            Image(systemName: "doc.text.magnifyingglass")
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 120, height: 120)
+//                                .foregroundStyle(.gray)
+                            Text("🗿")
+                                .font(.custom("image", fixedSize: 120))
                             
                             Text("No clubs currently in this area. \n Create one yourself!")
                                 .font(.body)

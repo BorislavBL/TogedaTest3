@@ -110,10 +110,11 @@ struct ProfileView: View {
                                 
                                 NavigationLink(value: SelectionPath.userReviewView(user: user)){
                                     VStack{
-                                        UserStats(value: "\(100)%", title: "Rating")
-                                        Text("0 no shows")
+                                        UserStats(value: "\(viewModel.likesCount)", title: "Likes")
+                                        Text("\(viewModel.noShows) no shows")
                                             .font(.footnote)
-                                            .foregroundStyle(.gray)
+                                            .foregroundStyle(viewModel.noShows == 0 ? .gray :
+                                                                (viewModel.noShows >= 5  && viewModel.noShows < 10) ? .yellow : .red)
                                     }
                                     .frame(width: 105)
                                 }

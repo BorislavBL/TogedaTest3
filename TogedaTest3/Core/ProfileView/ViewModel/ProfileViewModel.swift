@@ -15,6 +15,7 @@ class ProfileViewModel: ObservableObject {
     @Published var postsCount: Int64 = 0
     
     @Published var likesCount: Int64 = 0
+    @Published var noShows: Int32 = 0
     
     func getUserClubs(userId: String) async throws {
         if let response = try await APIClient.shared.getUserClubs(userId: userId, page: 0, size: 15) {
@@ -35,12 +36,44 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
+    func updateUser(not: Components.Schemas.NotificationDto, user: Binding<Components.Schemas.UserInfoDto?>){
+        if let not = not.alertBodyAcceptedJoinRequest {
+            user.wrappedValue?.currentFriendshipStatus = .FRIENDS
+        } else if let not = not.alertBodyReceivedJoinRequest {
+            user.wrappedValue?.currentFriendshipStatus = .RECEIVED_FRIEND_REQUEST
+        }
+    }
+    
     func fetchAllData(userId: String) async {
         // Use a task group to fetch all data concurrently
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
                 do {
                     try await self.getUserPosts(userId: userId)
+                } catch {
+                    print("Error fetching user posts: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getUserNoShows(userId: userId) {
+                        DispatchQueue.main.async{
+                            self.noShows = response
+                        }
+                    }
+                } catch {
+                    print("Error fetching user posts: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getUserLikesList(userId: userId, page: 0, size: 1) {
+                        DispatchQueue.main.async{
+                            self.likesCount = response.listCount
+                        }
+                    }
                 } catch {
                     print("Error fetching user posts: \(error)")
                 }

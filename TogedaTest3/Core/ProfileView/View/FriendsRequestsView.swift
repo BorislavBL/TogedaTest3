@@ -58,7 +58,11 @@ struct FriendsRequestsView: View {
                             
                             Task{
                                 if let response = try await APIClient.shared.getFriendRequests(page: friendsRequestPage, size: friendsRequestSize){
-                                    friendsRequestList = response.data
+                                    let newResponse = response.data
+                                    let existingResponseIDs = Set(self.friendsRequestList.suffix(30).map { $0.id })
+                                    let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                                    
+                                    friendsRequestList = uniqueNewResponse
                                     friendsRequestPage += 1
                                     lastPage = response.lastPage
                                 }

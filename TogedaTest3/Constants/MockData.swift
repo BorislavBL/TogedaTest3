@@ -254,6 +254,10 @@ let mockReceivedMessage: Components.Schemas.ReceivedChatMessageDto = .init(id: "
 
 let mockChatRoom: Components.Schemas.ChatRoomDto = .init(id: UUID().uuidString, _type: .FRIENDS, post: nil, club: nil, latestMessage: mockReceivedMessage, previewMembers: [MockMiniUser], read: true, latestMessageTimestamp: Date())
 
+let mockAlertBodyFriendRequestAccepted: Components.Schemas.AlertBodyFriendRequestAccepted = .init(user: MockMiniUser, alertBodyTypeAsString: "X accepted ur friend request")
+
+let mockActivityDto: Components.Schemas.ActivityDto = .init(id: 123, user: MockMiniUser, activityType: .JOINED_EVENT, createdDate: Date())
+
 //let MockBaseUser: Components.Schemas.User = .init(id: NSUUID().uuidString, email: "borkolorinkov@gmail.com", subToEmail: true, firstName: "Borko", lastName: "lorinkov", gender: .MALE, birthDate: "2000-07-12", visibleGender: true, location: Components.Schemas.BaseLocation.init(
 //    name: "Sofia, Bulgaria",
 //    address:"Something",

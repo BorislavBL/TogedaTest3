@@ -50,6 +50,8 @@ struct NotificationView: View {
                         ParticipantsEventReview(alertBody: not, createDate: notification.createdDate, selectionPath: $navManager.selectionPath)
                     } else if let not = notification.alertBodyPostHasStarted {
                         EventHasStartedView(createDate: notification.createdDate, alertBody: not, selectionPath:  $navManager.selectionPath)
+                    } else if let not = notification.alertBodyFriendRequestAccepted {
+                        AcceptedFriendRequestView(user: not, createDate: notification.createdDate)
                     }
                 }
 //                FriendRequestPage()

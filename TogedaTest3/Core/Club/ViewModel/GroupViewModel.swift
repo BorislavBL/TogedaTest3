@@ -30,7 +30,12 @@ class GroupViewModel: ObservableObject {
     func fetchClubMembers(clubId: String) async throws {
         if let response = try await APIClient.shared.getClubMembers(clubId: clubId, page: membersPage, size: membersSize) {
             DispatchQueue.main.async { [self] in
-                self.clubMembers += response.data
+                
+                let newResponse = response.data
+                let existingResponseIDs = Set(self.clubMembers.suffix(30).map { $0.user.id })
+                let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.user.id) }
+                
+                self.clubMembers += uniqueNewResponse
                 self.membersLastPage = response.lastPage
                 
                 self.membersPage += 1
@@ -49,12 +54,19 @@ class GroupViewModel: ObservableObject {
     func fetchClubEvents(clubId: String) async throws {
         if let response = try await APIClient.shared.getClubEvents(clubId: clubId, page: clubEventsPage, size: clubEventsSize) {
             DispatchQueue.main.async { [weak self] in
-                self?.clubEvents += response.data
-                self?.clubEventsLastPage = response.lastPage
                 
-                self?.clubEventsPage += 1
+                guard let self = self else { return }
                 
-                self?.clubEventsCount = response.listCount
+                let newResponse = response.data
+                let existingResponseIDs = Set(self.clubEvents.suffix(30).map { $0.id })
+                let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                
+                self.clubEvents += uniqueNewResponse
+                self.clubEventsLastPage = response.lastPage
+                
+                self.clubEventsPage += 1
+                
+                self.clubEventsCount = response.listCount
             }
         }
     }
@@ -68,12 +80,19 @@ class GroupViewModel: ObservableObject {
     func fetchClubJoinRequests(clubId: String) async throws {
         if let response = try await APIClient.shared.getClubJoinRequests(clubId: clubId, page: joinRequestParticipantsPage, size: joinRequestParticipantsSize) {
             DispatchQueue.main.async { [weak self] in
-                self?.joinRequestParticipantsList += response.data
-                self?.joinRequestLastPage = response.lastPage
                 
-                self?.joinRequestParticipantsPage += 1
+                guard let self = self else { return }
                 
-                self?.joinRequestParticipantsCount = response.listCount
+                let newResponse = response.data
+                let existingResponseIDs = Set(self.joinRequestParticipantsList.suffix(30).map { $0.id })
+                let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                
+                self.joinRequestParticipantsList += uniqueNewResponse
+                self.joinRequestLastPage = response.lastPage
+                
+                self.joinRequestParticipantsPage += 1
+                
+                self.joinRequestParticipantsCount = response.listCount
             }
         }
     }

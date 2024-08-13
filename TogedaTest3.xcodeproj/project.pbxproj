@@ -263,6 +263,8 @@
 		14E4F9872B8F99F400D2A50C /* VerifyPhoneProfileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E4F9862B8F99F400D2A50C /* VerifyPhoneProfileTab.swift */; };
 		14EB8A612B73DE13007C2FEF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14EB8A602B73DE13007C2FEF /* Security.framework */; };
 		14EB8A632B73DE5A007C2FEF /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14EB8A622B73DE5A007C2FEF /* KeychainManager.swift */; };
+		14ED465A2C6B87EE006DEAED /* AcceptedFriendRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED46592C6B87EE006DEAED /* AcceptedFriendRequestView.swift */; };
+		14ED46602C6BAB80006DEAED /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED465F2C6BAB80006DEAED /* ActivityViewModel.swift */; };
 		14F10B8B2B1E363C00298737 /* MapSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8A2B1E363C00298737 /* MapSnapshotView.swift */; };
 		14F10B8D2B1E3F5500298737 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8C2B1E3F5500298737 /* ShareView.swift */; };
 		14F10B902B1E568A00298737 /* SystemNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8F2B1E568A00298737 /* SystemNotificationView.swift */; };
@@ -537,6 +539,8 @@
 		14E4F9862B8F99F400D2A50C /* VerifyPhoneProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyPhoneProfileTab.swift; sourceTree = "<group>"; };
 		14EB8A602B73DE13007C2FEF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.2.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		14EB8A622B73DE5A007C2FEF /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		14ED46592C6B87EE006DEAED /* AcceptedFriendRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptedFriendRequestView.swift; sourceTree = "<group>"; };
+		14ED465F2C6BAB80006DEAED /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		14F10B8A2B1E363C00298737 /* MapSnapshotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSnapshotView.swift; sourceTree = "<group>"; };
 		14F10B8C2B1E3F5500298737 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		14F10B8F2B1E568A00298737 /* SystemNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotificationView.swift; sourceTree = "<group>"; };
@@ -756,8 +760,6 @@
 		1422644B2BECFABD002DB3CE /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				14F5B4312C4FCF6A00C714D1 /* WebSocketManager.swift */,
-				14807A662AB4C1C500716A17 /* NavigationManager.swift */,
 				142487EE2BBEEE1400671014 /* AppDelegate.swift */,
 				14807A6A2AB4C20600716A17 /* ContentViewModel.swift */,
 				1441FE1A2C25FD480015435C /* URLHandler.swift */,
@@ -999,13 +1001,13 @@
 				148F66A32C21B8E30080F4FD /* Stripe */,
 				14807A1A2AB4B9E800716A17 /* Constants */,
 				14807A052AB4B93B00716A17 /* Services */,
-				14FB720B2AC1B97F00A2852D /* Managers */,
 				14C1498A2AC4777900F28463 /* Helpers */,
 				14807A042AB4B93500716A17 /* Extensions */,
 				14AFFA822B275971001D903A /* Authentication */,
 				14807A062AB4B94200716A17 /* Core */,
 				14807A182AB4B9D500716A17 /* Components */,
 				14807A1B2AB4B9F100716A17 /* Models */,
+				14FB720B2AC1B97F00A2852D /* Managers */,
 				14807A032AB4B92D00716A17 /* App */,
 				142814132ACC55530046886B /* Info.plist */,
 				148079F52AB4B8B800716A17 /* Assets.xcassets */,
@@ -1159,9 +1161,6 @@
 			isa = PBXGroup;
 			children = (
 				14807A502AB4C08200716A17 /* HomeViewModel.swift */,
-				14807A542AB4C09A00716A17 /* PostsViewModel.swift */,
-				1467C8B52AC5C2FF0034A3BB /* UserViewModel.swift */,
-				141B4A782C1C880800C493D0 /* ClubsViewModel.swift */,
 				1441FE202C29D3360015435C /* NotificationsViewModel.swift */,
 			);
 			path = ViewModel;
@@ -1505,6 +1504,7 @@
 				14F301992C132ECB00D98E14 /* Rating */,
 				14D7E43A2AF53E8000A76D09 /* NotificationView.swift */,
 				14D7E43E2AF9253500A76D09 /* FriendRequestView.swift */,
+				14ED46592C6B87EE006DEAED /* AcceptedFriendRequestView.swift */,
 				14D7E4402AF9256100A76D09 /* FriendRequestPage.swift */,
 				14D7E4422AF9263300A76D09 /* AddedMemoryView.swift */,
 				14BEC1762AFBCD0400DDCD63 /* EventAcceptance.swift */,
@@ -1633,11 +1633,17 @@
 		14FB720B2AC1B97F00A2852D /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				14F5B4312C4FCF6A00C714D1 /* WebSocketManager.swift */,
+				14807A662AB4C1C500716A17 /* NavigationManager.swift */,
+				14807A542AB4C09A00716A17 /* PostsViewModel.swift */,
+				1467C8B52AC5C2FF0034A3BB /* UserViewModel.swift */,
+				141B4A782C1C880800C493D0 /* ClubsViewModel.swift */,
 				14EB8A622B73DE5A007C2FEF /* KeychainManager.swift */,
 				14FB720C2AC1B99000A2852D /* LocationManager.swift */,
 				14BEC17A2AFBD25700DDCD63 /* NetworkManager.swift */,
 				141E72C32B33477500BB213D /* LocationPickingViewModel.swift */,
 				14BBF9F52C232AB600D63E22 /* NotificationsManager.swift */,
+				14ED465F2C6BAB80006DEAED /* ActivityViewModel.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -1914,6 +1920,7 @@
 				14807A612AB4C11D00716A17 /* PostTags.swift in Sources */,
 				14BBFA0D2C235E2B00D63E22 /* InPersonUserReportView.swift in Sources */,
 				14B677022B0D3D3100823FCA /* MessageReadView.swift in Sources */,
+				14ED465A2C6B87EE006DEAED /* AcceptedFriendRequestView.swift in Sources */,
 				14807A632AB4C16F00716A17 /* SearchView.swift in Sources */,
 				143C318B2B47286E00DCEE65 /* GroupSettingsView.swift in Sources */,
 				140A2BE12ACED10B00623446 /* SearchFilters.swift in Sources */,
@@ -1940,6 +1947,7 @@
 				141DF3592B0541B900CE94F5 /* ChatViewModel.swift in Sources */,
 				147613DB2B4469C0001C1AA8 /* AllUserGroupsView.swift in Sources */,
 				14F5B4022C3D7FC900C714D1 /* FriendsFeedView.swift in Sources */,
+				14ED46602C6BAB80006DEAED /* ActivityViewModel.swift in Sources */,
 				14F8F7C82AF3FEA6005BBC92 /* NavigationControllerExtension.swift in Sources */,
 				145D62F72ADD7AD100941BC3 /* PhotoPickerView.swift in Sources */,
 				14807A492AB4BFE900716A17 /* ProfileView.swift in Sources */,

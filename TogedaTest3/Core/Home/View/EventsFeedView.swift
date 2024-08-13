@@ -56,11 +56,14 @@ struct EventsFeedView: View {
                         }
                     } else if !postsViewModel.feedPostsInit{
                         VStack(spacing: 15){
-                            Image(systemName: "doc.text.magnifyingglass")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 120, height: 120)
-                                .foregroundStyle(.gray)
+//                            Image(systemName: "doc.text.magnifyingglass")
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 120, height: 120)
+//                                .foregroundStyle(.gray)
+//                            
+                            Text("😎")
+                                .font(.custom("image", fixedSize: 120))
                             
                             Text("No events currently in this area. \n Create one yourself!")
                                 .font(.body)

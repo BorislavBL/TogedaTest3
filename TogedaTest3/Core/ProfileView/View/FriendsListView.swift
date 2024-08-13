@@ -88,7 +88,11 @@ struct FriendsListView: View {
                             
                             Task{
                                 if let response = try await APIClient.shared.getFriendList(userId: user.id, page: page, size: pageSize){
-                                    friendsList = response.data
+                                    let newResponse = response.data
+                                    let existingResponseIDs = Set(self.friendsList.suffix(30).map { $0.user.id })
+                                    let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.user.id) }
+                                    
+                                    friendsList = uniqueNewResponse
                                     page += 1
                                     lastPage = response.lastPage
                                 }
@@ -106,6 +110,7 @@ struct FriendsListView: View {
                 do{
                     if Init {
                         if let response = try await APIClient.shared.getFriendList(userId: user.id, page: page, size: pageSize){
+                            
                             friendsList = response.data
                             page += 1
                             lastPage = response.lastPage

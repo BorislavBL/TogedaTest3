@@ -37,12 +37,13 @@ struct ReviewProfileView: View {
     @State var selectedRating: RatingTypes = .likes
     
     @State var rating: Double = 0
+    @State var noShows: Int32 = 0
     
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading){
                 VStack{
-                    Text("0")
+                    Text("\(noShows)")
                         .bold()
                         .font(.title)
                     
@@ -80,11 +81,9 @@ struct ReviewProfileView: View {
                         selectedRating = .rating
                     } label:{
                         VStack(alignment: .center, spacing: 8) {
-                            Text("\(Int(round(rating)))")
+                            RatingView(rating: Int(round(rating)), offColor: selectedRating == .rating ? Color("base").opacity(0.3) : Color("blackAndWhite").opacity(0.3), onColor: selectedRating == .rating ? Color("base") : Color("blackAndWhite"))
                                 .font(.body)
                                 .bold()
-                            
-                            
                             
                             Text("Ratings")
                                 .font(.footnote)
@@ -186,8 +185,12 @@ struct ReviewProfileView: View {
                             Task{
                                 if !likesLastPage{
                                     if let response = try await APIClient.shared.getUserLikesList(userId: user.id, page: likesPage, size: likesSize) {
+                                        let newResponse = response.data
+                                        let existingResponseIDs = Set(self.likesList.suffix(30).map { $0.id })
+                                        let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
                                         
-                                        likesList = response.data
+                                        
+                                        likesList = uniqueNewResponse
                                         likesPage += 1
                                         likesLastPage = response.lastPage
                                         likesCount = response.listCount
@@ -200,8 +203,12 @@ struct ReviewProfileView: View {
                             Task{
                                 if  !ratingLastPage{
                                     if let response = try await APIClient.shared.getRatingForProfile(userId: user.id, page: ratingPage, size: ratingSize) {
+                                        let newResponse = response.data
+                                        let existingResponseIDs = Set(self.ratingList.suffix(30).map { $0.id })
+                                        let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
                                         
-                                        ratingList = response.data
+                                        
+                                        ratingList = uniqueNewResponse
                                         ratingPage += 1
                                         ratingLastPage = response.lastPage
                                         ratingCount = response.listCount
@@ -220,7 +227,11 @@ struct ReviewProfileView: View {
                         Task{
                             if let response = try await APIClient.shared.getRatingForProfile(userId: user.id, page: ratingPage, size: ratingSize) {
                                 
-                                ratingList = response.data
+                                let newResponse = response.data
+                                let existingResponseIDs = Set(self.ratingList.suffix(30).map { $0.id })
+                                let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                                
+                                ratingList = uniqueNewResponse
                                 ratingPage += 1
                                 ratingLastPage = response.lastPage
                                 ratingCount = response.listCount
@@ -245,6 +256,19 @@ struct ReviewProfileView: View {
         .onAppear(){
             Task{
                 if likesInit{
+                    try await fetchAllInitialData(userId: user.id)
+                }
+            }
+        }
+        
+        
+    }
+    
+    func fetchAllInitialData(userId: String) async throws{
+        // Use a task group to fetch all data concurrently
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                do {
                     if let response = try await APIClient.shared.getUserLikesList(userId: user.id, page: likesPage, size: likesSize) {
                         
                         likesList = response.data
@@ -253,20 +277,36 @@ struct ReviewProfileView: View {
                         likesCount = response.listCount
                         
                         likesInit = false
-                        
-                        
-                        if let resposne = try await APIClient.shared.getUserRatingAvg(userId: user.id) {
-                            if let rating = resposne.averageRating {
-                                self.rating = rating
-                            }
+                    }
+                } catch {
+                    print("Error fetching user posts: \(error)")
+                }
+            }
+            group.addTask {
+                do {
+                    if let resposne = try await APIClient.shared.getUserRatingAvg(userId: user.id) {
+                        if let rating = resposne.averageRating {
+                            self.rating = rating
                         }
                     }
-                    
+                }
+                 catch {
+                    print("Error fetching user posts: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getUserNoShows(userId: userId) {
+                        DispatchQueue.main.async{
+                            self.noShows = response
+                        }
+                    }
+                } catch {
+                    print("Error fetching user posts: \(error)")
                 }
             }
         }
-        
-        
     }
 }
 

@@ -154,7 +154,7 @@ extension WebSocketManager {
                     decoder.dateDecodingStrategy = .iso8601
                     
                     let notificationData = try decoder.decode(Components.Schemas.NotificationDto.self, from: jsonData)
-                    print("Notification data:::::: \(notificationData)")
+
                     addNotification(newNotification: notificationData)
                     newNotification = notificationData
                 }
@@ -279,7 +279,11 @@ extension WebSocketManager {
         if let response = try await APIClient.shared.allChats(page: chatPage, size: chatSize) {
             
             DispatchQueue.main.async{
-                self.allChatRooms += response.data
+                let newResponse = response.data
+                let existingResponseIDs = Set(self.allChatRooms.suffix(30).map { $0.id })
+                let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                
+                self.allChatRooms += uniqueNewResponse
                 self.lastChatPage = response.lastPage
                 self.chatPage += 1
             }
@@ -300,8 +304,12 @@ extension WebSocketManager {
         print("chatId: \(chatId), page: \(messagesPage), size: \(messagesSize)")
         if let response = try await APIClient.shared.chatMessages(chatId: chatId, page: messagesPage, size: messagesSize) {
             DispatchQueue.main.async{
+                let newResponse = response.data
+                let existingResponseIDs = Set(self.messages.prefix(30).map { $0.id })
+                let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                
                 self.chatRoomId = chatId
-                self.messages.insert(contentsOf: response.data, at: 0)
+                self.messages.insert(contentsOf: uniqueNewResponse, at: 0)
                 self.lastMessagesPage = response.lastPage
                 self.messagesPage += 1
             }
@@ -314,7 +322,11 @@ extension WebSocketManager {
         do {
             if let response = try await APIClient.shared.notificationsList(page: page, size: size){
                 DispatchQueue.main.async {
-                    self.notificationsList += response.data
+                    let newResponse = response.data
+                    let existingResponseIDs = Set(self.notificationsList.suffix(30).map { $0.id })
+                    let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                    
+                    self.notificationsList += uniqueNewResponse
                     self.page += 1
                     self.count = response.listCount
                     self.lastPage = response.lastPage
@@ -370,11 +382,14 @@ extension WebSocketManager {
                 
             }
         } else if newNotification.alertBodyFriendRequestReceived != nil{
-            notificationsList.removeAll { $0.alertBodyFriendRequestReceived != nil }
+            notificationsList.removeAll { $0.alertBodyFriendRequestReceived?.sender.id == newNotification.alertBodyFriendRequestReceived?.sender.id }
             notificationsList.insert(newNotification, at: 0)
         } else if newNotification.alertBodyReviewEndedPost != nil {
             notificationsList.insert(newNotification, at: 0)
         } else if newNotification.alertBodyPostHasStarted != nil {
+            notificationsList.insert(newNotification, at: 0)
+        } else if newNotification.alertBodyFriendRequestAccepted != nil {
+            notificationsList.removeAll { $0.alertBodyFriendRequestAccepted?.user.id == newNotification.alertBodyFriendRequestAccepted?.user.id }
             notificationsList.insert(newNotification, at: 0)
         }
     }

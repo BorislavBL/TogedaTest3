@@ -165,6 +165,66 @@ extension APIClient {
         return nil
     }
     
+    func getUserNoShows(userId: String) async throws -> Int32? {
+        let response = try await client.getUserNoShows(.init(path: .init(userId: userId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let info):
+                return info.data
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getUserInfo")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func activityFeed(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoActivityDto? {
+        let response = try await client.getActivityFeed(.init(query: .init(pageNumber: page, pageSize: size)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let data):
+                return data
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getUserInfo")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
     func addUserInfo(body: Components.Schemas.UserDto, completion: @escaping (Bool?, String?) -> Void) async throws {
         do {
             let response = try await client.addBasicInfo(body: .json(body))

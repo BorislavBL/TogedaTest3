@@ -15,6 +15,7 @@ struct UserProfileView: View {
     @State var miniUser: Components.Schemas.MiniUser
     @State var user: Components.Schemas.UserInfoDto?
     @EnvironmentObject var userVm: UserViewModel
+    @EnvironmentObject var websocket: WebSocketManager
     
     @State var Init: Bool = true
     @State var InitEvent: Bool = true
@@ -112,10 +113,11 @@ struct UserProfileView: View {
                             
                             NavigationLink(value: SelectionPath.userReviewView(user: user)){
                                 VStack{
-                                    UserStats(value: "\(100)%", title: "Rating")
-                                    Text("0 no shows")
+                                    UserStats(value: "\(viewModel.likesCount)", title: "Likes")
+                                    Text("\(viewModel.noShows) no shows")
                                         .font(.footnote)
-                                        .foregroundStyle(.gray)
+                                        .foregroundStyle(viewModel.noShows == 0 ? .gray :
+                                                            (viewModel.noShows >= 5  && viewModel.noShows < 10) ? .yellow : .red)
                                 }
                                 .frame(width: 105)
                             }
@@ -310,6 +312,13 @@ struct UserProfileView: View {
                 self.miniUser = .init(id: response.id, firstName: response.firstName, lastName: response.lastName, profilePhotos: response.profilePhotos, occupation: response.occupation, location: response.location, birthDate: response.birthDate)
             }
         })
+        .onChange(of: websocket.newNotification){ old, new in
+            print("triggered 1")
+            if let not = new {
+                print("triggered 2")
+                viewModel.updateUser(not: not, user: $user)
+            }
+        }
         .onAppear(){
             if Init {
                 if let user = userVm.currentUser, miniUser.id != user.id {
@@ -420,4 +429,5 @@ struct UserProfileView: View {
 #Preview {
     UserProfileView(miniUser: MockMiniUser, user: MockUser)
         .environmentObject(UserViewModel())
+        .environmentObject(WebSocketManager())
 }

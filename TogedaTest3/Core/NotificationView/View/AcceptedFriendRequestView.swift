@@ -1,22 +1,22 @@
 //
-//  FriendRequestView.swift
+//  AcceptedFriendRequestView.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 6.11.23.
+//  Created by Borislav Lorinkov on 13.08.24.
 //
 
 import SwiftUI
 import Kingfisher
 
-struct FriendRequestView: View {
+struct AcceptedFriendRequestView: View {
     let size: ImageSize = .medium
-    var user: Components.Schemas.AlertBodyFriendRequestReceived
+    var user: Components.Schemas.AlertBodyFriendRequestAccepted
     var createDate: Date
     var body: some View {
         VStack {
-            NavigationLink(value: SelectionPath.userFriendRequestsList){
+            NavigationLink(value: SelectionPath.profile(user.user)){
                 HStack(alignment:.center){
-                    KFImage(URL(string: user.sender.profilePhotos[0])!)
+                    KFImage(URL(string: user.user.profilePhotos[0])!)
                         .resizable()
                         .scaledToFill()
                         .frame(width: size.dimension, height: size.dimension)
@@ -24,27 +24,28 @@ struct FriendRequestView: View {
                     
                     
                     VStack(alignment:.leading){
-                        Text("\(user.sender.firstName) \(user.sender.lastName)")
+                        Text("\(user.user.firstName) \(user.user.lastName)")
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
-                        Text("\(user.sender.firstName) sends you a Friend Request. ")
+                        
+                        Text("\(user.user.firstName) accepted your friend request! ")
                             .font(.footnote) +
                         
                         Text(formatDateForNotifications(from: createDate))
                             .foregroundStyle(.gray)
                             .font(.footnote)
-                        
                     }
                     .multilineTextAlignment(.leading)
-                    Spacer(minLength: 0)
                 }
             }
+            Spacer(minLength: 0)
             
         }
     }
 }
 
 #Preview {
-    FriendRequestView(user: mockAlertBodyFriendRequestReceived, createDate: Date())
+    AcceptedFriendRequestView(user: mockAlertBodyFriendRequestAccepted, createDate: Date())
 }
+
