@@ -2540,3 +2540,39 @@ extension APIClient {
         return nil
     }
 }
+
+//Report
+
+extension APIClient {
+    func report(body: Components.Schemas.ReportDto) async throws -> Bool? {
+        let response = try await client.sendReport(.init(body: .json(body)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    
+}

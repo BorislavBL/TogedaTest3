@@ -40,4 +40,22 @@ class ActivityViewModel: ObservableObject {
             }
         }
     }
+    
+    func localRefreshEventOnAction(post: Components.Schemas.PostResponseDto){
+        if let index = activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
+            DispatchQueue.main.async{
+                self.activityFeed[index].post = post
+            }
+        }
+        
+    }
+    
+    func localRefreshClubOnAction(club: Components.Schemas.ClubDto){
+        if let index = activityFeed.firstIndex(where: { $0.club?.id == club.id }) {
+            DispatchQueue.main.async{
+                self.activityFeed[index].club = club
+            }
+        }
+    }
+    
 }

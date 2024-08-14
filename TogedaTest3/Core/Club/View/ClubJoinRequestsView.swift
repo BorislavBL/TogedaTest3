@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct GroupJoinRequestsView: View {
+struct ClubJoinRequestsView: View {
     private let size: ImageSize = .medium
     @Environment(\.dismiss) private var dismiss
-    @StateObject var groupVM = GroupViewModel()
+    @StateObject var groupVM = ClubViewModel()
     
     @State var isLoading = false
     
@@ -95,5 +95,5 @@ struct GroupJoinRequestsView: View {
 }
 
 #Preview {
-    GroupJoinRequestsView(club: MockClub)
+    ClubJoinRequestsView(club: MockClub)
 }

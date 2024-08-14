@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AllGroupEventsView: View {
+struct AllClubEventsView: View {
     var clubId: String
     let columns = [
         GridItem(.flexible()),
@@ -16,7 +16,7 @@ struct AllGroupEventsView: View {
     @Environment(\.dismiss) var dismiss
     @State var lastPage: Bool = true
     @State var isLoading = false
-    @StateObject var vm = GroupViewModel()
+    @StateObject var vm = ClubViewModel()
     @State var Init = true
     
     var body: some View {
@@ -24,15 +24,15 @@ struct AllGroupEventsView: View {
             LazyVStack{
                 LazyVGrid(columns: columns){
                     ForEach(vm.clubEvents, id: \.id){ post in
-                        if post.status == .HAS_ENDED {
-                            NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
-                                GroupEventComponent(post: post)
-                            }
-                        } else {
+//                        if post.status == .HAS_ENDED {
+//                            NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
+//                                ClubEventComponent(post: post)
+//                            }
+//                        } else {
                             NavigationLink(value: SelectionPath.eventDetails(post)){
-                                GroupEventComponent(post: post)
+                                ClubEventComponent(post: post)
                             }
-                        }
+//                        }
                     }
                 }
                 .padding(.horizontal, 8)
@@ -100,5 +100,5 @@ struct AllGroupEventsView: View {
 }
 
 #Preview {
-    AllGroupEventsView(clubId: "")
+    AllClubEventsView(clubId: "")
 }

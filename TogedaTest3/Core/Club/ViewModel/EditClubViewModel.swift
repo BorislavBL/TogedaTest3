@@ -10,7 +10,7 @@ import PhotosUI
 import Combine
 import MapKit
 
-class EditGroupViewModel: ObservableObject {
+class EditClubViewModel: ObservableObject {
 
     @Published var editClub: Components.Schemas.ClubDto = MockClub
     @Published var initialClub: Components.Schemas.ClubDto = MockClub

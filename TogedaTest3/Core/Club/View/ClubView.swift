@@ -7,16 +7,18 @@
 
 import SwiftUI
 
-struct GroupView: View {
+struct ClubView: View {
     @Environment(\.dismiss) var dismiss
     
     @State var showImagesViewer: Bool = false
     @State var showShareSheet: Bool = false
+    @State var clubNotFound: Bool = false
     
     @State var club: Components.Schemas.ClubDto
-    @StateObject var vm = GroupViewModel()
+    @StateObject var vm = ClubViewModel()
     @State var isEditing = false
     @EnvironmentObject var clubsVM: ClubsViewModel
+    @EnvironmentObject var activityVM: ActivityViewModel
     @EnvironmentObject var navManager: NavigationManager
     @EnvironmentObject var userVM: UserViewModel
     @EnvironmentObject var websocketVM: WebSocketManager
@@ -35,14 +37,14 @@ struct GroupView: View {
         ZStack(alignment: .top){
             ScrollView(){
                 LazyVStack{
-                    MainGroupView(showShareSheet: $showShareSheet, club: $club, vm: vm, showLeaveSheet: $showLeaveSheet, showCancelSheet: $showCancelSheet, currentUser: userVM.currentUser)
-                    GroupMembersView(club: club, groupVM: vm)
-                    GroupAboutView(club: club)
+                    MainClubView(showShareSheet: $showShareSheet, club: $club, vm: vm, showLeaveSheet: $showLeaveSheet, showCancelSheet: $showCancelSheet, currentUser: userVM.currentUser)
+                    ClubMembersView(club: club, groupVM: vm)
+                    ClubAboutView(club: club)
                     if vm.clubEvents.count > 0 {
-                        GroupEventsView(club: club, groupVM: vm)
+                        ClubEventsView(club: club, groupVM: vm)
                     }
-                    GroupLocationView(club: club)
-                    GroupMemoryView(groupVM: vm, showImagesViewer: $showImagesViewer)
+                    ClubLocationView(club: club)
+                    ClubMemoryView(groupVM: vm, showImagesViewer: $showImagesViewer)
                 }
             }
             .refreshable {
@@ -51,6 +53,11 @@ struct GroupView: View {
                         if let index = clubsVM.feedClubs.firstIndex(where: { $0.id == club.id }) {
                             clubsVM.feedClubs[index] = response
                         }
+                        
+                        if let index = activityVM.activityFeed.firstIndex(where: { $0.club?.id == club.id }) {
+                            activityVM.activityFeed[index].club = response
+                        }
+                        
                         club = response
                     }
                     
@@ -82,7 +89,7 @@ struct GroupView: View {
                 }
             }
             .navigationDestination(isPresented: $isEditing) {
-               EditGroupView(isActive: $isEditing, club: $club)
+               EditClubView(isActive: $isEditing, club: $club)
             }
             .fullScreenCover(isPresented: $showImagesViewer, content: {
                 ImageViewer(images: vm.images, selectedImage: $vm.selectedImage)
@@ -98,7 +105,7 @@ struct GroupView: View {
                     
             })
             .sheet(isPresented: $showReport, content: {
-                ReportClubView(club: club)
+                ReportClubView(club: club, isActive: $showReport)
             })
             .sheet(isPresented: $showCancelSheet, content: {
                 onCancelSheet()
@@ -115,6 +122,11 @@ struct GroupView: View {
             .navigationBarBackButtonHidden(true)
             
             navbar()
+        }
+        .overlay{
+            if clubNotFound {
+                PageNotFoundView()
+            }
         }
         .swipeBack()
         .onChange(of: websocketVM.newNotification){ old, new in
@@ -157,6 +169,10 @@ struct GroupView: View {
                     if let response = try await APIClient.shared.getClub(clubID: clubId) {
                         DispatchQueue.main.async {
                             self.club = response
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.clubNotFound = true
                         }
                     }
                 } catch {
@@ -294,6 +310,7 @@ struct GroupView: View {
                                 print("Get Club")
                                 club = response
                                 clubsVM.refreshClubOnAction(club: response)
+                                activityVM.localRefreshClubOnAction(club: response)
                                 
                                 vm.clubMembers = []
                                 vm.membersPage = 0
@@ -336,6 +353,7 @@ struct GroupView: View {
                             if let response = try await APIClient.shared.getClub(clubID: club.id) {
                                 club = response
                                 clubsVM.refreshClubOnAction(club: response)
+                                activityVM.localRefreshClubOnAction(club: response)
                                 showCancelSheet = false
                             }
                         }
@@ -370,8 +388,9 @@ struct GroupView: View {
 }
 
 #Preview {
-    GroupView(club: MockClub)
+    ClubView(club: MockClub)
         .environmentObject(UserViewModel())
         .environmentObject(NavigationManager())
         .environmentObject(ClubsViewModel())
+        .environmentObject(ActivityViewModel())
 }

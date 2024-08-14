@@ -28,32 +28,22 @@ struct ContentView: View {
                 }
 
                 
-//                VStack{
-//                    Button("Click"){
-//                        let post: Components.Schemas.CreatePostDto = .init(title: "!234", images: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"], location: Components.Schemas.BaseLocation.init(
-//                            name: "Sofia, Bulgaria",
-//                            address:"Something",
-//                            city: "Sofia",
-//                            country: "Bulgaria",
-//                            latitude: 42.6977,
-//                            longitude: 23.3219
-//                        ), interests: [], payment: 0, accessibility: .PUBLIC, askToJoin: false)
-//                        Task{
-//                            do{
-//                                try await APIClient.shared.createEvent(body: post){ response, error in
-//                                    print("\(error)")
-//                                }
-//                            } catch {
-//                                print(error)
-//                            }
-//                            
-//                        }
-//                        
-////                        NotificationsManager().registerForPushNotifications()
-//
-//                    }
-//                }
-//                .background(.base)
+                VStack{
+                    Button("Click"){
+                        Task{
+                            do{
+                                try await APIClient.shared.getEvent(postId: "123456789")
+                            } catch {
+                                print(error)
+                            }
+                            
+                        }
+                        
+//                        NotificationsManager().registerForPushNotifications()
+
+                    }
+                }
+                .background(.base)
 
                 NetworkStatusView(isConnected: $networkManager.isConnected)
                     .padding(.top, 20)

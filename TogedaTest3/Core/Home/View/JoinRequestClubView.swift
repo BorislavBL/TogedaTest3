@@ -10,6 +10,8 @@ import SwiftUI
 struct JoinRequestClubView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var clubsVM: ClubsViewModel
+    @EnvironmentObject var activityVM: ActivityViewModel
+
     @EnvironmentObject var userViewModel: UserViewModel
     @Binding var club: Components.Schemas.ClubDto
     @EnvironmentObject var navManager: NavigationManager
@@ -34,6 +36,7 @@ struct JoinRequestClubView: View {
                                     if let response = try await APIClient.shared.getClub(clubID: club.id) {
                                         club = response
                                         clubsVM.refreshClubOnAction(club: response)
+                                        activityVM.localRefreshClubOnAction(club: response)
                                         refreshParticipants()
                                         isActive = false
                                     }
@@ -64,7 +67,8 @@ struct JoinRequestClubView: View {
                             if try await APIClient.shared.joinClub(clubId: club.id) != nil {
                                 if let response = try await APIClient.shared.getClub(clubID: club.id) {
                                     clubsVM.refreshClubOnAction(club: response)
-                                    
+                                    activityVM.localRefreshClubOnAction(club: response)
+
                                     club = response
                                     isActive = false
                                 }
@@ -91,6 +95,8 @@ struct JoinRequestClubView: View {
                             if try await APIClient.shared.leaveClub(clubId: club.id) != nil {
                                 if let response = try await APIClient.shared.getClub(clubID: club.id) {
                                     clubsVM.refreshClubOnAction(club: response)
+                                    activityVM.localRefreshClubOnAction(club: response)
+
                                     club = response
                                     refreshParticipants()
                                     isActive = false
@@ -143,6 +149,7 @@ struct JoinRequestClubView: View {
 #Preview {
     JoinRequestClubView(club: .constant(MockClub), isActive: .constant(true), refreshParticipants: {})
         .environmentObject(ClubsViewModel())
+        .environmentObject(ActivityViewModel())
         .environmentObject(UserViewModel())
         .environmentObject(NavigationManager())
 }

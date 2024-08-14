@@ -181,7 +181,7 @@ struct UsersListView: View {
         }
         .sheet(isPresented: $showReportSheet, content: {
             if let extendedUser = selectedExtendedUser {
-                ReportUserView(user: extendedUser.user)
+                ReportUserView(user: extendedUser.user, isActive: $showReportSheet)
             }
         })
         .background(.bar)

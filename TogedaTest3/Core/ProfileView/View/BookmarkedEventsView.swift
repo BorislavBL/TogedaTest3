@@ -20,21 +20,22 @@ struct BookmarkedEventsView: View {
     @State var page: Int32 = 0
     @State var size: Int32 = 15
     @State var isLoading = false
+    @State var Init: Bool = true
     
     var body: some View {
         ScrollView{
             LazyVStack{
                 LazyVGrid(columns: columns){
                     ForEach(posts, id: \.id){ post in
-                        if post.status == .HAS_ENDED {
-                            NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
-                                EventComponent(userID: userID, post: post)
-                            }
-                        } else {
+//                        if post.status == .HAS_ENDED {
+//                            NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
+//                                EventComponent(userID: userID, post: post)
+//                            }
+//                        } else {
                             NavigationLink(value: SelectionPath.eventDetails(post)){
                                 EventComponent(userID: userID, post: post)
                             }
-                        }
+//                        }
                     }
                 }
                 .padding(.horizontal, 8)
@@ -87,8 +88,11 @@ struct BookmarkedEventsView: View {
         }
         .background(.bar)
         .onAppear(){
-            Task{
-                try await fetchEvents()
+            if Init {
+                Task{
+                    defer{ self.Init = false }
+                    try await fetchEvents()
+                }
             }
         }
     }

@@ -12,10 +12,24 @@ struct InPersonUserReportView: View {
         case harassment
         case physicallyHurt
         case other
+        
+        func toString() -> String {
+            switch self {
+            case .harassment:
+                return "I was harrased"
+            case .physicallyHurt:
+                return "I was physically hurt"
+            case .other:
+                return ""
+            }
+        }
     }
     @Environment(\.dismiss) var dismiss
     @State var selectedOption: InPersonViolation?
     @State var description: String = ""
+    @State var displayWarrning: Bool = false
+    var user: Components.Schemas.MiniUser
+    @Binding var isActive: Bool
     
     var body: some View {
         VStack(spacing: 0){
@@ -119,15 +133,30 @@ struct InPersonUserReportView: View {
                         .padding()
                     }
                     
+                    if displayWarrning && selectedOption == nil {
+                        WarningTextComponent(text: "Please select one of the option.")
+                    }
+                    
                 }
                 
                 
             }
             .scrollIndicators(.hidden)
-            
-            Button {
-                
-            } label: {
+            if selectedOption != nil {
+                Button {
+                    submit()
+                } label: {
+                    Text("Report")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .fontWeight(.semibold)
+                        .cornerRadius(10)
+                    
+                }
+                .padding()
+            } else {
                 Text("Report")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -135,15 +164,37 @@ struct InPersonUserReportView: View {
                     .foregroundColor(Color("testColor"))
                     .fontWeight(.semibold)
                     .cornerRadius(10)
-                
+                    .padding()
+                    .onTapGesture {
+                        displayWarrning.toggle()
+                    }
             }
-            .padding()
         }
         .navigationBarBackButtonHidden(true)
         .swipeBack()
     }
+    
+    func submit(){
+        if let options = selectedOption {
+            let report: Components.Schemas.ReportDto = .init(
+                reportType: .ISSUE_IN_PERSON,
+                description: options != .other ? options.toString() : description,
+                reportedUser: user.id,
+                reportedPost: nil,
+                reportedClub: nil
+            )
+            
+            Task{
+                if let response = try await APIClient.shared.report(body: report) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        isActive = false
+                    }
+                }
+            }
+        }
+    }
 }
 
 #Preview {
-    InPersonUserReportView()
+    InPersonUserReportView(user: MockMiniUser, isActive: .constant(true))
 }

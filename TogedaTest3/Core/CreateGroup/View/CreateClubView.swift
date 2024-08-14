@@ -14,7 +14,7 @@ struct CreateClubView: View {
     @StateObject var createGroupVM = CreateClubViewModel()
     @State private var showExitSheet: Bool = false
     @State private var displayWarnings: Bool = false
-    
+    @EnvironmentObject var clubVM: ClubsViewModel
     @State private var showDescription: Bool = false
     @State private var showPhotos: Bool = false
     @State private var showLocation: Bool = false
@@ -270,39 +270,8 @@ struct CreateClubView: View {
                             withAnimation{
                                 isLoading = true
                             }
-                            Task{
-                                do{
-                                    if await photoPickerVM.saveImages() {
-                                        createGroupVM.publishedPhotosURLs = photoPickerVM.publishedPhotosURLs
-                                        let createClub = createGroupVM.createClub()
-                                        
-                                        try await APIClient.shared.createClub(data: createClub) { response, error in
-                                            DispatchQueue.main.async {
-                                                if let error = error {
-                                                    withAnimation{
-                                                        self.isLoading = false
-                                                    }
-                                                    self.errorMessage = error
-                                                } else {
-                                                    resetClubsOnCreate()
-                                                    withAnimation{
-                                                        self.isLoading = false
-                                                    }
-                                                    dismiss()
-                                                }
-                                            }
-                                        }
-                                    }
-                                } catch GeneralError.badRequest(details: let details){
-                                    print(details)
-                                } catch GeneralError.invalidURL {
-                                    print("Invalid URL")
-                                } catch GeneralError.serverError(let statusCode, let details) {
-                                    print("Status: \(statusCode) \n \(details)")
-                                } catch {
-                                    print("Error message:", error)
-                                }
-                                
+                            Task {
+                                try await createClub()
                             }
                         } label: {
                             Text("Create")
@@ -380,6 +349,52 @@ struct CreateClubView: View {
         
     }
     
+    func createClub() async throws {
+        do{
+            if await photoPickerVM.saveImages() {
+                createGroupVM.publishedPhotosURLs = photoPickerVM.publishedPhotosURLs
+                let createClub = createGroupVM.createClub()
+                
+                try await APIClient.shared.createClub(data: createClub) { response, error in
+                    if let error = error {
+                        DispatchQueue.main.async{
+                            withAnimation{
+                                self.isLoading = false
+                            }
+                            self.errorMessage = error
+                        }
+                    } else if let responseID = response {
+                        resetClubsOnCreate()
+                        Task{
+                            if let club = try await APIClient.shared.getClub(clubID: responseID) {
+                                DispatchQueue.main.async{
+                                    
+                                    self.clubVM.feedClubs.insert(club, at: 0)
+                                    
+                                    withAnimation{
+                                        self.isLoading = false
+                                    }
+                                    dismiss()
+                                }
+                            } else {
+                                DispatchQueue.main.async{
+                                    
+                                    withAnimation{
+                                        self.isLoading = false
+                                    }
+                                    dismiss()
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        } catch {
+            print("Error message:", error)
+        }
+        
+    }
     
     func onCloseTab() -> some View {
         VStack(spacing: 30){
@@ -456,4 +471,5 @@ struct CreateClubView: View {
 #Preview {
     CreateClubView(resetClubsOnCreate: {})
         .environmentObject(LocationManager())
+        .environmentObject(ClubsViewModel())
 }

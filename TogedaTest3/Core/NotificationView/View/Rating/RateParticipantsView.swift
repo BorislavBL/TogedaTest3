@@ -74,9 +74,9 @@ struct RateParticipantsView: View {
                                         showUserReport = true
                                         selectedExtendedUser = user
                                     }
-                                    if (post.currentUserRole == .CO_HOST || post.currentUserRole == .HOST) && (user._type != .HOST){
+                                    if (post.currentUserRole == .HOST) && (user._type != .HOST){
                                         Button("The user did not show"){
-                                            
+                                            userDidNotShow(user: user.user)
                                         }
                                     }
                                 }label:{
@@ -152,7 +152,7 @@ struct RateParticipantsView: View {
         })
         .sheet(isPresented: $showUserReport, content: {
             if let user = selectedExtendedUser {
-                ReportUserView(user: user.user)
+                ReportUserView(user: user.user, isActive: $showUserReport)
             }
         })
         .onAppear(){
@@ -175,6 +175,24 @@ struct RateParticipantsView: View {
         })
         
     }
+    
+    func userDidNotShow(user: Components.Schemas.MiniUser) {
+            let report: Components.Schemas.ReportDto = .init(
+                reportType: .NOT_SHOWN,
+                description: "The user did not show to the event.",
+                reportedUser: user.id,
+                reportedPost: nil,
+                reportedClub: nil
+            )
+            
+            Task{
+                if let response = try await APIClient.shared.report(body: report) {
+
+                }
+            }
+        
+    }
+    
 }
 
 #Preview {

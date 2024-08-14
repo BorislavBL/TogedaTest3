@@ -11,6 +11,7 @@ import StripePaymentSheet
 struct JoinRequestView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var postsViewModel: PostsViewModel
+    @EnvironmentObject var activityVM: ActivityViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     @Binding var post: Components.Schemas.PostResponseDto
     @EnvironmentObject var navManager: NavigationManager
@@ -34,6 +35,11 @@ struct JoinRequestView: View {
                                     if let index = postsViewModel.feedPosts.firstIndex(where: { $0.id == post.id }) {
                                         postsViewModel.feedPosts.remove(at: index)
                                     }
+                                    
+                                    if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
+                                        activityVM.activityFeed.remove(at: index)
+                                    }
+                                    
                                     post = response
                                     
                                     isActive = false
@@ -61,16 +67,20 @@ struct JoinRequestView: View {
                                 if try await APIClient.shared.deleteEvent(postId: post.id) != nil {
                                     if let index = postsViewModel.feedPosts.firstIndex(where: { $0.id == post.id }) {
                                         postsViewModel.feedPosts.remove(at: index)
-                                        
-                                        if navManager.selectionPath.count > 0 {
-                                            isActive = false
-                                            navManager.selectionPath.removeLast(1)
-                                        }
+                                    }
+                                    
+                                    if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
+                                        activityVM.activityFeed.remove(at: index)
+                                    }
+                                    
+                                    if navManager.selectionPath.count > 0 {
+                                        isActive = false
+                                        navManager.selectionPath.removeLast(1)
                                     }
                                 }
                             }
                         } label: {
-                            Text("End the Event")
+                            Text("Delete the Event")
                                 .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
@@ -88,6 +98,7 @@ struct JoinRequestView: View {
                                 if try await APIClient.shared.startOrEndEvent(postId: post.id, action: .START) != nil {
                                     if let response = try await APIClient.shared.getEvent(postId: post.id){
                                         postsViewModel.localRefreshEventOnAction(post: response)
+                                        activityVM.localRefreshEventOnAction(post: response)
                                         post = response
                                         isActive = false
                                     }
@@ -160,6 +171,7 @@ struct JoinRequestView: View {
                                 if try await APIClient.shared.leaveEvent(postId: post.id) != nil {
                                     if let response = try await APIClient.shared.getEvent(postId: post.id){
                                         postsViewModel.localRefreshEventOnAction(post: response)
+                                        activityVM.localRefreshEventOnAction(post: response)
                                         post = response
                                         refreshParticipants()
                                         isActive = false
@@ -347,6 +359,7 @@ struct JoinRequestView: View {
                             if try await APIClient.shared.joinEvent(postId: post.id) != nil {
                                 if let response = try await APIClient.shared.getEvent(postId: post.id){
                                     postsViewModel.localRefreshEventOnAction(post: response)
+                                    activityVM.localRefreshEventOnAction(post: response)
                                     post = response
                                     isActive = false
                                 }
@@ -383,5 +396,6 @@ struct JoinRequestView: View {
         .environmentObject(PostsViewModel())
         .environmentObject(UserViewModel())
         .environmentObject(NavigationManager())
+        .environmentObject(ActivityViewModel())
 }
 

@@ -8,7 +8,7 @@
 import SwiftUI
 import WrappingHStack
 
-struct GroupAboutView: View {
+struct ClubAboutView: View {
     var club: Components.Schemas.ClubDto
     
     var body: some View{
@@ -50,5 +50,5 @@ struct GroupAboutView: View {
 }
 
 #Preview {
-    GroupAboutView(club: MockClub)
+    ClubAboutView(club: MockClub)
 }

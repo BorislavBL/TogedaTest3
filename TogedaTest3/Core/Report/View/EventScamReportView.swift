@@ -15,10 +15,31 @@ struct EventScamReportView: View {
         case alternativePayment
         case theHostWasNotThere
         case other
+        
+        func toString() -> String {
+            switch self {
+            case .paymentScam:
+                return "The event did not happened and I was charged"
+            case .didNotHappened:
+                return "The event did not happened"
+            case .misleadingInformation:
+                return "Misleading title or content"
+            case .alternativePayment:
+                return "The event promotes alternative payment methods"
+            case .theHostWasNotThere:
+                return "The Host did not show up"
+            case .other:
+                return ""
+            }
+        }
     }
     @Environment(\.dismiss) var dismiss
     @State var selectedOption: ScamReport?
     @State var description: String = ""
+    @Binding var isActive: Bool
+    var post: Components.Schemas.PostResponseDto
+    
+    @State var displayWarrning: Bool = false
     
     var body: some View {
         VStack(spacing: 0){
@@ -181,31 +202,70 @@ struct EventScamReportView: View {
                         .padding()
                     }
 
+                    if displayWarrning && selectedOption == nil {
+                        WarningTextComponent(text: "Please select one of the option.")
+                    }
+                    
                 }
                 
                 
             }
             .scrollIndicators(.hidden)
             
-            Button {
-                
-            } label: {
-            Text("Report")
-                .frame(maxWidth: .infinity)
-                .frame(height: 60)
-                .background(Color("blackAndWhite"))
-                .foregroundColor(Color("testColor"))
-                .fontWeight(.semibold)
-                .cornerRadius(10)
-                
+            if selectedOption != nil {
+                Button {
+                    submit()
+                    
+                } label: {
+                    Text("Report")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .fontWeight(.semibold)
+                        .cornerRadius(10)
+                    
+                }
+                .padding()
+            } else {
+                Text("Report")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(Color("blackAndWhite"))
+                    .foregroundColor(Color("testColor"))
+                    .fontWeight(.semibold)
+                    .cornerRadius(10)
+                    .padding()
+                    .onTapGesture {
+                        displayWarrning.toggle()
+                    }
             }
-            .padding()
         }
         .navigationBarBackButtonHidden(true)
         .swipeBack()
     }
+    
+    func submit(){
+        if let options = selectedOption {
+            let report: Components.Schemas.ReportDto = .init(
+                reportType: .SCAM,
+                description: options != .other ? options.toString() : description,
+                reportedUser: nil,
+                reportedPost: post.id,
+                reportedClub: nil
+            )
+            
+            Task{
+                if let response = try await APIClient.shared.report(body: report) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        isActive = false
+                    }
+                }
+            }
+        }
+    }
 }
 
 #Preview {
-    EventScamReportView()
+    EventScamReportView(isActive: .constant(true), post: MockPost)
 }

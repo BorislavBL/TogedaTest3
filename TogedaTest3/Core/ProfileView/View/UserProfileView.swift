@@ -293,7 +293,7 @@ struct UserProfileView: View {
             CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
         })
         .sheet(isPresented: $showReportSheet, content: {
-            ReportUserView(user: miniUser)
+            ReportUserView(user: miniUser, isActive: $showReportSheet)
         })
         .fullScreenCover(isPresented: $showCreateClub, content: {
             CreateClubView(resetClubsOnCreate: {

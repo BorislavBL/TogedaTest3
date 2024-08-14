@@ -18,6 +18,8 @@ struct ReportEventView: View {
     @State var other = false
     @State var otherDescription: String = ""
     
+    @Binding var isActive: Bool
+    
     @Environment(\.dismiss) var dismiss
     var body: some View {
         NavigationStack{
@@ -120,30 +122,69 @@ struct ReportEventView: View {
             }
             .navigationBarBackButtonHidden(true)
             .navigationDestination(isPresented: $showPhotoView) {
-                InappropriatePhotoReport()
+                InappropriatePhotoReport(post: event, isActive: $isActive)
             }
             .navigationDestination(isPresented: $showAdvertizingView) {
                 GeneralSubmitReportView(title: "Report Case: Advertizing", description: $advertizingDescription, onSubmit: {
-                    
+                    let report: Components.Schemas.ReportDto = .init(
+                        reportType: .ADVERTISING,
+                        description: advertizingDescription,
+                        reportedUser: nil,
+                        reportedPost: event.id,
+                        reportedClub: nil
+                    )
+                    Task{
+                        if let response = try await APIClient.shared.report(body: report) {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                isActive = false
+                            }
+                        }
+                    }
                 })
             }
             .navigationDestination(isPresented: $showAbusiveTextView) {
                 GeneralSubmitReportView(title: "Report Case: AbusiveText", description: $abusiveTexDescription, onSubmit: {
-                    
+                    let report: Components.Schemas.ReportDto = .init(
+                        reportType: .ABUSIVE_TEXT,
+                        description: abusiveTexDescription,
+                        reportedUser: nil,
+                        reportedPost: event.id,
+                        reportedClub: nil
+                    )
+                    Task{
+                        if let response = try await APIClient.shared.report(body: report) {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                isActive = false
+                            }
+                        }
+                    }
                 })
             }
             .navigationDestination(isPresented: $other) {
                 GeneralSubmitReportView(title: "Report Case: Other", description: $otherDescription, onSubmit: {
-                    
+                    let report: Components.Schemas.ReportDto = .init(
+                        reportType: .OTHER,
+                        description: otherDescription,
+                        reportedUser: nil,
+                        reportedPost: event.id,
+                        reportedClub: nil
+                    )
+                    Task{
+                        if let response = try await APIClient.shared.report(body: report) {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                isActive = false
+                            }
+                        }
+                    }
                 })
             }
             .navigationDestination(isPresented: $showScamView) {
-                EventScamReportView()
+                EventScamReportView(isActive: $isActive, post: event)
             }
         }
     }
 }
 
 #Preview {
-    ReportEventView(event: MockPost)
+    ReportEventView(event: MockPost, isActive: .constant(true))
 }

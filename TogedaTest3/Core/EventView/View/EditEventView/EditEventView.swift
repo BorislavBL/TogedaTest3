@@ -17,6 +17,7 @@ struct EditEventView: View {
     @State private var showCategoryView = false
     @EnvironmentObject var navManager: NavigationManager
     @EnvironmentObject var postsVM: PostsViewModel
+    @EnvironmentObject var activityVM: ActivityViewModel
     @State var deleteSheet: Bool = false
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .edit)
     @State var isLoading = false
@@ -375,6 +376,11 @@ struct EditEventView: View {
             Button{
                 Task{
                     try await postsVM.deleteEvent(postId: post.id)
+                    if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
+                        DispatchQueue.main.async{
+                            activityVM.activityFeed.remove(at: index)
+                        }
+                    }
                 }
                 DispatchQueue.main.async {
                     isActive = false
@@ -407,7 +413,10 @@ struct EditEventView: View {
                         try await APIClient.shared.editEvent(postId: vm.editPost.id, editPost: vm.convertToPathcPost(post: vm.editPost)) { response, error in
                             if let _ = response {
                                 Task {
-                                    try await postsVM.refreshEventOnAction(postId: post.id)
+                                    if let response = try await APIClient.shared.getEvent(postId: post.id) {
+                                        postsVM.localRefreshEventOnAction(post: response)
+                                        activityVM.localRefreshEventOnAction(post: response)
+                                    }
                                 }
                                 DispatchQueue.main.async {
                                     self.post = vm.editPost
@@ -506,4 +515,5 @@ struct EditEventView: View {
     EditEventView(isActive: .constant(true), post: .constant(MockPost))
         .environmentObject(NavigationManager())
         .environmentObject(PostsViewModel())
+        .environmentObject(ActivityViewModel())
 }

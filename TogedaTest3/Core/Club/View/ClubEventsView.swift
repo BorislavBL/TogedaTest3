@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct GroupEventsView: View {
+struct ClubEventsView: View {
     var club: Components.Schemas.ClubDto
-    @ObservedObject var groupVM: GroupViewModel
+    @ObservedObject var groupVM: ClubViewModel
     
     var body: some View {
         VStack (alignment: .leading, spacing: 20) {
@@ -36,17 +36,17 @@ struct GroupEventsView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack{
                     ForEach(groupVM.clubEvents, id: \.id){ item in
-                        if item.status == .HAS_ENDED {
-
-                            NavigationLink(value: SelectionPath.completedEventDetails(post: item)){
-                                GroupEventComponent(post: item)
-                            }
-                            
-                        } else {
+//                        if item.status == .HAS_ENDED {
+//
+//                            NavigationLink(value: SelectionPath.completedEventDetails(post: item)){
+//                                ClubEventComponent(post: item)
+//                            }
+//                            
+//                        } else {
                             NavigationLink(value: SelectionPath.eventDetails(item)){
-                                GroupEventComponent(post: item)
+                                ClubEventComponent(post: item)
                             }
-                        }
+//                        }
                     }
                 }
                 .padding(.horizontal)
@@ -62,5 +62,5 @@ struct GroupEventsView: View {
 }
 
 #Preview {
-    GroupEventsView(club: MockClub, groupVM: GroupViewModel())
+    ClubEventsView(club: MockClub, groupVM: ClubViewModel())
 }

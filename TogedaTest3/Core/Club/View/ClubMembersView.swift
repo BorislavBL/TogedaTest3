@@ -8,9 +8,9 @@
 import SwiftUI
 import Kingfisher
 
-struct GroupMembersView: View {
+struct ClubMembersView: View {
     var club: Components.Schemas.ClubDto
-    @ObservedObject var groupVM: GroupViewModel
+    @ObservedObject var groupVM: ClubViewModel
     
     var imgSize: ImageSize = .medium
     var body: some View {
@@ -78,5 +78,5 @@ struct GroupMembersView: View {
 }
 
 #Preview {
-    GroupMembersView(club: MockClub, groupVM: GroupViewModel())
+    ClubMembersView(club: MockClub, groupVM: ClubViewModel())
 }

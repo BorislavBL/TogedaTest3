@@ -8,11 +8,11 @@
 import SwiftUI
 import Kingfisher
 
-struct GroupMembersListView: View {
+struct ClubMembersListView: View {
     @EnvironmentObject var userVM: UserViewModel
     @Environment(\.dismiss) private var dismiss
     let size: ImageSize = .medium
-    @StateObject var groupVM = GroupViewModel()
+    @StateObject var groupVM = ClubViewModel()
     
     @State var isLoading = false
     
@@ -172,6 +172,6 @@ struct GroupMembersListView: View {
 }
 
 #Preview {
-    GroupMembersListView(groupVM: GroupViewModel(), club: MockClub)
+    ClubMembersListView(groupVM: ClubViewModel(), club: MockClub)
         .environmentObject(UserViewModel())
 }

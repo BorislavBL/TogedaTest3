@@ -28,15 +28,15 @@ struct AllUserEventsView: View {
             LazyVStack{
                 LazyVGrid(columns: columns){
                     ForEach(posts, id: \.id){ post in
-                        if post.status == .HAS_ENDED {
-                            NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
-                                EventComponent(userID: userID, post: post)
-                            }
-                        } else {
+//                        if post.status == .HAS_ENDED {
+//                            NavigationLink(value: SelectionPath.completedEventDetails(post: post)){
+//                                EventComponent(userID: userID, post: post)
+//                            }
+//                        } else {
                             NavigationLink(value: SelectionPath.eventDetails(post)){
                                 EventComponent(userID: userID, post: post)
                             }
-                        }
+//                        }
                     }
                 }
                 .padding(.horizontal, 8)
@@ -70,13 +70,11 @@ struct AllUserEventsView: View {
             }
         }
         .refreshable {
-            if Init {
-                page = 0
-                posts = []
-                Task{
-                    try await fetchEvents()
-                }
-                Init = false
+            
+            page = 0
+            posts = []
+            Task{
+                try await fetchEvents()
             }
         }
         .scrollIndicators(.hidden)
@@ -99,10 +97,13 @@ struct AllUserEventsView: View {
         }
         .background(.bar)
         .onAppear(){
-            page = 0
-            posts = []
-            Task{
-                try await fetchEvents()
+            if Init {
+                page = 0
+                posts = []
+                Task{
+                    try await fetchEvents()
+                }
+                Init = false
             }
         }
     }

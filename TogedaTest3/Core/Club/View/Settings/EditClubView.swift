@@ -7,12 +7,14 @@
 
 import SwiftUI
 
-struct EditGroupView: View {
+struct EditClubView: View {
     @Binding var isActive: Bool
     @Binding var club: Components.Schemas.ClubDto
-    @StateObject var editGroupVM = EditGroupViewModel()
+    @StateObject var editGroupVM = EditClubViewModel()
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .club, mode: .edit)
     @EnvironmentObject var clubsVM: ClubsViewModel
+    @EnvironmentObject var activityVM: ActivityViewModel
+
     @Environment(\.dismiss) var dismiss
     @State private var showTypeSheet = false
     @State private var showInstagramSheet = false
@@ -274,6 +276,9 @@ struct EditGroupView: View {
             Button{
                 Task{
                     try await clubsVM.deleteClub(clubId: club.id)
+                    if let index = activityVM.activityFeed.firstIndex(where: {$0.club?.id == club.id}) {
+                        activityVM.activityFeed.remove(at: index)
+                    }
                     DispatchQueue.main.async {
                         isActive = false
                         navManager.selectionPath.removeLast(1)
@@ -309,7 +314,19 @@ struct EditGroupView: View {
                             response, error in
                            if let response = response, response {
                                Task{
-                                   try await clubsVM.refreshClubOnActionAsync(clubId: club.id)
+                                   if let response = try await APIClient.shared.getClub(clubID: club.id) {
+                                       if let index = clubsVM.feedClubs.firstIndex(where: { $0.id == club.id }) {
+                                           DispatchQueue.main.async{
+                                               clubsVM.feedClubs[index] = response
+                                           }
+                                       }
+                                       
+                                       if let index = activityVM.activityFeed.firstIndex(where: { $0.club?.id == club.id }) {
+                                           DispatchQueue.main.async{
+                                               activityVM.activityFeed[index].club = response
+                                           }
+                                       }
+                                   }
                                }
                                DispatchQueue.main.async {
                                    self.club = editGroupVM.editClub
@@ -406,6 +423,8 @@ struct EditGroupView: View {
 }
 
 #Preview {
-    EditGroupView(isActive: .constant(true), club: .constant(MockClub))
+    EditClubView(isActive: .constant(true), club: .constant(MockClub))
         .environmentObject(NavigationManager())
+        .environmentObject(ActivityViewModel())
+        .environmentObject(ClubsViewModel())
 }

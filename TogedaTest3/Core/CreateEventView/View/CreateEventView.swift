@@ -31,6 +31,7 @@ struct CreateEventView: View {
     let descriptionPlaceholder = "Describe the purpose of your event. What activities are you planning? Mention any special guests who might be attending. Will there be food and drinks? Help attendees know what to expect."
     
     @EnvironmentObject var userVM: UserViewModel
+    @EnvironmentObject var postVM: PostsViewModel
     
     var body: some View {
         NavigationStack() {
@@ -477,36 +478,7 @@ struct CreateEventView: View {
                                 serverErrorMessage = nil
                             }
                             Task{
-                                do{
-                                    if await photoPickerVM.saveImages() {
-                                        ceVM.postPhotosURls = photoPickerVM.publishedPhotosURLs
-                                        let createPost = ceVM.createPost()
-                                        try await APIClient.shared.createEvent(body: createPost) { response, error in
-                                            DispatchQueue.main.async {
-                                                if response != nil {
-                                                    withAnimation{
-                                                        self.isLoading = false
-                                                    }
-                                                    dismiss()
-                                                } else if let error = error {
-                                                    withAnimation{
-                                                        self.isLoading = false
-                                                    }
-                                                    
-                                                    self.serverErrorMessage = error
-                                                }
-                                            }
-                                        }
-
-                                    } else {
-                                        print("Problem with image")
-                                        self.isLoading = false
-                                        self.serverErrorMessage = "Problem with images"
-                                    }
-                                } catch {
-                                    print("Error message:", error)
-                                }
-                                
+                                try await createEvent()
                             }
                         } label: {
                             Text("Create")
@@ -589,6 +561,54 @@ struct CreateEventView: View {
         .sheet(isPresented: $showExitSheet, content: {
             onCloseTab()
         })
+    }
+    
+    func createEvent() async throws {
+        do{
+            if await photoPickerVM.saveImages() {
+                ceVM.postPhotosURls = photoPickerVM.publishedPhotosURLs
+                let createPost = ceVM.createPost()
+                try await APIClient.shared.createEvent(body: createPost) { response, error in
+                    if let responseID = response {
+                        Task{
+                            if let post = try await APIClient.shared.getEvent(postId: responseID){
+                                DispatchQueue.main.async{
+                                    postVM.feedPosts.insert(post, at: 0)
+                                    withAnimation{
+                                        self.isLoading = false
+                                    }
+                                    dismiss()
+                                }
+                            }
+                            else {
+                                DispatchQueue.main.async{
+                                    withAnimation{
+                                        self.isLoading = false
+                                    }
+                                    dismiss()
+                                }
+                            }
+                        }
+                    } else if let error = error {
+                        DispatchQueue.main.async{
+                            withAnimation{
+                                self.isLoading = false
+                            }
+                            
+                            self.serverErrorMessage = error
+                        }
+                    }
+                }
+                
+            } else {
+                print("Problem with image")
+                self.isLoading = false
+                self.serverErrorMessage = "Problem with images"
+            }
+        } catch {
+            print("Error message:", error)
+        }
+        
     }
     
     func onCloseTab() -> some View {
@@ -684,6 +704,7 @@ struct CreateEventView: View {
     CreateEventView()
         .environmentObject(UserViewModel())
         .environmentObject(LocationManager())
+        .environmentObject(PostsViewModel())
 }
 
 extension View {

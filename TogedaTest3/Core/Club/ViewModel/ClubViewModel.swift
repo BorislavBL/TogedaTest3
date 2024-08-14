@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-class GroupViewModel: ObservableObject {
+class ClubViewModel: ObservableObject {
     @Published var clubMembers: [Components.Schemas.ExtendedMiniUserForClub] = []
     @Published var membersPage: Int32 = 0
     @Published var membersCount: Int64 = 0

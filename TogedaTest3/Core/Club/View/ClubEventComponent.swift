@@ -9,7 +9,7 @@ import SwiftUI
 import WrappingHStack
 import Kingfisher
 
-struct GroupEventComponent: View {
+struct ClubEventComponent: View {
     var post: Components.Schemas.PostResponseDto
     let size: CGSize = CGSize(width: (UIScreen.main.bounds.width / 2) - 16, height: ((UIScreen.main.bounds.width / 2) - 16) * 1.5)
     
@@ -97,5 +97,5 @@ struct GroupEventComponent: View {
     }
 }
 #Preview {
-    GroupEventComponent(post: MockPost)
+    ClubEventComponent(post: MockPost)
 }

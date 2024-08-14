@@ -13,11 +13,13 @@ import Kingfisher
 struct EventView: View {
     @StateObject var eventVM = EventViewModel()
 
+    @State var eventNotFound: Bool = false
     @State var post: Components.Schemas.PostResponseDto
     @State var isEditing = false
     
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var postsVM: PostsViewModel
+    @EnvironmentObject var activityVM: ActivityViewModel
     @EnvironmentObject var chatVM: WebSocketManager
     @EnvironmentObject var navManager: NavigationManager
     
@@ -149,6 +151,10 @@ struct EventView: View {
                                 postsVM.feedPosts[index] = response
                             }
                             
+                            if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
+                                activityVM.activityFeed[index].post = response
+                            }
+                            
                             post = response
                         }
 
@@ -173,6 +179,11 @@ struct EventView: View {
                 
             }
         }
+        .overlay{
+            if eventNotFound {
+                PageNotFoundView()
+            }
+        }
         .swipeBack()
         .onAppear(){
             eventVM.participantsList = []
@@ -190,7 +201,7 @@ struct EventView: View {
         }
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showReportEvent, content: {
-            ReportEventView(event: post)
+            ReportEventView(event: post, isActive: $showReportEvent)
         })
         .sheet(isPresented: $showJoinRequest){
             JoinRequestView(post: $post, isActive: $showJoinRequest, refreshParticipants: {
@@ -278,14 +289,28 @@ struct EventView: View {
                             .clipShape(Capsule())
                     }
                 }
-
-                Button{
-                    isEditing = true
-                } label:{
-                    Image(systemName: "pencil")
-                        .frame(width: 35, height: 35)
-                        .background(.bar)
-                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                
+                if post.status != .HAS_ENDED {
+                    Button{
+                        isEditing = true
+                    } label:{
+                        Image(systemName: "pencil")
+                            .frame(width: 35, height: 35)
+                            .background(.bar)
+                            .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                    }
+                } else {
+                    Button{
+                        
+                    } label:{
+                        Text("Recreate")
+                            .font(.footnote)
+                            .bold()
+                            .frame(height: 35)
+                            .padding(.horizontal)
+                            .background(.bar)
+                            .clipShape(Capsule())
+                    }
                 }
             }
             
@@ -457,8 +482,9 @@ struct EventView: View {
                     }
                 }
 
-                
-                shareAndSave()
+                if post.status != .HAS_ENDED {
+                    shareAndSave()
+                }
             }
             .padding(.horizontal)
             
@@ -519,6 +545,10 @@ struct EventView: View {
                             self.post = response
                         }
 
+                    } else {
+                        DispatchQueue.main.async{
+                            self.eventNotFound = true
+                        }
                     }
                 } catch {
                     print(error)
@@ -560,5 +590,6 @@ struct EventView_Previews: PreviewProvider {
             .environmentObject(UserViewModel())
             .environmentObject(WebSocketManager())
             .environmentObject(NavigationManager())
+            .environmentObject(ActivityViewModel())
     }
 }

@@ -8,11 +8,11 @@
 import SwiftUI
 import Kingfisher
 
-struct MainGroupView: View {
+struct MainClubView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Binding var showShareSheet: Bool
     @Binding var club: Components.Schemas.ClubDto
-    @ObservedObject var vm: GroupViewModel
+    @ObservedObject var vm: ClubViewModel
     @Binding var showLeaveSheet: Bool
     @Binding var showCancelSheet: Bool
     var currentUser: Components.Schemas.UserInfoDto?
@@ -154,6 +154,6 @@ struct MainGroupView: View {
 }
 
 #Preview {
-    MainGroupView(showShareSheet: .constant(false), club: .constant(MockClub), vm: GroupViewModel(), showLeaveSheet: .constant(false), showCancelSheet: .constant(false))
+    MainClubView(showShareSheet: .constant(false), club: .constant(MockClub), vm: ClubViewModel(), showLeaveSheet: .constant(false), showCancelSheet: .constant(false))
         .environmentObject(ClubsViewModel())
 }

@@ -1,31 +1,28 @@
 //
-//  GroupLocationView.swift
+//  GroupMemoryView.swift
 //  TogedaTest3
 //
 //  Created by Borislav Lorinkov on 3.01.24.
 //
 
 import SwiftUI
-import MapKit
 
-struct GroupLocationView: View {
-    var club: Components.Schemas.ClubDto
-    
+struct ClubMemoryView: View {
+    @ObservedObject var groupVM: ClubViewModel
+    @Binding var showImagesViewer: Bool
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack{
-                Text("Location")
+                Text("Memories")
                     .font(.body)
                     .fontWeight(.bold)
                 
-//                Text(locationAddress(club.location))
-                Text(club.location.name)
+                Text("\(groupVM.images.count)")
                     .foregroundStyle(.gray)
-                    .lineLimit(1)
+                
             }
             
-            MapSlot(name:  club.title, latitude: club.location.latitude, longitude: club.location.longitude)
-            
+            MemoriesTab(images: groupVM.images, selectedImage: $groupVM.selectedImage, showImagesViewer: $showImagesViewer)
             
         }
         .padding(.horizontal)
@@ -37,5 +34,5 @@ struct GroupLocationView: View {
 }
 
 #Preview {
-    GroupLocationView(club: MockClub)
+    ClubMemoryView(groupVM: ClubViewModel(), showImagesViewer: .constant(true))
 }

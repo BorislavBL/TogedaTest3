@@ -36,11 +36,11 @@ class URLHandler {
             Task {
                 if let response = try await APIClient.shared.getEvent(postId: id) {
                     DispatchQueue.main.async{
-                        if response.status != .HAS_ENDED {
+//                        if response.status != .HAS_ENDED {
                             self.navigationManager.selectionPath.append(.eventDetails(response))
-                        } else {
-                            self.navigationManager.selectionPath.append(.completedEventDetails(post: response))
-                        }
+//                        } else {
+//                            self.navigationManager.selectionPath.append(.completedEventDetails(post: response))
+//                        }
                     }
                 }
             }
@@ -100,12 +100,12 @@ class URLHandler {
                     if let response = try await APIClient.shared.getEvent(postId: id) {
                         DispatchQueue.main.async{
                             if response.currentUserRole == .CO_HOST || response.currentUserRole == .HOST{
-                                if response.status != .HAS_ENDED {
+//                                if response.status != .HAS_ENDED {
                                     self.navigationManager.selectionPath.append(.eventDetails(response))
                                     self.navigationManager.selectionPath.append(.eventUserJoinRequests(post: response))
-                                } else {
-                                    self.navigationManager.selectionPath.append(.completedEventDetails(post: response))
-                                }
+//                                } else {
+//                                    self.navigationManager.selectionPath.append(.completedEventDetails(post: response))
+//                                }
                             }
                         }
                     }

@@ -78,10 +78,10 @@ struct MainTabView: View {
                 AllowLocationView()
             })
             .sheet(isPresented: $postsViewModel.showReportEvent, content: {
-                ReportEventView(event: postsViewModel.clickedPost)
+                ReportEventView(event: postsViewModel.clickedPost, isActive: $postsViewModel.showReportEvent)
             })
             .sheet(isPresented: $clubsViewModel.showReport, content: {
-                ReportClubView(club: clubsViewModel.clickedClub)
+                ReportClubView(club: clubsViewModel.clickedClub, isActive: $clubsViewModel.showReport)
             })
             .sheet(isPresented: $postsViewModel.showSharePostSheet) {
                 ShareView(post: postsViewModel.clickedPost)
@@ -126,17 +126,17 @@ struct MainTabView: View {
                 case .editProfilePhoneCodeVerification:
                     EditProfilePhoneCodeVerificationView()
                 case .club(let club):
-                    GroupView(club: club)
+                    ClubView(club: club)
                 case .clubJoinRequests(let club):
-                    GroupJoinRequestsView(club: club)
+                    ClubJoinRequestsView(club: club)
                 case .eventWaitingList(let post):
                     UserWaitingListView(post: post)
                 case .allClubEventsView(let clubId):
-                    AllGroupEventsView(clubId: clubId)
+                    AllClubEventsView(clubId: clubId)
                 case .allUserGroups(userID: let userID):
                     AllUserGroupsView(userID: userID)
                 case .clubMemersList(let club):
-                    GroupMembersListView(club: club)
+                    ClubMembersListView(club: club)
                 case .userChat(chatroom: let chatroom):
                     ChatView(chatRoom: chatroom)
                 case .notification:
