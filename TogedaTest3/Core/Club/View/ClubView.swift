@@ -44,7 +44,7 @@ struct ClubView: View {
                         ClubEventsView(club: club, groupVM: vm)
                     }
                     ClubLocationView(club: club)
-                    ClubMemoryView(groupVM: vm, showImagesViewer: $showImagesViewer)
+//                    ClubMemoryView(groupVM: vm, showImagesViewer: $showImagesViewer)
                 }
             }
             .refreshable {
@@ -92,7 +92,7 @@ struct ClubView: View {
                EditClubView(isActive: $isEditing, club: $club)
             }
             .fullScreenCover(isPresented: $showImagesViewer, content: {
-                ImageViewer(images: vm.images, selectedImage: $vm.selectedImage)
+                ImagesViewer(images: vm.images, selectedImage: $vm.selectedImage)
             })
             .sheet(isPresented: $showShareSheet, content: {
                 ShareView(club: club)

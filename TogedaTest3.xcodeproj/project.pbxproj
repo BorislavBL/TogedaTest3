@@ -234,7 +234,7 @@
 		14BEC1792AFBCFFA00DDCD63 /* GroupAcceptanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BEC1782AFBCFFA00DDCD63 /* GroupAcceptanceView.swift */; };
 		14BEC17B2AFBD25700DDCD63 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BEC17A2AFBD25700DDCD63 /* NetworkManager.swift */; };
 		14BFB44E2AF2781F00500190 /* MemoriesTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFB44D2AF2781F00500190 /* MemoriesTab.swift */; };
-		14BFB4502AF2896800500190 /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFB44F2AF2896800500190 /* ImageViewer.swift */; };
+		14BFB4502AF2896800500190 /* ImagesViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFB44F2AF2896800500190 /* ImagesViewer.swift */; };
 		14BFD2E22AE00599006A26F9 /* Crop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFD2E12AE00599006A26F9 /* Crop.swift */; };
 		14C1498C2AC477AF00F28463 /* LocationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C1498B2AC477AF00F28463 /* LocationHelpers.swift */; };
 		14D437DC2B7FE5DC00912845 /* UserProfileSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D437DB2B7FE5DC00912845 /* UserProfileSkeletonView.swift */; };
@@ -266,6 +266,8 @@
 		14ED465A2C6B87EE006DEAED /* AcceptedFriendRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED46592C6B87EE006DEAED /* AcceptedFriendRequestView.swift */; };
 		14ED46602C6BAB80006DEAED /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED465F2C6BAB80006DEAED /* ActivityViewModel.swift */; };
 		14ED46652C6CF60A006DEAED /* PageNotFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED46642C6CF60A006DEAED /* PageNotFoundView.swift */; };
+		14ED46692C737F55006DEAED /* NoInternetConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED46682C737F55006DEAED /* NoInternetConnectionView.swift */; };
+		14ED466C2C73A544006DEAED /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED466B2C73A544006DEAED /* ImageViewer.swift */; };
 		14F10B8B2B1E363C00298737 /* MapSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8A2B1E363C00298737 /* MapSnapshotView.swift */; };
 		14F10B8D2B1E3F5500298737 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8C2B1E3F5500298737 /* ShareView.swift */; };
 		14F10B902B1E568A00298737 /* SystemNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8F2B1E568A00298737 /* SystemNotificationView.swift */; };
@@ -511,7 +513,7 @@
 		14BEC1782AFBCFFA00DDCD63 /* GroupAcceptanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupAcceptanceView.swift; sourceTree = "<group>"; };
 		14BEC17A2AFBD25700DDCD63 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		14BFB44D2AF2781F00500190 /* MemoriesTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoriesTab.swift; sourceTree = "<group>"; };
-		14BFB44F2AF2896800500190 /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
+		14BFB44F2AF2896800500190 /* ImagesViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesViewer.swift; sourceTree = "<group>"; };
 		14BFD2E12AE00599006A26F9 /* Crop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crop.swift; sourceTree = "<group>"; };
 		14C1498B2AC477AF00F28463 /* LocationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationHelpers.swift; sourceTree = "<group>"; };
 		14D437DB2B7FE5DC00912845 /* UserProfileSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileSkeletonView.swift; sourceTree = "<group>"; };
@@ -543,6 +545,8 @@
 		14ED46592C6B87EE006DEAED /* AcceptedFriendRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptedFriendRequestView.swift; sourceTree = "<group>"; };
 		14ED465F2C6BAB80006DEAED /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		14ED46642C6CF60A006DEAED /* PageNotFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageNotFoundView.swift; sourceTree = "<group>"; };
+		14ED46682C737F55006DEAED /* NoInternetConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoInternetConnectionView.swift; sourceTree = "<group>"; };
+		14ED466B2C73A544006DEAED /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
 		14F10B8A2B1E363C00298737 /* MapSnapshotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSnapshotView.swift; sourceTree = "<group>"; };
 		14F10B8C2B1E3F5500298737 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		14F10B8F2B1E568A00298737 /* SystemNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotificationView.swift; sourceTree = "<group>"; };
@@ -1210,7 +1214,7 @@
 				1448E8DE2AF12BF800FC6433 /* CompletedEventView.swift */,
 				145D72382ABA07B0005934E2 /* MapSlot.swift */,
 				14BFB44D2AF2781F00500190 /* MemoriesTab.swift */,
-				14BFB44F2AF2896800500190 /* ImageViewer.swift */,
+				14BFB44F2AF2896800500190 /* ImagesViewer.swift */,
 				14132F302C08AFBD006DAD08 /* UserJoinRequestsView.swift */,
 				147A13AA2C18DB190097CE18 /* UserWaitingListView.swift */,
 			);
@@ -1305,6 +1309,8 @@
 				14F5B3F42C39983900C714D1 /* SwipeBackModifier.swift */,
 				14F5B3F72C3C4F6200C714D1 /* LoadingScreenView.swift */,
 				14ED46642C6CF60A006DEAED /* PageNotFoundView.swift */,
+				14ED46682C737F55006DEAED /* NoInternetConnectionView.swift */,
+				14ED466B2C73A544006DEAED /* ImageViewer.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1783,6 +1789,7 @@
 				1455CFD62B48734800D6044B /* PhotosGridView.swift in Sources */,
 				14F8F7C42AF3EF7F005BBC92 /* RatingView.swift in Sources */,
 				14BBFA102C24547D00D63E22 /* ReportClubView.swift in Sources */,
+				14ED46692C737F55006DEAED /* NoInternetConnectionView.swift in Sources */,
 				142F12FF2C0250660035EBE5 /* EventViewModel.swift in Sources */,
 				14807A352AB4BC2600716A17 /* ExpandableText.swift in Sources */,
 				14F10B8B2B1E363C00298737 /* MapSnapshotView.swift in Sources */,
@@ -1868,7 +1875,7 @@
 				143A6E9E2AB88A7500BDDA87 /* AccesabilityView.swift in Sources */,
 				1489AEAC2B3601F7001524DC /* Abouts.swift in Sources */,
 				14807A412AB4BF6700716A17 /* UserStats.swift in Sources */,
-				14BFB4502AF2896800500190 /* ImageViewer.swift in Sources */,
+				14BFB4502AF2896800500190 /* ImagesViewer.swift in Sources */,
 				14E4F9872B8F99F400D2A50C /* VerifyPhoneProfileTab.swift in Sources */,
 				14004ACD2C5939B500DDE6AD /* UIBottomBar.Constraints.swift in Sources */,
 				1467C8B62AC5C2FF0034A3BB /* UserViewModel.swift in Sources */,
@@ -1962,6 +1969,7 @@
 				1441FE2A2C2DAD1A0015435C /* GeneralData.swift in Sources */,
 				1418C77D2B6D345C0037BE5A /* TestViewModel.swift in Sources */,
 				143C31882B4712A800DCEE65 /* ClubMembersListView.swift in Sources */,
+				14ED466C2C73A544006DEAED /* ImageViewer.swift in Sources */,
 				14515E2D2B51992C004ECF31 /* BookmarkedEventsView.swift in Sources */,
 				14853AEE2C611A240004EB93 /* WebsocketTestManager.swift in Sources */,
 				14132F342C08BEEE006DAD08 /* PostSkeleton.swift in Sources */,

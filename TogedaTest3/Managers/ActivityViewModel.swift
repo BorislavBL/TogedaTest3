@@ -15,9 +15,13 @@ class ActivityViewModel: ObservableObject {
     @Published var page: Int32 = 0
     @Published var size: Int32 = 15
     
+    @Published var state: LoadingCases = .loading
+    
     func fetchFeed() async throws {
         DispatchQueue.main.async {
-            self.feedIsLoading = true
+            if self.state == .noResults {
+                self.state = .loading
+            }
         }
         if let response = try await APIClient.shared.activityFeed(
             page: page,
@@ -35,9 +39,15 @@ class ActivityViewModel: ObservableObject {
                 
                 self.page += 1
                 
-                self.feedIsLoading = false
+                if response.listCount > 0 {
+                    self.state = .loaded
+                } else {
+                    self.state = .noResults
+                }
                 self.feedInit = false
             }
+        } else {
+            self.state = .noResults
         }
     }
     

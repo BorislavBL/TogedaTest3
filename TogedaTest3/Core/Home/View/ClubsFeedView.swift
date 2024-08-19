@@ -28,7 +28,7 @@ struct ClubsFeedView: View {
                         updateLocationButton()
                     }
                     
-                    if clubsVM.feedClubs.count > 0 {
+                    if clubsVM.state == .loaded {
                         ForEach(Array(clubsVM.feedClubs.enumerated()), id: \.element.id) {index, club in
                             ClubCell(club: club)
                             //                                            .id(club.id)
@@ -50,11 +50,11 @@ struct ClubsFeedView: View {
                             .padding()
                         }
                         
-                    } else if clubsVM.clubsFeedIsLoading {
+                    } else if clubsVM.state == .loading {
                         ForEach(0..<5, id: \.self) { index in
                             PostSkeleton()
                         }
-                    } else if !clubsVM.feedClubsInit{
+                    } else if clubsVM.state == .noResults{
                         VStack(spacing: 15){
 //                            Image(systemName: "doc.text.magnifyingglass")
 //                                .resizable()

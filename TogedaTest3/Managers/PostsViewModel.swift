@@ -26,8 +26,9 @@ class PostsViewModel: ObservableObject {
     //Monolith implementation
     @Published var feedPosts: [Components.Schemas.PostResponseDto] = []
     @Published var lastPage: Bool = true
-    @Published var feedIsLoading: Bool = false
     @Published var feedPostsInit: Bool = true
+    
+    @Published var state: LoadingCases = .loading
     
     @Published var page: Int32 = 0
     @Published var size: Int32 = 15
@@ -111,7 +112,9 @@ class PostsViewModel: ObservableObject {
     func fetchPosts() async throws {
         //        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to)")
         DispatchQueue.main.async{
-            self.feedIsLoading = true
+            if self.state == .noResults {
+                self.state = .loading
+            }
         }
         if let response = try await APIClient.shared.getAllEvents(
             page: page,
@@ -135,9 +138,15 @@ class PostsViewModel: ObservableObject {
                 
                 self.page += 1
                 
-                self.feedIsLoading = false
                 self.feedPostsInit = false
+                if response.listCount > 0 {
+                    self.state = .loaded
+                } else {
+                    self.state = .noResults
+                }
             }
+        } else {
+            self.state = .noResults
         }
     }
     

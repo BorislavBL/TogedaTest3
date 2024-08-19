@@ -30,6 +30,12 @@ enum SearchCases: Hashable {
     }
 }
 
+enum LoadingCases: Hashable {
+    case loading
+    case noResults
+    case loaded
+}
+
 class HomeViewModel: ObservableObject {
     @Published var showSearch: Bool = false
     @Published var showCancelButton: Bool = false

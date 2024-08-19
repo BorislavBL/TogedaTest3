@@ -402,7 +402,7 @@ struct CompletedEventView: View {
             .presentationDragIndicator(.visible)
         })
         .fullScreenCover(isPresented: $showImageViewer, content: {
-            ImageViewer(images: images, selectedImage: $selectedImage)
+            ImagesViewer(images: images, selectedImage: $selectedImage)
         })
     }
     

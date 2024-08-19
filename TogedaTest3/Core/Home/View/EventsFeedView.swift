@@ -28,7 +28,7 @@ struct EventsFeedView: View {
                         updateLocationButton()
                     }
                     
-                    if postsViewModel.feedPosts.count > 0 {
+                    if postsViewModel.state == .loaded {
                         ForEach(Array(postsViewModel.feedPosts.enumerated()), id: \.element.id) {index, post in
                             PostCell(post: post)
                             //                                            .id(post.id)
@@ -50,11 +50,11 @@ struct EventsFeedView: View {
                             .padding()
                         }
                         
-                    } else if postsViewModel.feedIsLoading {
+                    } else if postsViewModel.state == .loading {
                         ForEach(0..<5, id: \.self) { index in
                             PostSkeleton()
                         }
-                    } else if !postsViewModel.feedPostsInit{
+                    } else if postsViewModel.state == .noResults{
                         VStack(spacing: 15){
 //                            Image(systemName: "doc.text.magnifyingglass")
 //                                .resizable()
@@ -135,10 +135,9 @@ struct EventsFeedView: View {
             .refresher(config: .init(headerShimMaxHeight: 110), refreshView: HomeEmojiRefreshView.init) { done in
                 Task{
                     try await refresh()
-                    
-                    done()
-                    
+                                        
                 }
+                done()
             }
             .onChange(of: navManager.homeScrollTop) {
                 if viewModel.showCancelButton {

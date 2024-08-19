@@ -19,6 +19,9 @@ class ChatViewModel: ObservableObject {
     
     @Published var messageImage: UIImage?
     
+    @Published var selectedImage: String?
+    @Published var isImageView: Bool = false
+    
     
     @Published var selectedItem: PhotosPickerItem? = nil {
         didSet {

@@ -105,7 +105,7 @@ struct FriendsRequestsView: View {
             }
         }
         .swipeBack()
-        .navigationTitle("Event Join Requests")
+        .navigationTitle("Friend Requests")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {

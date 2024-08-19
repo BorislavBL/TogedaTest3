@@ -85,3 +85,35 @@ class ImageService: ObservableObject {
         }
     }
 }
+
+class ImageSaver: NSObject, ObservableObject {
+    @Published var hasBeenSaved: Bool = false
+    func convertURLToUIImage(url: String) async throws -> UIImage? {
+        guard let url = URL(string: url) else {
+            return nil
+        }
+
+        let (data, _) = try await URLSession.shared.data(from: url)
+        return UIImage(data: data)
+    }
+    
+    func writeToPhotoAlbum(image: UIImage?, imageURL: String?) async {
+        if let uiImage = image {
+            UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(saveCompleted), nil)
+        } else if let url = imageURL {
+            do {
+                if let uiImage = try await convertURLToUIImage(url: url) {
+                    UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(saveCompleted), nil)
+                }
+            } catch {
+                print("Failed to download image: \(error.localizedDescription)")
+                // Handle error (e.g., show an alert to the user)
+            }
+        }
+    }
+
+    @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        print("Save finished!")
+        self.hasBeenSaved = true
+    }
+}

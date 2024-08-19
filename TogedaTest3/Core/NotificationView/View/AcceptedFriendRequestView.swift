@@ -37,9 +37,12 @@ struct AcceptedFriendRequestView: View {
                             .font(.footnote)
                     }
                     .multilineTextAlignment(.leading)
+                    
+                    Spacer(minLength: 0)
                 }
+               
             }
-            Spacer(minLength: 0)
+
             
         }
     }

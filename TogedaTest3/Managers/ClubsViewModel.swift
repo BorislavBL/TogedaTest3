@@ -15,6 +15,8 @@ class ClubsViewModel: ObservableObject {
     @Published var lastPage: Bool = true
     @Published var clubsFeedIsLoading = false
     @Published var feedClubsInit: Bool = true
+    @Published var state: LoadingCases = .loading
+
     
     @Published var page: Int32 = 0
     @Published var size: Int32 = 15
@@ -50,7 +52,9 @@ class ClubsViewModel: ObservableObject {
     func fetchClubs() async throws {
         //        print("club Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance)")
         DispatchQueue.main.async {
-            self.clubsFeedIsLoading = true
+            if self.state == .noResults {
+                self.state = .loading
+            }
         }
         if let response = try await APIClient.shared.getAllClubs(
             page: page,
@@ -65,9 +69,15 @@ class ClubsViewModel: ObservableObject {
                 self.feedClubs += response.data
                 self.lastPage = response.lastPage
                 self.page += 1
-                self.clubsFeedIsLoading = false
+                if response.listCount > 0 {
+                    self.state = .loaded
+                } else {
+                    self.state = .noResults
+                }
                 self.feedClubsInit = false
             }
+        } else {
+            self.state = .noResults
         }
     }
     

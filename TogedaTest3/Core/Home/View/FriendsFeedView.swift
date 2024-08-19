@@ -23,7 +23,7 @@ struct FriendsFeedView: View {
                     Color.clear
                         .frame(height: 74)
                         .id("Top")
-                    if activityVM.activityFeed.count > 0 {
+                    if activityVM.state == .loaded  {
                         
                         ForEach(Array(activityVM.activityFeed.enumerated()), id: \.element.id) {index, activity in
                             if let post = activity.post {
@@ -46,11 +46,11 @@ struct FriendsFeedView: View {
                             .padding()
                         }
                         
-                    } else if activityVM.feedIsLoading {
+                    } else if activityVM.state == .loading {
                         ForEach(0..<5, id: \.self) { index in
                             PostSkeleton()
                         }
-                    } else if !activityVM.feedInit{
+                    } else if activityVM.state == .noResults{
                         VStack(spacing: 15){
 //                            Image(systemName: "doc.text.magnifyingglass")
 //                                .resizable()

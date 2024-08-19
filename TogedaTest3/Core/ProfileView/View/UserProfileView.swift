@@ -422,6 +422,18 @@ struct UserProfileView: View {
                     print("Error fetching user clubs: \(error)")
                 }
             }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getUserLikesList(userId: miniUser.id, page: 0, size: 1) {
+                        DispatchQueue.main.async {
+                            viewModel.likesCount = response.listCount
+                        }
+                    }
+                } catch {
+                    print("Error fetching user ликес: \(error)")
+                }
+            }
         }
     }
 }
