@@ -52,6 +52,16 @@ struct MainView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
                 print("Diappear")
+                Task {
+                    do {
+                        if let _  = try await APIClient.shared.setUserActivityStatus(status: .OFFLINE) {
+                            
+                        }
+                    } catch {
+                        print(error)
+                    }
+                    
+                }
                 setDateOnLeave = Date()
                 webSocketManager.disconnect()
             }
@@ -106,6 +116,16 @@ struct MainView: View {
                 }
             }
             
+            group.addTask {
+                do {
+                    if let _  = try await APIClient.shared.setUserActivityStatus(status: .ONLINE) {
+                        
+                    }
+                } catch {
+                    print(error)
+                }
+            }
+            
             // Wait for both tasks to complete
             await group.waitForAll()
             
@@ -139,6 +159,16 @@ struct MainView: View {
             group.addTask {
                 do {
                     try await webSocketManager.getAllChats()
+                } catch {
+                    print(error)
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let _  = try await APIClient.shared.setUserActivityStatus(status: .ONLINE) {
+                        
+                    }
                 } catch {
                     print(error)
                 }

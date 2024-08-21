@@ -13,6 +13,7 @@ struct RateParticipantsView: View {
     let size: ImageSize = .medium
     @StateObject var eventVM = EventViewModel()
     @EnvironmentObject var userVM: UserViewModel
+    @EnvironmentObject var wsManager: WebSocketManager
     
     @State var isLoading = false
     
@@ -121,13 +122,27 @@ struct RateParticipantsView: View {
                     if post.currentUserRole == .NORMAL{
                         Task{
                             if try await APIClient.shared.giveRatingToEvent(postId: post.id, ratingBody: rating) != nil {
-                                DispatchQueue.main.async {
-                                    self.navManager.selectionPath = []
+                                if let removed = try await APIClient.shared.removeRatingNotifications(postId: post.id), removed {
+                                    DispatchQueue.main.async {
+                                        wsManager.notificationsList.removeAll { not in
+                                            return not.alertBodyReviewEndedPost?.post.id == post.id
+                                        }
+                                        self.navManager.selectionPath = []
+                                    }
                                 }
                             }
                         }
                     } else {
-                        navManager.selectionPath = []
+                        Task{
+                            if let removed = try await APIClient.shared.removeRatingNotifications(postId: post.id), removed {
+                                DispatchQueue.main.async {
+                                    wsManager.notificationsList.removeAll { not in
+                                        return not.alertBodyReviewEndedPost?.post.id == post.id
+                                    }
+                                    self.navManager.selectionPath = []
+                                }
+                            }
+                        }
                     }
                 } label: {
                     HStack(spacing:2){
@@ -186,7 +201,7 @@ struct RateParticipantsView: View {
             )
             
             Task{
-                if let response = try await APIClient.shared.report(body: report) {
+                if let _ = try await APIClient.shared.report(body: report) {
 
                 }
             }
@@ -198,6 +213,7 @@ struct RateParticipantsView: View {
 #Preview {
     RateParticipantsView(post: MockPost, rating: .init(value: 1.0, comment: "A taka"))
         .environmentObject(NavigationManager())
+        .environmentObject(WebSocketManager())
         .environmentObject(UserViewModel())
 }
 

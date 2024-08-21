@@ -165,6 +165,35 @@ extension APIClient {
         return nil
     }
     
+    func setUserActivityStatus(status: Operations.changeUserStatus.Input.Query.statusPayload) async throws -> Bool? {
+        let response = try await client.changeUserStatus(.init(query: .init(status: status)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let info):
+                return info.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getUserInfo")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
     func getUserNoShows(userId: String) async throws -> Int32? {
         let response = try await client.getUserNoShows(.init(path: .init(userId: userId)))
         
@@ -733,6 +762,73 @@ extension APIClient {
     
 }
 
+//User Badges
+extension APIClient {
+    func getBadges() async throws -> [Components.Schemas.Badge]? {
+        
+        let response = try await client.getBadges()
+        
+        switch response {
+            
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response
+            }
+        case .undocumented(statusCode: let statusCode, let message):
+            print("The status code:", statusCode, message)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func getBadgeTasks() async throws -> [Components.Schemas.BadgeTask]? {
+        
+        let response = try await client.getBadgeTasks()
+        
+        switch response {
+            
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response
+            }
+        case .undocumented(statusCode: let statusCode, let message):
+            print("The status code:", statusCode, message)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+}
+
 extension APIClient {
     func errorHandler(error: Components.Schemas.ApiError) -> String {
         var message = ""
@@ -806,6 +902,38 @@ extension APIClient {
             switch okResponse.body{
             case .json(let response):
                 return response
+            }
+        case .undocumented(statusCode: let statusCode, let message):
+            print("The status code:", statusCode, message)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func confirmUserLocation(postId: String) async throws -> Bool? {
+        
+        let response = try await client.sendUserArrival(.init(path: .init(postId: postId)))
+        
+        switch response {
+            
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response.success
             }
         case .undocumented(statusCode: let statusCode, let message):
             print("The status code:", statusCode, message)
@@ -2268,8 +2396,37 @@ extension APIClient {
         case .ok(let okResponse):
             switch okResponse.body{
             case .json(let returnResponse):
-                print("\(lastTimestamp), \(returnResponse.count), \(returnResponse)")
                 return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from notifications:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for notificationsList")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        }
+        
+        return nil
+    }
+    
+    func removeRatingNotifications(postId: String) async throws -> Bool?{
+        let response = try await client.removeNotificationForRatePost(.init(path: .init(postId: postId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
             }
         case .undocumented(statusCode: let statusCode, _):
             print("The status code from notifications:", statusCode)

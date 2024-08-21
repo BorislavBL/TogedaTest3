@@ -11,35 +11,63 @@ import Kingfisher
 struct ImageViewer: View {
     @Binding var isActive: Bool
     var image: String
+    
+    @StateObject var imgVM = ImageSaver()
     var body: some View {
-        VStack(){
-            HStack(alignment: .center) {
-                Button{isActive = false} label: {
-                    Image(systemName: "xmark")
+        ZStack{
+            VStack(){
+                HStack(alignment: .center) {
+                    Button{isActive = false} label: {
+                        Image(systemName: "xmark")
+                    }
+                    
+                    Spacer()
+                    
+                    Button{
+                        Task{
+                            await imgVM.writeToPhotoAlbum(image: nil, imageURL: image)
+                            
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: {
+                            withAnimation {
+                                imgVM.hasBeenSaved = false
+                            }
+                        })
+                    } label: {
+                        Image(systemName: "square.and.arrow.down")
+                    }
                 }
+                .padding()
                 
                 Spacer()
                 
-                Button{
-                    Task{
-                        await ImageSaver().writeToPhotoAlbum(image: nil, imageURL: image)
-                    }
-                } label: {
-                    Image(systemName: "square.and.arrow.down")
-                }
+                KFImage(URL(string: image))
+                    .resizable()
+                    .scaledToFit()
+                    .pinchToZoom()
+                
+                Spacer()
             }
-            .padding()
+            .background(.bar)
             
-            Spacer()
-            
-            KFImage(URL(string: image))
-                .resizable()
-                .scaledToFit()
-                .pinchToZoom()
-            
-            Spacer()
+            if imgVM.hasBeenSaved {
+                Text("Saved")
+                    .font(.body)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.gray)
+                    .padding()
+                    .background(.bar)
+                    .cornerRadius(10)
+                    .onAppear() {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: {
+                            withAnimation {
+                                imgVM.hasBeenSaved = false
+                            }
+                        })
+                    }
+            }
         }
-        .background(.bar)
 //        .ignoresSafeArea(.container)
     }
 }

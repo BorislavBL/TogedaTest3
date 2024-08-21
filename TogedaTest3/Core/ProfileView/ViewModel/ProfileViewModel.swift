@@ -16,6 +16,9 @@ class ProfileViewModel: ObservableObject {
     
     @Published var likesCount: Int64 = 0
     @Published var noShows: Int32 = 0
+    @Published var badges: [Components.Schemas.Badge] = []
+    @Published var badgeTasks: [Components.Schemas.BadgeTask] = []
+
     
     func getUserClubs(userId: String) async throws {
         if let response = try await APIClient.shared.getUserClubs(userId: userId, page: 0, size: 15) {
@@ -92,6 +95,26 @@ class ProfileViewModel: ObservableObject {
                     if let response = try await APIClient.shared.getUserLikesList(userId: userId, page: 0, size: 1) {
                         DispatchQueue.main.async {
                             self.likesCount = response.listCount
+                        }
+                    }
+                } catch {
+                    print("Error fetching user clubs: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getBadges() {
+                        if response.count > 0 {
+                            DispatchQueue.main.async {
+                                self.badges = response
+                            }
+                        }
+                    } else {
+                        if let badgeTasks = try await APIClient.shared.getBadgeTasks() {
+                            DispatchQueue.main.async {
+                                self.badgeTasks = badgeTasks
+                            }
                         }
                     }
                 } catch {

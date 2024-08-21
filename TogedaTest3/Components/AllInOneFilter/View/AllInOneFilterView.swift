@@ -24,80 +24,91 @@ struct AllInOneFilterView: View {
             ZStack(alignment: .bottom){
                 ScrollView{
                     VStack(alignment: .leading, spacing: 25){
-                        
-                        if filterVM.selectedType != .clubs {
-                            
-                            VStack(alignment: .leading, spacing: 16){
-                                Text("Time")
-                                    .font(.body)
-                                    .bold()
+                        if filterVM.selectedType != .friends {
+                            if filterVM.selectedType != .clubs {
                                 
-                                TimeFilterView(vm: filterVM)
+                                VStack(alignment: .leading, spacing: 16){
+                                    Text("Time")
+                                        .font(.body)
+                                        .bold()
+                                    
+                                    TimeFilterView(vm: filterVM)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 16){
+                                    Text("Sort")
+                                        .font(.body)
+                                        .bold()
+                                    
+                                    StandartFilterView(selectedFilter: $filterVM.selectedSortFilter, filterOptions: filterVM.sortFilterOptions, image: Image(systemName: "list.bullet"))
+                                }
                             }
                             
                             VStack(alignment: .leading, spacing: 16){
-                                Text("Sort")
+                                Text("Location")
                                     .font(.body)
                                     .bold()
                                 
-                                StandartFilterView(selectedFilter: $filterVM.selectedSortFilter, filterOptions: filterVM.sortFilterOptions, image: Image(systemName: "list.bullet"))
+                                LocationPickerFilterView(locationManager: locationManager, returnedPlace: $filterVM.returnedPlace, isCurrentLocation: $filterVM.isCurrentLocation)
+                                
                             }
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 16){
-                            Text("Location")
-                                .font(.body)
-                                .bold()
+                            .padding(.top, 6)
                             
-                            LocationPickerFilterView(locationManager: locationManager, returnedPlace: $filterVM.returnedPlace, isCurrentLocation: $filterVM.isCurrentLocation)
+                            if displayError && filterVM.returnedPlace.addressCountry.isEmpty {
+                                WarningTextComponent(text: "Please select location")
+                            }
                             
-                        }
-                        .padding(.top, 6)
-                        
-                        if displayError && filterVM.returnedPlace.addressCountry.isEmpty {
-                            WarningTextComponent(text: "Please select location")
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 16){
-                            HStack{
-                                Text("Distance")
+                            VStack(alignment: .leading, spacing: 16){
+                                HStack{
+                                    Text("Distance")
+                                        .font(.body)
+                                        .bold()
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(filterVM.sliderValue) km")
+                                        .font(.callout)
+                                        .fontWeight(.semibold)
+                                        .foregroundStyle(.gray)
+                                    
+                                }
+                                
+                                SwiftUISlider(
+                                    thumbColor: UIColor(Color("blackAndWhite")),
+                                    minTrackColor: UIColor(Color("blackAndWhite")),
+                                    value: $filterVM.sliderValue
+                                )
+                                
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 16){
+                                HStack{
+                                    Text("Categories")
+                                        .font(.body)
+                                        .bold()
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(filterVM.selectedCategories.count) selected")
+                                        .font(.callout)
+                                        .fontWeight(.semibold)
+                                        .foregroundStyle(.gray)
+                                    
+                                }
+                                
+                                CategoryFilterView(selectedCategories: $filterVM.selectedCategories, categories: filterVM.categories)
+                                
+                            }
+                        } else {
+                            VStack{
+                                Text("🫠")
+                                    .font(.custom("", size: 120))
+                                Text("There are no current filters for the friends activity feed...")
                                     .font(.body)
                                     .bold()
-                                
-                                Spacer()
-                                
-                                Text("\(filterVM.sliderValue) km")
-                                    .font(.callout)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(.gray)
-                                
+                                    .multilineTextAlignment(.center)
                             }
-                            
-                            SwiftUISlider(
-                                thumbColor: UIColor(Color("blackAndWhite")),
-                                minTrackColor: UIColor(Color("blackAndWhite")),
-                                value: $filterVM.sliderValue
-                            )
-                            
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 16){
-                            HStack{
-                                Text("Categories")
-                                    .font(.body)
-                                    .bold()
-                                
-                                Spacer()
-                                
-                                Text("\(filterVM.selectedCategories.count) selected")
-                                    .font(.callout)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(.gray)
-                                
-                            }
-                            
-                            CategoryFilterView(selectedCategories: $filterVM.selectedCategories, categories: filterVM.categories)
-                            
+                            .padding()
                         }
                     }
                     .padding()

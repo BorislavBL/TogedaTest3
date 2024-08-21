@@ -39,7 +39,7 @@ struct EventsFeedView: View {
                         
                         if isLoading {
                             PostSkeleton() // Show spinner while loading
-                        } else if postsViewModel.lastPage {
+                        } else if postsViewModel.lastPage && postsViewModel.feedPosts.count > 0 {
                             VStack(spacing: 8){
                                 Divider()
                                 Text("No more posts")
@@ -180,10 +180,11 @@ struct EventsFeedView: View {
     }
     
     func refresh() async throws{
-            postsViewModel.feedPosts = []
-            postsViewModel.page = 0
-            postsViewModel.lastPage = true
-            try await postsViewModel.fetchPosts()
+        postsViewModel.state = .loading
+        postsViewModel.feedPosts = []
+        postsViewModel.page = 0
+        postsViewModel.lastPage = true
+        try await postsViewModel.fetchPosts()
     }
 }
 

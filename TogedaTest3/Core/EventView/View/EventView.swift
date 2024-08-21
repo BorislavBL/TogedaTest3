@@ -17,11 +17,15 @@ struct EventView: View {
     @State var post: Components.Schemas.PostResponseDto
     @State var isEditing = false
     
+    @State var showConfirmLocationError: Bool = false
+    
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var postsVM: PostsViewModel
     @EnvironmentObject var activityVM: ActivityViewModel
     @EnvironmentObject var chatVM: WebSocketManager
     @EnvironmentObject var navManager: NavigationManager
+    @EnvironmentObject var locationManager: LocationManager
+
     
     @Environment(\.dismiss) private var dismiss
     
@@ -142,6 +146,11 @@ struct EventView: View {
                 .padding(.bottom, 100)
                 .background(.bar)
             }
+//            .safeAreaInset(edge: .top, spacing: 0) {
+//                Rectangle()
+//                    .fill(.clear)
+//                    .frame(height: 44)
+//            }
             .refreshable {
                 Task{
                     do {
@@ -168,7 +177,7 @@ struct EventView: View {
             }
             .background(Color("testColor"))
             .scrollIndicators(.hidden)
-            .edgesIgnoringSafeArea(.top)
+            .ignoresSafeArea(.all, edges: .top)
             
             VStack {
                 navbar()
@@ -182,6 +191,28 @@ struct EventView: View {
         .overlay{
             if eventNotFound {
                 PageNotFoundView()
+            } else if showConfirmLocationError {
+                VStack{
+                    if eventVM.distance < 1 {
+                        Text("\(eventVM.distance * 1000)m/50m")
+                            .font(.body)
+                            .fontWeight(.bold)
+                            .opacity(0.5)
+                    } else {
+                        Text("\(eventVM.distance)km/50m")
+                            .font(.body)
+                            .fontWeight(.bold)
+                            .opacity(0.5)
+                    }
+                    
+                    Text("Out of range.")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.gray)
+                }
+                .padding()
+                .background(.bar)
+                .cornerRadius(10)
             }
         }
         .swipeBack()
@@ -407,16 +438,51 @@ struct EventView: View {
                     }
                 } else {
                     if post.status == .HAS_STARTED {
-                        Button {
-                            showJoinRequest = true
-                        } label: {
-                            Text("Ongoing")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 60)
-                                .background(Color("blackAndWhite"))
-                                .foregroundColor(Color("testColor"))
-                                .cornerRadius(10)
+                        if post.currentUserStatus == .PARTICIPATING && post.needsLocationalConfirmation && post.currentUserArrivalStatus != .ARRIVED {
+                            Button {
+                                if let location = locationManager.location{
+                                    let distance = calculateDistance(lat1: location.coordinate.latitude, lon1: location.coordinate.longitude, lat2: post.location.latitude, lon2: post.location.longitude)
+                                    eventVM.distance = Int(distance.rounded())
+                                    if distance * 1000 <= 50 {
+                                        Task{
+                                            if let response = try await APIClient.shared.confirmUserLocation(postId: post.id) {
+                                                post.currentUserArrivalStatus = .ARRIVED
+                                                postsVM.localRefreshEventOnAction(post: post)
+                                            }
+                                        }
+                                    } else {
+                                        withAnimation {
+                                            showConfirmLocationError = true
+                                        }
+                                        
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: {
+                                            withAnimation {
+                                                showConfirmLocationError = false
+                                            }
+                                        })
+                                    }
+                                }
+                            } label: {
+                                Text("Confirm Arrival")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                            }
+                        } else {
+                            Button {
+                                showJoinRequest = true
+                            } label: {
+                                Text("Ongoing")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                            }
                         }
                     }
                     else if post.status == .NOT_STARTED {
@@ -591,5 +657,7 @@ struct EventView_Previews: PreviewProvider {
             .environmentObject(WebSocketManager())
             .environmentObject(NavigationManager())
             .environmentObject(ActivityViewModel())
+            .environmentObject(LocationManager())
+
     }
 }

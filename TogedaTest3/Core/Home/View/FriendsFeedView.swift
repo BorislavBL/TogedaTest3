@@ -35,7 +35,7 @@ struct FriendsFeedView: View {
                         
                         if isLoading {
                             PostSkeleton() // Show spinner while loading
-                        } else if activityVM.lastPage {
+                        } else if activityVM.lastPage && activityVM.activityFeed.count > 0 {
                             VStack(spacing: 8){
                                 Divider()
                                 Text("No more posts")
@@ -150,6 +150,7 @@ struct FriendsFeedView: View {
     }
     
     func refresh() async throws{
+        activityVM.state = .loading
         activityVM.activityFeed = []
         activityVM.page = 0
         activityVM.lastPage = true

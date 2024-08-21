@@ -70,6 +70,27 @@ struct RegistrationNumberView: View {
                     .padding(.bottom, 15)
             }
             
+            VStack(spacing: 16) {
+                Text("Got a Friend's Referral Code? \n Enter it here!")
+                    .bold()
+                    .multilineTextAlignment(.center)
+                
+                TextField("", text: $vm.referralCode)
+                    .placeholder(when: vm.referralCode.isEmpty) {
+                        Text("Referral Code (Optional)")
+                            .foregroundColor(.secondary)
+                    }
+                    .bold()
+                    .keyboardType(.numberPad)
+                    .padding(10)
+                    .frame(minWidth: 80, minHeight: 47)
+                    .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            }
+            .padding()
+            .background(.bar)
+            .cornerRadius(10)
+            .padding(.top, 20)
+            
             Spacer()
 
             Button{

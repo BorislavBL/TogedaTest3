@@ -39,10 +39,14 @@ class RegistrationViewModel: ObservableObject {
                 state: returnedPlace.state,
                 country: returnedPlace.country,
                 latitude: returnedPlace.latitude,
-                longitude: returnedPlace.longitude))
+                longitude: returnedPlace.longitude),
+            referralCodeUsed: referralCode.isEmpty ? nil : referralCode
+            )
         
         return createdUser
     }
+    
+    @Published var referralCode: String = ""
     
     //Name
     @Published var firstName = ""

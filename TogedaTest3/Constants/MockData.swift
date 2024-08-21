@@ -266,3 +266,6 @@ let mockActivityDto: Components.Schemas.ActivityDto = .init(id: 123, user: MockM
 //    latitude: 42.6977,
 //    longitude: 23.3219
 //), occupation: "Mechanic", profilePhotos: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"], interests: [], phoneNumber: "", verifiedPhone: false, verifiedEmail: true, savedPosts: [], status: .ONLINE)
+var mockBadge: Components.Schemas.Badge = .init(id: 1234, title: "Early Adopter", description: "1dfsghjkgfdsasd fghjgfdfghjgfdfghjfdghjgfdg hjgfdghjfdsfghjfdsfghjfdsfghfdsfghfdsfg hfdssfghjfdssfghfdsfghdssfgdsfghdfghfdsfghfdgh", image: "🏅")
+
+var mockBadgeTask: Components.Schemas.BadgeTask = .init(id: 1234567, title: "Early Adopter", completionNumber: 10, currentNumber: 1, description:  "1dfsghjkgfdsasd fghjgfdfghjgfdfghjfdghjgfdg hjgfdghjfdsfghjfdsfghjfdsfghfdsfghfdsfg hfdssfghjfdssfghfdsfghdssfgdsfghdfghfdsfghfdgh")

@@ -117,6 +117,25 @@ struct AllEventTabsView: View {
                     }
                 }
                 
+                if post.needsLocationalConfirmation {
+                    HStack(alignment: .center, spacing: 10) {
+                        Image(systemName: "location.fill.viewfinder")
+                            .imageScale(.large)
+                        
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("Confirm Location")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            
+                            Text("You will have to confirm your attendace once you reach the destination via the app. Failing to do so may result in being marked as a no-show.")
+                                .multilineTextAlignment(.leading)
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .fontWeight(.bold)
+                        }
+                    }
+                }
+                
                 NavigationLink(value: SelectionPath.usersList(post: post)){
                     HStack(alignment: .center, spacing: 10) {
                         Image(systemName: "person.2")
@@ -189,10 +208,20 @@ struct AllEventTabsView: View {
                             .font(.subheadline)
                             .fontWeight(.semibold)
                         
-                        Text("Everyone can join the event")
-                            .font(.footnote)
-                            .foregroundColor(.gray)
-                            .fontWeight(.bold)
+                        switch post.accessibility {
+                        case .PRIVATE:
+                            Text("Only the people invited by the owner can join the event.")
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .fontWeight(.bold)
+                            
+                        case .PUBLIC:
+                            Text("Everyone can join the event")
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .fontWeight(.bold)
+                        }
+
                     }
                 }
                 

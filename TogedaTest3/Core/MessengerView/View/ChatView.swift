@@ -20,6 +20,7 @@ struct ChatView: View {
     @State var shouldNotScrollToBottom: Bool = false
     @EnvironmentObject var chatManager: WebSocketManager
     @EnvironmentObject var userVm: UserViewModel
+    @EnvironmentObject var navManager: NavigationManager
     @State var isChatActive: Bool = false
     @State var atBottom: Bool = false
     @State var activateArrow: Bool = false
@@ -94,6 +95,7 @@ struct ChatView: View {
                                     }
                                     .onDisappear(){
                                         atBottom = false
+                                        activateArrow = true
                                     }
                             }
                         }
@@ -104,7 +106,6 @@ struct ChatView: View {
                                 Color.clear
                                     .frame(width: 0, height: 0)
                                     .onChange(of: geo.frame(in: .global).minY) { oldMinY, newMinY in
-                                        print("\(newMinY)")
                                         if newMinY >= 90 && !isLoading && !chatManager.lastMessagesPage && shouldStartLoading && !isInitialLoad {
                                             shouldNotScrollToBottom = true
                                             shouldStartLoading = false
@@ -142,10 +143,6 @@ struct ChatView: View {
                         }
                         
                         shouldNotScrollToBottom = false
-                        
-                        if !atBottom && newValue[0].content != oldValue[0].content {
-                            activateArrow = true
-                        }
                     }
                     .onChange(of: isChatActive) { oldValue, newValue in
                         if newValue && !atBottom {
@@ -226,45 +223,56 @@ struct ChatView: View {
                 Button(action: {dismiss()}) {
                     Image(systemName: "chevron.left")
                 }
-                Spacer()
-            }
-            
-            switch chatRoom._type {
-            case .CLUB:
-                if let club = chatRoom.club{
-                    HStack{
-                        KFImage(URL(string: club.images[0]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 30, height: 30)
-                            .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
-                        
-                        Text("\(club.title)")
-                    }
-                }
-            case .FRIENDS:
-                if chatRoom.previewMembers.count > 0 {
-                    HStack{
-                        KFImage(URL(string: chatRoom.previewMembers[0].profilePhotos[0]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 30, height: 30)
-                            .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
-                        
-                        if chatRoom.previewMembers.count > 0 {
-                            Text("\(chatRoom.previewMembers[0].firstName) \(chatRoom.previewMembers[0].lastName)")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                .padding(.trailing, 8)
+                
+                switch chatRoom._type {
+                case .CLUB:
+                    if let club = chatRoom.club{
+                        Button{
+                            Task{
+                                if let _club = try await APIClient.shared.getClub(clubID: club.id){
+                                    navManager.selectionPath.append(.club(_club))
+                                }
+                            }
+                        } label: {
+                            HStack{
+                                KFImage(URL(string: club.images[0]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 30, height: 30)
+                                    .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                                
+                                Text("\(club.title)")
+                            }
                         }
                     }
-                }
-            case .GROUP:
-                if chatRoom.previewMembers.count > 1 {
-                    HStack(alignment: .center){
-                        if chatRoom.previewMembers.count > 1 {
-                            ZStack(alignment:.top){
-                               
+                case .FRIENDS:
+                    if chatRoom.previewMembers.count > 0 {
+                        Button{
+                            navManager.selectionPath.append(.profile(chatRoom.previewMembers[0]))
+                        } label: {
+                            HStack{
                                 KFImage(URL(string: chatRoom.previewMembers[0].profilePhotos[0]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 30, height: 30)
+                                    .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                                
+                                if chatRoom.previewMembers.count > 0 {
+                                    Text("\(chatRoom.previewMembers[0].firstName) \(chatRoom.previewMembers[0].lastName)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                        }
+                    }
+                case .GROUP:
+                    if chatRoom.previewMembers.count > 1 {
+                        HStack(alignment: .center){
+                            if chatRoom.previewMembers.count > 1 {
+                                ZStack(alignment:.top){
+                                    
+                                    KFImage(URL(string: chatRoom.previewMembers[0].profilePhotos[0]))
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 2 * 30/3, height: 2 * 30/3)
@@ -274,8 +282,8 @@ struct ChatView: View {
                                                 .stroke(Color("base"), lineWidth: 2)
                                         )
                                         .offset(y: -30/6)
-                                        
-                                KFImage(URL(string: chatRoom.previewMembers[1].profilePhotos[0]))
+                                    
+                                    KFImage(URL(string: chatRoom.previewMembers[1].profilePhotos[0]))
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 2 * 30/3, height: 2 * 30/3)
@@ -285,37 +293,48 @@ struct ChatView: View {
                                                 .stroke(Color("base"), lineWidth: 2)
                                         )
                                         .offset(x: 30/6, y: 30/6)
-
+                                    
+                                }
+                                .padding([.trailing, .bottom, .top], 30/3)
                             }
-                            .padding([.trailing, .bottom, .top], 30/3)
-                        }
-                        
-                        if chatRoom.previewMembers.count > 1 {
-                            Text("\(chatRoom.previewMembers[0].firstName), \(chatRoom.previewMembers[1].firstName) Group")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                        }
-                    }
-                }
-            case .POST:
-                if let post = chatRoom.post{
-                    HStack{
-                        KFImage(URL(string: post.images[0]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 30, height: 30)
-                            .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
-                        
-                        if let post = chatRoom.post {
-                            Text("\(post.title)")
+                            
+                            if chatRoom.previewMembers.count > 1 {
+                                Text("\(chatRoom.previewMembers[0].firstName), \(chatRoom.previewMembers[1].firstName) Group")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
+                            }
+                        }
+                    }
+                case .POST:
+                    if let post = chatRoom.post{
+                        Button{
+                            Task{
+                                if let _post = try await APIClient.shared.getEvent(postId: post.id){
+                                    navManager.selectionPath.append(.eventDetails(_post))
+                                }
+                            }
+                        } label: {
+                            HStack{
+                                KFImage(URL(string: post.images[0]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 30, height: 30)
+                                    .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                                
+                                if let post = chatRoom.post {
+                                    Text("\(post.title)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                }
+                            }
                         }
                     }
                 }
+                Spacer()
             }
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 8)
         .background(.bar)
     }
     
@@ -340,28 +359,6 @@ struct ChatView: View {
         }
     }
     
-    var title: String {
-        switch chatRoom._type {
-        case .CLUB:
-            if let club = chatRoom.club{
-                return club.title
-            }
-        case .FRIENDS:
-            if chatRoom.previewMembers.count > 0 {
-                return "\(chatRoom.previewMembers[0].firstName) \(chatRoom.previewMembers[0].lastName)"
-            }
-        case .GROUP:
-            if chatRoom.previewMembers.count > 1 {
-                return "\(chatRoom.previewMembers[0].firstName) \(chatRoom.previewMembers[1].firstName)"
-            }
-        case .POST:
-            if let post = chatRoom.post{
-                return post.title
-            }
-        }
-        
-        return "Chat"
-    }
     
     func nextMessage(forIndex index: Int) -> Components.Schemas.ReceivedChatMessageDto? {
         if index > 0 {
@@ -375,4 +372,6 @@ struct ChatView: View {
     ChatView(chatRoom: mockChatRoom)
         .environmentObject(WebSocketManager())
         .environmentObject(UserViewModel())
+        .environmentObject(NavigationManager())
+
 }

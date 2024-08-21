@@ -461,6 +461,28 @@ struct CreateEventView: View {
                             }
                         }
                         .createEventTabStyle()
+                        
+                        
+                        VStack(alignment: .leading, spacing: 20){
+                            
+                            Toggle(isOn: $ceVM.needsLocationalConfirmation) {
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "location.fill.viewfinder")
+                                        .imageScale(.large)
+                                    
+                                    Text("Confirm Location")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+  
+                            if ceVM.needsLocationalConfirmation {
+                                Text("Upon arriving at the event, participants will need to confirm their attendance through the app. If confirmation is not completed by the end of the event, the participant will be marked as 'No Show'. To ensure accuracy, the confirmation feature is designed to work within a 50-meter radius of the event location.")
+                                    .font(.footnote)
+                                    .multilineTextAlignment(.leading)
+                                    .opacity(0.5)
+                            }
+                        }
+                        .createEventTabStyle()
                         .padding(.bottom, 100)
                     }
                 }

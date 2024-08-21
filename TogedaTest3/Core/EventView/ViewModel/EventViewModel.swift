@@ -54,6 +54,8 @@ class EventViewModel: ObservableObject {
     @Published var waitingListSize: Int32 = 15
     @Published var waitingListLastPage = true
     
+    @Published var distance: Int = 0
+    
     func fetchWaitingList(id: String) async throws{
         if let response = try await APIClient.shared.getEventWaitlist(
             postId: id,

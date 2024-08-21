@@ -237,6 +237,7 @@
 		14BFB4502AF2896800500190 /* ImagesViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFB44F2AF2896800500190 /* ImagesViewer.swift */; };
 		14BFD2E22AE00599006A26F9 /* Crop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFD2E12AE00599006A26F9 /* Crop.swift */; };
 		14C1498C2AC477AF00F28463 /* LocationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C1498B2AC477AF00F28463 /* LocationHelpers.swift */; };
+		14CB298F2C76434D0025403C /* UserTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB298E2C76434D0025403C /* UserTaskView.swift */; };
 		14D437DC2B7FE5DC00912845 /* UserProfileSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D437DB2B7FE5DC00912845 /* UserProfileSkeletonView.swift */; };
 		14D5EFE02B5E9EF000561A8D /* StringHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D5EFDF2B5E9EF000561A8D /* StringHelpers.swift */; };
 		14D5EFE22B5EC04200561A8D /* AllClubEventsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D5EFE12B5EC04200561A8D /* AllClubEventsView.swift */; };
@@ -516,6 +517,7 @@
 		14BFB44F2AF2896800500190 /* ImagesViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesViewer.swift; sourceTree = "<group>"; };
 		14BFD2E12AE00599006A26F9 /* Crop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crop.swift; sourceTree = "<group>"; };
 		14C1498B2AC477AF00F28463 /* LocationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationHelpers.swift; sourceTree = "<group>"; };
+		14CB298E2C76434D0025403C /* UserTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTaskView.swift; sourceTree = "<group>"; };
 		14D437DB2B7FE5DC00912845 /* UserProfileSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileSkeletonView.swift; sourceTree = "<group>"; };
 		14D5EFDF2B5E9EF000561A8D /* StringHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringHelpers.swift; sourceTree = "<group>"; };
 		14D5EFE12B5EC04200561A8D /* AllClubEventsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllClubEventsView.swift; sourceTree = "<group>"; };
@@ -1271,6 +1273,7 @@
 				14F301932C12109500D98E14 /* FriendsListView.swift */,
 				14F301962C122F8900D98E14 /* FriendsRequestsView.swift */,
 				141B4A8F2C1E19CC00C493D0 /* ReviewProfileView.swift */,
+				14CB298E2C76434D0025403C /* UserTaskView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1289,8 +1292,8 @@
 				147A139C2C176FFB0097CE18 /* PhotosView */,
 				14807A342AB4BC2600716A17 /* ExpandableText.swift */,
 				142814162ACCA1140046886B /* CustomSearchBar.swift */,
-				14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */,
 				14D7E4482AF9469100A76D09 /* RatingButtonView.swift */,
+				14F8F7C32AF3EF7F005BBC92 /* RatingView.swift */,
 				1445A20A2AFE79D60057613B /* ProfileImageView.swift */,
 				141DF36D2B0BB4E700CE94F5 /* AttributedText.swift */,
 				145A6C802B2B54A50015F7C6 /* WarningTextComponent.swift */,
@@ -1771,6 +1774,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14CB298F2C76434D0025403C /* UserTaskView.swift in Sources */,
 				142487AC2BBDAB9500671014 /* EditProfileHeightView.swift in Sources */,
 				14F10B922B1F889C00298737 /* AllInOneFilterView.swift in Sources */,
 				14132F2B2C078059006DAD08 /* NetworkStatusView.swift in Sources */,

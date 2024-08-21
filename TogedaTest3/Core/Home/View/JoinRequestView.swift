@@ -13,12 +13,15 @@ struct JoinRequestView: View {
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var activityVM: ActivityViewModel
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var locationManager: LocationManager
     @Binding var post: Components.Schemas.PostResponseDto
     @EnvironmentObject var navManager: NavigationManager
     @Binding var isActive: Bool
     var refreshParticipants: () -> ()
     @Environment(\.openURL) private var openURL
     @StateObject var paymentVM = StripeAccountViewModel()
+    @State var distance: Int = 0
+    @State var showConfirmLocationError: Bool = false
     
     var body: some View {
         VStack(spacing: 30){
@@ -143,21 +146,76 @@ struct JoinRequestView: View {
                 
             } else {
                 if post.status == .HAS_STARTED {
-                    Text("The event have already started...")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-                    
-                    Button {
+                    if post.currentUserStatus == .PARTICIPATING && post.needsLocationalConfirmation && post.currentUserArrivalStatus != .ARRIVED {
+                        if showConfirmLocationError {
+                            if distance < 1 {
+                                Text("\(distance * 1000)m/50m")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .multilineTextAlignment(.center)
+                            } else {
+                                Text("\(distance)km/50m")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .multilineTextAlignment(.center)
+                            }
+                        } else {
+                            Text("Confirm your location.")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                        }
+
                         
-                    } label: {
-                        Text("Ongoing")
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
+                        Button {
+                            if let location = locationManager.location{
+                                let distance = calculateDistance(lat1: location.coordinate.latitude, lon1: location.coordinate.longitude, lat2: post.location.latitude, lon2: post.location.longitude)
+                                self.distance = Int(distance.rounded())
+                                if distance * 1000 <= 50 {
+                                    Task{
+                                        if let response = try await APIClient.shared.confirmUserLocation(postId: post.id) {
+                                            post.currentUserArrivalStatus = .ARRIVED
+                                            postsViewModel.localRefreshEventOnAction(post: post)
+                                        }
+                                    }
+                                } else {
+                                    withAnimation {
+                                        showConfirmLocationError = true
+                                    }
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: {
+                                        withAnimation {
+                                            showConfirmLocationError = false
+                                        }
+                                    })
+                                }
+                            }
+                        } label: {
+                            Text("Confirm Arrival")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                        }
+                    } else {
+                        Text("The event have already started...")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
+                        
+                        Button {
+                            
+                        } label: {
+                            Text("Ongoing")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                        }
                     }
                 } else if post.status == .NOT_STARTED {
                     if post.currentUserStatus == .PARTICIPATING {
@@ -397,5 +455,7 @@ struct JoinRequestView: View {
         .environmentObject(UserViewModel())
         .environmentObject(NavigationManager())
         .environmentObject(ActivityViewModel())
+        .environmentObject(LocationManager())
+
 }
 

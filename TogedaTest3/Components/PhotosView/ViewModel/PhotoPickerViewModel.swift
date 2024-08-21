@@ -126,6 +126,7 @@ class PhotoPickerViewModel: ObservableObject {
     func saveImages() async -> Bool {
         var isSuccess = true
         publishedPhotosURLs = []
+        publishedPhotosURLs = selectedImages.compactMap { $0 != nil ? "" : nil }
         
         await withTaskGroup(of: Bool.self) { group in
             for (index, image) in selectedImages.enumerated() {
@@ -165,7 +166,7 @@ class PhotoPickerViewModel: ObservableObject {
                 
                 switch mode {
                 case .normal:
-                    publishedPhotosURLs.append(imageUrl)
+                    publishedPhotosURLs[index] = imageUrl
                 case .edit:
                     editPublishedPhotosURLs[index] = imageUrl
                 }

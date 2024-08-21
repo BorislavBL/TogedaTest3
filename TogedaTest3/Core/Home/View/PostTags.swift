@@ -67,6 +67,17 @@ struct PostTags: View {
                 .normalTagCapsuleStyle()
             }
             
+            if post.needsLocationalConfirmation {
+                HStack(spacing: 3) {
+                    Image(systemName: "location.fill.viewfinder")
+                    
+                    Text("Confirm Location")
+                        .normalTagTextStyle()
+
+                }
+                .normalTagCapsuleStyle()
+            }
+            
             HStack(spacing: 3) {
                 Image(systemName: "globe.europe.africa.fill")
                 if post.askToJoin {

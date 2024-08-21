@@ -26,7 +26,7 @@ struct ProfileView: View {
     var body: some View {
         ZStack(alignment: .top){
             if let user = userVm.currentUser {
-                VStack{
+                ScrollView(showsIndicators: false){
                     VStack(alignment: .center){
                         TabView {
                             ForEach(user.profilePhotos, id: \.self) { image in
@@ -122,6 +122,7 @@ struct ProfileView: View {
                     //                    }
                     
                     AboutTab(user: user)
+//                    UserTaskView(badgeTask: <#T##Components.Schemas.BadgeTask#>, referralCode: user.details.referralCode)
                     if viewModel.posts.count > 0 {
                         EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: $viewModel.postsCount)
                     }
@@ -129,7 +130,6 @@ struct ProfileView: View {
                         ClubsTab(userID: user.id, count: viewModel.clubsCount, clubs: $viewModel.clubs)
                     }
                 }
-                
                 .refreshable(action: {
                     viewModel.posts = []
                     viewModel.clubs = []

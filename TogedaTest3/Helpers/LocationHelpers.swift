@@ -122,3 +122,30 @@ func findLocationDetailsWithResult(location: CLLocation?) -> Place? {
     
     return result
 }
+
+func calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double) -> Double {
+    // Convert latitude and longitude from degrees to radians
+    let lat1Rad = lat1 * .pi / 180
+    let lon1Rad = lon1 * .pi / 180
+    let lat2Rad = lat2 * .pi / 180
+    let lon2Rad = lon2 * .pi / 180
+    
+    // Haversine formula
+    let dlat = lat2Rad - lat1Rad
+    let dlon = lon2Rad - lon1Rad
+    
+    let a = sin(dlat / 2) * sin(dlat / 2) + cos(lat1Rad) * cos(lat2Rad) * sin(dlon / 2) * sin(dlon / 2)
+    let c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    
+    // Radius of the Earth in kilometers
+    let R = 6371.0
+    
+    // Distance in kilometers
+    let distance = R * c
+    
+    // Print the distance
+    print("Distance between points: \(distance) kilometers")
+    
+    // Return the calculated distance
+    return distance
+}

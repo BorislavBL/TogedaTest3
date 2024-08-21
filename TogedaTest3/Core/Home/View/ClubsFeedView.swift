@@ -39,7 +39,7 @@ struct ClubsFeedView: View {
                         
                         if isLoading {
                             PostSkeleton() // Show spinner while loading
-                        } else if clubsVM.lastPage{
+                        } else if clubsVM.lastPage && clubsVM.feedClubs.count > 0{
                             VStack(spacing: 8){
                                 Divider()
                                 Text("No more clubs")
@@ -182,6 +182,7 @@ struct ClubsFeedView: View {
     }
     
     func refresh() async throws{
+        clubsVM.state = .loading
         clubsVM.feedClubs = []
         clubsVM.page = 0
         clubsVM.lastPage = true

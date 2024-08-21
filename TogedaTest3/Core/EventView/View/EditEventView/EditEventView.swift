@@ -177,10 +177,10 @@ struct EditEventView: View {
                                 Spacer()
                                 
                                 if vm.dateTimeSettings == 1 {
-                                    Text(separateDateAndTime(from:vm.from).date)
+                                    Text(separateDateAndTime(from: vm.from).date)
                                         .foregroundColor(.gray)
                                 } else if vm.dateTimeSettings == 2 {
-                                    Text("\(separateDateAndTime(from:vm.from).date) - \(separateDateAndTime(from:vm.to).date)")
+                                    Text("\(separateDateAndTime(from: vm.from).date) - \(separateDateAndTime(from: vm.to).date)")
                                         .foregroundColor(.gray)
                                 } else {
                                     Text("Anyday")
