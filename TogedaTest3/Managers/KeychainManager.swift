@@ -12,7 +12,6 @@ enum userKeys {
     case accessToken
     case refreshToken
     case userId
-    case refreshTokenDeadline
     case service
     
     var toString: String {
@@ -23,8 +22,6 @@ enum userKeys {
             return "userRefreshToken"
         case .userId:
             return "userId"
-        case .refreshTokenDeadline:
-            return "refreshTokenDeadline"
         case .service:
             return "net-togeda-app"
         }
@@ -40,7 +37,8 @@ class KeychainManager {
         case unknown(OSStatus)
     }
     
-    func saveOrUpdate(item: Data, account: String, service: String) -> Bool {
+    func saveOrUpdate(item: String, account: String, service: String) -> Bool {
+        let item = Data(item.utf8)
         // Check if the item already exists
         if retrieve(itemForAccount: account, service: service) != nil {
             // Update existing item

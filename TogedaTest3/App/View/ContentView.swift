@@ -28,22 +28,13 @@ struct ContentView: View {
             }
             
             
-            //                VStack{
-            //                    Button("Click"){
-            //                        Task{
-            //                            do{
-            //                                try await APIClient.shared.getEvent(postId: "123456789")
-            //                            } catch {
-            //                                print(error)
-            //                            }
-            //
-            //                        }
-            //
-            ////                        NotificationsManager().registerForPushNotifications()
-            //
-            //                    }
-            //                }
-            //                .background(.base)
+            VStack{
+                Button("Click"){
+                    print(TimeZone.current)
+                    print(Date())
+                }
+            }
+            .background(.base)
             
 //            NetworkStatusView(isConnected: $networkManager.isConnected)
 //                .padding(.top, 20)

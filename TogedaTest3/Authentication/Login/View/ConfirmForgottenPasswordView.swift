@@ -1,29 +1,29 @@
 //
-//  RegistartionEmailView.swift
+//  ConfirmForgottenPasswordView.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 14.12.23.
+//  Created by Borislav Lorinkov on 23.08.24.
 //
 
 import SwiftUI
-import AWSCognitoIdentityProvider
 
-struct RegistrationView: View {
+struct ConfirmForgottenPasswordView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
 
     @State private var displayError: Bool = false
-    @State private var isActive: Bool = false
-    @State private var goToLogin: Bool = false
+    @Binding var isActive1: Bool
+    @Binding var isActive2: Bool
     @State private var isLoading = false
     @State private var errorMessage: String?
     
-    @State var email: String = ""
+    var email: String
     @State var password: String = ""
     @State var userId: String = ""
+    @State var code: String = ""
     
     enum FocusedField: Hashable{
-        case email, password1, password2
+        case code, password1, password2
     }
 
     @FocusState private var focus: FocusedField?
@@ -34,32 +34,9 @@ struct RegistrationView: View {
     
     var body: some View {
         VStack {
-            Text("Create an account")
+            Text("Enter the new Password!")
                 .multilineTextAlignment(.center)
                 .font(.title).bold()
-                .padding(.top, 20)
-            
-            TextField("", text: $email)
-                .placeholder(when: email.isEmpty) {
-                    Text("Email")
-                        .foregroundColor(.secondary)
-                        .bold()
-                }
-                .bold()
-                .focused($focus, equals: .email)
-                .autocapitalization(.none)
-                .keyboardType(.emailAddress)
-                .submitLabel(.next)
-                .onSubmit {
-                    if !isValidEmail(testStr: email) {
-                        displayError.toggle()
-                    } else{
-                        focus = .password1
-                    }
-                }
-                .padding(10)
-                .frame(minWidth: 80, minHeight: 47)
-                .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .padding(.top, 20)
             
             
@@ -125,52 +102,51 @@ struct RegistrationView: View {
             .padding(.top, 2)
             .padding(.bottom, 15)
             
-            if !isValidEmail(testStr: email) && displayError {
-                WarningTextComponent(text: "Please enter a valid email.")
-                    .padding(.bottom, 15)
-            } else if displayError && confirmPassword != password {
+            
+            Text("Enter the code you received on your email.")
+                .multilineTextAlignment(.leading)
+                .font(.body)
+                .fontWeight(.semibold)
+                .foregroundStyle(.gray)
+                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+            
+            TextField("", text: $code)
+                .placeholder(when: code.isEmpty) {
+                    Text("Code")
+                        .foregroundColor(.secondary)
+                        .bold()
+                }
+                .bold()
+                .focused($focus, equals: .code)
+                .autocapitalization(.none)
+                .keyboardType(.numberPad)
+                .submitLabel(.done)
+                .padding(10)
+                .frame(minWidth: 80, minHeight: 47)
+                .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            
+            if displayError && confirmPassword != password {
                 WarningTextComponent(text: "The two passwords do not match.")
             } else if let message = errorMessage, !message.isEmpty {
                 WarningTextComponent(text: message)
+            } else if displayError && code.isEmpty {
+                WarningTextComponent(text: "Please enter the code you received on your email.")
             }
-            
-//            Button{
-//                vm.createdUser.subToEmail.toggle()
-//            } label: {
-//                HStack(alignment: .center, spacing: 16, content: {
-//                    Image(systemName: vm.createdUser.subToEmail ? "checkmark.square.fill" : "square")
-//                    Text("Would you like to receive news and updates from Togeda?")
-//                        .multilineTextAlignment(.leading)
-//                        .font(.footnote)
-//                        .bold()
-//                    
-//                })
-//                .foregroundStyle(.gray)
-//            }
-            
+
             Spacer()
             
             Button{
                 Task{
-                    try await AuthService.shared.signUp(email: email, password: password) { userId, error in
-                        DispatchQueue.main.async {
-                            if let userId = userId {
-                                self.userId = userId
-                                self.isLoading = false
-                                self.isActive = true
-                            } else if let errorMessage = error {
-                                if errorMessage.lowercased().contains("user already exists".lowercased()) {
-                                    self.errorMessage = "User already exists."
-                                    self.goToLogin = true
-                                    
-                                } else {
-                                    self.errorMessage = errorMessage
- 
-                                }
-                                self.isLoading = false
-                                
-                            } else {
-                                self.isLoading = false
+                    try await AuthService.shared.confirmForgotPassword(userEmail:email, newPassword: password, code: code){ success, error in
+                        if let success = success, success {
+                            DispatchQueue.main.async {
+                                self.isActive2 = false
+                                self.isActive1 = false
+                            }
+                        } else if let errorMessage = error {
+                            DispatchQueue.main.async{
+                                print("Error on the way")
+                                self.errorMessage = errorMessage
                             }
                         }
                     }
@@ -194,9 +170,9 @@ struct RegistrationView: View {
                         .fontWeight(.semibold)
                 }
             }
-            .disableWithOpacity(!isValidEmail(testStr: email) || !samePassword || !validatePassword(password: password))
+            .disableWithOpacity(!samePassword || code.isEmpty)
             .onTapGesture {
-                if !isValidEmail(testStr: email) || !samePassword{
+                if !samePassword || code.isEmpty{
                     displayError.toggle()
                 }
             }
@@ -205,7 +181,7 @@ struct RegistrationView: View {
         .animation(.easeInOut(duration: 0.6), value: focus)
         .padding(.horizontal)
         .onAppear(){
-            focus = .email
+            focus = .password1
         }
         .toolbar{
             ToolbarItemGroup(placement: .keyboard) {
@@ -213,12 +189,6 @@ struct RegistrationView: View {
             }
         }
         .padding(.vertical)
-        .navigationDestination(isPresented: $isActive, destination: {
-            RegistrationCodeView(email: $email, password: $password)
-        })
-        .navigationDestination(isPresented: $goToLogin, destination: {
-            LoginView(email: email, password: password)
-        })
         .swipeBack()
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
@@ -252,26 +222,8 @@ struct RegistrationView: View {
             return false
         }
     }
-    
-    func validatePassword(password: String) -> Bool{
-        let lengthRequirement = password.count >= 8
-        let uppercaseRequirement = password.range(of: "[A-Z]", options: .regularExpression) != nil
-        let lowercaseRequirement = password.range(of: "[a-z]", options: .regularExpression) != nil
-        let numberRequirement = password.range(of: "[0-9]", options: .regularExpression) != nil
-        let specialCharacterRequirement = password.range(of: "[^A-Za-z0-9]", options: .regularExpression) != nil
-
-        if lengthRequirement && uppercaseRequirement && lowercaseRequirement && numberRequirement && specialCharacterRequirement {
-            return true
-        } else {
-            errorMessage = """
-            Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.
-            """
-            
-            return false
-        }
-    }
 }
 
 #Preview {
-    RegistrationView()
+    ConfirmForgottenPasswordView(isActive1: .constant(true), isActive2: .constant(true), email: "")
 }

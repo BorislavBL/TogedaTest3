@@ -47,6 +47,7 @@ enum SelectionPath: Hashable, Codable {
     case rateParticipants(post: Components.Schemas.PostResponseDto, rating: Components.Schemas.RatingDto)
     case userReviewView(user: Components.Schemas.UserInfoDto)
     case paymentPage
+    case chatParticipants(chatId: String)
     case test
 }
 

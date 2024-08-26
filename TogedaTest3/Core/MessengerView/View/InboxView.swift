@@ -115,29 +115,29 @@ struct InboxRowView: View {
             case .GROUP:
                 if chatroom.previewMembers.count > 1 {
                     ZStack(alignment:.top){
-                       
+                        
                         KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 2 * size.dimension/3, height: 2 * size.dimension/3)
-                                .clipShape(Circle())
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color("base"), lineWidth: 2)
-                                )
-                                .offset(y: -size.dimension/6)
-                                
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 2 * size.dimension/3, height: 2 * size.dimension/3)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(Color("base"), lineWidth: 2)
+                            )
+                            .offset(y: -size.dimension/6)
+                        
                         KFImage(URL(string: chatroom.previewMembers[1].profilePhotos[0]))
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 2 * size.dimension/3, height: 2 * size.dimension/3)
-                                .clipShape(Circle())
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color("base"), lineWidth: 2)
-                                )
-                                .offset(x: size.dimension/6, y: size.dimension/6)
-
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 2 * size.dimension/3, height: 2 * size.dimension/3)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(Color("base"), lineWidth: 2)
+                            )
+                            .offset(x: size.dimension/6, y: size.dimension/6)
+                        
                     }
                     .padding([.trailing, .bottom], size.dimension/3)
                 }
@@ -158,30 +158,34 @@ struct InboxRowView: View {
                     case .CLUB:
                         if let club = chatroom.club {
                             Text("\(club.title)")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
+                                .lineLimit(1)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
                         }
                     case .FRIENDS:
                         if chatroom.previewMembers.count > 0 {
                             Text("\(chatroom.previewMembers[0].firstName) \(chatroom.previewMembers[0].lastName)")
+                                .lineLimit(1)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                         }
                     case .GROUP:
                         if chatroom.previewMembers.count > 1 {
-                            Text("\(chatroom.previewMembers[0].firstName), \(chatroom.previewMembers[1].firstName) Group")
+                            Text("\(chatroom.previewMembers[0].firstName), \(chatroom.previewMembers[1].firstName)")
+                                .lineLimit(1)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                         }
                     case .POST:
                         if let post = chatroom.post {
                             Text("\(post.title)")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
+                                .lineLimit(1)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
                         }
                         
                     }
-
+                    
                     
                     Spacer(minLength: 10)
                     
@@ -215,7 +219,7 @@ struct InboxRowView: View {
                                 .foregroundColor(.gray)
                                 .lineLimit(2)
                         }
-
+                        
                     } else {
                         Text("")
                             .font(.footnote)

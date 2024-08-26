@@ -10,14 +10,26 @@ import WrappingHStack
 
 struct AboutTab: View {
     var user: Components.Schemas.UserInfoDto?
+    var badges: [Components.Schemas.Badge]?
     var body: some View {
         VStack (alignment: .leading) {
             if isAboutInfo {
                 Text("About Me")
                     .font(.body)
                     .fontWeight(.bold)
+                
                 WrappingHStack(alignment: .leading){
-
+                    
+                    if let badges = badges, badges.count > 0 {
+                        ForEach(badges, id: \.id) { badge in
+                            HStack{
+                                Text("\(badge.image ?? "⭐️") \(badge.title)")
+                                    .normalTagTextStyle()
+                            }
+                            .normalTagCapsuleStyle()
+                        }
+                    }
+                    
                     if let user = user {
                         if let education = user.details.education {
                             aboutTag(img: Image(systemName: "graduationcap"), text: education)

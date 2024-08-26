@@ -268,40 +268,44 @@ struct ChatView: View {
                     }
                 case .GROUP:
                     if chatRoom.previewMembers.count > 1 {
-                        HStack(alignment: .center){
-                            if chatRoom.previewMembers.count > 1 {
-                                ZStack(alignment:.top){
-                                    
-                                    KFImage(URL(string: chatRoom.previewMembers[0].profilePhotos[0]))
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 2 * 30/3, height: 2 * 30/3)
-                                        .clipShape(Circle())
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color("base"), lineWidth: 2)
-                                        )
-                                        .offset(y: -30/6)
-                                    
-                                    KFImage(URL(string: chatRoom.previewMembers[1].profilePhotos[0]))
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 2 * 30/3, height: 2 * 30/3)
-                                        .clipShape(Circle())
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color("base"), lineWidth: 2)
-                                        )
-                                        .offset(x: 30/6, y: 30/6)
-                                    
+                        Button{
+                            navManager.selectionPath.append(.chatParticipants(chatId: chatRoom.id))
+                        } label: {
+                            HStack(alignment: .center){
+                                if chatRoom.previewMembers.count > 1 {
+                                    ZStack(alignment:.top){
+                                        
+                                        KFImage(URL(string: chatRoom.previewMembers[0].profilePhotos[0]))
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 2 * 30/3, height: 2 * 30/3)
+                                            .clipShape(Circle())
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(Color("base"), lineWidth: 2)
+                                            )
+                                            .offset(y: -30/6)
+                                        
+                                        KFImage(URL(string: chatRoom.previewMembers[1].profilePhotos[0]))
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 2 * 30/3, height: 2 * 30/3)
+                                            .clipShape(Circle())
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(Color("base"), lineWidth: 2)
+                                            )
+                                            .offset(x: 30/6, y: 30/6)
+                                        
+                                    }
+                                    .padding([.trailing, .bottom, .top], 30/3)
                                 }
-                                .padding([.trailing, .bottom, .top], 30/3)
-                            }
-                            
-                            if chatRoom.previewMembers.count > 1 {
-                                Text("\(chatRoom.previewMembers[0].firstName), \(chatRoom.previewMembers[1].firstName) Group")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
+                                
+                                if chatRoom.previewMembers.count > 1 {
+                                    Text("\(chatRoom.previewMembers[0].firstName), \(chatRoom.previewMembers[1].firstName) Group")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                }
                             }
                         }
                     }

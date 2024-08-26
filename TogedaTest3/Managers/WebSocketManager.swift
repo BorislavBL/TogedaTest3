@@ -34,28 +34,40 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var size: Int32 = 15
     @Published var count: Int64 = 0
     @Published var lastPage: Bool = true
+    @Published var isConnected = false
     
     init(){
-        AuthClient.shared.getAccessToken { token, error in
-            if let token = token {
-                let url = URL(string: "wss://api.togeda.net/ws")! // Ensure using 'wss' or 'ws' schema
-                self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization" : "Bearer \(token)"]) //< Create instance
-                self.swiftStomp.delegate = self //< Set delegate
-                self.swiftStomp.autoReconnect = true //< Auto reconnect on error or cancel
-                self.swiftStomp.enableLogging = false
-                
-                self.swiftStomp.connect()
-            }
-        }
-        
+        websocketInit()
     }
     
 }
 
 extension WebSocketManager {
     
-    func websocketInit(token: String) {
-        
+    func reconnectWithNewToken(_ token: String?) {
+        guard let token = token else { return }
+        if isConnected {
+            swiftStomp.disconnect() // Disconnect current connection
+        }
+        let url = URL(string: "wss://api.togeda.net/ws")!
+        self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization": "Bearer \(token)"]) // Reinitialize with new token
+        self.swiftStomp.delegate = self // Reset delegate
+        self.swiftStomp.autoReconnect = true // Auto reconnect on error or cancel
+        self.swiftStomp.enableLogging = false
+        self.swiftStomp.connect()
+    }
+    
+    func websocketInit() {
+        if let token = AuthService.shared.getAccessToken() {
+            let url = URL(string: "wss://api.togeda.net/ws")! // Ensure using 'wss' or 'ws' schema
+            self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization" : "Bearer \(token)"]) //< Create instance
+            self.swiftStomp.delegate = self //< Set delegate
+            self.swiftStomp.autoReconnect = true //< Auto reconnect on error or cancel
+            self.swiftStomp.enableLogging = false
+            
+            self.swiftStomp.connect()
+            self.isConnected = true
+        }
     }
     
     func connect() {

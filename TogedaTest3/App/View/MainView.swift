@@ -12,6 +12,7 @@ import HTTPTypes
 import StripeCore
 
 struct MainView: View {
+    @EnvironmentObject var vm: ContentViewModel
     @StateObject var postsViewModel = PostsViewModel()
     @StateObject var activityViewModel = ActivityViewModel()
     @StateObject var clubsViewModel = ClubsViewModel()
@@ -62,6 +63,7 @@ struct MainView: View {
                     }
                     
                 }
+                vm.handleAppDidEnterBackground()
                 setDateOnLeave = Date()
                 webSocketManager.disconnect()
             }
@@ -82,10 +84,19 @@ struct MainView: View {
                     clubsViewModel.clubUpdateOnNewNotification(notification: notification)
                 }
             }
+            .onChange(of: vm.accessToken) { oldValue, newValue in
+                if let token = newValue, token != oldValue {
+                    webSocketManager.reconnectWithNewToken(token)
+                }
+            }
     }
     
     func fetchOnDidBecomeActive() async throws{
         await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                await vm.validateTokens()
+            }
+            
             group.addTask {
                 do {
                     if let chatRoomsResponse = try await APIClient.shared.updateChatRooms(latestDate: webSocketManager.allChatRooms.count > 0 ? webSocketManager.allChatRooms[0].latestMessageTimestamp : setDateOnLeave) {
@@ -182,4 +193,6 @@ struct MainView: View {
 
 #Preview {
     MainView()
+        .environmentObject(NavigationManager())
+        .environmentObject(ContentViewModel())
 }

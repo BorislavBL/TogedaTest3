@@ -153,6 +153,8 @@ struct MainTabView: View {
                     ReviewProfileView(user: user)
                 case .paymentPage:
                     CreateStripeView()
+                case .chatParticipants(chatId: let chatId):
+                    ChatParticipantsView(chatId: chatId)
                 case .test:
                     TestView()
                 }

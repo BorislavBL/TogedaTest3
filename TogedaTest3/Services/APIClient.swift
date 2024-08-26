@@ -49,13 +49,11 @@ struct AuthenticationMiddleware: ClientMiddleware {
         
         // Using a continuation to bridge the asynchronous gap
         let accessToken: String? = await withCheckedContinuation { continuation in
-            AuthClient.shared.getAccessToken { token, error in
-                if let accessToken = token {
-                    continuation.resume(returning: accessToken)
-                } else {
-                    // Handle error or lack of token scenario
-                    continuation.resume(returning: nil)
-                }
+            if let accessToken = AuthService.shared.getAccessToken() {
+                continuation.resume(returning: accessToken)
+            } else {
+                // Handle error or lack of token scenario
+                continuation.resume(returning: nil)
             }
         }
         
@@ -89,7 +87,9 @@ class APIClient: ObservableObject {
     }
     
     @MainActor func handleAuthenticationFailure() {
-        viewModel?.checkAuthStatus()
+        Task{
+            await viewModel?.validateTokens()
+        }
     }
     
 }
@@ -122,12 +122,14 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         return nil
     }
     
     func getCurrentUserInfo() async throws -> Components.Schemas.UserInfoDto? {
-        if let userId = AuthClient.shared.getUserID() {
+        if let userId = KeychainManager.shared.getTokenToString(item: userKeys.userId.toString, service: userKeys.service.toString) {
             return try await getUserInfo(userId: userId)
         } else {
             print("No id")
@@ -160,6 +162,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -189,6 +193,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -219,6 +225,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -249,6 +257,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -276,7 +286,7 @@ extension APIClient {
                     let errorMessage = errorHandler(error: error)
                     completion(nil, errorMessage)
                 }
-//                completion(nil, "Bad Request")
+                //                completion(nil, "Bad Request")
             case .conflict(_):
                 completion(nil, "Conflict")
             case .tooManyRequests(_):
@@ -285,44 +295,48 @@ extension APIClient {
                 completion(nil, "Request timeout")
             case .notFound(_):
                 completion(nil, "Not found")
+            case .internalServerError(_):
+                completion(nil,"Internal server error")
             }
         } catch {
             completion(nil, "Failed with error: \(error.localizedDescription)")
             throw error
         }
     }
-
+    
     
     func generatePresignedPutUrl(bucketName: String, keyName: String) async throws -> String? {
         let jpegName = "\(keyName).jpeg"
-            let response = try await client.generatePresignedPutUrl(.init(query: .init(bucketName: bucketName, keyName: jpegName)))
+        let response = try await client.generatePresignedPutUrl(.init(query: .init(bucketName: bucketName, keyName: jpegName)))
+        
+        switch response {
             
-            switch response {
-                
-            case .ok(let okResponse):
-                switch okResponse.body{
-                case .json(let response):
-                    return response.url
-                }
-            case .undocumented(statusCode: let statusCode, _):
-                print("The status code:", statusCode)
-            case .unauthorized(_):
-                print("Unauthorized")
-            case .forbidden(_):
-                print("Forbidden")
-            case .badRequest(_):
-                print("Bad Request")
-            case .conflict(_):
-                print("Conflict")
-            case .tooManyRequests(_):
-                print("To many Requests for saveOrUnsaveEvent")
-            case .requestTimeout(_):
-                print("Requested timeout")
-            case .notFound(_):
-                print("Not found")
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response.url
             }
-            
-            return nil
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for saveOrUnsaveEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
     }
     
     func updateUserInfo(body: Components.Schemas.PatchUserDto, completion: @escaping (Bool?, String?) -> Void) async throws {
@@ -347,7 +361,7 @@ extension APIClient {
                     let errorMessage = errorHandler(error: error)
                     completion(nil, errorMessage)
                 }
-//                completion(nil, "Bad Request")
+                //                completion(nil, "Bad Request")
             case .conflict(_):
                 completion(nil, "Conflict")
             case .tooManyRequests(_):
@@ -356,13 +370,15 @@ extension APIClient {
                 completion(nil, "Request timeout")
             case .notFound(_):
                 completion(nil, "Not found")
+            case .internalServerError(_):
+                completion(nil,"Internal server error")
             }
         } catch {
             completion(nil, "Failed with error: \(error.localizedDescription)")
             throw error
         }
     }
-
+    
     
     func getUserEvents(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
         let response = try await client.getUserPosts(.init(path: .init(userId: userId), query: .init(pageable: .init(page: page, size: size, sort: nil))))
@@ -390,6 +406,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -421,6 +439,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -455,6 +475,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -485,6 +507,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -515,6 +539,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -545,6 +571,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -575,6 +603,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -605,6 +635,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -635,6 +667,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -665,6 +699,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -695,6 +731,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -725,6 +763,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -755,6 +795,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -791,6 +833,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -823,6 +867,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -875,7 +921,7 @@ extension APIClient {
                     let errorMessage = errorHandler(error: error)
                     completion(nil, errorMessage)
                 }
-//                completion(nil, "Bad Request")
+                //                completion(nil, "Bad Request")
             case .conflict(_):
                 completion(nil, "Conflict")
             case .tooManyRequests(_):
@@ -884,13 +930,15 @@ extension APIClient {
                 completion(nil, "Request timeout")
             case .notFound(_):
                 completion(nil, "Not found")
+            case .internalServerError(_):
+                completion(nil,"Internal server error")
             }
         } catch {
             completion(nil, "Failed with error: \(error.localizedDescription)")
             throw error
         }
     }
-
+    
     
     func getEvent(postId: String) async throws -> Components.Schemas.PostResponseDto? {
         
@@ -919,6 +967,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -951,6 +1001,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -983,6 +1035,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1013,6 +1067,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1043,6 +1099,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1073,6 +1131,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1103,6 +1163,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1133,6 +1195,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1176,6 +1240,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1203,7 +1269,7 @@ extension APIClient {
                     let errorMessage = errorHandler(error: error)
                     completion(nil, errorMessage)
                 }
-//                completion(nil, "Bad Request")
+                //                completion(nil, "Bad Request")
             case .conflict(_):
                 completion(nil, "Conflict")
             case .tooManyRequests(_):
@@ -1212,13 +1278,15 @@ extension APIClient {
                 completion(nil, "Request timeout")
             case .notFound(_):
                 completion(nil, "Not found")
+            case .internalServerError(_):
+                completion(nil,"Internal server error")
             }
         } catch {
             completion(nil, "Failed with error: \(error.localizedDescription)")
             throw error
         }
     }
-
+    
     
     func cancelJoinRequestForEvent(postId: String) async throws -> Bool? {
         let response = try await client.cancelJoinRequestForPost(.init(path: .init(postId: postId)))
@@ -1244,6 +1312,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1279,6 +1349,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1309,6 +1381,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1339,6 +1413,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1369,6 +1445,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1398,6 +1476,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return false
@@ -1427,6 +1507,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return false
@@ -1456,6 +1538,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return false
@@ -1487,6 +1571,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return false
@@ -1530,6 +1616,8 @@ extension APIClient {
                 print("Requested timeout")
             case .notFound(_):
                 print("Not found")
+            case .internalServerError(_):
+                print("Internal server error")
             }
             
             return nil
@@ -1561,6 +1649,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1592,6 +1682,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1638,6 +1730,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1672,6 +1766,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1702,6 +1798,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1729,7 +1827,7 @@ extension APIClient {
                     let errorMessage = errorHandler(error: error)
                     completion(nil, errorMessage)
                 }
-//                completion(nil, "Bad Request")
+                //                completion(nil, "Bad Request")
             case .conflict(_):
                 completion(nil, "Conflict")
             case .tooManyRequests(_):
@@ -1738,13 +1836,15 @@ extension APIClient {
                 completion(nil, "Request timeout")
             case .notFound(_):
                 completion(nil, "Not found")
+            case .internalServerError(_):
+                completion(nil,"Internal server error")
             }
         } catch {
             completion(nil, "Failed with error: \(error.localizedDescription)")
             throw error
         }
     }
-
+    
     
     func getClub(clubID: String) async throws -> Components.Schemas.ClubDto? {
         let response = try await client.getClubById(.init(path: .init(clubId: clubID)))
@@ -1771,45 +1871,49 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
     }
     
     func editClub(clubID: String, body: Components.Schemas.PatchClubDto, completion: @escaping (Bool?, String?) -> Void) async throws {
-
-            let response = try await client.patchClub(.init(path: .init(clubId: clubID), body: .json(body)))
-            
-            switch response {
-            case .ok(let okResponse):
-                switch okResponse.body {
-                case .json(let returnResponse):
-                    completion(returnResponse.success, nil)
-                }
-            case .undocumented(statusCode: let statusCode, _):
-                completion(nil, "The status code: \(statusCode)")
-            case .unauthorized(_):
-                completion(nil, "Unauthorized")
-            case .forbidden(_):
-                completion(nil, "Forbidden")
-            case .badRequest(let error):
-                switch error.body {
-                case .json(let error):
-                    let errorMessage = errorHandler(error: error)
-                    completion(nil, errorMessage)
-                }
-//                completion(nil, "Bad Request")
-            case .conflict(_):
-                completion(nil, "Conflict")
-            case .tooManyRequests(_):
-                completion(nil, "Too many requests for editClub")
-            case .requestTimeout(_):
-                completion(nil, "Request timeout")
-            case .notFound(_):
-                completion(nil, "Not found")
+        
+        let response = try await client.patchClub(.init(path: .init(clubId: clubID), body: .json(body)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body {
+            case .json(let returnResponse):
+                completion(returnResponse.success, nil)
             }
+        case .undocumented(statusCode: let statusCode, _):
+            completion(nil, "The status code: \(statusCode)")
+        case .unauthorized(_):
+            completion(nil, "Unauthorized")
+        case .forbidden(_):
+            completion(nil, "Forbidden")
+        case .badRequest(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+            //                completion(nil, "Bad Request")
+        case .conflict(_):
+            completion(nil, "Conflict")
+        case .tooManyRequests(_):
+            completion(nil, "Too many requests for editClub")
+        case .requestTimeout(_):
+            completion(nil, "Request timeout")
+        case .notFound(_):
+            completion(nil, "Not found")
+        case .internalServerError(_):
+            completion(nil,"Internal server error")
+        }
     }
-
+    
     
     func getClubMembers(
         clubId: String,
@@ -1845,6 +1949,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1884,6 +1990,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1918,6 +2026,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1951,6 +2061,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -1982,6 +2094,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return false
@@ -2011,6 +2125,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return false
@@ -2040,6 +2156,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return false
@@ -2069,6 +2187,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return false
@@ -2099,6 +2219,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2129,6 +2251,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2158,6 +2282,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2187,6 +2313,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2221,6 +2349,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
             
         }
         return nil
@@ -2251,6 +2381,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
             
         }
         return nil
@@ -2281,6 +2413,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
             
         }
         return nil
@@ -2317,6 +2451,8 @@ extension APIClient {
                 print("Requested timeout")
             case .notFound(_):
                 print("Not found")
+            case .internalServerError(_):
+                print("Internal server error")
                 
             }
         }
@@ -2349,6 +2485,8 @@ extension APIClient {
                 print("Requested timeout")
             case .notFound(_):
                 print("Not found")
+            case .internalServerError(_):
+                print("Internal server error")
                 
             }
         }
@@ -2384,6 +2522,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2414,6 +2554,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2444,46 +2586,48 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
     }
     
-//    func notificationsPoll(lastTimestamp: Date, lastId: Int64, complete: @escaping ([Components.Schemas.NotificationDto]?, String?) -> Void) async throws{
-//        let response = try await client.pollUserNotifications(.init(query: .init(lastTimestamp: lastTimestamp, lastId: lastId)))
-//        
-//        switch response {
-//        case .ok(let okResponse):
-//            switch okResponse.body{
-//            case .json(let returnResponse):
-//                complete(returnResponse, nil)
-//            }
-//        case .undocumented(statusCode: let statusCode, _):
-//            print("The status code:", statusCode)
-//            complete(nil, "The status code: \(statusCode)")
-//        case .unauthorized(_):
-//            print("Unauthorized")
-//            complete(nil, "Unauthorized")
-//        case .forbidden(_):
-//            print("Forbidden")
-//            complete(nil, "Forbidden")
-//        case .badRequest(_):
-//            print("Bad Request")
-//            complete(nil, "Bad Request")
-//        case .conflict(_):
-//            print("Conflict")
-//            complete(nil, "Conflict")
-//        case .tooManyRequests(_):
-//            print("To many Requests for")
-//            complete(nil, "To many Requests for notificationsPoll")
-//        case .requestTimeout(_):
-//            print("Requested timeout")
-//        case .notFound(_):
-//            print("Not found")
-//        }
-//        
-//        
-//    }
+    //    func notificationsPoll(lastTimestamp: Date, lastId: Int64, complete: @escaping ([Components.Schemas.NotificationDto]?, String?) -> Void) async throws{
+    //        let response = try await client.pollUserNotifications(.init(query: .init(lastTimestamp: lastTimestamp, lastId: lastId)))
+    //
+    //        switch response {
+    //        case .ok(let okResponse):
+    //            switch okResponse.body{
+    //            case .json(let returnResponse):
+    //                complete(returnResponse, nil)
+    //            }
+    //        case .undocumented(statusCode: let statusCode, _):
+    //            print("The status code:", statusCode)
+    //            complete(nil, "The status code: \(statusCode)")
+    //        case .unauthorized(_):
+    //            print("Unauthorized")
+    //            complete(nil, "Unauthorized")
+    //        case .forbidden(_):
+    //            print("Forbidden")
+    //            complete(nil, "Forbidden")
+    //        case .badRequest(_):
+    //            print("Bad Request")
+    //            complete(nil, "Bad Request")
+    //        case .conflict(_):
+    //            print("Conflict")
+    //            complete(nil, "Conflict")
+    //        case .tooManyRequests(_):
+    //            print("To many Requests for")
+    //            complete(nil, "To many Requests for notificationsPoll")
+    //        case .requestTimeout(_):
+    //            print("Requested timeout")
+    //        case .notFound(_):
+    //            print("Not found")
+    //        }
+    //
+    //
+    //    }
     
 }
 
@@ -2513,6 +2657,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2542,6 +2688,39 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func getChatParticipants(chatId: String) async throws -> [Components.Schemas.MiniUser]? {
+        let response = try await client.getChatRoomParticipants(.init(path: .init(chatId: chatId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2571,6 +2750,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2601,6 +2782,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2634,6 +2817,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2663,6 +2848,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2692,6 +2879,8 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
@@ -2726,10 +2915,307 @@ extension APIClient {
             print("Requested timeout")
         case .notFound(_):
             print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+}
+
+//Authentication
+
+extension APIClient {
+    func resendEmailConfirmationCode(email: String) async throws -> Bool? {
+        let response = try await client.resendEmailConfirmationCode(.init(query: .init(email: email)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
         }
         
         return nil
     }
     
+    func userExistsWithEmail(email: String) async throws -> Bool? {
+        let response = try await client.userExistsWithEmail(.init(query: .init(email: email)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func signUp(email: String, password: String, completion: @escaping (String?, String?) -> Void) async throws {
+        let response = try await client.signUp(.init(body: .json(.init(email: email, password: password))))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                completion(returnResponse.userId, nil)
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            completion(nil, "The status code: \(statusCode)")
+        case .unauthorized(_):
+            completion(nil, "Unauthorized")
+        case .forbidden(_):
+            completion(nil, "Forbidden")
+        case .badRequest(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        case .conflict(_):
+            completion(nil, "Conflict")
+        case .tooManyRequests(_):
+            completion(nil, "Too many requests for addUserInfo")
+        case .requestTimeout(_):
+            completion(nil, "Request timeout")
+        case .notFound(_):
+            completion(nil, "Not found")
+        case .internalServerError(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        }
+    }
+    
+    func login(email: String, password: String, completion: @escaping (Components.Schemas.LoginResponseDTO?, String?) -> Void) async throws {
+        let response = try await client.login(.init(query: .init(email: email, password: password)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                completion(returnResponse, nil)
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            completion(nil, "The status code: \(statusCode)")
+        case .unauthorized(_):
+            completion(nil, "Unauthorized")
+        case .forbidden(_):
+            completion(nil, "Forbidden")
+        case .badRequest(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        case .conflict(_):
+            completion(nil, "Conflict")
+        case .tooManyRequests(_):
+            completion(nil, "Too many requests for addUserInfo")
+        case .requestTimeout(_):
+            completion(nil, "Request timeout")
+        case .notFound(_):
+            completion(nil, "Not found")
+        case .internalServerError(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        }
+    }
+    
+    func confirmSignUp(code: String, userId: String, completion: @escaping (Bool?, String?) -> Void) async throws {
+        let response = try await client.confirmSignUp(query: .init(userId: userId, confirmationCode: code))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                completion(returnResponse.success, nil)
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            completion(nil, "The status code: \(statusCode)")
+        case .unauthorized(_):
+            completion(nil, "Unauthorized")
+        case .forbidden(_):
+            completion(nil, "Forbidden")
+        case .badRequest(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        case .conflict(_):
+            completion(nil, "Conflict")
+        case .tooManyRequests(_):
+            completion(nil, "Too many requests for addUserInfo")
+        case .requestTimeout(_):
+            completion(nil, "Request timeout")
+        case .notFound(_):
+            completion(nil, "Not found")
+        case .internalServerError(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        }
+    }
+    
+    func forgotPassword(email: String, completion: @escaping (Bool?, String?) -> Void) async throws {
+        let response = try await client.forgotPassword(.init(query: .init(email: email)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                completion(returnResponse.success, nil)
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            completion(nil, "The status code: \(statusCode)")
+        case .unauthorized(_):
+            completion(nil, "Unauthorized")
+        case .forbidden(_):
+            completion(nil, "Forbidden")
+        case .badRequest(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        case .conflict(_):
+            completion(nil, "Conflict")
+        case .tooManyRequests(_):
+            completion(nil, "Too many requests for addUserInfo")
+        case .requestTimeout(_):
+            completion(nil, "Request timeout")
+        case .notFound(_):
+            completion(nil, "Not found")
+        case .internalServerError(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        }
+    }
+    
+    func refreshToken(refreshToken: String, userId: String, completion: @escaping (Components.Schemas.RefreshTokenResponseDTO?, String?) -> Void) async throws {
+        let response = try await client.refreshToken(.init(query: .init(refreshToken: refreshToken, userId: userId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                completion(returnResponse, nil)
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            completion(nil, "The status code: \(statusCode)")
+        case .unauthorized(_):
+            completion(nil, "Unauthorized")
+        case .forbidden(_):
+            completion(nil, "Forbidden")
+        case .badRequest(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        case .conflict(_):
+            completion(nil, "Conflict")
+        case .tooManyRequests(_):
+            completion(nil, "Too many requests for addUserInfo")
+        case .requestTimeout(_):
+            completion(nil, "Request timeout")
+        case .notFound(_):
+            completion(nil, "Not found")
+        case .internalServerError(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        }
+    }
+    
+    func confirmForgotPassword(userEmail: String, newPassword: String, code: String, completion: @escaping (Bool?, String?) -> Void) async throws {
+        let response = try await client.confirmForgotPassword(.init(query: .init(userEmail: userEmail, newPassword: newPassword, confirmationCode: code)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                completion(returnResponse.success, nil)
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            completion(nil, "The status code: \(statusCode)")
+        case .unauthorized(_):
+            completion(nil, "Unauthorized")
+        case .forbidden(_):
+            completion(nil, "Forbidden")
+        case .badRequest(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        case .conflict(_):
+            completion(nil, "Conflict")
+        case .tooManyRequests(_):
+            completion(nil, "Too many requests for addUserInfo")
+        case .requestTimeout(_):
+            completion(nil, "Request timeout")
+        case .notFound(_):
+            completion(nil, "Not found")
+        case .internalServerError(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        }
+    }
     
 }

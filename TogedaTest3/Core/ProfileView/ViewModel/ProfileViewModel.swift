@@ -40,9 +40,9 @@ class ProfileViewModel: ObservableObject {
     }
     
     func updateUser(not: Components.Schemas.NotificationDto, user: Binding<Components.Schemas.UserInfoDto?>){
-        if let not = not.alertBodyAcceptedJoinRequest {
+        if not.alertBodyAcceptedJoinRequest != nil {
             user.wrappedValue?.currentFriendshipStatus = .FRIENDS
-        } else if let not = not.alertBodyReceivedJoinRequest {
+        } else if not.alertBodyReceivedJoinRequest != nil {
             user.wrappedValue?.currentFriendshipStatus = .RECEIVED_FRIEND_REQUEST
         }
     }
@@ -110,10 +110,19 @@ class ProfileViewModel: ObservableObject {
                                 self.badges = response
                             }
                         }
-                    } else {
-                        if let badgeTasks = try await APIClient.shared.getBadgeTasks() {
-                            DispatchQueue.main.async {
-                                self.badgeTasks = badgeTasks
+                    }
+                } catch {
+                    print("Error fetching user clubs: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let badgeTasks = try await APIClient.shared.getBadgeTasks() {
+                        DispatchQueue.main.async {
+                            print("BadgesTasks: \(badgeTasks)")
+                            self.badgeTasks = badgeTasks.filter { task in
+                                return task.completionNumber != task.currentNumber
                             }
                         }
                     }

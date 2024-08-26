@@ -107,7 +107,9 @@ struct RegistrationNumberView: View {
                                 withAnimation {
                                     self.isLoading = false
                                 }
-                                mainVm.checkAuthStatus()
+                                Task{
+                                    await mainVm.validateTokensAndCheckState()
+                                }
                             } else if let error = error {
                                 withAnimation {
                                     self.isLoading = false

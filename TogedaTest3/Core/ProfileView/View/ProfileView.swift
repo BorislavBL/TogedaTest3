@@ -121,8 +121,10 @@ struct ProfileView: View {
                     //                        VerifyPhoneProfileTab()
                     //                    }
                     
-                    AboutTab(user: user)
-//                    UserTaskView(badgeTask: <#T##Components.Schemas.BadgeTask#>, referralCode: user.details.referralCode)
+                    AboutTab(user: user, badges: viewModel.badges)
+                    if viewModel.badgeTasks.count > 0 {
+                        UserTaskView(badgeTask: viewModel.badgeTasks[0], referralCode: user.details.referralCode)
+                    }
                     if viewModel.posts.count > 0 {
                         EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: $viewModel.postsCount)
                     }

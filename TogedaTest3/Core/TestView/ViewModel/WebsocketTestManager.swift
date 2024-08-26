@@ -20,8 +20,8 @@ class WebSocketTestManager: ObservableObject, SwiftStompDelegate {
     @Published var Init = true
     
     init(){
-        AuthClient.shared.getAccessToken { token, error in
-            if let token = token {
+        if let token = AuthService.shared.getAccessToken() {
+
                 let url = URL(string: "wss://api.togeda.net/ws")! // Ensure using 'wss' or 'ws' schema
                 self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization" : "Bearer \(token)"]) //< Create instance
                 self.swiftStomp.delegate = self //< Set delegate
@@ -29,7 +29,7 @@ class WebSocketTestManager: ObservableObject, SwiftStompDelegate {
                 self.swiftStomp.enableLogging = false
                 
                 self.swiftStomp.connect()
-            }
+            
         }
 
     }

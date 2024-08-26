@@ -238,6 +238,10 @@
 		14BFD2E22AE00599006A26F9 /* Crop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14BFD2E12AE00599006A26F9 /* Crop.swift */; };
 		14C1498C2AC477AF00F28463 /* LocationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C1498B2AC477AF00F28463 /* LocationHelpers.swift */; };
 		14CB298F2C76434D0025403C /* UserTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB298E2C76434D0025403C /* UserTaskView.swift */; };
+		14CB29922C778D7A0025403C /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB29912C778D7A0025403C /* AuthService.swift */; };
+		14CB29952C78FB470025403C /* ForgottenPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB29942C78FB470025403C /* ForgottenPasswordView.swift */; };
+		14CB29982C7902500025403C /* ConfirmForgottenPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB29972C7902500025403C /* ConfirmForgottenPasswordView.swift */; };
+		14CB299A2C7CD2390025403C /* ChatParticipantsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB29992C7CD2390025403C /* ChatParticipantsView.swift */; };
 		14D437DC2B7FE5DC00912845 /* UserProfileSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D437DB2B7FE5DC00912845 /* UserProfileSkeletonView.swift */; };
 		14D5EFE02B5E9EF000561A8D /* StringHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D5EFDF2B5E9EF000561A8D /* StringHelpers.swift */; };
 		14D5EFE22B5EC04200561A8D /* AllClubEventsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D5EFE12B5EC04200561A8D /* AllClubEventsView.swift */; };
@@ -518,6 +522,10 @@
 		14BFD2E12AE00599006A26F9 /* Crop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crop.swift; sourceTree = "<group>"; };
 		14C1498B2AC477AF00F28463 /* LocationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationHelpers.swift; sourceTree = "<group>"; };
 		14CB298E2C76434D0025403C /* UserTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTaskView.swift; sourceTree = "<group>"; };
+		14CB29912C778D7A0025403C /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		14CB29942C78FB470025403C /* ForgottenPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgottenPasswordView.swift; sourceTree = "<group>"; };
+		14CB29972C7902500025403C /* ConfirmForgottenPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmForgottenPasswordView.swift; sourceTree = "<group>"; };
+		14CB29992C7CD2390025403C /* ChatParticipantsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatParticipantsView.swift; sourceTree = "<group>"; };
 		14D437DB2B7FE5DC00912845 /* UserProfileSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileSkeletonView.swift; sourceTree = "<group>"; };
 		14D5EFDF2B5E9EF000561A8D /* StringHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringHelpers.swift; sourceTree = "<group>"; };
 		14D5EFE12B5EC04200561A8D /* AllClubEventsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllClubEventsView.swift; sourceTree = "<group>"; };
@@ -817,6 +825,7 @@
 				141B8B5A2B10E7EF00FAE127 /* NewMessageView.swift */,
 				14DC6F182B16765F0078C6D7 /* NewGroupChatView.swift */,
 				14DCAC372B17624F00104B10 /* NewGroupChatCreateView.swift */,
+				14CB29992C7CD2390025403C /* ChatParticipantsView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1066,6 +1075,7 @@
 				1422644D2BECFB3C002DB3CE /* APIClient.swift */,
 				1455CFD12B484F1D00D6044B /* PhotoPickerService.swift */,
 				146591632B726FA50004B6DC /* ImageService.swift */,
+				14CB29912C778D7A0025403C /* AuthService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1447,6 +1457,8 @@
 			isa = PBXGroup;
 			children = (
 				142C68D32B28CCA4001FBCA7 /* LoginView.swift */,
+				14CB29942C78FB470025403C /* ForgottenPasswordView.swift */,
+				14CB29972C7902500025403C /* ConfirmForgottenPasswordView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1938,6 +1950,7 @@
 				14ED465A2C6B87EE006DEAED /* AcceptedFriendRequestView.swift in Sources */,
 				14807A632AB4C16F00716A17 /* SearchView.swift in Sources */,
 				143C318B2B47286E00DCEE65 /* GroupSettingsView.swift in Sources */,
+				14CB29952C78FB470025403C /* ForgottenPasswordView.swift in Sources */,
 				140A2BE12ACED10B00623446 /* SearchFilters.swift in Sources */,
 				142F12FC2C00F6690035EBE5 /* TestSearch.swift in Sources */,
 				142C68D42B28CCA4001FBCA7 /* LoginView.swift in Sources */,
@@ -1962,6 +1975,7 @@
 				141DF3592B0541B900CE94F5 /* ChatViewModel.swift in Sources */,
 				147613DB2B4469C0001C1AA8 /* AllUserGroupsView.swift in Sources */,
 				14F5B4022C3D7FC900C714D1 /* FriendsFeedView.swift in Sources */,
+				14CB29982C7902500025403C /* ConfirmForgottenPasswordView.swift in Sources */,
 				14ED46602C6BAB80006DEAED /* ActivityViewModel.swift in Sources */,
 				14F8F7C82AF3FEA6005BBC92 /* NavigationControllerExtension.swift in Sources */,
 				145D62F72ADD7AD100941BC3 /* PhotoPickerView.swift in Sources */,
@@ -1974,6 +1988,7 @@
 				1418C77D2B6D345C0037BE5A /* TestViewModel.swift in Sources */,
 				143C31882B4712A800DCEE65 /* ClubMembersListView.swift in Sources */,
 				14ED466C2C73A544006DEAED /* ImageViewer.swift in Sources */,
+				14CB299A2C7CD2390025403C /* ChatParticipantsView.swift in Sources */,
 				14515E2D2B51992C004ECF31 /* BookmarkedEventsView.swift in Sources */,
 				14853AEE2C611A240004EB93 /* WebsocketTestManager.swift in Sources */,
 				14132F342C08BEEE006DAD08 /* PostSkeleton.swift in Sources */,
@@ -2002,6 +2017,7 @@
 				1400BD042B4597D4000EB8BC /* ClubEventComponent.swift in Sources */,
 				14390D732B30988D00D677FB /* RegistrationOccupationView.swift in Sources */,
 				14004ACA2C59399600DDE6AD /* BottomBarModifier.swift in Sources */,
+				14CB29922C778D7A0025403C /* AuthService.swift in Sources */,
 				14BEC1772AFBCD0400DDCD63 /* EventAcceptance.swift in Sources */,
 				14807A512AB4C08200716A17 /* HomeViewModel.swift in Sources */,
 				14973BC82B3F19ED0067D1A8 /* NormalPhotoPickerView.swift in Sources */,

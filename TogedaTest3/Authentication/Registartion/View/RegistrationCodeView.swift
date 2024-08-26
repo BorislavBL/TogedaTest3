@@ -15,12 +15,13 @@ struct RegistrationCodeView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var displayError: Bool = false
-    
     @State private var errorMessage: String?
-    
     @State var code: String = ""
     @Binding var email: String
     @Binding var password: String
+    
+    @State private var isTimerActive: Bool = false
+    @State private var remainingTime: Int = 30
     
     var body: some View {
         VStack {
@@ -59,43 +60,60 @@ struct RegistrationCodeView: View {
                     .padding(.bottom, 15)
             }
             
-            Button{
-                code = ""
-                AuthClient.shared.resendConfirmationCode(email: email) { success, error in
-                    if success {
-                        
-                    } else if let errorMessage = error {
-                        print("Error:", errorMessage)
+            if isTimerActive {
+                Text("Resend code in \(remainingTime) seconds")
+                    .foregroundStyle(.gray)
+                    .padding(.bottom, 15)
+            } else {
+                Button(action: {
+                    code = ""
+                    Task {
+                        if let success = try await AuthService.shared.resendEmailConfirmationCode(email: email) {
+                            if success {
+                                startTimer()
+                            }
+                        }
                     }
+                }) {
+                    HStack(alignment: .top, content: {
+                        Image(systemName: "gobackward")
+                        Text("Resend the code")
+                            .bold()
+                    })
+                    .foregroundStyle(.gray)
                 }
-            } label: {
-                HStack(alignment: .top, content: {
-                    Image(systemName: "gobackward")
-                    Text("Resend the code")
-                        .bold()
-                    
-                })
-                .foregroundStyle(.gray)
             }
             
             Spacer()
             
             Button{
-                AuthClient.shared.confirmSignUp(email: email, code: code) { success, error in
-                    if success {
-                        AuthClient.shared.login(email: email, password: password) { success, emailNotConfirmed, error  in
-                            if success {
-                                print("Success")
-                                mainVm.checkAuthStatus()
-                            } else if let message = error {
-                                print(message)
-                                if emailNotConfirmed{
-                                    print("Email not confirmed")
+                Task {
+                    try await AuthService.shared.confirmSignUp(code: code, userId: email) { success, error in
+                        if let success = success, success {
+                            Task{
+                                try await AuthService.shared.login(email: email, password: password) { response, error  in
+                                    if let response = response {
+                                        print("Success")
+                                        let refershToken = KeychainManager.shared.saveOrUpdate(item: response.refreshToken, account: userKeys.refreshToken.toString, service: userKeys.service.toString)
+                                        let accessToken = KeychainManager.shared.saveOrUpdate(item: response.accessToken, account: userKeys.accessToken.toString, service: userKeys.service.toString)
+                                        let token = getDecodedJWTBody(token: response.accessToken )
+                                        if let userId = token?.username {
+                                            let savedUserIdData = KeychainManager.shared.saveOrUpdate(item: userId, account: userKeys.userId.toString, service: userKeys.service.toString)
+                                            print(savedUserIdData ? "Token saved/updated successfully" : "Failed to save/update token")
+                                        }
+                                        Task{
+                                            await mainVm.validateTokensAndCheckState()
+                                        }
+                                    } else if let message = error {
+                                        print(message)
+                                    }
                                 }
                             }
+                        } else if let errorMessage = error {
+                            DispatchQueue.main.async {
+                                self.errorMessage = errorMessage
+                            }
                         }
-                    } else if let errorMessage = error {
-                        self.errorMessage = errorMessage
                     }
                 }
             } label:{
@@ -124,8 +142,18 @@ struct RegistrationCodeView: View {
         }
         .padding(.vertical)
         .swipeBack()
+        .onAppear(){
+            code = ""
+            Task {
+                if let success = try await AuthService.shared.resendEmailConfirmationCode(email: email) {
+                    if success {
+                        
+                    }
+                }
+            }
+        }
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading:Button(action: {dismiss()}) {
+        .navigationBarItems(leading: Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .frame(width: 35, height: 35)
                 .background(Color(.tertiarySystemFill))
@@ -146,6 +174,21 @@ struct RegistrationCodeView: View {
             return Color(.systemGray5)
         } else {
             return Color(.systemGray6)
+        }
+    }
+    
+    // Timer function
+    func startTimer() {
+        remainingTime = 30
+        isTimerActive = true
+        
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            if remainingTime > 0 {
+                remainingTime -= 1
+            } else {
+                timer.invalidate()
+                isTimerActive = false
+            }
         }
     }
 }

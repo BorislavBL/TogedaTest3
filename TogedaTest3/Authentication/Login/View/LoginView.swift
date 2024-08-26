@@ -23,7 +23,10 @@ struct LoginView: View {
     @State private var saveLogin: Bool = true
     @State private var isNotEmailConfirmed = false
     
+    @State var forgotPassword = false
     @EnvironmentObject var mainVm: ContentViewModel
+    
+    @State var userId: String = ""
     
     var body: some View {
         VStack {
@@ -69,19 +72,19 @@ struct LoginView: View {
                         .foregroundStyle(.gray)
                 }
             }
-                .placeholder(when: password.isEmpty) {
-                    Text("Password")
-                        .foregroundColor(.secondary)
-                        .bold()
-                }
-                .bold()
-                .focused($focus, equals: .password)
-                .keyboardType(.default)
-                .padding(10)
-                .frame(minWidth: 80, minHeight: 47)
-                .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .padding(.top, 2)
-                .padding(.bottom, 15)
+            .placeholder(when: password.isEmpty) {
+                Text("Password")
+                    .foregroundColor(.secondary)
+                    .bold()
+            }
+            .bold()
+            .focused($focus, equals: .password)
+            .keyboardType(.default)
+            .padding(10)
+            .frame(minWidth: 80, minHeight: 47)
+            .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .padding(.top, 2)
+            .padding(.bottom, 15)
             
             if displayError && (email.isEmpty || password.isEmpty) {
                 WarningTextComponent(text: "")
@@ -98,23 +101,23 @@ struct LoginView: View {
                     .padding(.bottom, 15)
             }
             
-            Button{
-                saveLogin.toggle()
-            } label: {
-                HStack(alignment: .center, spacing: 16, content: {
-                    Image(systemName: saveLogin ? "checkmark.square.fill" : "square")
-                    Text("Stay logged in")
-                        .multilineTextAlignment(.leading)
-                        .bold()
-                    
-                })
-                .foregroundStyle(.gray)
-                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
-            }
-            .padding(.bottom, 10)
+//            Button{
+//                saveLogin.toggle()
+//            } label: {
+//                HStack(alignment: .center, spacing: 16, content: {
+//                    Image(systemName: saveLogin ? "checkmark.square.fill" : "square")
+//                    Text("Stay logged in")
+//                        .multilineTextAlignment(.leading)
+//                        .bold()
+//                    
+//                })
+//                .foregroundStyle(.gray)
+//                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+//            }
+//            .padding(.bottom, 10)
             
             Button{
-
+                forgotPassword = true
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
                     Text("Forget Password?")
@@ -130,18 +133,38 @@ struct LoginView: View {
             
             Button{
                 errorMessage = nil
-                AuthClient.shared.login(email: email, password: password) { success, emailNotConfirmed, error  in
-                    if success {
-                        print("Success")
-                        mainVm.checkAuthStatus()
-                        self.errorMessage = nil
-                    } else if let message = error {
-                        self.errorMessage = message
-                        if emailNotConfirmed{
-                            isNotEmailConfirmed = true
+                
+                Task{
+                    try await AuthService.shared.login(email: email, password: password) { response, error  in
+                        if let response = response {
+                            print("Success")
+                            let _ = KeychainManager.shared.saveOrUpdate(item: response.refreshToken, account: userKeys.refreshToken.toString, service: userKeys.service.toString)
+                            
+                            let _ = KeychainManager.shared.saveOrUpdate(item: response.accessToken, account: userKeys.accessToken.toString, service: userKeys.service.toString)
+                            
+                            let _ = KeychainManager.shared.saveOrUpdate(item: response.userId, account: userKeys.userId.toString, service: userKeys.service.toString)
+                            
+                            self.userId = response.userId
+                            
+                            Task{
+                                await mainVm.validateTokensAndCheckState()
+                            }
+                            self.errorMessage = nil
+                        } else if let message = error {
+                            if message.lowercased().contains("user is not confirmed".lowercased()) {
+                                self.errorMessage = "Email is not confirmed."
+                                isNotEmailConfirmed = true
+                                
+                            } else if message.lowercased().contains("incorrect username or password".lowercased()) {
+                                self.errorMessage = "Incorrect email or password"
+                            }
+                            else {
+                                self.errorMessage = message
+                            }
                         }
                     }
                 }
+                
             } label: {
                 Text("Login")
                     .frame(maxWidth: .infinity)
@@ -172,6 +195,9 @@ struct LoginView: View {
         .padding(.vertical)
         .navigationDestination(isPresented: $isNotEmailConfirmed, destination: {
             RegistrationCodeView(email: $email, password: $password)
+        })
+        .navigationDestination(isPresented: $forgotPassword, destination: {
+            ForgottenPasswordView(isActive1: $forgotPassword)
         })
         .swipeBack()
         .navigationBarBackButtonHidden(true)
@@ -206,7 +232,7 @@ struct LoginView: View {
             return false
         }
     }
-
+    
 }
 
 #Preview {
