@@ -28,13 +28,22 @@ struct ContentView: View {
             }
             
             
-            VStack{
-                Button("Click"){
-                    print(TimeZone.current)
-                    print(Date())
-                }
-            }
-            .background(.base)
+//            VStack{
+//                Button("Click"){
+//                    let sourceTimeZone = TimeZone.current
+//
+//                    // Create a date formatter with the source time zone
+//                    let dateFormatter = DateFormatter()
+//                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+//                    dateFormatter.timeZone = sourceTimeZone
+//
+//                    // Parse a date string in the source time zone
+//                    let dateString = Date()
+//                    let sourceDate = dateFormatter.string(from: dateString)
+//                    print(sourceDate)
+//                }
+//            }
+//            .background(.base)
             
 //            NetworkStatusView(isConnected: $networkManager.isConnected)
 //                .padding(.top, 20)

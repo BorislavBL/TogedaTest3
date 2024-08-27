@@ -59,6 +59,37 @@ class CreateEventViewModel: ObservableObject {
     //Location Confirmation
     @Published var needsLocationalConfirmation = false
     
+    func mergeEvent(event: Components.Schemas.PostResponseDto) {
+        title = event.title
+        if let count = event.maximumPeople, count > 0 {
+            participants = Int(count)
+        }
+        if event.payment > 0 {
+            price = event.payment
+        }
+        location = event.location
+        if let evdescription = event.description{
+            description = evdescription
+        }
+        selectedVisability = event.accessibility.rawValue
+        askToJoin = event.askToJoin
+        
+        if let clubID = event.clubId {
+            Task{
+                if let response = try await APIClient.shared.getClub(clubID: clubID) {
+                    club = response
+                }
+            }
+        }
+        
+        selectedInterests = event.interests.map({ interest in
+            Interest(name: interest.name, icon: interest.icon, category: interest.category)
+        })
+        
+        postPhotosURls = event.images
+        needsLocationalConfirmation = event.needsLocationalConfirmation
+    }
+    
     func createPost() -> Components.Schemas.CreatePostDto {
         let interests = selectedInterests.map { interest in
             Components.Schemas.Interest(name: interest.name, icon: interest.icon, category: interest.category)

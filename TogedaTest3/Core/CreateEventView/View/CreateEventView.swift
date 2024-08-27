@@ -9,6 +9,7 @@ import SwiftUI
 import MapKit
 
 struct CreateEventView: View {
+    var prevEvent: Components.Schemas.PostResponseDto?
     var fromClub: Components.Schemas.ClubDto? = nil
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
@@ -19,7 +20,7 @@ struct CreateEventView: View {
     @State var isLoading = false
     
     //PhotoPicker
-    @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .normal)
+    @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .edit)
     
     @State private var showDescriptionView: Bool = false
     @State private var showPhotosView: Bool = false
@@ -99,7 +100,7 @@ struct CreateEventView: View {
                                 .foregroundStyle(.tint)
                             Spacer()
                             
-                            if photoPickerVM.selectedImages.contains(where: {$0 != nil}) {
+                            if (photoPickerVM.selectedImages.contains(where: {$0 != nil}) || ceVM.postPhotosURls.count > 0) {
                                 Text("Selected")
                                     .foregroundColor(.gray)
                             } else {
@@ -302,7 +303,7 @@ struct CreateEventView: View {
                                     .fontWeight(.semibold)
                                 
                                 if ceVM.dateTimeSettings == 2 {
-                                    DatePicker("To", selection: $ceVM.to, in: Date().addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
+                                    DatePicker("To", selection: $ceVM.to, in: ceVM.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
                                         .fontWeight(.semibold)
                                 }
                             } else {
@@ -543,6 +544,9 @@ struct CreateEventView: View {
             }
             .onAppear(){
                 if Init{
+                    if let event = prevEvent {
+                        ceVM.mergeEvent(event: event)
+                    }
                     ceVM.club = fromClub
                     Init = false
                 }
@@ -568,7 +572,7 @@ struct CreateEventView: View {
                 DescriptionView(description: $ceVM.description, placeholder: descriptionPlaceholder)
             }
             .navigationDestination(isPresented: $showPhotosView) {
-                PhotoPickerView(photoPickerVM: photoPickerVM)
+                PhotoPickerView(photoPickerVM: photoPickerVM, ceVM: ceVM)
             }
             .navigationDestination(isPresented: $showLocationView) {
                 LocationPicker(returnedPlace: $ceVM.returnedPlace, isActivePrev: $showLocationView)
@@ -587,8 +591,7 @@ struct CreateEventView: View {
     
     func createEvent() async throws {
         do{
-            if await photoPickerVM.saveImages() {
-                ceVM.postPhotosURls = photoPickerVM.publishedPhotosURLs
+            if await photoPickerVM.imageCheckAndMerge(images: $ceVM.postPhotosURls){
                 let createPost = ceVM.createPost()
                 try await APIClient.shared.createEvent(body: createPost) { response, error in
                     if let responseID = response {
@@ -673,7 +676,7 @@ struct CreateEventView: View {
     }
     
     var noPhotos: Bool {
-        if photoPickerVM.selectedImages.allSatisfy({ $0 == nil }) && displayWarnings{
+        if (photoPickerVM.selectedImages.allSatisfy({ $0 == nil }) && ceVM.postPhotosURls.count == 0) && displayWarnings{
             return true
         } else {
             return false
@@ -681,7 +684,7 @@ struct CreateEventView: View {
     }
     
     var noLocation: Bool {
-        if ceVM.returnedPlace.name == "Unknown Location" && displayWarnings {
+        if (ceVM.returnedPlace.name == "Unknown Location" && ceVM.location == nil) && displayWarnings {
             return true
         } else {
             return false
@@ -713,7 +716,7 @@ struct CreateEventView: View {
     }
     
     var allRequirenments: Bool {
-        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }),
+        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.location != nil, (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || ceVM.postPhotosURls.count > 0),
            ceVM.selectedInterests.count > 0 && !ceVM.selectedVisability.isEmpty && ceVM.from > Date() {
             return true
         } else {

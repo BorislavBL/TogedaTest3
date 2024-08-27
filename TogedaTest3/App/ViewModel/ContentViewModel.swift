@@ -70,6 +70,15 @@ extension ContentViewModel {
         tokenCheckTimer = nil
     }
     
+    func miniValidation() -> Bool {
+        if let _ = KeychainManager.shared.retrieve(itemForAccount: userKeys.refreshToken.toString, service: userKeys.service.toString), let accessToken = KeychainManager.shared.getToken(item: userKeys.accessToken.toString, service: userKeys.service.toString),
+           !isTokenExpired(accessToken) {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     func validateTokensAndCheckState() async {
         guard let _ = KeychainManager.shared.retrieve(itemForAccount: userKeys.refreshToken.toString, service: userKeys.service.toString) else {
             DispatchQueue.main.async {

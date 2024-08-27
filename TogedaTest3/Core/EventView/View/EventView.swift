@@ -37,6 +37,7 @@ struct EventView: View {
     @State var club: Components.Schemas.ClubDto?
     
     @State private var Init = true
+    @State private var openCreateEvent = false
     
     var body: some View {
         
@@ -252,6 +253,9 @@ struct EventView: View {
                 .presentationDetents([.fraction(0.8), .fraction(1)])
                 .presentationDragIndicator(.visible)
         }
+        .fullScreenCover(isPresented: $openCreateEvent, content: {
+            CreateEventView(prevEvent: post)
+        })
         
     }
     
@@ -332,7 +336,7 @@ struct EventView: View {
                     }
                 } else {
                     Button{
-                        
+                        openCreateEvent = true
                     } label:{
                         Text("Recreate")
                             .font(.footnote)

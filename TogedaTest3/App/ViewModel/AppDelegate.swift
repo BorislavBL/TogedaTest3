@@ -17,7 +17,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate , ObservableObject{
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Configure AWS Cognito
-
+//        let configuration = AWSServiceConfiguration(region: .EUCentral1, credentialsProvider: nil)
+//        let poolConfiguration = AWSCognitoIdentityUserPoolConfiguration(clientId: "",
+//                                                                        clientSecret: "", poolId: "")
+//        AWSCognitoIdentityUserPool.register(with: configuration, userPoolConfiguration: poolConfiguration, forKey: "")
+//
+//        AWSServiceManager.default().defaultServiceConfiguration = configuration
         
 //        requestNotificationPermissions(application: application)
         

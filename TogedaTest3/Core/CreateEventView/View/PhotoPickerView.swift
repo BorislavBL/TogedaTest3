@@ -14,6 +14,7 @@ struct PhotoPickerView: View {
     private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 3) - 16
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var userViewModel: UserViewModel
+    @ObservedObject var ceVM: CreateEventViewModel
     
     var body: some View {
         ScrollView {
@@ -22,7 +23,8 @@ struct PhotoPickerView: View {
                         .font(.footnote)
                         .foregroundStyle(.gray)
                 
-                NormalPhotosGridView(vm: photoPickerVM)
+//                NormalPhotosGridView(vm: photoPickerVM)
+                PhotosGridView(images: $ceVM.postPhotosURls, vm: photoPickerVM)
                 
                 if photoPickerVM.selectedImages.allSatisfy({ $0 == nil }), let user = userViewModel.currentUser{
                     
@@ -73,6 +75,6 @@ struct PhotoPickerView: View {
 }
 
 #Preview {
-    PhotoPickerView(photoPickerVM: PhotoPickerViewModel(s3BucketName: .user, mode: .normal))
+    PhotoPickerView(photoPickerVM: PhotoPickerViewModel(s3BucketName: .user, mode: .normal), ceVM: CreateEventViewModel())
         .environmentObject(UserViewModel())
 }

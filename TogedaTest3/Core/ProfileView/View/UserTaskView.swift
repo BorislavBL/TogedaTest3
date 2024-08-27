@@ -27,7 +27,7 @@ struct UserTaskView: View {
             //
             
             VStack (alignment: .center) {
-                Text("🏅")
+                Text(badgeTask.badge?.image ?? "🏅")
                     .font(.custom("", size: 120))
                     .padding()
                     .background{
@@ -53,11 +53,11 @@ struct UserTaskView: View {
                 .multilineTextAlignment(.leading)
             }
             
-            Text("Invited Friends: (\(badgeTask.currentNumber ?? 0)/\(badgeTask.completionNumber ?? 10))")
+            Text("\(badgeTask.counterName): (\(badgeTask.currentNumber)/\(badgeTask.completionNumber))")
                 .font(.body)
                 .fontWeight(.bold)
             
-            ProgressView(value: 10, total: 20)
+            ProgressView(value: Float(badgeTask.currentNumber), total: Float(badgeTask.completionNumber))
                 .scaleEffect(CGSize(width: 1.0, height: 2.0))
             
             Text("Referral Code:")
