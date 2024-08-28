@@ -23,14 +23,3 @@ struct TimeFilter: Hashable{
     ]
 }
 
-struct EventFeedFilter: Hashable {
-    var lastPage: Bool = true
-    var page: Int32 = 0
-    var size: Int32 = 15
-    var lat: Double = 43
-    var long: Double = 39
-    var distance: Int = 300
-    var from: Date? = nil
-    var to: Date? = nil
-    var categories: [String]? = nil
-}

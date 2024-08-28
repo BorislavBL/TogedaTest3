@@ -126,5 +126,5 @@ struct AllUserEventsView: View {
 }
 
 #Preview {
-    AllUserEventsView(userID: User.MOCK_USERS[0].id, posts: [MockPost])
+    AllUserEventsView(userID: "", posts: [MockPost])
 }

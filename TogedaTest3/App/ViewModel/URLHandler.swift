@@ -27,7 +27,9 @@ class URLHandler {
             handleEventReviewURL(url)
         } else if url.host == "joinRequest" {
            handleJoinRequestURL(url)
-        }
+        }  else if url.host == "chatRoom" {
+           handleChatroomURL(url)
+         }
     }
     
     private func handleEventURL(_ url: URL) {
@@ -68,6 +70,20 @@ class URLHandler {
                 if let response = try await APIClient.shared.getClub(clubID: id) {
                     DispatchQueue.main.async{
                         self.navigationManager.selectionPath.append(.club(response))
+                    }
+                }
+            }
+        }
+    }
+    
+    private func handleChatroomURL(_ url: URL) {
+        if let queryParameters = url.queryParameters,
+           let id = queryParameters["id"] {
+            Task {
+                if let response = try await APIClient.shared.getChat(chatId: id) {
+                    DispatchQueue.main.async{
+                        self.navigationManager.screen = .message
+                        self.navigationManager.selectionPath = [.userChat(chatroom: response)]
                     }
                 }
             }

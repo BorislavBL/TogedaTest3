@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FriendRequestPage: View {
     let size: ImageSize = .medium
-    var users: [MiniUser] = MiniUser.MOCK_MINIUSERS
+    var users: [Components.Schemas.MiniUser] = [MockMiniUser]
     var body: some View {
         VStack{
             NavigationLink(value: SelectionPath.userRequest){
@@ -45,7 +45,7 @@ struct FriendRequestPage: View {
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
-                        Text("\(users[0].fullName) & \(users.count) more ")
+                        Text("\(users[0].firstName) \(users[0].lastName) & \(users.count) more ")
                             .font(.footnote)
                             .foregroundStyle(.gray)
                     }

@@ -5,12 +5,13 @@ class MyBackendModel: ObservableObject {
 
     @Published var paymentSheet: PaymentSheet?
     @Published var paymentResult: PaymentSheetResult?
+    @Published var postId: String?
     
     func preparePaymentSheet() {
         // MARK: Fetch the PaymentIntent and Customer information from the backend
         Task {
             do {
-                if let request = try await APIClient.shared.getPaymentSheet(postId: "d15a555e-429a-45be-88fc-de6a4f88b107") {
+                if let id = postId, let request = try await APIClient.shared.getPaymentSheet(postId: id) {
                     print("Received request: \(request)")
                     STPAPIClient.shared.publishableKey = "pk_test_\(request.publishableKey)"
                     
@@ -19,6 +20,10 @@ class MyBackendModel: ObservableObject {
                     var configuration = PaymentSheet.Configuration()
                     configuration.merchantDisplayName = "Togeda Net"
                     configuration.returnURL = "https://www.togeda.net/"
+                    configuration.applePay = .init(
+                      merchantId: "merchant.net.togeda.ios",
+                      merchantCountryCode: "BG"
+                    )
                     // configuration.customer = .init(id: customerId, ephemeralKeySecret: customerEphemeralKeySecret)
                     configuration.allowsDelayedPaymentMethods = true
                     
@@ -42,6 +47,7 @@ class MyBackendModel: ObservableObject {
 
 struct CheckoutView: View {
     @StateObject var model = MyBackendModel()
+    var postId: String
     
     var body: some View {
         VStack {
@@ -69,11 +75,12 @@ struct CheckoutView: View {
                 }
             }
         }.onAppear {
+            model.postId = postId
             model.preparePaymentSheet()
         }
     }
 }
 
 #Preview {
-    CheckoutView()
+    CheckoutView(postId: "")
 }

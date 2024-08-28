@@ -114,5 +114,5 @@ struct BookmarkedEventsView: View {
 }
 
 #Preview {
-    BookmarkedEventsView(userID: User.MOCK_USERS[0].id, posts: [MockPost])
+    BookmarkedEventsView(userID: "", posts: [MockPost])
 }

@@ -17,7 +17,6 @@ class ClubViewModel: ObservableObject {
     
     @Published var images = ["event_1", "event_2", "event_3", "event_4"]
     @Published var selectedImage: Int = 0
-    @Published var joinRequestUsers: [MiniUser] = [MiniUser.MOCK_MINIUSERS[2]]
     @Published var clubs: [Components.Schemas.ClubDto] = [MockClub]
     @Published var clickedClubID: String = ""
     

@@ -330,8 +330,19 @@ struct JoinRequestView: View {
                                                     .foregroundColor(Color("testColor"))
                                                     .cornerRadius(10)
                                                     .onAppear(){
-                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                                            isActive = false
+                                                        Task{
+                                                            if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                                                postsViewModel.localRefreshEventOnAction(post: response)
+                                                                
+                                                                refreshParticipants()
+                                                                
+                                                                post = response
+                                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                                    
+                                                                    isActive = false
+                                                                }
+                                                            }
+ 
                                                         }
                                                     }
                                             case .failed(let error):

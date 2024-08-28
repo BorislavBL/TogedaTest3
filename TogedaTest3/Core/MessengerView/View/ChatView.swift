@@ -24,10 +24,11 @@ struct ChatView: View {
     @State var isChatActive: Bool = false
     @State var atBottom: Bool = false
     @State var activateArrow: Bool = false
+    @StateObject private var keyboard = KeyboardResponder()
+    
     
     var body: some View {
         ZStack(alignment: .top){
-            VStack{
                 ScrollViewReader { proxy in
                     ScrollView{
                         LazyVStack{
@@ -65,7 +66,7 @@ struct ChatView: View {
                                         }
                                         
                                         ChatMessageCell(message: message,
-                                                        nextMessage: nextMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, prevMessage: index > 0 ? chatManager.messages[index - 1] : nil, vm: viewModel)
+                                                        nextMessage: nextMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
                                     }
                                     
                                 }
@@ -85,22 +86,28 @@ struct ChatView: View {
                                         .padding(.horizontal)
                                     //                            }
                                 }
+                                
+//                                Color.clear
+//                                    .frame(height: 10)
+//
                                 //
                                 Color.clear
-                                    .frame(height: 10)
+                                    .frame(height: (keyboard.currentHeight > 0 ? keyboard.currentHeight + 40 : 60))
                                     .id("Bottom")
                                     .onAppear(){
+                                        print("Appeared >")
                                         atBottom = true
                                         activateArrow = false
                                     }
                                     .onDisappear(){
+                                        print("DisAppeared >")
                                         atBottom = false
                                         activateArrow = true
                                     }
+                                    
                             }
                         }
-                        .padding(.top, 70)
-                        .padding(.vertical)
+                        .padding(.top, 86)
                         .background(
                             GeometryReader { geo in
                                 Color.clear
@@ -145,7 +152,7 @@ struct ChatView: View {
                         shouldNotScrollToBottom = false
                     }
                     .onChange(of: isChatActive) { oldValue, newValue in
-                        if newValue && !atBottom {
+                        if newValue && atBottom {
                             withAnimation() {
                                 proxy.scrollTo("Bottom", anchor:.bottom)
                             }
@@ -165,12 +172,18 @@ struct ChatView: View {
                                     .background(.bar)
                                     .clipShape(Circle())
                             }
+                            .padding(.bottom, (keyboard.currentHeight > 0 ? keyboard.currentHeight + 40 : 70))
                         }
                     }
                 }
-                
+                .ignoresSafeArea(.keyboard, edges: .bottom)
                 
                 //            Spacer()
+                
+            VStack{
+                navbar()
+                
+                Spacer()
                 
                 MessageInputView(messageText: $messageText, isActive: $isChatActive, viewModel: viewModel) {
                     if let currentUser = userVm.currentUser {
@@ -189,10 +202,12 @@ struct ChatView: View {
                         }
                     }
                 }
+                .padding(.top, 8)
+                .background(.bar)
                 
+                
+
             }
-            
-            navbar()
             
             if viewModel.isImageView, let image = viewModel.selectedImage{
                 ImageViewer(isActive: $viewModel.isImageView, image: image)
@@ -206,11 +221,13 @@ struct ChatView: View {
         .navigationBarBackButtonHidden(true)
         .swipeBack()
         .onAppear(){
-            onInit()
+            if Init{
+                onInit()
+            }
         }
-        .onDisappear(){
-            chatManager.messagesToDefault()
-        }
+//        .onDisappear(){
+//            chatManager.messagesToDefault()
+//        }
         
         
         

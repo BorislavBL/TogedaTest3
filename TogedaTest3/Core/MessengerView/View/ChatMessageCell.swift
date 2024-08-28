@@ -15,17 +15,16 @@ struct ChatMessageCell: View {
     var currentUserId: String
     let size: ImageSize = .xxSmall
     var chatRoom: Components.Schemas.ChatRoomDto
-    var prevMessage: Components.Schemas.ReceivedChatMessageDto?
     
     @ObservedObject var vm: ChatViewModel
     
     private var shouldShowChatPartnerImage: Bool {
+        guard let next = nextMessage else { return true }
         if nextMessage == nil && !isMessageFromCurrentUser { return true }
-        //        if let prevMessage = prevMessage, let date = Calendar.current.dateComponents([.minute], from: prevMessage.createdAt, to: message.createdAt).minute, date > 30 {
-        //            return true
-        //        }
-        guard let next = nextMessage else { return isMessageFromCurrentUser }
-        return next.sender.id == currentUserId
+        if let date = Calendar.current.dateComponents([.minute], from: message.createdAt, to: next.createdAt).minute, date > 30 {
+            return true
+        }
+        return next.sender.id != message.sender.id
     }
     
     var isMessageFromCurrentUser: Bool {

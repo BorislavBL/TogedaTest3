@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AddedMemoryView: View {
     let size: ImageSize = .medium
-    var user: MiniUser = MiniUser.MOCK_MINIUSERS[0]
+    var user: Components.Schemas.MiniUser = MockMiniUser
     var body: some View {
         VStack {
             NavigationLink(value: SelectionPath.profile(MockMiniUser)){
@@ -22,7 +22,7 @@ struct AddedMemoryView: View {
                     
                 }
                 VStack(alignment:.leading){
-                    Text(user.fullName)
+                    Text(user.firstName + " " + user.lastName)
                         .font(.footnote)
                         .fontWeight(.semibold) +
                     

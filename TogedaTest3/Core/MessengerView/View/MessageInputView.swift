@@ -72,7 +72,8 @@ struct MessageInputView: View {
                 
             }
             .padding(12)
-            .background(Color("SecondaryBackground"))
+//            .background(Color("SecondaryBackground"))
+            .background(Color("blackAndWhite").opacity(0.1))
             .cornerRadius(20)
             .overlay {
             if viewModel.messageImage != nil {

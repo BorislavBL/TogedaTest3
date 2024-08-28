@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var vm: ContentViewModel
+    @EnvironmentObject var navManager: NavigationManager
+
     @StateObject var networkManager = NetworkManager()
     
     var body: some View {
@@ -20,9 +22,11 @@ struct ContentView: View {
                     .frame(height: UIScreen.main.bounds.height)
             case .authenticated:
                 MainView()
-                //                    Test2View()
             case .unauthenticated:
                 IntroView()
+                    .onAppear(){
+                        navManager.toDefault()
+                    }
             case .authenticatedNoInformation:
                 RegistrationFullNameView()
             }
@@ -59,5 +63,7 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
             .environmentObject(ContentViewModel())
+            .environmentObject(NavigationManager())
+
     }
 }

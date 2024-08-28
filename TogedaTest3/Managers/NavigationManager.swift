@@ -77,6 +77,17 @@ class NavigationManager: ObservableObject {
         cancellable = nil
     }
     
+    func toDefault() {
+        selectionPath = [] //NavigationPath()
+        
+        //MARK: - Router
+        screen = .home
+        oldScreen = .home
+        isPresentingEvent = false
+        isPresentingClub = false
+        homeScrollTop = false
+    }
+    
     private func listenForTabSelection() {
         cancellable = $screen
             .sink { [weak self] newTab in

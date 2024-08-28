@@ -31,7 +31,7 @@ class StripeAccountViewModel: ObservableObject {
                         configuration.returnURL = "https://www.togeda.net/"
                         configuration.applePay = .init(
                           merchantId: "merchant.net.togeda.ios",
-                          merchantCountryCode: "US"
+                          merchantCountryCode: "BG"
                         )
                         // configuration.customer = .init(id: customerId, ephemeralKeySecret: customerEphemeralKeySecret)
                         configuration.allowsDelayedPaymentMethods = true

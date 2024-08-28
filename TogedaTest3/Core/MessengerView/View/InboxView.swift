@@ -13,7 +13,6 @@ struct InboxView: View {
     @ObservedObject var chatVM: ChatViewModel
     @State private var showNewMessageView = false
     @State var searchText: String = ""
-    @State var messages: [Message] = Message.MOCK_MESSAGES
     @State var isSearching: Bool = false
     @State var searchUserResults: [Components.Schemas.MiniUser] = [MockMiniUser]
     
@@ -80,7 +79,6 @@ struct InboxView: View {
                 }
             }
         }
-        .listStyle(PlainListStyle())
         .scrollIndicators(.hidden)
         .fullScreenCover(isPresented: $showNewMessageView, content: {
             NewMessageView(chatVM: chatVM)
@@ -218,6 +216,7 @@ struct InboxRowView: View {
                                 .font(.footnote)
                                 .foregroundColor(.gray)
                                 .lineLimit(2)
+                                .multilineTextAlignment(.leading)
                         }
                         
                     } else {

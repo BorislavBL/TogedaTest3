@@ -10,7 +10,7 @@ import PhotosUI
 import SwiftUI
 
 class NewChatViewModel: ObservableObject {
-    @Published var participants: [MiniUser] = []
+    @Published var participants: [Components.Schemas.MiniUser] = []
     @Published var groupName: String = ""
     @Published var groupImage: Image?
     @Published var showPhotosPicker = false
