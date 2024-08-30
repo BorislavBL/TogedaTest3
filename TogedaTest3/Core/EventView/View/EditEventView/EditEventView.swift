@@ -163,122 +163,124 @@ struct EditEventView: View {
 //                        }
 //                        .createEventTabStyle()
 //                    }
-                    
-                    VStack(alignment: .leading, spacing: 20){
-                        Button{
-                            vm.showTimeSettings.toggle()
-                        } label: {
-                            HStack(alignment: .center, spacing: 10) {
-                                Image(systemName: "calendar")
-                                    .imageScale(.large)
-                                
-                                Text("Date & Time")
-                                
-                                Spacer()
-                                
-                                if vm.dateTimeSettings == 1 {
-                                    Text(separateDateAndTime(from: vm.from).date)
+                    if post.status != .HAS_STARTED {
+                        VStack(alignment: .leading, spacing: 20){
+                            Button{
+                                vm.showTimeSettings.toggle()
+                            } label: {
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "calendar")
+                                        .imageScale(.large)
+                                    
+                                    Text("Date & Time")
+                                    
+                                    Spacer()
+                                    
+                                    if vm.dateTimeSettings == 1 {
+                                        Text(separateDateAndTime(from: vm.from).date)
+                                            .foregroundColor(.gray)
+                                    } else if vm.dateTimeSettings == 2 {
+                                        Text("\(separateDateAndTime(from: vm.from).date) - \(separateDateAndTime(from: vm.to).date)")
+                                            .foregroundColor(.gray)
+                                    } else {
+                                        Text("Anyday")
+                                            .foregroundColor(.gray)
+                                    }
+                                    
+                                    
+                                    Image(systemName: vm.showTimeSettings ? "chevron.down" : "chevron.right")
+                                        .padding(.trailing, 10)
                                         .foregroundColor(.gray)
-                                } else if vm.dateTimeSettings == 2 {
-                                    Text("\(separateDateAndTime(from: vm.from).date) - \(separateDateAndTime(from: vm.to).date)")
-                                        .foregroundColor(.gray)
-                                } else {
-                                    Text("Anyday")
-                                        .foregroundColor(.gray)
+                                    
                                 }
                                 
-                                
-                                Image(systemName: vm.showTimeSettings ? "chevron.down" : "chevron.right")
-                                    .padding(.trailing, 10)
-                                    .foregroundColor(.gray)
-                                
                             }
                             
-                        }
-                        
-                        if vm.showTimeSettings {
-                            Picker("Choose Date", selection: $vm.dateTimeSettings){
-                                Text("Anytime").tag(0)
-                                Text("Exact").tag(1)
-                                Text("Range").tag(2)
+                            if vm.showTimeSettings {
+                                Picker("Choose Date", selection: $vm.dateTimeSettings){
+                                    Text("Anytime").tag(0)
+                                    Text("Exact").tag(1)
+                                    Text("Range").tag(2)
+                                    
+                                }
+                                .pickerStyle(.segmented)
                                 
-                            }
-                            .pickerStyle(.segmented)
-                            
-                            if vm.dateTimeSettings != 0 {
-                                DatePicker("From", selection: $vm.from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
-                                    .fontWeight(.semibold)
-                                
-                                if vm.dateTimeSettings == 2 {
-                                    DatePicker("To", selection: $vm.to, in: vm.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
+                                if vm.dateTimeSettings != 0 {
+                                    DatePicker("From", selection: $vm.from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
                                         .fontWeight(.semibold)
-                                }
-                            } else {
-                                HStack {
-                                    Text("The event won't have a specific timeframe.")
-                                        .fontWeight(.medium)
-                                        .padding()
-                                }
-                            }
-                            
-                            
-                        }
-                    }
-                    .createEventTabStyle()
-                    
-                    VStack(alignment: .leading, spacing: 20){
-                        
-                        Button {
-                            vm.showParticipants.toggle()
-                        } label: {
-                            
-                            HStack(alignment: .center, spacing: 10) {
-                                Image(systemName: "person.2.circle")
-                                    .imageScale(.large)
-                                
-                                
-                                Text("Participants")
-                                
-                                Spacer()
-                                if let max = vm.editPost.maximumPeople {
-                                    Text("\(max)")
-                                        .foregroundColor(.gray)
+                                    
+                                    if vm.dateTimeSettings == 2 {
+                                        DatePicker("To", selection: $vm.to, in: vm.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
+                                            .fontWeight(.semibold)
+                                    }
                                 } else {
-                                    Text("No Limit")
-                                        .foregroundColor(.gray)
+                                    HStack {
+                                        Text("The event won't have a specific timeframe.")
+                                            .fontWeight(.medium)
+                                            .padding()
+                                    }
                                 }
                                 
-                                Image(systemName: vm.showParticipants ? "chevron.down" : "chevron.right")
-                                    .padding(.trailing, 10)
-                                    .foregroundColor(.gray)
                                 
                             }
-                            
                         }
-                        if vm.showParticipants {
-                            HStack(alignment: .center, spacing: 10) {
-                                Text("The number of participants")
+                        .createEventTabStyle()
+                        
+                        
+                        VStack(alignment: .leading, spacing: 20){
+                            
+                            Button {
+                                vm.showParticipants.toggle()
+                            } label: {
                                 
-                                Spacer()
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "person.2.circle")
+                                        .imageScale(.large)
+                                    
+                                    
+                                    Text("Participants")
+                                    
+                                    Spacer()
+                                    if let max = vm.editPost.maximumPeople {
+                                        Text("\(max)")
+                                            .foregroundColor(.gray)
+                                    } else {
+                                        Text("No Limit")
+                                            .foregroundColor(.gray)
+                                    }
+                                    
+                                    Image(systemName: vm.showParticipants ? "chevron.down" : "chevron.right")
+                                        .padding(.trailing, 10)
+                                        .foregroundColor(.gray)
+                                    
+                                }
                                 
-                                TextField("Max", value: $vm.editPost.maximumPeople, format:.number)
-                                    .foregroundColor(.gray)
-                                    .frame(width: 70)
-                                    .textFieldStyle(.roundedBorder)
-                                    .keyboardType(.numberPad)
-                                    .onChange(of: vm.editPost.maximumPeople) { old, new in
-                                        if let number = vm.editPost.maximumPeople {
-                                            if number > 1000000 {
-                                                vm.editPost.maximumPeople = old
+                            }
+                            if vm.showParticipants {
+                                HStack(alignment: .center, spacing: 10) {
+                                    Text("The number of participants")
+                                    
+                                    Spacer()
+                                    
+                                    TextField("Max", value: $vm.editPost.maximumPeople, format:.number)
+                                        .foregroundColor(.gray)
+                                        .frame(width: 70)
+                                        .textFieldStyle(.roundedBorder)
+                                        .keyboardType(.numberPad)
+                                        .onChange(of: vm.editPost.maximumPeople) { old, new in
+                                            if let number = vm.editPost.maximumPeople {
+                                                if number > 1000000 {
+                                                    vm.editPost.maximumPeople = old
+                                                }
                                             }
                                         }
-                                    }
+                                    
+                                }
                                 
                             }
-                            
                         }
+                        .createEventTabStyle()
                     }
-                    .createEventTabStyle()
                     
                     Button{
                         deleteSheet = true

@@ -14,11 +14,11 @@ struct UserSettingsView: View {
         List{
             Section(header: Text("Profile")){
                 NavigationLink(value: SelectionPath.editProfile){
-                    Text("Edit Profile")
+                    Text("Edit Profile ")
                 }
-                NavigationLink(value: SelectionPath.test){
-                    Text("Privacy Settings")
-                }
+//                NavigationLink(value: SelectionPath.test){
+//                    Text("Privacy Settings")
+//                }
                 NavigationLink(value: SelectionPath.paymentPage){
                     Text("Payment Methods")
                 }
@@ -69,7 +69,7 @@ struct UserSettingsView: View {
                 
                 Button{
                     
-                }label:{
+                } label:{
                     Text("Delete Account")
                 }
             }

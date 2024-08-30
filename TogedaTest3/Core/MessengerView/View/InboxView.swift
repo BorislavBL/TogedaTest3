@@ -12,9 +12,7 @@ struct InboxView: View {
     @EnvironmentObject var chatManager: WebSocketManager
     @ObservedObject var chatVM: ChatViewModel
     @State private var showNewMessageView = false
-    @State var searchText: String = ""
-    @State var isSearching: Bool = false
-    @State var searchUserResults: [Components.Schemas.MiniUser] = [MockMiniUser]
+
     
     @State var navHeight: CGFloat = .zero
     @State var isLoading = false
@@ -37,7 +35,7 @@ struct InboxView: View {
                 }
                 .padding(.horizontal)
                 
-                CustomSearchBar(searchText: .constant(""), showCancelButton: $isSearching)
+                CustomSearchBar(searchText: $chatVM.searchText, showCancelButton: $chatVM.isSearching)
                     .padding(.horizontal)
                 
                 Divider()
@@ -74,8 +72,14 @@ struct InboxView: View {
                 }
             }
             .overlay{
-                if isSearching {
-                    ChatSearchView()
+                if chatVM.isSearching {
+                    ChatSearchView(chatVM: chatVM)
+                        .onAppear(){
+                            chatVM.startSearch()
+                        }
+                        .onDisappear(){
+                            chatVM.stopSearch()
+                        }
                 }
             }
         }

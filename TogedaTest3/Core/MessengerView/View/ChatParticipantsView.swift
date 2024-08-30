@@ -17,6 +17,9 @@ struct ChatParticipantsView: View {
     @State var Init: Bool = true
     var chatId: String
     
+    @State var lastPage: Bool = true
+    @State var page: Int32 = 0
+    @State var pageSize: Int32 = 15
     @State var participants: [Components.Schemas.MiniUser] = []
     
     var body: some View {
@@ -50,20 +53,48 @@ struct ChatParticipantsView: View {
                 Rectangle()
                     .frame(width: 0, height: 0)
                     .onAppear {
+                        if !lastPage {
+                            isLoading = true
+                            
+                            Task{
+                              if let response = try await APIClient.shared.getChatParticipants(chatId: chatId, page: page, size: pageSize) {
+                                    self.participants += response.data
+                                    self.lastPage = response.lastPage
+                                    self.page += 1
+                                }
+                                isLoading = false
+                                
+                            }
+                        }
                     }
             }
             .padding(.horizontal)
             
         }
+        .refreshable {
+            self.participants = []
+            self.lastPage = true
+            self.page = 0
+            
+            Task{
+                if let response = try await APIClient.shared.getChatParticipants(chatId: chatId, page: page, size: pageSize) {
+                    self.participants += response.data
+                    self.lastPage = response.lastPage
+                    self.page += 1
+                }
+            }
+        }
         .onAppear(){
             Task{
                 do{
                     if Init {
-                        if let response = try await APIClient.shared.getChatParticipants(chatId: chatId) {
-                            self.participants = response
-                            Init = false
+                        if let response = try await APIClient.shared.getChatParticipants(chatId: chatId, page: page, size: pageSize) {
+                            self.participants += response.data
+                            self.lastPage = response.lastPage
+                            self.page += 1
                         }
-
+                        
+                        Init = false
                     }
                 } catch {
                     print("User list error:", error.localizedDescription)

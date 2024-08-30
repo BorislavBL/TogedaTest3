@@ -169,6 +169,37 @@ extension APIClient {
         return nil
     }
     
+    func searchFriends(searchText: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
+        let response = try await client.searchFriends(.init(query: .init(query: searchText, pageNumber: page, pageSize: size)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
     func setUserActivityStatus(status: Operations.changeUserStatus.Input.Query.statusPayload) async throws -> Bool? {
         let response = try await client.changeUserStatus(.init(query: .init(status: status)))
         switch response {
@@ -2356,6 +2387,38 @@ extension APIClient {
         return nil
     }
     
+    func updateStripeAccount() async throws -> String? {
+        let response = try await client.updateAccount()
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.data
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createStripeAccount")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+            
+        }
+        return nil
+    }
+    
     func getStripeOnBoardingLink(accountId: String) async throws -> String? {
         let response = try await client.getOnboardingLink(.init(path: .init(accountId: accountId)))
         
@@ -2664,6 +2727,37 @@ extension APIClient {
         return nil
     }
     
+    func searchChatRoom(searchText: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoChatRoomDto? {
+        let response = try await client.searchChatRooms(.init(query: .init(query: searchText, pageNumber: page, pageSize: size)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
     func allChats(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoChatRoomDto? {
         let response = try await client.findChatRoomsForUser(.init(query: .init(pageNumber: page, pageSize: size)))
         switch response {
@@ -2695,8 +2789,8 @@ extension APIClient {
         return nil
     }
     
-    func getChatParticipants(chatId: String) async throws -> [Components.Schemas.MiniUser]? {
-        let response = try await client.getChatRoomParticipants(.init(path: .init(chatId: chatId)))
+    func getChatParticipants(chatId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
+        let response = try await client.getChatRoomParticipants(.init(path: .init(chatId: chatId), query: .init(pageNumber: page, pageSize: size)))
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{

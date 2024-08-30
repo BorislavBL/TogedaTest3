@@ -8,6 +8,7 @@
 import Foundation
 import PhotosUI
 import SwiftUI
+import Combine
 
 class ChatViewModel: ObservableObject {
     @Published var showChat = false
@@ -22,6 +23,55 @@ class ChatViewModel: ObservableObject {
     @Published var selectedImage: String?
     @Published var isImageView: Bool = false
     
+    @Published var searchText: String = ""
+    @Published var isSearching: Bool = false
+    @Published var chatrooms: [Components.Schemas.ChatRoomDto] = []
+    @Published var chatroomsPageSize: Int32 = 15
+    @Published var chatroomsPage: Int32 = 0
+    @Published var chatroomsLastPage: Bool = true
+    
+    var cancellable: AnyCancellable?
+    
+    func startSearch() {
+        cancellable = $searchText
+            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .sink(receiveValue: { value in
+                if !value.isEmpty {
+                    print("Searching...")
+                    self.toDefault()
+                    Task{
+                       try await self.searchChatrooms()
+                    }
+                    
+                } else {
+                    print("Not Searching...")
+                    self.toDefault()
+                }
+            })
+    }
+    
+    func stopSearch() {
+        cancellable = nil
+        toDefault()
+    }
+    
+    func toDefault() {
+        chatrooms = []
+        chatroomsPage = 0
+        chatroomsLastPage = true
+    }
+    
+    func searchChatrooms() async throws {
+        if let response = try await APIClient.shared.searchChatRoom(searchText: searchText, page: page, size: size){
+            DispatchQueue.main.async {
+                self.chatrooms += response.data
+                self.page += 1
+                self.chatroomsLastPage = response.lastPage
+            }
+
+        }
+    }
     
     @Published var selectedItem: PhotosPickerItem? = nil {
         didSet {

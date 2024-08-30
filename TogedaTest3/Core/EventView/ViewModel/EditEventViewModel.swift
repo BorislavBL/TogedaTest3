@@ -124,10 +124,9 @@ extension EditEventViewModel {
             maximumPeople: post.maximumPeople,
             location: post.location,
             interests: post.interests,
-            payment: post.payment,
+            toDate: toDate,
             accessibility: .init(rawValue: post.accessibility.rawValue) ?? .PUBLIC,
-            fromDate: fromDate,
-            toDate: toDate
+            fromDate: fromDate
         )
         
         return post

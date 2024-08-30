@@ -18,7 +18,13 @@ class CreateEventViewModel: ObservableObject {
     
     //Pricing View
     @Published var showPricing = false
-    @Published var price: Double?
+    @Published var price: Double? {
+        didSet {
+            if let priceTag = price, priceTag > 0 {
+                needsLocationalConfirmation = false
+            }
+        }
+    }
     
     //Location View
     @Published var location: Components.Schemas.BaseLocation?
@@ -29,14 +35,14 @@ class CreateEventViewModel: ObservableObject {
     }
 
     //Date View
-    @Published var from = Date.now.addingTimeInterval(900)
-    {
+    @Published var from = Date.now.addingTimeInterval(900) {
         didSet{
             if to < from.addingTimeInterval(599) {
                 to = from.addingTimeInterval(600)
             }
         }
     }
+    
     @Published var to = Date.now.addingTimeInterval(4500)
     @Published var isDate = true
     @Published var dateTimeSettings = 0
@@ -128,7 +134,7 @@ class CreateEventViewModel: ObservableObject {
             inClubID: clubId,
             fromDate: fromDate,
             toDate: toDate, 
-            needsLocationalConfirmation: needsLocationalConfirmation
+            needsLocationalConfirmation: (price ?? 0 > 0) ? false : needsLocationalConfirmation
         )
     }
 }

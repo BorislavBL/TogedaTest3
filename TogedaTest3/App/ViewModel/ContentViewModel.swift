@@ -144,6 +144,7 @@ extension ContentViewModel {
                 // Assuming refreshToken updates the accessToken in Keychain
                 if let newAccessToken = KeychainManager.shared.getToken(item: userKeys.accessToken.toString, service: userKeys.service.toString) {
                     DispatchQueue.main.async {
+                        self.authenticationState = .authenticated
                         self.startTokenRefreshTimer(accessToken: newAccessToken)
                     }
                 }
@@ -162,7 +163,7 @@ extension ContentViewModel {
     
     private func startTokenRefreshTimer(accessToken: DecodedJWTBody) {
         self.accessToken = accessToken.username
-        
+
         tokenCheckTimer?.invalidate()
         let timeUntilExpiration = calculateTimeUntilExpiration(accessToken)
         print(timeUntilExpiration)
