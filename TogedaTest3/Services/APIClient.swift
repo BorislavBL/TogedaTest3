@@ -1233,6 +1233,38 @@ extension APIClient {
         return nil
     }
     
+    func paidEventFees(postId: String) async throws -> Components.Schemas.PostFeeResponseDto? {
+        let response = try await client.getPostFees(.init(path: .init(postId: postId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for deleteEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
     func getAllEvents(page: Int32, size: Int32, long: Double, lat: Double, distance: Int32, from: Date?, to: Date?, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
         //        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to), Category: \(categories)")
         
@@ -1451,7 +1483,7 @@ extension APIClient {
         return nil
     }
     
-    func getEventParticipantsWaitingList(postId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
+    func getEventParticipantsWaitingList(postId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoJoinRequestDto? {
         let response = try await client.getJoinRequestParticipants(.init(path: .init(postId: postId), query: .init(pageNumber: page, pageSize: size)))
         
         switch response {
@@ -2483,6 +2515,37 @@ extension APIClient {
         return nil
     }
     
+    func checkForPaidEvents() async throws -> Components.Schemas.StripeResponseDto? {
+        let response = try await client.hasPaidPosts()
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getPaymentSheet")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+            
+        }
+        return nil
+    }
     
 }
 
@@ -2696,6 +2759,68 @@ extension APIClient {
 
 //Chat
 extension APIClient {
+    func leaveChat(chatId: String) async throws -> Bool? {
+        let response = try await client.leaveChatroom(.init(path: .init(chatId: chatId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func enterChat(chatId: String) async throws -> Bool? {
+        let response = try await client.enterChatroom(.init(path: .init(chatId: chatId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
     func chatMessages(chatId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoReceivedChatMessageDto? {
         let response = try await client.findChatMessagesGroup(path: .init(chatId: chatId), query: .init(pageNumber: page, pageSize: size))
         switch response {
@@ -2760,6 +2885,37 @@ extension APIClient {
     
     func allChats(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoChatRoomDto? {
         let response = try await client.findChatRoomsForUser(.init(query: .init(pageNumber: page, pageSize: size)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func allChatsRooms(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoChatRoomDto? {
+        let response = try await client.findAllChatRoomsForUser(.init(query: .init(pageNumber: page, pageSize: size)))
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
@@ -3017,299 +3173,3 @@ extension APIClient {
     }
 }
 
-//Authentication
-
-extension APIClient {
-    func resendEmailConfirmationCode(email: String) async throws -> Bool? {
-        let response = try await client.resendEmailConfirmationCode(.init(query: .init(email: email)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
-    }
-    
-    func userExistsWithEmail(email: String) async throws -> Bool? {
-        let response = try await client.userExistsWithEmail(.init(query: .init(email: email)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
-    }
-    
-    func signUp(email: String, password: String, completion: @escaping (String?, String?) -> Void) async throws {
-        let response = try await client.signUp(.init(body: .json(.init(email: email, password: password))))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                completion(returnResponse.userId, nil)
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            completion(nil, "The status code: \(statusCode)")
-        case .unauthorized(_):
-            completion(nil, "Unauthorized")
-        case .forbidden(_):
-            completion(nil, "Forbidden")
-        case .badRequest(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        case .conflict(_):
-            completion(nil, "Conflict")
-        case .tooManyRequests(_):
-            completion(nil, "Too many requests for addUserInfo")
-        case .requestTimeout(_):
-            completion(nil, "Request timeout")
-        case .notFound(_):
-            completion(nil, "Not found")
-        case .internalServerError(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        }
-    }
-    
-    func login(email: String, password: String, completion: @escaping (Components.Schemas.LoginResponseDTO?, String?) -> Void) async throws {
-        let response = try await client.login(.init(query: .init(email: email, password: password)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                completion(returnResponse, nil)
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            completion(nil, "The status code: \(statusCode)")
-        case .unauthorized(_):
-            completion(nil, "Unauthorized")
-        case .forbidden(_):
-            completion(nil, "Forbidden")
-        case .badRequest(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        case .conflict(_):
-            completion(nil, "Conflict")
-        case .tooManyRequests(_):
-            completion(nil, "Too many requests for addUserInfo")
-        case .requestTimeout(_):
-            completion(nil, "Request timeout")
-        case .notFound(_):
-            completion(nil, "Not found")
-        case .internalServerError(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        }
-    }
-    
-    func confirmSignUp(code: String, userId: String, completion: @escaping (Bool?, String?) -> Void) async throws {
-        let response = try await client.confirmSignUp(query: .init(userId: userId, confirmationCode: code))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                completion(returnResponse.success, nil)
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            completion(nil, "The status code: \(statusCode)")
-        case .unauthorized(_):
-            completion(nil, "Unauthorized")
-        case .forbidden(_):
-            completion(nil, "Forbidden")
-        case .badRequest(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        case .conflict(_):
-            completion(nil, "Conflict")
-        case .tooManyRequests(_):
-            completion(nil, "Too many requests for addUserInfo")
-        case .requestTimeout(_):
-            completion(nil, "Request timeout")
-        case .notFound(_):
-            completion(nil, "Not found")
-        case .internalServerError(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        }
-    }
-    
-    func forgotPassword(email: String, completion: @escaping (Bool?, String?) -> Void) async throws {
-        let response = try await client.forgotPassword(.init(query: .init(email: email)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                completion(returnResponse.success, nil)
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            completion(nil, "The status code: \(statusCode)")
-        case .unauthorized(_):
-            completion(nil, "Unauthorized")
-        case .forbidden(_):
-            completion(nil, "Forbidden")
-        case .badRequest(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        case .conflict(_):
-            completion(nil, "Conflict")
-        case .tooManyRequests(_):
-            completion(nil, "Too many requests for addUserInfo")
-        case .requestTimeout(_):
-            completion(nil, "Request timeout")
-        case .notFound(_):
-            completion(nil, "Not found")
-        case .internalServerError(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        }
-    }
-    
-    func refreshToken(refreshToken: String, userId: String, completion: @escaping (Components.Schemas.RefreshTokenResponseDTO?, String?) -> Void) async throws {
-        let response = try await client.refreshToken(.init(query: .init(refreshToken: refreshToken, userId: userId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                completion(returnResponse, nil)
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            completion(nil, "The status code: \(statusCode)")
-        case .unauthorized(_):
-            completion(nil, "Unauthorized")
-        case .forbidden(_):
-            completion(nil, "Forbidden")
-        case .badRequest(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        case .conflict(_):
-            completion(nil, "Conflict")
-        case .tooManyRequests(_):
-            completion(nil, "Too many requests for addUserInfo")
-        case .requestTimeout(_):
-            completion(nil, "Request timeout")
-        case .notFound(_):
-            completion(nil, "Not found")
-        case .internalServerError(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        }
-    }
-    
-    func confirmForgotPassword(userEmail: String, newPassword: String, code: String, completion: @escaping (Bool?, String?) -> Void) async throws {
-        let response = try await client.confirmForgotPassword(.init(query: .init(userEmail: userEmail, newPassword: newPassword, confirmationCode: code)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                completion(returnResponse.success, nil)
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            completion(nil, "The status code: \(statusCode)")
-        case .unauthorized(_):
-            completion(nil, "Unauthorized")
-        case .forbidden(_):
-            completion(nil, "Forbidden")
-        case .badRequest(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        case .conflict(_):
-            completion(nil, "Conflict")
-        case .tooManyRequests(_):
-            completion(nil, "Too many requests for addUserInfo")
-        case .requestTimeout(_):
-            completion(nil, "Request timeout")
-        case .notFound(_):
-            completion(nil, "Not found")
-        case .internalServerError(let error):
-            switch error.body {
-            case .json(let error):
-                let errorMessage = errorHandler(error: error)
-                completion(nil, errorMessage)
-            }
-        }
-    }
-    
-}

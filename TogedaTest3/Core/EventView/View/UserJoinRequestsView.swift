@@ -19,11 +19,11 @@ struct UserJoinRequestsView: View {
     var body: some View {
         ScrollView{
             LazyVStack(spacing: 16){
-                ForEach(eventVM.joinRequestParticipantsList, id: \.id) {user in
-                    UserRequestComponent(user: user, confirm: {
+                ForEach(eventVM.joinRequestParticipantsList, id: \.miniUser.id) {user in
+                    UserRequestComponent(user: user.miniUser, expiration: user.expiration, confirm: {
                         Task{
-                            if try await APIClient.shared.acceptJoinRequest(postId: post.id, userId: user.id, action:.ACCEPT) {
-                                if let index = eventVM.joinRequestParticipantsList.firstIndex(where: { $0.id == user.id }) {
+                            if try await APIClient.shared.acceptJoinRequest(postId: post.id, userId: user.miniUser.id, action:.ACCEPT) {
+                                if let index = eventVM.joinRequestParticipantsList.firstIndex(where: { $0.miniUser.id == user.miniUser.id }) {
                                     eventVM.joinRequestParticipantsList.remove(at: index)
                                 }
                             }
@@ -31,8 +31,8 @@ struct UserJoinRequestsView: View {
                         
                     }, delete: {
                         Task{
-                            if try await APIClient.shared.acceptJoinRequest(postId: post.id, userId: user.id, action:.DENY) {
-                                if let index = eventVM.joinRequestParticipantsList.firstIndex(where: { $0.id == user.id }) {
+                            if try await APIClient.shared.acceptJoinRequest(postId: post.id, userId: user.miniUser.id, action:.DENY) {
+                                if let index = eventVM.joinRequestParticipantsList.firstIndex(where: { $0.miniUser.id == user.miniUser.id }) {
                                     eventVM.joinRequestParticipantsList.remove(at: index)
                                 }
                             }

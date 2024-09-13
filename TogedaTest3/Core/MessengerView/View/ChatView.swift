@@ -72,25 +72,13 @@ struct ChatView: View {
                                 }
                                 
                                 if chatManager.messages.last?.sender.id == currentUser.id {
-                                    //                            if ((viewModel.messages.last?.read) != nil) {
-                                    //                                Text("Read")
-                                    //                                    .font(.footnote)
-                                    //                                    .foregroundStyle(.gray)
-                                    //                                    .frame(maxWidth:.infinity, alignment: .trailing)
-                                    //                                    .padding(.horizontal)
-                                    //                            } else {
-                                    Text("Sending")
+                                    Text("Sent")
                                         .font(.footnote)
                                         .foregroundStyle(.gray)
                                         .frame(maxWidth:.infinity, alignment: .trailing)
                                         .padding(.horizontal)
-                                    //                            }
                                 }
                                 
-//                                Color.clear
-//                                    .frame(height: 10)
-//
-                                //
                                 Color.clear
                                     .frame(height: (keyboard.currentHeight > 0 ? keyboard.currentHeight + 40 : 60))
                                     .id("Bottom")
@@ -184,7 +172,7 @@ struct ChatView: View {
                 navbar()
                 
                 Spacer()
-                
+
                 MessageInputView(messageText: $messageText, isActive: $isChatActive, viewModel: viewModel) {
                     if let currentUser = userVm.currentUser {
                         if let uiImage = viewModel.messageImage {
@@ -217,6 +205,15 @@ struct ChatView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             onInit()
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            Task {
+                do{
+                    try await chatManager.setChatAsLeft(chatId: chatRoom.id)
+                } catch {
+                    print(error)
+                }
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .swipeBack()
@@ -225,9 +222,15 @@ struct ChatView: View {
                 onInit()
             }
         }
-//        .onDisappear(){
-//            chatManager.messagesToDefault()
-//        }
+        .onDisappear(){
+            Task {
+                do{
+                    try await chatManager.setChatAsLeft(chatId: chatRoom.id)
+                } catch {
+                    print(error)
+                }
+            }
+        }
         
         
         
@@ -374,9 +377,25 @@ struct ChatView: View {
                 chatManager.messagesPage = 0
                 continuation.resume()
             }
-            
-            try await chatManager.getMessages(chatId: chatRoom.id)
-            
+            Task{
+                await withTaskGroup(of: Void.self) { group in
+                    group.addTask {
+                        do{
+                            try await chatManager.getMessages(chatId: chatRoom.id)
+                        } catch {
+                            print(error)
+                        }
+                    }
+                    
+                    group.addTask {
+                        do{
+                            try await chatManager.setChatAsEntered(chatId: chatRoom.id)
+                        } catch {
+                            print(error)
+                        }
+                    }
+                }
+            }
         }
     }
     

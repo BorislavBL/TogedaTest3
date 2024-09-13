@@ -14,6 +14,7 @@ class StripeAccountViewModel: ObservableObject {
     @Published var paymentResult: PaymentSheetResult?
     @Published var eventID: String?
     @Published var error: String?
+    @Published var showCheckout: Bool = false
     
     func preparePaymentSheet() {
         // MARK: Fetch the PaymentIntent and Customer information from the backend

@@ -16,6 +16,7 @@ struct UserProfileView: View {
     @State var user: Components.Schemas.UserInfoDto?
     @EnvironmentObject var userVm: UserViewModel
     @EnvironmentObject var websocket: WebSocketManager
+    @EnvironmentObject var navManager: NavigationManager
     
     @State var Init: Bool = true
     @State var InitEvent: Bool = true
@@ -30,6 +31,14 @@ struct UserProfileView: View {
     @State var showRemoveSheet = false
     @State var showCancelSheet = false
     @State var showReportSheet = false
+    
+    var isCurrentUser: Bool {
+        return userVm.currentUser?.id == miniUser.id
+    }
+    
+    var isFriend: Bool {
+        return user?.currentFriendshipStatus == .FRIENDS
+    }
     
     var body: some View {
         ZStack(alignment: .top){
@@ -195,13 +204,30 @@ struct UserProfileView: View {
                                 }
                             }
                             
-                            Button {
-                                
-                            } label: {
-                                Text("Message")
-                                    .normalTagTextStyle()
-                                    .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                    .normalTagRectangleStyle()
+                            if isFriend {
+                                Button {
+//                                    Task{
+//                                        if let _user = user, let chatRoom = try await APIClient.shared.getChat(chatId: _user.chatRoomId) {
+//                                            navManager.selectionPath = []
+//                                            navManager.screen = .message
+////                                            websocket.selectedUser = _user
+//                                            navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
+//                                            print("Chat id:", _user.chatRoomId)
+//                                        }
+//                                    }
+                                } label: {
+                                    Text("Message")
+                                        .normalTagTextStyle()
+                                        .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                        .normalTagRectangleStyle()
+                                }
+                            } else {
+                                ShareLink(item: URL(string: createURLLink(postID: nil, clubID: nil, userID: miniUser.id))!) {
+                                    Text("Share")
+                                        .normalTagTextStyle()
+                                        .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                        .normalTagRectangleStyle()
+                                }
                             }
                         }
                         .padding(.horizontal)
@@ -216,7 +242,7 @@ struct UserProfileView: View {
                 
                 //                BadgesTab()
                 
-                AboutTab(user: user)
+                AboutTab(user: user, showInstagram: (isCurrentUser || isFriend))
                 
 
                 if viewModel.posts.count > 0 {
@@ -369,7 +395,7 @@ struct UserProfileView: View {
                 }
             } else {
                 Menu{
-                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                    ShareLink(item: URL(string: createURLLink(postID: nil, clubID: nil, userID: miniUser.id))!) {
                         Text("Share via")
                     }
                     
@@ -442,4 +468,5 @@ struct UserProfileView: View {
     UserProfileView(miniUser: MockMiniUser, user: MockUser)
         .environmentObject(UserViewModel())
         .environmentObject(WebSocketManager())
+        .environmentObject(NavigationManager())
 }

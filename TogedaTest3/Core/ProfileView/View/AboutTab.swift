@@ -11,6 +11,7 @@ import WrappingHStack
 struct AboutTab: View {
     var user: Components.Schemas.UserInfoDto?
     var badges: [Components.Schemas.Badge]?
+    var showInstagram: Bool
     var body: some View {
         VStack (alignment: .leading) {
             if isAboutInfo {
@@ -58,8 +59,8 @@ struct AboutTab: View {
                         if let personalityType = user.details.personalityType {
                             aboutTag(img: Image(systemName: "puzzlepiece.extension"), text: personalityType)
                         }
-                        if let instagarm = user.details.instagram, !instagarm.isEmpty {
-                            aboutTag(img:Image("instagram"), text: instagarm)
+                        if let instagram = user.details.instagram, !instagram.isEmpty, showInstagram {
+                            aboutTag(img:Image("instagram"), text: instagram)
                         }
                     }
                     
@@ -135,7 +136,7 @@ struct AboutTab: View {
 
 struct AboutTab_Previews: PreviewProvider {
     static var previews: some View {
-        AboutTab(user: MockUser)
+        AboutTab(user: MockUser, showInstagram: true)
     }
 }
 

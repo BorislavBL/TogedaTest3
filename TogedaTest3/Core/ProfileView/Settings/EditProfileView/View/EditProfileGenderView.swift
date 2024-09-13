@@ -31,7 +31,7 @@ struct EditProfileGenderView: View {
             } label: {
                 HStack(alignment: .center, spacing: 16, content: {
                     Image(systemName: showGender ? "checkmark.square.fill" : "square")
-                    Text("Make my gender visisble to others.")
+                    Text("Make my gender visible to others.")
                         .multilineTextAlignment(.leading)
                         .bold()
                     

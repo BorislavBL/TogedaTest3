@@ -136,7 +136,7 @@ struct EditEventView: View {
                     }
                     
                     if noTag {
-                        WarningTextComponent(text: "Please at least one interest.")
+                        WarningTextComponent(text: "Please select at least one interest.")
                         
                     }
                     
@@ -310,8 +310,21 @@ struct EditEventView: View {
             }
         }
         .sheet(isPresented: $deleteSheet, content: {
-            onDeleteSheet()
-                .presentationDetents([.height(190)])
+            DeleteEventSheet(){
+                Task{
+                    try await postsVM.deleteEvent(postId: post.id)
+                    if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
+                        DispatchQueue.main.async{
+                            activityVM.activityFeed.remove(at: index)
+                        }
+                    }
+                }
+                DispatchQueue.main.async {
+                    isActive = false
+                    navManager.selectionPath.removeLast(1)
+                }
+            }
+            .presentationDetents([.height(190)])
                 
         })
         .toolbar{
@@ -366,41 +379,6 @@ struct EditEventView: View {
                 vm.isInit = false
             }
         }
-    }
-    
-    func onDeleteSheet() -> some View {
-        VStack(spacing: 30){
-            Text("All of the information including the chat will be deleted!")
-                .multilineTextAlignment(.leading)
-                .font(.headline)
-                .fontWeight(.bold)
-            
-            Button{
-                Task{
-                    try await postsVM.deleteEvent(postId: post.id)
-                    if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
-                        DispatchQueue.main.async{
-                            activityVM.activityFeed.remove(at: index)
-                        }
-                    }
-                }
-                DispatchQueue.main.async {
-                    isActive = false
-                    navManager.selectionPath.removeLast(1)
-                }
-            } label:{
-                Text("Delete")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(.red)
-                    .cornerRadius(10)
-            }
-        }
-        .padding()
-        .presentationDetents([.fraction(0.2)])
     }
     
     func save() {

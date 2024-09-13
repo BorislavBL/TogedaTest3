@@ -271,7 +271,7 @@ struct ClubView: View {
                 }
             } else {
                 Menu{
-                    ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                    ShareLink(item: URL(string: createURLLink(postID: nil, clubID: club.id, userID: nil))!) {
                         Text("Share via")
                     }
                     

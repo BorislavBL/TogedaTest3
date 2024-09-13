@@ -33,11 +33,13 @@ struct EventView: View {
     @State var showPostOptions = false
     @State var showReportEvent = false
     @State private var showJoinRequest: Bool = false
+    @State private var showPaymentSheet: Bool = false
     
     @State var club: Components.Schemas.ClubDto?
     
     @State private var Init = true
     @State private var openCreateEvent = false
+    @State var deleteSheet: Bool = false
     
     var body: some View {
         
@@ -248,6 +250,50 @@ struct EventView: View {
                 }
             })
         }
+        .sheet(isPresented: $showPaymentSheet){
+            if post.payment > 0, let max = post.maximumPeople, post.participantsCount >= max {
+                VStack(spacing: 15){
+                    Text("😤")
+                        .font(.custom("image", fixedSize: 120))
+                    
+                    Text("The event has reached its maximum capacity.\n Check again later...")
+                        .font(.body)
+                        .foregroundStyle(.gray)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom)
+                }
+            } else {
+                EventCheckoutSheet(post: $post, isActive: $showPaymentSheet, refreshParticipants: {
+                    Task{
+                        do {
+                            eventVM.participantsList = []
+                            eventVM.participantsPage = 0
+                            try await eventVM.fetchUserList(id: post.id)
+                        } catch {
+                            print("Failed to fetch user list: \(error)")
+                        }
+                    }
+                })
+            }
+        }
+        .sheet(isPresented: $deleteSheet, content: {
+            DeleteEventSheet(){
+                Task{
+                    try await postsVM.deleteEvent(postId: post.id)
+                    if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
+                        DispatchQueue.main.async{
+                            activityVM.activityFeed.remove(at: index)
+                        }
+                    }
+                }
+                DispatchQueue.main.async {
+                    navManager.selectionPath.removeLast(1)
+                }
+            }
+            .presentationDetents([.height(190)])
+                
+        })
         .sheet(isPresented: $showSharePostSheet) {
             ShareView(post: post)
                 .presentationDetents([.fraction(0.8), .fraction(1)])
@@ -350,18 +396,31 @@ struct EventView: View {
             }
             
             Menu{
-                ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                ShareLink(item: URL(string:createURLLink(postID: post.id, clubID: nil, userID: nil))!) {
                     Text("Share via")
                 }
                 
                 if isOwner {
-
+                    if post.status == .HAS_ENDED {
+                        Button(role: .destructive){
+                            deleteSheet = true
+                        } label:{
+                            HStack(spacing: 20){
+                                Image(systemName: "trash")
+                                Text("Delete")
+                            }
+                            .foregroundStyle(.red)
+                        }
+                        .createEventTabStyle()
+                    }
                 } else {
                     Button("Report") {
                         showPostOptions = false
                         showReportEvent = true
                     }
                 }
+                
+                
             } label: {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
@@ -516,7 +575,11 @@ struct EventView: View {
                             }
                         } else {
                             Button {
-                                showJoinRequest = true
+                                if post.payment > 0 {
+                                    showPaymentSheet = true
+                                } else {
+                                    showJoinRequest = true
+                                }
                             } label: {
                                 Text("Join")
                                     .fontWeight(.semibold)
@@ -539,7 +602,11 @@ struct EventView: View {
                     }
                     else {
                         Button {
-                            showJoinRequest = true
+                            if post.payment > 0 {
+                                showPaymentSheet = true
+                            } else {
+                                showJoinRequest = true
+                            }
                         } label: {
                             Text("Join")
                                 .fontWeight(.semibold)

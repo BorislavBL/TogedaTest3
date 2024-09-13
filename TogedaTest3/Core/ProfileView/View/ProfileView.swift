@@ -121,7 +121,7 @@ struct ProfileView: View {
                     //                        VerifyPhoneProfileTab()
                     //                    }
                     
-                    AboutTab(user: user, badges: viewModel.badges)
+                    AboutTab(user: user, badges: viewModel.badges, showInstagram: true)
                     if viewModel.badgeTasks.count > 0 {
                         UserTaskView(badgeTask: viewModel.badgeTasks[0], referralCode: user.details.referralCode)
                     }

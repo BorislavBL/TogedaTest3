@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import AWSCognitoIdentityProvider
 
 struct RegistrationView: View {
     @Environment(\.colorScheme) var colorScheme

@@ -198,7 +198,7 @@ struct CreateClubView: View {
                     }
                     
                     if noTag {
-                        WarningTextComponent(text: "Please at least one interest.")
+                        WarningTextComponent(text: "Please select at least one interest.")
                         
                     }
                     
@@ -314,7 +314,7 @@ struct CreateClubView: View {
                     KeyboardToolbarItems()
                 }
             }
-            .navigationTitle("Create Gorup")
+            .navigationTitle("Create Group")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(trailing:Button(action: {showExitSheet.toggle()}) {
                 Image(systemName: "xmark")

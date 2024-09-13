@@ -36,9 +36,24 @@ struct AllUserGroupsView: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical)
                 
-                if isLoading {
-                    ProgressView() // Show spinner while loading
-                } else {
+                if !lastPage{
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Button{
+                            isLoading = true
+                            Task{
+                                try await fetchClubs()
+                                isLoading = false
+                                
+                            }
+                        } label: {
+                            Text("Load More")
+                                .selectedTagTextStyle()
+                                .selectedTagRectangleStyle()
+                        }
+                    }
+                } else if lastPage && clubs.count > 0 {
                     VStack(spacing: 8){
                         Divider()
                         Text("No more clubs")
@@ -47,19 +62,6 @@ struct AllUserGroupsView: View {
                     }
                     .padding()
                 }
-                
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
-                        if !lastPage{
-                            isLoading = true
-                            Task{
-                                try await fetchClubs()
-                                isLoading = false
-                                
-                            }
-                        }
-                    }
             }
         }
         .refreshable {

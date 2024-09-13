@@ -177,7 +177,7 @@ struct NewGroupChatView: View {
                 let existingResponseIDs = Set(self.friendsList.suffix(30).map { $0.user.id })
                 let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.user.id) }
                 
-                friendsList = uniqueNewResponse
+                friendsList += uniqueNewResponse
                 page += 1
                 lastPage = response.lastPage
             }

@@ -327,6 +327,24 @@ extension WebSocketManager {
             }
         }
     }
+    
+    func setChatAsEntered(chatId: String) async throws {
+        if let response = try await APIClient.shared.enterChat(chatId: chatId) {
+            DispatchQueue.main.async{
+                if let index = self.allChatRooms.firstIndex(where: { $0.id == chatId }) {
+                    // Update the chat room's last message and timestamp
+                    
+                    self.allChatRooms[index].read = true
+
+                }
+            }
+        }
+    }
+    
+    func setChatAsLeft(chatId: String) async throws {
+        if let response = try await APIClient.shared.leaveChat(chatId: chatId) {
+        }
+    }
 }
 
 extension WebSocketManager {

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import AWSCognitoIdentityProvider
 
 struct RegistrationCodeView: View {
     @EnvironmentObject var mainVm: ContentViewModel

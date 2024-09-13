@@ -52,11 +52,6 @@
 		141E72C22B33203D00BB213D /* RegistrationLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141E72C12B33203D00BB213D /* RegistrationLocationView.swift */; };
 		141E72C42B33477500BB213D /* LocationPickingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141E72C32B33477500BB213D /* LocationPickingViewModel.swift */; };
 		141E72C62B334C8400BB213D /* EditProfileLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141E72C52B334C8400BB213D /* EditProfileLocationView.swift */; };
-		142263B72BDFC40E002DB3CE /* AWSAPIGateway in Frameworks */ = {isa = PBXBuildFile; productRef = 142263B62BDFC40E002DB3CE /* AWSAPIGateway */; };
-		142263B92BDFC40E002DB3CE /* AWSCognitoAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 142263B82BDFC40E002DB3CE /* AWSCognitoAuth */; };
-		142263BB2BDFC40E002DB3CE /* AWSCognitoIdentityProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 142263BA2BDFC40E002DB3CE /* AWSCognitoIdentityProvider */; };
-		142263BD2BDFC40E002DB3CE /* AWSCognitoIdentityProviderASF in Frameworks */ = {isa = PBXBuildFile; productRef = 142263BC2BDFC40E002DB3CE /* AWSCognitoIdentityProviderASF */; };
-		142263BF2BDFC40E002DB3CE /* AWSCore in Frameworks */ = {isa = PBXBuildFile; productRef = 142263BE2BDFC40E002DB3CE /* AWSCore */; };
 		142263C12BDFFD82002DB3CE /* InterestsTranformativeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142263C02BDFFD82002DB3CE /* InterestsTranformativeRow.swift */; };
 		142263C32BE001DE002DB3CE /* InterestsMoreLess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142263C22BE001DE002DB3CE /* InterestsMoreLess.swift */; };
 		142263E42BE2649D002DB3CE /* ConfirmLocationMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142263E32BE2649D002DB3CE /* ConfirmLocationMapView.swift */; };
@@ -107,6 +102,7 @@
 		1445A20D2AFE88C20057613B /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1445A20C2AFE88C20057613B /* Message.swift */; };
 		1446962B2AE0239600F29BB7 /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1446962A2AE0239600F29BB7 /* UserProfileView.swift */; };
 		1448E8DF2AF12BF800FC6433 /* CompletedEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1448E8DE2AF12BF800FC6433 /* CompletedEventView.swift */; };
+		144A49022C873E3700A68674 /* EventCheckoutSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 144A49012C873E3700A68674 /* EventCheckoutSheet.swift */; };
 		14515E2B2B51854E004ECF31 /* UserRequestTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14515E2A2B51854E004ECF31 /* UserRequestTab.swift */; };
 		14515E2D2B51992C004ECF31 /* BookmarkedEventsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14515E2C2B51992C004ECF31 /* BookmarkedEventsView.swift */; };
 		14519D642ACDA12C00173624 /* MapNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14519D632ACDA12C00173624 /* MapNavBar.swift */; };
@@ -116,6 +112,7 @@
 		1455CFD22B484F1D00D6044B /* PhotoPickerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1455CFD12B484F1D00D6044B /* PhotoPickerService.swift */; };
 		1455CFD42B4870B500D6044B /* EditClubViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1455CFD32B4870B500D6044B /* EditClubViewModel.swift */; };
 		1455CFD62B48734800D6044B /* PhotosGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1455CFD52B48734800D6044B /* PhotosGridView.swift */; };
+		145979DF2C838407007A146F /* DeleteEventSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145979DE2C838407007A146F /* DeleteEventSheet.swift */; };
 		145A6C792B2B3CD50015F7C6 /* CountryNumbersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145A6C782B2B3CD50015F7C6 /* CountryNumbersView.swift */; };
 		145A6C7B2B2B42A90015F7C6 /* RegistrationCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145A6C7A2B2B42A90015F7C6 /* RegistrationCodeView.swift */; };
 		145A6C7D2B2B4ACF0015F7C6 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145A6C7C2B2B4ACF0015F7C6 /* RegistrationView.swift */; };
@@ -398,6 +395,7 @@
 		1445A20C2AFE88C20057613B /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		1446962A2AE0239600F29BB7 /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
 		1448E8DE2AF12BF800FC6433 /* CompletedEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedEventView.swift; sourceTree = "<group>"; };
+		144A49012C873E3700A68674 /* EventCheckoutSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCheckoutSheet.swift; sourceTree = "<group>"; };
 		14515E2A2B51854E004ECF31 /* UserRequestTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRequestTab.swift; sourceTree = "<group>"; };
 		14515E2C2B51992C004ECF31 /* BookmarkedEventsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkedEventsView.swift; sourceTree = "<group>"; };
 		14519D632ACDA12C00173624 /* MapNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapNavBar.swift; sourceTree = "<group>"; };
@@ -407,6 +405,7 @@
 		1455CFD12B484F1D00D6044B /* PhotoPickerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerService.swift; sourceTree = "<group>"; };
 		1455CFD32B4870B500D6044B /* EditClubViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditClubViewModel.swift; sourceTree = "<group>"; };
 		1455CFD52B48734800D6044B /* PhotosGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosGridView.swift; sourceTree = "<group>"; };
+		145979DE2C838407007A146F /* DeleteEventSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteEventSheet.swift; sourceTree = "<group>"; };
 		145A6C782B2B3CD50015F7C6 /* CountryNumbersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryNumbersView.swift; sourceTree = "<group>"; };
 		145A6C7A2B2B42A90015F7C6 /* RegistrationCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationCodeView.swift; sourceTree = "<group>"; };
 		145A6C7C2B2B4ACF0015F7C6 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
@@ -604,19 +603,14 @@
 				142264452BECF827002DB3CE /* OpenAPIURLSession in Frameworks */,
 				1441FE362C2DBCAD0015435C /* TOCropViewController in Frameworks */,
 				1441FE342C2DBCAD0015435C /* CropViewController in Frameworks */,
-				142263BF2BDFC40E002DB3CE /* AWSCore in Frameworks */,
-				142263BB2BDFC40E002DB3CE /* AWSCognitoIdentityProvider in Frameworks */,
 				148F669F2C21B5D20080F4FD /* StripePayments in Frameworks */,
 				14807A022AB4B91500716A17 /* WrappingHStack in Frameworks */,
 				148F66A12C21B5D20080F4FD /* StripePaymentsUI in Frameworks */,
-				142263B72BDFC40E002DB3CE /* AWSAPIGateway in Frameworks */,
 				148ABB6C2B77EC2700C80467 /* JWTDecode in Frameworks */,
 				148F66992C21B5D20080F4FD /* StripeFinancialConnections in Frameworks */,
-				142263B92BDFC40E002DB3CE /* AWSCognitoAuth in Frameworks */,
 				1418C7742B6D1E730037BE5A /* GoogleSignIn in Frameworks */,
 				148F66972C21B5D20080F4FD /* StripeCardScan in Frameworks */,
 				14F5B4352C4FCF8100C714D1 /* SwiftStomp in Frameworks */,
-				142263BD2BDFC40E002DB3CE /* AWSCognitoIdentityProviderASF in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -638,6 +632,7 @@
 			isa = PBXGroup;
 			children = (
 				141537CC2B629D1D005669EC /* EditEventView.swift */,
+				145979DE2C838407007A146F /* DeleteEventSheet.swift */,
 			);
 			path = EditEventView;
 			sourceTree = "<group>";
@@ -1225,6 +1220,7 @@
 				14BFB44F2AF2896800500190 /* ImagesViewer.swift */,
 				14132F302C08AFBD006DAD08 /* UserJoinRequestsView.swift */,
 				147A13AA2C18DB190097CE18 /* UserWaitingListView.swift */,
+				144A49012C873E3700A68674 /* EventCheckoutSheet.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1681,11 +1677,6 @@
 				1418C7752B6D1E730037BE5A /* GoogleSignInSwift */,
 				148ABB6B2B77EC2700C80467 /* JWTDecode */,
 				1462A9BB2B7FC65A00727BDF /* Kingfisher */,
-				142263B62BDFC40E002DB3CE /* AWSAPIGateway */,
-				142263B82BDFC40E002DB3CE /* AWSCognitoAuth */,
-				142263BA2BDFC40E002DB3CE /* AWSCognitoIdentityProvider */,
-				142263BC2BDFC40E002DB3CE /* AWSCognitoIdentityProviderASF */,
-				142263BE2BDFC40E002DB3CE /* AWSCore */,
 				142264412BECF7F0002DB3CE /* OpenAPIRuntime */,
 				142264442BECF827002DB3CE /* OpenAPIURLSession */,
 				14F3018A2C10D40700D98E14 /* Refresher */,
@@ -1734,7 +1725,6 @@
 				1418C7722B6D1E730037BE5A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				148ABB6A2B77EC2700C80467 /* XCRemoteSwiftPackageReference "JWTDecode" */,
 				1462A9BA2B7FC65A00727BDF /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				142263B52BDFC40E002DB3CE /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */,
 				1422643F2BECF7B2002DB3CE /* XCRemoteSwiftPackageReference "swift-openapi-generator" */,
 				142264402BECF7F0002DB3CE /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */,
 				142264432BECF827002DB3CE /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */,
@@ -1992,6 +1982,7 @@
 				14807A532AB4C09000716A17 /* FilterViewModel.swift in Sources */,
 				1489AEAE2B361908001524DC /* EditProfileInstagramView.swift in Sources */,
 				147613E22B4470C7001C1AA8 /* MainClubView.swift in Sources */,
+				145979DF2C838407007A146F /* DeleteEventSheet.swift in Sources */,
 				141B4A882C1DBFEC00C493D0 /* JoinRequestClubView.swift in Sources */,
 				14F5B3F82C3C4F6200C714D1 /* LoadingScreenView.swift in Sources */,
 				144006AC2B8D1C2C0085D549 /* EditProfilePhoneNumberView.swift in Sources */,
@@ -2009,6 +2000,7 @@
 				14973BC82B3F19ED0067D1A8 /* NormalPhotoPickerView.swift in Sources */,
 				14973BC42B3E10CF0067D1A8 /* CreateClubView.swift in Sources */,
 				147A13AB2C18DB190097CE18 /* UserWaitingListView.swift in Sources */,
+				144A49022C873E3700A68674 /* EventCheckoutSheet.swift in Sources */,
 				14DCAC382B17624F00104B10 /* NewGroupChatCreateView.swift in Sources */,
 				147613D72B445E19001C1AA8 /* GroupComponent.swift in Sources */,
 				1441FE1E2C29ADB40015435C /* StripeAccountViewModel.swift in Sources */,
@@ -2187,10 +2179,10 @@
 				INFOPLIST_FILE = TogedaTest3/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Togeda;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Please give us an access to your camera.";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please allow us to access your location to show you suitable events nearby you.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to show you suitable events nearby you.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Before you place an image please give us access to your Photo library";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow us to access your camera to capture photos and enhance your experience within the app.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please allow us to access your location to provide personalized experiences and services nearby.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to provide personalized experiences and services nearby.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Please allow us to access your photo library to enhance your experience and enable you to share moments directly within the app.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -2233,10 +2225,10 @@
 				INFOPLIST_FILE = TogedaTest3/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Togeda;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Please give us an access to your camera.";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please allow us to access your location to show you suitable events nearby you.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to show you suitable events nearby you.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Before you place an image please give us access to your Photo library";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow us to access your camera to capture photos and enhance your experience within the app.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please allow us to access your location to provide personalized experiences and services nearby.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to provide personalized experiences and services nearby.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Please allow us to access your photo library to enhance your experience and enable you to share moments directly within the app.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -2292,14 +2284,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 7.0.0;
-			};
-		};
-		142263B52BDFC40E002DB3CE /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/aws-amplify/aws-sdk-ios-spm.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.36.0;
 			};
 		};
 		1422643F2BECF7B2002DB3CE /* XCRemoteSwiftPackageReference "swift-openapi-generator" */ = {
@@ -2394,31 +2378,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1418C7722B6D1E730037BE5A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
-		};
-		142263B62BDFC40E002DB3CE /* AWSAPIGateway */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 142263B52BDFC40E002DB3CE /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSAPIGateway;
-		};
-		142263B82BDFC40E002DB3CE /* AWSCognitoAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 142263B52BDFC40E002DB3CE /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSCognitoAuth;
-		};
-		142263BA2BDFC40E002DB3CE /* AWSCognitoIdentityProvider */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 142263B52BDFC40E002DB3CE /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSCognitoIdentityProvider;
-		};
-		142263BC2BDFC40E002DB3CE /* AWSCognitoIdentityProviderASF */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 142263B52BDFC40E002DB3CE /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSCognitoIdentityProviderASF;
-		};
-		142263BE2BDFC40E002DB3CE /* AWSCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 142263B52BDFC40E002DB3CE /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSCore;
 		};
 		142264412BECF7F0002DB3CE /* OpenAPIRuntime */ = {
 			isa = XCSwiftPackageProductDependency;

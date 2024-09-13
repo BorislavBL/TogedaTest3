@@ -7,8 +7,6 @@
 
 import SwiftUI
 import UIKit
-import AWSCognitoIdentityProvider
-import AWSCore
 import UserNotifications
 
 class AppDelegate: UIResponder, UIApplicationDelegate , ObservableObject{

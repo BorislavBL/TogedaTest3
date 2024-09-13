@@ -19,6 +19,7 @@ class PostsViewModel: ObservableObject {
     //    @Published var showPostOptions = false
     @Published var selectedOption = "None"
     @Published var showJoinRequest = false
+    @Published var showPaymentView = false
     
     @Published var showSharePostSheet: Bool = false
     @Published var showReportEvent = false

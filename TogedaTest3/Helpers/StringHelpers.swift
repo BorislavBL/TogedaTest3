@@ -98,3 +98,48 @@ func convertCmToFeetAndInches(_ centimeters: String) -> String? {
     
     return "\(feet)' \(inches)\""
 }
+
+func createURLLink(postID: String?, clubID: String?, userID: String?) -> String{
+    let baseURL = "togedaapp://"
+    var url = baseURL
+    if let id = postID {
+        url += "event?id=\(id)"
+    } else if let id = clubID {
+        url += "club?id=\(id)"
+    } else if let id = userID {
+        url += "user?id=\(id)"
+    } else {
+        url += "app"
+    }
+    
+    return url
+}
+
+//func formatURLsInText(in text: String) -> String {
+//    // Define the regular expression pattern for URLs
+//    let pattern = "(https?://[a-zA-Z0-9./?=_-]+)"
+//    
+//    // Create the regular expression object
+//    let regex = try! NSRegularExpression(pattern: pattern, options: [])
+//    
+//    // Perform the regex search on the input text
+//    let matches = regex.matches(in: text, options: [], range: NSRange(text.startIndex..., in: text))
+//    
+//    // Start building the formatted string
+//    var formattedText = text
+//    
+//    // Loop through each match (starting from the last to prevent index shifting)
+//    for match in matches.reversed() {
+//        if let urlRange = Range(match.range, in: text) {
+//            let url = String(text[urlRange])
+//            
+//            // Extract domain name for display
+//            if let domain = URL(string: url)?.host {
+//                let formattedURL = "[link](\(url))"
+//                formattedText.replaceSubrange(urlRange, with: formattedURL)
+//            }
+//        }
+//    }
+//    
+//    return formattedText
+//}

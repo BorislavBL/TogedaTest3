@@ -30,7 +30,7 @@ class EventViewModel: ObservableObject {
         }
     }
     
-    @Published var joinRequestParticipantsList: [Components.Schemas.MiniUser] = []
+    @Published var joinRequestParticipantsList: [Components.Schemas.JoinRequestDto] = []
     @Published var joinRequestParticipantsPage: Int32 = 0
     @Published var joinRequestParticipantsSize: Int32 = 15
     @Published var joinRequestLastPage = true

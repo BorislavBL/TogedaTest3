@@ -51,9 +51,26 @@ struct MainView: View {
                     try await allInitialFetches()
                 }
             }
+            .onDisappear(){
+                print("Diappear")
+                Task {
+                    do {
+                        if let _  = try await APIClient.shared.setUserActivityStatus(status: .OFFLINE) {
+                            
+                        }
+                    } catch {
+                        print(error)
+                    }
+                    
+                }
+                vm.handleAppDidEnterBackground()
+                setDateOnLeave = Date()
+                webSocketManager.disconnect()
+            }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
                 print("Diappear")
                 Task {
+                    
                     do {
                         if let _  = try await APIClient.shared.setUserActivityStatus(status: .OFFLINE) {
                             

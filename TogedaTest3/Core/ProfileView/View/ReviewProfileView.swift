@@ -190,7 +190,7 @@ struct ReviewProfileView: View {
                                         let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
                                         
                                         
-                                        likesList = uniqueNewResponse
+                                        likesList += uniqueNewResponse
                                         likesPage += 1
                                         likesLastPage = response.lastPage
                                         likesCount = response.listCount
@@ -208,7 +208,7 @@ struct ReviewProfileView: View {
                                         let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
                                         
                                         
-                                        ratingList = uniqueNewResponse
+                                        ratingList += uniqueNewResponse
                                         ratingPage += 1
                                         ratingLastPage = response.lastPage
                                         ratingCount = response.listCount
@@ -231,7 +231,7 @@ struct ReviewProfileView: View {
                                 let existingResponseIDs = Set(self.ratingList.suffix(30).map { $0.id })
                                 let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
                                 
-                                ratingList = uniqueNewResponse
+                                ratingList += uniqueNewResponse
                                 ratingPage += 1
                                 ratingLastPage = response.lastPage
                                 ratingCount = response.listCount

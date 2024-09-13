@@ -28,7 +28,7 @@ struct PhotoPickerView: View {
                 
                 if photoPickerVM.selectedImages.allSatisfy({ $0 == nil }), let user = userViewModel.currentUser{
                     
-                    Text("Use your ptofile picture as the cover for the event.")
+                    Text("Use your profile picture as the cover for the event.")
                         .font(.footnote)
                         .foregroundStyle(.gray)
                     

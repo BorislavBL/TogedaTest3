@@ -37,7 +37,7 @@ extension Interest {
         .init(name: "Running", icon: "🏃‍♂️", category: "sport"),
         .init(name: "Cycling", icon: "🚴", category: "sport"),
         .init(name: "Swimming", icon: "🏊", category: "sport"),
-        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Working out", icon: "💪", category: "sport"),
         .init(name: "Boxing", icon: "🥊", category: "sport"),
         .init(name: "Lifting", icon: "🏋️‍♀️", category: "sport"),
         .init(name: "Fitness", icon: "👟", category: "sport"),
@@ -121,7 +121,7 @@ extension Interest {
         .init(name: "Startups", icon: "🦄", category: "business"),
         .init(name: "Finance & investment", icon: "🤑", category: "business"),
         .init(name: "Crypto & NFT", icon: "🔐", category: "business"),
-        .init(name: "Polotics", icon: "🏦", category: "business"),
+        .init(name: "Politics", icon: "🏦", category: "business"),
         .init(name: "Entrepreneurship", icon: "🚀", category: "business"),
         .init(name: "Marketing", icon: "📈", category: "business"),
     ]
@@ -153,7 +153,7 @@ extension Interest {
     static var EducationInterests: [Interest] = [
         .init(name: "Science", icon: "🧪", category: "education"),
         .init(name: "Psychology", icon: "🫥", category: "education"),
-        .init(name: "Phylosophy", icon: "🤔", category: "education"),
+        .init(name: "Philosophy", icon: "🤔", category: "education"),
         .init(name: "Astronomy", icon: "🔭", category: "education"),
         .init(name: "Math", icon: "🥸", category: "education"),
         .init(name: "Physics", icon: "👨‍🏫", category: "education"),

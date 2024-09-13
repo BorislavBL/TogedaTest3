@@ -10,7 +10,7 @@ import SwiftUI
 struct CreateStripeView: View {
     @EnvironmentObject var userVM: UserViewModel
     @Environment(\.openURL) private var openURL
-    
+    @State var hasPaidEvents: Bool = true
     var body: some View {
         VStack{
             if let user = userVM.currentUser {
@@ -57,6 +57,7 @@ struct CreateStripeView: View {
                                 .background(Color(.blue).opacity(0.1))
                                 .cornerRadius(10)
                         }
+                        .disableWithOpacity(hasPaidEvents)
                         .padding(.top, 20)
                     }
                     .frame(maxWidth: .infinity)
@@ -104,6 +105,17 @@ struct CreateStripeView: View {
 
         }
         .swipeBack()
+        .onAppear(){
+            if let user = userVM.currentUser, let id = user.stripeAccountId{
+                Task{
+                    if let response = try await APIClient.shared.checkForPaidEvents() {
+                        if let bool = Bool(response.data) {
+                            hasPaidEvents = bool
+                        }
+                    }
+                }
+            }
+        }
     }
     
 

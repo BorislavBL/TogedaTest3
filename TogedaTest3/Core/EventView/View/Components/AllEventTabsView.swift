@@ -204,22 +204,37 @@ struct AllEventTabsView: View {
                         .imageScale(.large)
                     
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(post.accessibility.rawValue.capitalized)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
+                        HStack(spacing: 5){
+                            Text(post.accessibility.rawValue.capitalized)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            if post.askToJoin {
+                                Text("(Ask To Join)")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                            }
+                        }
                         
                         switch post.accessibility {
                         case .PRIVATE:
-                            Text("Only the people invited by the owner can join the event.")
+                            Text("Only invited guests can join this event.")
                                 .font(.footnote)
                                 .foregroundColor(.gray)
                                 .fontWeight(.bold)
                             
                         case .PUBLIC:
-                            Text("Everyone can join the event")
-                                .font(.footnote)
-                                .foregroundColor(.gray)
-                                .fontWeight(.bold)
+                            if post.askToJoin {
+                                Text("This event is open to the public, but you'll need approval from the organizer to join.")
+                                    .multilineTextAlignment(.leading)
+                                    .font(.footnote)
+                                    .foregroundColor(.gray)
+                                    .fontWeight(.bold)
+                            } else {
+                                Text("Everyone can join the event.")
+                                    .font(.footnote)
+                                    .foregroundColor(.gray)
+                                    .fontWeight(.bold)
+                            }
                         }
 
                     }

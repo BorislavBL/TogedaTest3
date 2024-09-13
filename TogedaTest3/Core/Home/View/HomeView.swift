@@ -79,6 +79,9 @@ struct HomeView: View {
         .sheet(isPresented: $postsViewModel.showJoinRequest){
             JoinRequestView(post: $postsViewModel.clickedPost, isActive: $postsViewModel.showJoinRequest, refreshParticipants: {})
         }
+        .sheet(isPresented: $postsViewModel.showPaymentView){
+            EventCheckoutSheet(post: $postsViewModel.clickedPost, isActive: $postsViewModel.showPaymentView, refreshParticipants: {})
+        }
         .sheet(isPresented: $clubsVM.showJoinClubSheet){
             JoinRequestClubView(club: $clubsVM.clickedClub, isActive: $clubsVM.showJoinClubSheet, refreshParticipants: {})
         }

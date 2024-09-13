@@ -22,12 +22,18 @@ struct UsersListView: View {
     
     @EnvironmentObject var userVm: UserViewModel
     
+    var joinRequestParticipantsAsMiniUsers: [Components.Schemas.MiniUser] {
+        return eventVM.joinRequestParticipantsList.map { data in
+            return data.miniUser
+        }
+    }
+    
     var body: some View {
         ScrollView{
             LazyVStack(alignment:.leading){
                 if post.status != .HAS_ENDED && post.askToJoin && eventVM.joinRequestParticipantsList.count > 0 && (post.currentUserRole == .CO_HOST || post.currentUserRole == .HOST){
                     NavigationLink(value: SelectionPath.eventUserJoinRequests(post: post)){
-                        UserRequestTab(users: eventVM.joinRequestParticipantsList)
+                        UserRequestTab(users: joinRequestParticipantsAsMiniUsers)
                     }
                 }
                 

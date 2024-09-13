@@ -188,7 +188,7 @@ struct CreateEventView: View {
                 }
                 
                 if noVisability {
-                    WarningTextComponent(text: "Please select a visability type.")
+                    WarningTextComponent(text: "Please select a visibility type.")
                     
                 }
                 
@@ -220,7 +220,7 @@ struct CreateEventView: View {
                 }
                 
                 if noTag {
-                    WarningTextComponent(text: "Please at least one interest.")
+                    WarningTextComponent(text: "Please select at least one interest.")
                     
                 }
                 

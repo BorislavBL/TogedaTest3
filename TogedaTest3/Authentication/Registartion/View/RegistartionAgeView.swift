@@ -105,7 +105,7 @@ struct RegistartionAgeView: View {
             
             
 
-            Text("Your age will be visable to others")
+            Text("Your age will be visible to others")
                 .bold()
                 .foregroundStyle(.gray)
             

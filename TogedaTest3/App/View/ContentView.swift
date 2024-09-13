@@ -18,7 +18,10 @@ struct ContentView: View {
         ZStack(alignment:.top){
             switch vm.authenticationState {
             case .checking:
-                ProgressView("Checking authentication...")
+//                ProgressView("Checking authentication...")
+                Text("Togeda")
+                    .font(.title)
+                    .bold()
                     .frame(height: UIScreen.main.bounds.height)
             case .authenticated:
                 MainView()
@@ -34,17 +37,19 @@ struct ContentView: View {
             
 //            VStack{
 //                Button("Click"){
-//                    let sourceTimeZone = TimeZone.current
-//
-//                    // Create a date formatter with the source time zone
-//                    let dateFormatter = DateFormatter()
-//                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-//                    dateFormatter.timeZone = sourceTimeZone
-//
-//                    // Parse a date string in the source time zone
-//                    let dateString = Date()
-//                    let sourceDate = dateFormatter.string(from: dateString)
-//                    print(sourceDate)
+//                    Task{
+//                        if let response = try await APIClient.shared.checkForPaidEvents() {
+//                            print("The string:",response.data)
+//                            if let bool = Bool(response.data) {
+//                                print("The value: \(bool)")
+//                                if bool {
+//                                    print("hahha true")
+//                                } else {
+//                                    print("hahha false")
+//                                }
+//                            }
+//                        }
+//                    }
 //                }
 //            }
 //            .background(.base)

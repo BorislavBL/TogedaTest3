@@ -31,7 +31,6 @@ struct ChatMessageCell: View {
         message.sender.id == currentUserId
     }
     
-    
     var body: some View {
         HStack{
             if isMessageFromCurrentUser {
@@ -43,6 +42,7 @@ struct ChatMessageCell: View {
                         .padding(.horizontal)
                 case .IMAGE:
                     Button{
+                        hideKeyboard()
                         vm.selectedImage = message.content
                         vm.isImageView = true
                     } label: {
@@ -57,7 +57,7 @@ struct ChatMessageCell: View {
                         }
                     }
                 case .NORMAL:
-                    Text(message.content)
+                    Text(LocalizedStringKey(message.content))
                         .textSelection(.enabled)
                         .font(.subheadline)
                         .padding(12)
@@ -70,60 +70,6 @@ struct ChatMessageCell: View {
                     MessagePostPreview(postID: message.content)
                         .padding(.horizontal)
                 }
-                
-                //                switch message.contentType {
-                //                case .text(let messageText):
-                //                    Text(messageText)
-                //                        .font(.subheadline)
-                //                        .padding(12)
-                //                        .background(Color(.systemBlue))
-                //                        .foregroundColor(.white)
-                //                        .clipShape(ChatBubble(isFromCurrentUser: true, shouldRoundAllCorners: false))
-                //                        .frame(maxWidth: UIScreen.main.bounds.width / 1.5, alignment: .trailing)
-                //                        .padding(.horizontal)
-                //                case .image(let imageUrl):
-                //                    VStack(alignment: .trailing) {
-                //                        Image(imageUrl)
-                //                            .resizable()
-                //                            .scaledToFill()
-                //                            .clipped()
-                //                            .frame(maxWidth: UIScreen.main.bounds.width / 1.5, maxHeight: 400)
-                //                            .cornerRadius(10)
-                //                            .padding(.trailing)
-                //
-                //                        if !message.text.isEmpty{
-                //                            Text(message.text)
-                //                                .font(.subheadline)
-                //                                .padding(12)
-                //                                .background(Color(.systemBlue))
-                //                                .foregroundColor(.white)
-                //                                .clipShape(ChatBubble(isFromCurrentUser: true, shouldRoundAllCorners: false))
-                //                                .frame(maxWidth: UIScreen.main.bounds.width / 1.5, alignment: .trailing)
-                //                                .padding(.horizontal)
-                //                        }
-                //                    }
-                //                case .link(let urlString):
-                //                    VStack(alignment: .trailing) {
-                //                        LinkPreview(urlString: urlString)
-                //                            .padding(.vertical, 12)
-                //
-                //                        textWithLinks(text: message.text)
-                //                            .foregroundColor(.white)
-                //                            .tint(.white)
-                //                            .font(.subheadline)
-                //                            .padding(12)
-                //                            .frame(maxWidth: UIScreen.main.bounds.width / 1.5, alignment: .leading)
-                //                            .background(Color(.systemBlue))
-                //                            .foregroundColor(.white)
-                //                            .clipShape(ChatBubble(isFromCurrentUser: true, shouldRoundAllCorners: false))
-                //                    }
-                //                    .padding(.horizontal, 12)
-                //
-                //                case .post(let postID):
-                ////                    Text("\(postID)")
-                //                    MessagePostPreview(postID: postID)
-                //                        .padding(.horizontal)
-                //                }
             }
             else {
                 HStack(alignment: .bottom, spacing: 8){
@@ -177,7 +123,7 @@ struct ChatMessageCell: View {
                                     .font(.footnote)
                                     .foregroundStyle(.gray)
                             }
-                            Text(message.content)
+                            Text(LocalizedStringKey(message.content))
                                 .textSelection(.enabled)
                                 .font(.subheadline)
                                 .padding(12)
@@ -199,62 +145,6 @@ struct ChatMessageCell: View {
                         }
                         
                     }
-                    //
-                    //                    switch message.contentType {
-                    //                    case .text(let messageText):
-                    //                        Text(messageText)
-                    //                            .font(.subheadline)
-                    //                            .padding(12)
-                    //                            .background(Color(.systemGray6))
-                    //                            .foregroundColor(Color("blackAndWhite"))
-                    //                            .clipShape(ChatBubble(isFromCurrentUser: false, shouldRoundAllCorners: !shouldShowChatPartnerImage))
-                    //                            .frame(maxWidth: UIScreen.main.bounds.width / 1.75, alignment: .leading)
-                    //                            .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
-                    //                    case .image(let imageUrl):
-                    //                        VStack(alignment: .leading) {
-                    //                            Image(imageUrl)
-                    //                                .resizable()
-                    //                                .scaledToFill()
-                    //                                .clipped()
-                    //                                .frame(maxWidth: UIScreen.main.bounds.width / 1.5, maxHeight: 400)
-                    //                                .cornerRadius(10)
-                    //                                .padding(.trailing)
-                    //                                .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
-                    //
-                    //                            if !message.text.isEmpty{
-                    //                                Text(message.text)
-                    //                                    .font(.subheadline)
-                    //                                    .padding(12)
-                    //                                    .background(Color(.systemGray6))
-                    //                                    .foregroundColor(Color("blackAndWhite"))
-                    //                                    .clipShape(ChatBubble(isFromCurrentUser: false, shouldRoundAllCorners: !shouldShowChatPartnerImage))
-                    //                                    .frame(maxWidth: UIScreen.main.bounds.width / 1.75, alignment: .leading)
-                    //                                    .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
-                    //                            }
-                    //                        }
-                    //                    case .link(let urlString):
-                    //                        VStack(alignment: .leading){
-                    //                            LinkPreview(urlString: urlString)
-                    //                                .padding(.vertical, 12)
-                    //
-                    //                            textWithLinks(text: message.text)
-                    //                                .foregroundColor(Color("blackAndWhite"))
-                    //                                .font(.subheadline)
-                    //                                .padding(12)
-                    //                                .frame(maxWidth: UIScreen.main.bounds.width / 1.5, alignment: .leading)
-                    //                                .background(Color(.systemGray6))
-                    //
-                    //                                .clipShape(ChatBubble(isFromCurrentUser: false, shouldRoundAllCorners: !shouldShowChatPartnerImage))
-                    //                                .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
-                    //                        }
-                    //                        .padding(.horizontal, 12)
-                    //                    case .post(let postID):
-                    ////                        Text("\(postID)")
-                    //                        MessagePostPreview(postID: postID)
-                    //                            .padding(.horizontal)
-                    //                    }
-                    //
-                    
                 }
                 .padding(.horizontal)
                 Spacer()
@@ -265,6 +155,8 @@ struct ChatMessageCell: View {
     
     
 }
+
+
 
 
 

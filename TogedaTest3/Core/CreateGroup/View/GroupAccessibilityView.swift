@@ -67,7 +67,7 @@ struct GroupAccessibilityView: View {
                             .imageScale(.large)
                             .foregroundStyle(.gray.opacity(0))
                     
-                    Text("Your group won't be visable on the feed page and people will be able to join it only if you personally invite them.")
+                    Text("Your group won't be visible on the feed page and people will be able to join it only if you personally invite them.")
                         .font(.callout)
                         .foregroundColor(.gray)
                 }

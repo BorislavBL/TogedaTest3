@@ -23,6 +23,13 @@ extension View {
             .background{Capsule().fill(Color("SelectedFilter"))}
     }
     
+    func selectedTagRectangleStyle() -> some View {
+        self.padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background{Color("SelectedFilter")}
+            .cornerRadius(10)
+    }
+    
     func normalTagRectangleStyle() -> some View {
         self.padding(.horizontal, 10)
             .padding(.vertical, 8)

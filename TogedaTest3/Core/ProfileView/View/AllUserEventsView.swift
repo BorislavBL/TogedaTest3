@@ -25,7 +25,7 @@ struct AllUserEventsView: View {
     
     var body: some View {
         ScrollView{
-            LazyVStack{
+            VStack{
                 LazyVGrid(columns: columns){
                     ForEach(posts, id: \.id){ post in
 //                        if post.status == .HAS_ENDED {
@@ -42,9 +42,24 @@ struct AllUserEventsView: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical)
                 
-                if isLoading {
-                    ProgressView() // Show spinner while loading
-                } else if lastPage {
+                if !lastPage{
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Button{
+                            isLoading = true
+                            Task{
+                                try await fetchEvents()
+                                isLoading = false
+                                
+                            }
+                        } label: {
+                            Text("Load More")
+                                .selectedTagTextStyle()
+                                .selectedTagRectangleStyle()
+                        }
+                    }
+                } else if lastPage && posts.count > 0 {
                     VStack(spacing: 8){
                         Divider()
                         Text("No more posts")
@@ -53,20 +68,6 @@ struct AllUserEventsView: View {
                     }
                     .padding()
                 }
-                
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
-                        print("Appeared, \(lastPage)")
-                        if !lastPage{
-                            isLoading = true
-                            Task{
-                                try await fetchEvents()
-                                isLoading = false
-                                
-                            }
-                        }
-                    }
             }
         }
         .refreshable {

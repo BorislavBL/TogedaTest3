@@ -367,7 +367,7 @@ struct EditProfileView: View {
                                 .resizable()
                                 .frame(width: 25, height: 25)
                             
-                            Text("Instagarm")
+                            Text("Instagram")
                             
                             Spacer()
                             

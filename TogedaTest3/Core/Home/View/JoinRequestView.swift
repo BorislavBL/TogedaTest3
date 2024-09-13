@@ -118,7 +118,7 @@ struct JoinRequestView: View {
                         }
                     }
                 } else if post.status == .HAS_ENDED {
-                    Text("The event has ended")
+                    Text("The event has ended.")
                         .font(.headline)
                         .fontWeight(.bold)
                     
@@ -131,7 +131,7 @@ struct JoinRequestView: View {
                         .cornerRadius(10)
                 }
                 else {
-                    Text("The event has ended")
+                    Text("The event has ended.")
                         .font(.headline)
                         .fontWeight(.bold)
                     
@@ -219,10 +219,17 @@ struct JoinRequestView: View {
                     }
                 } else if post.status == .NOT_STARTED {
                     if post.currentUserStatus == .PARTICIPATING {
-                        Text("Are you sure you want to leave?")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
+                        if post.payment <= 0 {
+                            Text("Are you sure you want to leave?")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                        } else {
+                            Text("For refunds, please contact the event organizer directly. We are not responsible for processing any refunds.")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                        }
                         
                         Button {
                             Task{
@@ -272,10 +279,17 @@ struct JoinRequestView: View {
                         }
                     } else {
                         if post.payment <= 0 {
-                            Text("Once you join you will be able to cancel it until 1h before the event starts.")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .multilineTextAlignment(.center)
+                            if post.askToJoin{
+                                Text("Submit a request to join and wait for the organizer's approval!")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .multilineTextAlignment(.center)
+                            } else {
+                                Text("Join the Event!")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .multilineTextAlignment(.center)
+                            }
                             
                             Button {
                                 Task{
@@ -306,9 +320,15 @@ struct JoinRequestView: View {
                                     .font(.headline)
                                     .fontWeight(.bold)
                             } else {
-                                Text("No refunds within the day of the event.")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
+                                if post.askToJoin {
+                                    Text("Request a ticket, and once the organizer approves, your ticket will be automatically purchased!")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                } else {
+                                    Text("Buy a ticket and join the Event!")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                }
                             }
 
                             
@@ -413,14 +433,17 @@ struct JoinRequestView: View {
                 }
                 else {
                     if post.payment <= 0 {
-                        Text("Once you join you will be able to cancel it until 1h before the event starts.")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                    } else {
-                        Text("No refunds within the day of the event.")
-                            .font(.headline)
-                            .fontWeight(.bold)
+                        if post.askToJoin{
+                            Text("Submit a request to join and wait for the organizer's approval!")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                        } else {
+                            Text("Join the Event!")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                        }
                     }
                     
                     Button {

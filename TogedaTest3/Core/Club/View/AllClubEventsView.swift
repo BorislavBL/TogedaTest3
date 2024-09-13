@@ -14,14 +14,13 @@ struct AllClubEventsView: View {
         GridItem(.flexible()),
     ]
     @Environment(\.dismiss) var dismiss
-    @State var lastPage: Bool = true
     @State var isLoading = false
     @StateObject var vm = ClubViewModel()
     @State var Init = true
     
     var body: some View {
         ScrollView{
-            LazyVStack{
+            VStack{
                 LazyVGrid(columns: columns){
                     ForEach(vm.clubEvents, id: \.id){ post in
 //                        if post.status == .HAS_ENDED {
@@ -38,9 +37,24 @@ struct AllClubEventsView: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical)
                 
-                if isLoading {
-                    ProgressView() // Show spinner while loading
-                } else if lastPage {
+                if !vm.clubEventsLastPage{
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Button{
+                            isLoading = true
+                            Task{
+                                try await vm.fetchClubEvents(clubId: clubId)
+                                isLoading = false
+                                
+                            }
+                        } label: {
+                            Text("Load More")
+                                .selectedTagTextStyle()
+                                .selectedTagRectangleStyle()
+                        }
+                    }
+                } else if vm.clubEventsLastPage && vm.clubEvents.count > 0 {
                     VStack(spacing: 8){
                         Divider()
                         Text("No more posts")
@@ -49,19 +63,6 @@ struct AllClubEventsView: View {
                     }
                     .padding()
                 }
-                
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
-                        if !lastPage{
-                            isLoading = true
-                            Task{
-                                try await vm.fetchClubEvents(clubId: clubId)
-                                isLoading = false
-                                
-                            }
-                        }
-                    }
             }
         }
         .refreshable {

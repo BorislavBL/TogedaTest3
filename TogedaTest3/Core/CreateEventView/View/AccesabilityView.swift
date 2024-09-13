@@ -69,7 +69,7 @@ struct AccessibilityView: View {
                             .imageScale(.large)
                             .foregroundStyle(.gray.opacity(0))
                     
-                    Text("Your event won't be visable for everyone. In this case you will eaither have to invite them or attach the event to a club so that only club members could see it.")
+                    Text("Your event won't be visible for everyone. In this case you will either have to invite them or attach the event to a club so that only club members could see it.")
                         .font(.callout)
                         .foregroundColor(.gray)
                 }
@@ -200,7 +200,7 @@ struct AccessibilityEventType: View {
                                         let existingResponseIDs = Set(self.clubs.suffix(30).map { $0.id })
                                         let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
                                         
-                                        clubs = uniqueNewResponse
+                                        clubs += uniqueNewResponse
                                         lastPage = response.lastPage
                                         
                                         page += 1

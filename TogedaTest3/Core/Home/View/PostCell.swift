@@ -77,7 +77,7 @@ struct PostCellSkeleton: View {
                     //MARK: - Post Options
                     
                     Menu{
-                        ShareLink(item: URL(string: "https://www.youtube.com/")!) {
+                        ShareLink(item: URL(string: createURLLink(postID: post.id, clubID: nil, userID: nil))!) {
                             Text("Share via")
                         }
                         //
@@ -103,7 +103,11 @@ struct PostCellSkeleton: View {
             HStack(alignment: .center, spacing: 20){
                 Button {
                     viewModel.clickedPost = post
-                    viewModel.showJoinRequest = true
+                    if post.payment > 0, !isOwner, post.currentUserStatus == .NOT_PARTICIPATING, post.status == .NOT_STARTED {
+                        viewModel.showPaymentView = true
+                    } else {
+                        viewModel.showJoinRequest = true
+                    }
                 } label: {
                     if post.currentUserStatus == .PARTICIPATING || post.currentUserStatus == .IN_QUEUE {
                         Image(systemName: "person.2.circle.fill")
