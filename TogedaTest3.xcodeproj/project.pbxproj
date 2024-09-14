@@ -254,6 +254,7 @@
 		14DC6F192B16765F0078C6D7 /* NewGroupChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DC6F182B16765F0078C6D7 /* NewGroupChatView.swift */; };
 		14DCAC382B17624F00104B10 /* NewGroupChatCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DCAC372B17624F00104B10 /* NewGroupChatCreateView.swift */; };
 		14DCAC3A2B1764FD00104B10 /* NewChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DCAC392B1764FD00104B10 /* NewChatViewModel.swift */; };
+		14E26E2B2C95F5E400876992 /* InstagramStoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E26E2A2C95F5E400876992 /* InstagramStoryView.swift */; };
 		14E35BA72B56ECD900CD662E /* Interests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E35BA62B56ECD900CD662E /* Interests.swift */; };
 		14E4F9792B8E23BA00D2A50C /* PhoneNumberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E4F9782B8E23BA00D2A50C /* PhoneNumberView.swift */; };
 		14E4F97B2B8E253100D2A50C /* NumberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E4F97A2B8E253100D2A50C /* NumberViewModel.swift */; };
@@ -538,6 +539,7 @@
 		14DC6F182B16765F0078C6D7 /* NewGroupChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGroupChatView.swift; sourceTree = "<group>"; };
 		14DCAC372B17624F00104B10 /* NewGroupChatCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGroupChatCreateView.swift; sourceTree = "<group>"; };
 		14DCAC392B1764FD00104B10 /* NewChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChatViewModel.swift; sourceTree = "<group>"; };
+		14E26E2A2C95F5E400876992 /* InstagramStoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramStoryView.swift; sourceTree = "<group>"; };
 		14E35BA62B56ECD900CD662E /* Interests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interests.swift; sourceTree = "<group>"; };
 		14E4F9782B8E23BA00D2A50C /* PhoneNumberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberView.swift; sourceTree = "<group>"; };
 		14E4F97A2B8E253100D2A50C /* NumberViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberViewModel.swift; sourceTree = "<group>"; };
@@ -1292,6 +1294,7 @@
 				14F10B892B1E360800298737 /* MapSnapshot */,
 				141DF3602B09150400CE94F5 /* LinkPreview */,
 				147A139C2C176FFB0097CE18 /* PhotosView */,
+				14E26E2A2C95F5E400876992 /* InstagramStoryView.swift */,
 				14807A342AB4BC2600716A17 /* ExpandableText.swift */,
 				142814162ACCA1140046886B /* CustomSearchBar.swift */,
 				14D7E4482AF9469100A76D09 /* RatingButtonView.swift */,
@@ -1873,6 +1876,7 @@
 				1467C8B62AC5C2FF0034A3BB /* UserViewModel.swift in Sources */,
 				145FEB472AE95C3B002301D1 /* UserSettingsView.swift in Sources */,
 				14F301942C12109500D98E14 /* FriendsListView.swift in Sources */,
+				14E26E2B2C95F5E400876992 /* InstagramStoryView.swift in Sources */,
 				14132F2E2C08AEBA006DAD08 /* UserRequestComponent.swift in Sources */,
 				14651BD92AE9378A0091FECE /* JoinRequestView.swift in Sources */,
 				141E72C62B334C8400BB213D /* EditProfileLocationView.swift in Sources */,

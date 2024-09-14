@@ -206,15 +206,15 @@ struct UserProfileView: View {
                             
                             if isFriend {
                                 Button {
-//                                    Task{
-//                                        if let _user = user, let chatRoom = try await APIClient.shared.getChat(chatId: _user.chatRoomId) {
-//                                            navManager.selectionPath = []
-//                                            navManager.screen = .message
-////                                            websocket.selectedUser = _user
-//                                            navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
-//                                            print("Chat id:", _user.chatRoomId)
-//                                        }
-//                                    }
+                                    Task{
+                                        if let _user = user, let chatroomID = _user.chatRoomId, let chatRoom = try await APIClient.shared.getChat(chatId: chatroomID) {
+                                            navManager.selectionPath = []
+                                            navManager.screen = .message
+//                                            websocket.selectedUser = _user
+                                            navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
+                                            print("Chat id:", _user.chatRoomId)
+                                        }
+                                    }
                                 } label: {
                                     Text("Message")
                                         .normalTagTextStyle()

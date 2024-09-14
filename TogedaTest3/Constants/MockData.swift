@@ -158,8 +158,8 @@ let MockPost = Components.Schemas.PostResponseDto(
         latitude: 42.6977,
         longitude: 23.3219
     ),
-    toDate: Date(),
-    fromDate: nil,
+    toDate: Date().addingTimeInterval(3600),
+    fromDate: Date(),
     createdAt: Date(),
     interests: [
         .init(name: "Workingout", icon: "💪", category: "sport"),
