@@ -14,22 +14,52 @@ struct TestView: View {
     @State var screenshot: UIImage? = nil
 
     var body: some View {
-        VStack{
-            Text("123")
-            InstagramStoryView(screenshot: $screenshot)
-                .frame(width: 0, height: 0)
-                .opacity(0)
+        ZStack{
+            let content = InstagramStoryView(post: post)
             
-            Button(action: {
-                if let image = screenshot {
-                    shareToInstagram(backgroundImage: image, appID: "togeda.net")
+            VStack{
+                Text("123")
+
+                
+                if canOpenInstagram() {
+                    Text("Yes it can")
+                } else {
+                    Text("Yes it can")
                 }
-            }) {
-                Text("Share to Instagram Story")
+                
+                Button(action: {
+                    takeSnapshot(of: content) { image in
+                        if let img = image {
+                            shareToInstagram(backgroundImage: img, appID: "togeda.net")
+                        }
+                    }
+
+                }) {
+                    Text("Share to Instagram Story")
+                }
             }
-            .disabled(screenshot == nil)
         }
     }
+    
+    private func takeSnapshot<Content: View>(of content: Content, completion: @escaping (UIImage?) -> Void) {
+        // Use the SnapshotView to capture the content
+        let snapshotView = SnapshotView(content: {
+            content
+        }) { image in
+            completion(image)  // Return the image using the completion handler
+        }
+        
+        // Trigger the snapshot by temporarily presenting the SnapshotView
+        let window = UIApplication.shared.windows.first!
+        let snapshotContainer = UIHostingController(rootView: snapshotView)
+        window.rootViewController?.present(snapshotContainer, animated: false, completion: nil)
+        
+        // Dismiss the SnapshotView after capturing the snapshot
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            snapshotContainer.dismiss(animated: false, completion: nil)
+        }
+    }
+    
     func canOpenInstagram() -> Bool {
         let url = URL(string: "instagram-stories://share")!
         return UIApplication.shared.canOpenURL(url)
@@ -58,6 +88,8 @@ struct TestView: View {
     }
 
 }
+
+
 
 
 

@@ -76,121 +76,183 @@ struct ShareView: View {
     @StateObject var vm = ShareViewModel()
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var userVM: UserViewModel
+    @EnvironmentObject var postVM: PostsViewModel
+    @State var screenshot: UIImage? = nil
 
     let size: ImageSize = .small
     var post: Components.Schemas.PostResponseDto?
     var club: Components.Schemas.ClubDto?
     
     var body: some View {
-        VStack {
-            HStack(spacing: 16){
-                CustomSearchBar(searchText: $vm.searchText, showCancelButton: $vm.showCancelButton)
-                    
-                
-                if !vm.showCancelButton {
-                        ShareLink("", item: URL(string: createURLLink(postID: post?.id, clubID: club?.id, userID: nil))!)
-
+        NavigationStack{
+            VStack {
+                HStack(spacing: 16){
+                    CustomSearchBar(searchText: $vm.searchText, showCancelButton: $vm.showCancelButton)
                 }
-            }
-            .padding()
-            
-            ScrollView {
-                if vm.selectedChatRooms.count > 0{
-                    ScrollView{
-                        WrappingHStack(alignment: .topLeading){
-                            ForEach(vm.selectedChatRooms, id: \.id) { chatroom in
-                                ChatRoomTags(chatroom: chatroom) {
-                                    vm.selectedChatRooms.removeAll(where: { $0 == chatroom })
-                                }
-                               
-                            }
-                        }
-                    }
-                    .padding()
-                    .frame(maxHeight: 100)
-                }
+                .padding()
                 
-                LazyVStack {
+                ScrollView {
                     
-                    ForEach(vm.searchChatRoomsResults, id: \.id) { chatroom in
-                        VStack {
-                            Button{
-                                if vm.selectedChatRooms.contains(chatroom) {
-                                    vm.selectedChatRooms.removeAll(where: { $0 == chatroom })
-                                } else {
-                                    vm.selectedChatRooms.append(chatroom)
-                                }
-                                
-                                if !vm.chatRoomsList.contains(chatroom) {
-                                    vm.chatRoomsList.insert(chatroom, at: 0)
-                                }
-                            } label:{
-                                chatRoomLabel(chatroom: chatroom)
-                            }
-                            
-                            Divider()
-                                .padding(.leading, 40)
-                        }
-                        .padding(.leading)
-                    }
-                    
-                    Rectangle()
-                        .frame(width: 0, height: 0)
-                        .onAppear {
-                            if !vm.lastPage && !vm.searchText.isEmpty{
-                                vm.isLoading = true
-                                Task{
-                                    try await vm.fetchList()
-                                    vm.isLoading = false
+                    if vm.selectedChatRooms.count > 0{
+                        ScrollView{
+                            WrappingHStack(alignment: .topLeading){
+                                ForEach(vm.selectedChatRooms, id: \.id) { chatroom in
+                                    ChatRoomTags(chatroom: chatroom) {
+                                        vm.selectedChatRooms.removeAll(where: { $0 == chatroom })
+                                    }
                                     
                                 }
                             }
-                            
                         }
+                        .padding()
+                        .frame(maxHeight: 100)
+                    }
                     
-                }
-            }
-            
-            if vm.selectedChatRooms.count > 0 {
-                VStack{
-                    Button{
-                        Task{
-                            if let post = post {
-                                let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: vm.selectedChatRooms.map { chatroom in
-                                    return chatroom.id
-                                })
-                                if let response = try await APIClient.shared.shareEvent(postId: post.id, chatRoomIds: chatRoomsIDs) {
-                                    print("\(response)")
-                                    dismiss()
+                    LazyVStack {
+                        if vm.searchText.isEmpty{
+                            VStack{
+                                ShareLink( item: URL(string: createURLLink(postID: post?.id, clubID: club?.id, userID: nil))!) {
+                                    HStack{
+                                        
+                                        
+                                        Image(systemName: "link")
+                                            .foregroundStyle(.white)
+                                            .frame(width: 50, height: 50)
+                                            .background{
+                                                Circle().foregroundStyle(.blue)
+                                            }
+                                        
+                                        VStack(alignment: .leading){
+                                            Text("Copy link")
+                                                .fontWeight(.bold)
+                                            
+                                            Text("Share with ypur friends!")
+                                                .font(.footnote)
+                                                .foregroundStyle(.gray)
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        
+                                        Spacer()
+                                    }
+                                }
+                                .padding(.horizontal)
+                                
+                                if let post = post, canOpenInstagram() {
+                                    VStack{
+                                        Button(action: {
+                                            dismiss()
+                                            withAnimation {
+                                                postVM.showInstaOverlay = true
+                                            }
+                                            
+                                        }) {
+                                            HStack{
+                                                Image("instagram")
+                                                    .resizable()
+                                                    .frame(width: 50, height: 50)
+                                                    .clipShape(Circle())
+                                                
+                                                VStack(alignment: .leading){
+                                                    Text("Add as a story")
+                                                        .fontWeight(.bold)
+                                                    
+                                                    Text("Share with your friends on instagram!")
+                                                        .font(.footnote)
+                                                        .foregroundStyle(.gray)
+                                                        .multilineTextAlignment(.leading)
+                                                }
+                                                Spacer()
+                                            }
+                                            
+                                        }
+                                        
+                                    }
+                                    .padding(.horizontal)
                                 }
                             }
-                            
-                            else if let club = club {
-                                let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: vm.selectedChatRooms.map { chatroom in
-                                    return chatroom.id
-                                })
-                                if let response = try await APIClient.shared.shareClub(clubId: club.id, chatRoomIds: chatRoomsIDs) {
-                                    print("\(response)")
-                                    dismiss()
-                                }
-                            }
+                            .padding(.bottom)
                         }
-                    } label: {
-                        Text("Send")
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color("blackAndWhite"))
-                            .foregroundColor(Color("testColor"))
-                            .fontWeight(.semibold)
+                        
+                        ForEach(vm.searchChatRoomsResults, id: \.id) { chatroom in
+                            VStack {
+                                Button{
+                                    if vm.selectedChatRooms.contains(chatroom) {
+                                        vm.selectedChatRooms.removeAll(where: { $0 == chatroom })
+                                    } else {
+                                        vm.selectedChatRooms.append(chatroom)
+                                    }
+                                    
+                                    if !vm.chatRoomsList.contains(chatroom) {
+                                        vm.chatRoomsList.insert(chatroom, at: 0)
+                                    }
+                                } label:{
+                                    chatRoomLabel(chatroom: chatroom)
+                                }
+                                
+                                Divider()
+                                    .padding(.leading, 40)
+                            }
+                            .padding(.leading)
+                        }
+                        
+                        Rectangle()
+                            .frame(width: 0, height: 0)
+                            .onAppear {
+                                if !vm.lastPage && !vm.searchText.isEmpty{
+                                    vm.isLoading = true
+                                    Task{
+                                        try await vm.fetchList()
+                                        vm.isLoading = false
+                                        
+                                    }
+                                }
+                                
+                            }
                         
                     }
-                    .cornerRadius(10)
-                    .padding(.top)
                 }
-                .padding(.horizontal)
+                
+                if vm.selectedChatRooms.count > 0 {
+                    VStack{
+                        Button{
+                            Task{
+                                if let post = post {
+                                    let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: vm.selectedChatRooms.map { chatroom in
+                                        return chatroom.id
+                                    })
+                                    if let response = try await APIClient.shared.shareEvent(postId: post.id, chatRoomIds: chatRoomsIDs) {
+                                        print("\(response)")
+                                        dismiss()
+                                    }
+                                }
+                                
+                                else if let club = club {
+                                    let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: vm.selectedChatRooms.map { chatroom in
+                                        return chatroom.id
+                                    })
+                                    if let response = try await APIClient.shared.shareClub(clubId: club.id, chatRoomIds: chatRoomsIDs) {
+                                        print("\(response)")
+                                        dismiss()
+                                    }
+                                }
+                            }
+                        } label: {
+                            Text("Send")
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .fontWeight(.semibold)
+                            
+                        }
+                        .cornerRadius(10)
+                        .padding(.top)
+                    }
+                    .padding(.horizontal)
+                }
+                
+                
             }
-            
-
         }
         .onChange(of: vm.chatRoomsList, { oldValue, newValue in
             if vm.searchText.isEmpty {
@@ -206,8 +268,11 @@ struct ShareView: View {
             vm.stopSearch()
         }
     }
-    
 
+    func canOpenInstagram() -> Bool {
+        let url = URL(string: "instagram-stories://share")!
+        return UIApplication.shared.canOpenURL(url)
+    }
     
     @ViewBuilder
     func chatRoomLabel(chatroom: Components.Schemas.ChatRoomDto) -> some View {
@@ -485,4 +550,5 @@ struct ChatRoomTags: View {
 #Preview {
     ShareView()
         .environmentObject(UserViewModel())
+        .environmentObject(PostsViewModel())
 }

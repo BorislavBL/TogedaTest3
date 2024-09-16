@@ -11,7 +11,7 @@ import MapKit
 
 
 class PostsViewModel: ObservableObject {
-    
+    @Published var showInstaOverlay = false
     @Published var clickedPostIndex: Int = 0
     @Published var clickedPost: Components.Schemas.PostResponseDto = MockPost
     

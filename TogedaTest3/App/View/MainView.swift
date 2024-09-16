@@ -26,6 +26,11 @@ struct MainView: View {
 
     var body: some View {
         MainTabView()
+            .overlay {
+                if postsViewModel.showInstaOverlay{
+                    InstagramOverlay(isActive: $postsViewModel.showInstaOverlay, post: postsViewModel.clickedPost)
+                }
+            }
             .fullScreenCover(isPresented: $navigationManager.isPresentingEvent) {
                 CreateEventView()
             }

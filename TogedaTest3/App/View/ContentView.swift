@@ -18,7 +18,6 @@ struct ContentView: View {
         ZStack(alignment:.top){
             switch vm.authenticationState {
             case .checking:
-//                ProgressView("Checking authentication...")
                 Text("Togeda")
                     .font(.title)
                     .bold()

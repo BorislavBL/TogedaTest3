@@ -393,4 +393,5 @@ struct ClubView: View {
         .environmentObject(NavigationManager())
         .environmentObject(ClubsViewModel())
         .environmentObject(ActivityViewModel())
+        .environmentObject(WebSocketManager())
 }

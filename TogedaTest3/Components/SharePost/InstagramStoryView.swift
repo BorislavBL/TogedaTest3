@@ -9,41 +9,26 @@ import SwiftUI
 import Kingfisher
 
 struct InstagramStoryView: View {
-    @State  var isImageLoaded = false
-    @Binding var screenshot: UIImage?
-    var post = MockPost
+    @State var isImageLoaded = false
+    var post: Components.Schemas.PostResponseDto
     var body: some View {
         VStack{
             ZStack(alignment: .bottom){
                 KFImage(URL(string: post.images[0]))
-                    .onSuccess({ _ in
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            self.screenshot = self.snapshot()
-                        }
-                    })
                     .resizable()
                     .aspectRatio(9/16, contentMode: .fill)
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                     .cornerRadius(20)
-//                    .onAppear {
-//                        checkIfURLHasLoadedSynchronously(post.images[0]) { isLoaded in
-//                            if isLoaded {
-//                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                                    self.screenshot = self.snapshot()
-//                                }
-//                            }
-//                        }
-//                    }
                 
                 
                 LinearGradient(gradient: Gradient(colors: [.black.opacity(0), .black.opacity(0), .black]), startPoint: .top, endPoint: .bottom)
                     .opacity(0.95)
-                    .frame(height: 500)
+                    .frame(height: 600)
                 
                 VStack(spacing: 16){
                     
                     Text(post.title)
-                        .font(.title)
+                        .font(.title2)
                         .foregroundStyle(.white)
                         .bold()
                         .multilineTextAlignment(.center)
@@ -66,7 +51,7 @@ struct InstagramStoryView: View {
                             }
                         } else {
                             Text("Anyday")
-                                .font(.title3)
+                                .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundStyle(.white)
                         }
@@ -74,7 +59,7 @@ struct InstagramStoryView: View {
                     
                     HStack(alignment: .center){
                         Image(systemName: "location")
-                            .font(.title3)
+                            .font(.headline)
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
                         Text(locationCityAndCountry(post.location))
@@ -99,35 +84,16 @@ struct InstagramStoryView: View {
                     )
                 }
                 .padding()
-                .padding(.bottom, 60)
+                .padding(.bottom, 100)
             }
         }
         .ignoresSafeArea(.all)
     }
     
-//    func checkIfURLHasLoadedSynchronously(_ urlString: String, completion: @escaping (Bool) -> Void) {
-//        guard let url = URL(string: urlString) else {
-//            print("Invalid URL")
-//            completion(false)
-//            return
-//        }
-//
-//        // Perform a lightweight URL check synchronously
-//        let request = URLRequest(url: url)
-//        URLSession.shared.dataTask(with: request) { _, response, error in
-//            if let error = error {
-//                print("Error loading URL: \(error)")
-//                completion(false)
-//            } else if let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) {
-//                completion(true)
-//            } else {
-//                completion(false)
-//            }
-//        }.resume()
-//    }
+
 
 }
 
 #Preview {
-    InstagramStoryView(screenshot: .constant(nil))
+    InstagramStoryView(post: MockPost)
 }
