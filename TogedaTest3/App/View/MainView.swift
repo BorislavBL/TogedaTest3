@@ -106,10 +106,9 @@ struct MainView: View {
                     clubsViewModel.clubUpdateOnNewNotification(notification: notification)
                 }
             }
-            .onChange(of: vm.accessToken) { oldValue, newValue in
-                if let token = newValue, token != oldValue {
-                    webSocketManager.reconnectWithNewToken(token)
-                }
+            .onChange(of: vm.sessionCount) { oldValue, newValue in
+                print("main token")
+                webSocketManager.reconnectWithNewToken()
             }
     }
     

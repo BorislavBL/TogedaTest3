@@ -7,47 +7,122 @@
 
 import SwiftUI
 import Kingfisher
+import WrappingHStack
 
 struct MessagePostPreview: View {
     let postID: String
     @State var post: Components.Schemas.PostResponseDto?
+    var size: CGSize = .init(width: 180, height: 300)
+    @State var Init: Bool = true
     
     var body: some View {
         VStack(alignment: .leading){
             if let post = post {
                 NavigationLink(value: SelectionPath.eventDetails(post)) {
                     VStack(alignment: .leading){
-                        KFImage(URL(string: post.images[0]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: UIScreen.main.bounds.width - 120, height: 220)
-                            .clipped()
-                        
-                        HStack(spacing: 0){
-                            Text(post.title)
-                                .font(.callout)
-                                .bold()
-                                .lineLimit(2)
+                        ZStack(alignment: .bottom) {
+                            KFImage(URL(string: post.images[0]))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(size)
+                                .clipped()
                             
-                            Spacer(minLength: 10)
+                            LinearGradient(gradient: Gradient(colors: [.black.opacity(0), .black.opacity(0), .black]), startPoint: .top, endPoint: .bottom)
+                                .opacity(0.95)
                             
-                            Image(systemName: "chevron.right")
-                                .foregroundStyle(.gray)
+                            VStack(alignment: .leading){
+                                
+                                Text(post.title)
+                                    .font(.footnote)
+                                    .foregroundColor(.white)
+                                    .fontWeight(.bold)
+                                    .multilineTextAlignment(.leading)
+                                    .lineLimit(2)
+                                    .padding(.bottom, 5)
+                                
+                                WrappingHStack(alignment: .leading, verticalSpacing: 5){
+                                    if let fromDate = post.fromDate{
+                                        HStack{
+                                            Image(systemName: "calendar")
+                                                .font(.caption)
+                                                .foregroundColor(post.status == .HAS_ENDED ? .red : Color("light-gray"))
+                                            Text(post.status == .HAS_ENDED ? "Ended" : "\(separateDateAndTime(from: fromDate).date)")
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(post.status == .HAS_ENDED ? .red : Color("light-gray"))
+                                        }
+                                    } else if post.status == .HAS_ENDED {
+                                        HStack{
+                                            Image(systemName: "calendar")
+                                                .font(.caption)
+                                                .foregroundColor(post.status == .HAS_ENDED ? .red : Color("light-gray"))
+                                            Text("Ended")
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.red)
+                                        }
+                                    }
+                                    HStack{
+                                        Image(systemName: "person.2.fill")
+                                            .font(.caption)
+                                            .foregroundColor(Color("light-gray"))
+                                        
+                                        if let maxPeople = post.maximumPeople {
+                                            Text("\(post.participantsCount)/\(maxPeople)")
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(Color("light-gray"))
+                                        } else {
+                                            Text("\(post.participantsCount)")
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(Color("light-gray"))
+                                        }
+                                    }
+                                }
+                                .padding(.bottom, 2)
+
+                                    HStack(alignment: .center){
+                                        Image(systemName: "location")
+                                            .font(.caption)
+                                            .foregroundColor(Color("light-gray"))
+                                        
+                                        Text(locationCityAndCountry(post.location))
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(Color("light-gray"))
+                                            .multilineTextAlignment(.leading)
+                                    }
+                                    
+                                
+                            }
+                            
+                            .padding(.horizontal, 12)
+                            .padding(.vertical)
+                            .frame(maxWidth: size.width, maxHeight: size.height, alignment: .bottomLeading)
+                 
                         }
-                        .padding()
+                        .frame(size)
+                        .cornerRadius(20)
+                        
                     }
                 }
             } else {
                 ProgressView()
-                .frame(width: UIScreen.main.bounds.width - 120, height: 250)
+                    .frame(size)
             }
         }
-        .frame(width: UIScreen.main.bounds.width - 120)
+        .frame(width: size.width)
         .background(Color("SecondaryBackground"))
-        .cornerRadius(10)
+        .cornerRadius(20)
         .onAppear(){
             Task{
-                self.post = try await APIClient.shared.getEvent(postId: postID)
+                if Init{
+                    if let response =  try await APIClient.shared.getEvent(postId: postID) {
+                        self.post = response
+                        self.Init = false
+                    }
+                }
             }
         }
         

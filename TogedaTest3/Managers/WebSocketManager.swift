@@ -44,17 +44,19 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
 
 extension WebSocketManager {
     
-    func reconnectWithNewToken(_ token: String?) {
-        guard let token = token else { return }
-        if isConnected {
-            swiftStomp.disconnect() // Disconnect current connection
+    func reconnectWithNewToken() {
+        if let token = AuthService.shared.getAccessToken() {
+            if isConnected {
+                swiftStomp.disconnect() // Disconnect current connection
+            }
+            let url = URL(string: "wss://api.togeda.net/ws")!
+            self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization": "Bearer \(token)"]) // Reinitialize with new token
+            self.swiftStomp.delegate = self // Reset delegate
+            self.swiftStomp.autoReconnect = true // Auto reconnect on error or cancel
+            self.swiftStomp.enableLogging = false
+            self.swiftStomp.connect()
+            print("Websocket reconnected!")
         }
-        let url = URL(string: "wss://api.togeda.net/ws")!
-        self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization": "Bearer \(token)"]) // Reinitialize with new token
-        self.swiftStomp.delegate = self // Reset delegate
-        self.swiftStomp.autoReconnect = true // Auto reconnect on error or cancel
-        self.swiftStomp.enableLogging = false
-        self.swiftStomp.connect()
     }
     
     func websocketInit() {
@@ -139,7 +141,6 @@ extension WebSocketManager {
     
     func onMessageReceived(swiftStomp: SwiftStomp, message: Any?, messageId: String, destination: String, headers: [String : String]) {
         do {
-            print("1")
             if destination.hasSuffix("/messages") {
                 if let message = message as? String, let jsonData = message.data(using: .utf8) {
                     let decoder = JSONDecoder()
@@ -157,10 +158,8 @@ extension WebSocketManager {
                     print("The message can't be converted into a data!")
                 }
             } else if destination.hasSuffix("/notifications") {
-                print("2")
                 
                 if let message = message as? String, let jsonData = message.data(using: .utf8) {
-                    print("3")
                     
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
@@ -282,6 +281,38 @@ extension WebSocketManager {
                     }
                 }
                 try await getAllChats()
+            }
+        }
+    }
+    
+    func chatMessageCheck(message: Components.Schemas.ReceivedChatMessageDto) {
+        messages.removeAll(where: { msg in
+            if msg.id == message.id && msg.content == message.content && msg.createdAt == message.createdAt {
+                return true
+            }
+            return false
+        })
+        DispatchQueue.main.async {
+            self.messages.append(message)
+        }
+    }
+    
+    func chatMessagesCheck(messages: [Components.Schemas.ReceivedChatMessageDto], chatId: String) {
+        if messages.count < 150 {
+            for message in messages {
+                chatMessageCheck(message: message)
+            }
+        } else {
+            Task{
+                await withCheckedContinuation { continuation in
+                    DispatchQueue.main.async{
+                        self.messages = []
+                        self.lastMessagesPage = true
+                        self.messagesPage = 0
+                        continuation.resume()
+                    }
+                }
+                try await getMessages(chatId: chatId)
             }
         }
     }
@@ -441,7 +472,6 @@ extension WebSocketManager {
             return not.id
         }
         
-        print(array)
     }
     
     func notificationsCheck(notifications: [Components.Schemas.NotificationDto]) {

@@ -1,5 +1,5 @@
 {
-  "originHash" : "327c0b3a75a697bee01f120150f9f43404b1a9a670c1377ac4d7e891a64cefb1",
+  "originHash" : "d3941b52e448dfcacee6f0a0a7a1248569ceb3e039b098455be8984828d7f458",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "71cde449f13d453227e687458144bde372d30fc7",
         "version" : "1.6.2"
+      }
+    },
+    {
+      "identity" : "clustermap",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vospennikov/ClusterMap.git",
+      "state" : {
+        "revision" : "f3e60a742e6d3c149ce5d0c7424f373ef1b38140",
+        "version" : "2.1.1"
       }
     },
     {

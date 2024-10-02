@@ -8,13 +8,16 @@
 import SwiftUI
 import Kingfisher
 
-struct ChatView: View {
+struct ChatView2: View {
+
     @State private var messageText = ""
     @State private var isInitialLoad = true
     @State private var Init = true
     @StateObject var viewModel = ChatViewModel()
     @Environment(\.dismiss) private var dismiss
     var chatRoom: Components.Schemas.ChatRoomDto
+    @State var isLoading: Bool = false
+    @State var shouldStartLoading: Bool = true
     @State var shouldNotScrollToBottom: Bool = false
     @EnvironmentObject var chatManager: WebSocketManager
     @EnvironmentObject var userVm: UserViewModel
@@ -23,14 +26,11 @@ struct ChatView: View {
     @State var atBottom: Bool = false
     @State var activateArrow: Bool = false
     @StateObject private var keyboard = KeyboardResponder()
-    @State var recPadding: CGFloat = 60
-    @State var setDateOnLeave = Date()
+    
     
     var body: some View {
         ZStack(alignment: .top){
-            VStack(spacing: 0) {
-                navbar()
-                ScrollViewReader{ proxy in
+                ScrollViewReader { proxy in
                     ScrollView{
                         LazyVStack{
                             if let currentUser = userVm.currentUser{
@@ -44,6 +44,10 @@ struct ChatView: View {
                                             .normalTagRectangleStyle()
                                             .padding()
                                     }
+                                }
+                                
+                                if isLoading {
+                                    ProgressView() // Show spinner while loading
                                 }
                                 
                                 ForEach(Array(chatManager.messages.enumerated()), id: \.element.id) { index, message in
@@ -64,7 +68,6 @@ struct ChatView: View {
                                         
                                         ChatMessageCell(message: message,
                                                         nextMessage: nextMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
-                                        
                                     }
                                     
                                 }
@@ -78,7 +81,7 @@ struct ChatView: View {
                                 }
                                 
                                 Color.clear
-                                    .frame(height: recPadding)
+                                    .frame(height: (keyboard.currentHeight > 0 ? keyboard.currentHeight + 40 : 60))
                                     .id("Bottom")
                                     .onAppear(){
                                         print("Appeared >")
@@ -90,26 +93,46 @@ struct ChatView: View {
                                         atBottom = false
                                         activateArrow = true
                                     }
+                                    
                             }
                         }
+                        .padding(.top, 86)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear
+                                    .frame(width: 0, height: 0)
+                                    .onChange(of: geo.frame(in: .global).minY) { oldMinY, newMinY in
+                                        if newMinY >= 90 && !isLoading && !chatManager.lastMessagesPage && shouldStartLoading && !isInitialLoad {
+                                            shouldNotScrollToBottom = true
+                                            shouldStartLoading = false
+                                            isLoading = true
+                                            Task {
+                                                defer {
+                                                    Task{
+                                                        isLoading = false
+                                                        try await Task.sleep(nanoseconds: 2_000_000_000)
+                                                        shouldStartLoading = true
+                                                    }
+                                                } // Ensure isLoading is set to false after the task completes
+                                                do {
+                                                    try await chatManager.getMessages(chatId: chatRoom.id)
+                                                } catch {
+                                                    print("Failed to get messages: \(error)")
+                                                }
+                                            }
+                                            
+                                            print("Triggered")
+                                        }
+                                    }
+                            }
+                        )
+                        
                         
                     }
-                    .refreshable {
-                        Task {
-                            do {
-                                try await chatManager.getMessages(chatId: chatRoom.id)
-                            } catch {
-                                print("Failed to get messages: \(error)")
-                            }
-                        }
-                    }
+                    .defaultScrollAnchor(.bottom)
                     .scrollDismissesKeyboard(.interactively)
-                    .ignoresSafeArea(.keyboard, edges: .all)                    //                    .padding(.top, 86)
                     .onChange(of: chatManager.messages) { oldValue, newValue in
-                        if isInitialLoad {
-                            proxy.scrollTo("Bottom", anchor:.bottom)
-                            
-                        } else if !shouldNotScrollToBottom && !isInitialLoad && atBottom {
+                        if !shouldNotScrollToBottom && !isInitialLoad && atBottom {
                             withAnimation(.spring()) {
                                 proxy.scrollTo("Bottom", anchor:.bottom)
                             }
@@ -117,17 +140,11 @@ struct ChatView: View {
                         
                         shouldNotScrollToBottom = false
                     }
-                    .onChange(of: keyboard.currentHeight) { oldValue, newValue in
-                        if keyboard.currentHeight > 0 {
-                            recPadding = keyboard.currentHeight + 30
-                            if atBottom {
-                                
-                                withAnimation() {
-                                    proxy.scrollTo("Bottom", anchor:.bottom)
-                                }
+                    .onChange(of: isChatActive) { oldValue, newValue in
+                        if newValue && atBottom {
+                            withAnimation() {
+                                proxy.scrollTo("Bottom", anchor:.bottom)
                             }
-                        } else {
-                            recPadding = 60
                         }
                     }
                     .overlay(alignment:.bottomTrailing){
@@ -144,15 +161,19 @@ struct ChatView: View {
                                     .background(.bar)
                                     .clipShape(Circle())
                             }
-                            .padding(.bottom, 70)
+                            .padding(.bottom, (keyboard.currentHeight > 0 ? keyboard.currentHeight + 40 : 70))
                         }
                     }
                 }
-            }
-            
-            VStack{
-                Spacer()
+                .ignoresSafeArea(.keyboard, edges: .bottom)
                 
+                //            Spacer()
+                
+            VStack{
+                navbar()
+                
+                Spacer()
+
                 MessageInputView(messageText: $messageText, isActive: $isChatActive, viewModel: viewModel) {
                     if let currentUser = userVm.currentUser {
                         if let uiImage = viewModel.messageImage {
@@ -173,6 +194,8 @@ struct ChatView: View {
                 .padding(.top, 8)
                 .background(.bar)
                 
+                
+
             }
             
             if viewModel.isImageView, let image = viewModel.selectedImage{
@@ -181,7 +204,7 @@ struct ChatView: View {
             
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-            onActive()
+            onInit()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             Task {
@@ -191,8 +214,6 @@ struct ChatView: View {
                     print(error)
                 }
             }
-            
-            setDateOnLeave = Date()
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -379,37 +400,6 @@ struct ChatView: View {
         }
     }
     
-    func onActive() {
-        Task{
-            await withTaskGroup(of: Void.self) { group in
-                group.addTask {
-                    do {
-                        if let date = await chatManager.messages.last?.createdAt, let response = try await APIClient.shared.updateChatMessages(chatId: chatRoom.id, lastTimestamp: chatManager.messages.count > 0 ? date : setDateOnLeave) {
-                            print("Messages triggered")
-                            print("response", response.data)
-                            DispatchQueue.main.async {
-                                chatManager.chatMessagesCheck(messages: response.data, chatId: chatRoom.id)
-                            }
-                            
-                        }
-                    } catch {
-                        // Handle the error if needed
-                        print("Error updating chat rooms: \(error)")
-                    }
-                }
-                
-                group.addTask {
-                    do{
-                        try await chatManager.setChatAsEntered(chatId: chatRoom.id)
-                    } catch {
-                        print(error)
-                    }
-                }
-            }
-        }
-    }
-    
-
     
     func nextMessage(forIndex index: Int) -> Components.Schemas.ReceivedChatMessageDto? {
         if index > 0 {
@@ -420,9 +410,9 @@ struct ChatView: View {
 }
 
 #Preview {
-    ChatView(chatRoom: mockChatRoom)
+    ChatView2(chatRoom: mockChatRoom)
         .environmentObject(WebSocketManager())
         .environmentObject(UserViewModel())
         .environmentObject(NavigationManager())
-    
+
 }

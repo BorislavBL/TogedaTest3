@@ -5,14 +5,17 @@
 //  Created by Borislav Lorinkov on 19.09.23.
 //
 
+//import ClusterMap
+//import ClusterMapSwiftUI
 import SwiftUI
 import MapKit
+import Kingfisher
 
 struct MapView: View {
     @StateObject var viewModel = MapViewModel()
     @EnvironmentObject var locationManager: LocationManager
     @Namespace private var locationSpace
-
+    
     @State var showSearch: Bool = false
     
     @StateObject var filterViewModel = FilterViewModel()
@@ -24,16 +27,39 @@ struct MapView: View {
         ZStack(alignment: .top){
             Map(position: $viewModel.cameraPosition, interactionModes: [.zoom, .pan], selection: $viewModel.mapSelection, scope: locationSpace) {
                 
-                ForEach(viewModel.mapPosts, id: \.id) { post in
-                    
-                    Marker(post.title, coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude))
-                        .tag(post)
-                        .tint(.black)
-                    
-                }
+//                                ForEach(viewModel.mapPosts, id: \.id) { post in
+//                
+////                                                        Marker(post.title, coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude))
+////                                                            .tag(post)
+////                                                            .tint(.black)
+//                
+//                                    Annotation("", coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)) {
+//                                        annotationPost(item: post)
+//                                    }
+//                                    .tag(post.id)
+//                
+//                
+//                                }
                 
+                ForEach(viewModel.annotations) { item in
+                    Annotation("", coordinate: CLLocationCoordinate2D(latitude: item.coordinate.latitude, longitude: item.coordinate.longitude)) {
+                        annotation(item: item)
+                    }
+                    .tag(item.postID)
+                    .annotationTitles(.hidden)
+                }
+                ForEach(viewModel.clusters) { item in
+                    Annotation("", coordinate: CLLocationCoordinate2D(latitude: item.coordinate.latitude, longitude: item.coordinate.longitude)) {
+                        clusteringAnnotation(item: item)
+                    }
+                    .tag(item.postID)
+                    .annotationTitles(.hidden)
+                }
                 UserAnnotation()
             }
+            .readSize(onChange: { newValue in
+                viewModel.mapSize = newValue
+            })
             .onMapCameraChange { context in
                 viewModel.visibleRegion = context.region
             }
@@ -41,6 +67,11 @@ struct MapView: View {
                 if !isInitialLocationSet {
                     setLocation()
                     isInitialLocationSet = true
+                }
+            }
+            .onMapCameraChange(frequency: .onEnd) { context in
+                Task.detached {
+                    await viewModel.reloadAnnotations()
                 }
             }
             .overlay(alignment: .bottomTrailing) {
@@ -88,7 +119,7 @@ struct MapView: View {
                                         
                                         withAnimation(.snappy){
                                             viewModel.cameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), latitudinalMeters: 5000, longitudinalMeters: 5000))
-//                                            viewModel.mapSelection = post
+                                            //                                            viewModel.mapSelection = post
                                         }
                                         
                                         showSearch = false
@@ -133,10 +164,12 @@ struct MapView: View {
             //            .navigationBarTitleDisplayMode(.inline)
             //            .searchable(text: $searchText, isPresented: $showSearch, placement: .navigationBarDrawer(displayMode: .always))
             .onChange(of: viewModel.mapSelection, { oldValue, newValue in
-                if let post = newValue {
+                if let id = newValue {
                     withAnimation(.linear) {
-                        viewModel.selectedPost = post
-                        viewModel.showPostView = true
+                        if let post = viewModel.searchForPost(id: id){
+                            viewModel.selectedPost = post
+                            viewModel.showPostView = true
+                        }
                     }
                 } else {
                     withAnimation(.linear) {
@@ -153,14 +186,14 @@ struct MapView: View {
             }
             
             
-            MapNavBar(searchText: $viewModel.searchText, showSearch: $showSearch, viewModel: filterViewModel)
-
+            MapNavBar(searchText: $viewModel.searchText, showSearch: $showSearch)
+//            
         }
-//        .sheet(isPresented: $filterViewModel.showAllFilter){
-//            AllInOneFilterView(filterVM: filterViewModel)
-////                .presentationDetents([.fraction(0.99)])
-////                .presentationDragIndicator(.visible)
-//        }
+//                .sheet(isPresented: $filterViewModel.showAllFilter){
+//                    AllInOneFilterView(filterVM: filterViewModel)
+//        //                .presentationDetents([.fraction(0.99)])
+//        //                .presentationDragIndicator(.visible)
+//                }
         .onChange(of: showSearch){
             if showSearch {
                 viewModel.startSearch()
@@ -207,7 +240,7 @@ struct MapView: View {
         let locationManager = CLLocationManager()
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
-
+        
         if let userLocation = locationManager.location?.coordinate {
             let coordinatedRegion = MKCoordinateRegion(
                 center: userLocation,
@@ -226,8 +259,116 @@ struct MapView: View {
             
         }
     }
-
     
+    @ViewBuilder
+    func annotation(item: MapAnnotation) -> some View {
+            VStack{
+                ZStack(alignment: .bottom){
+                    Rectangle()
+                        .rotation(.degrees(45))
+                        .fill(Color.white)
+                        .frame(width: 10, height: 10)
+                        .offset(y:5)
+
+                    KFImage(URL(string: item.image))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: viewModel.mapSelection == item.postID ? 60 : 44, height: viewModel.mapSelection == item.postID ? 60 : 44)
+                        .background(.gray)
+                        .clipShape(.circle)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white, lineWidth: 3)
+                        )
+                }
+
+
+                Text(item.name)
+                    .font(.footnote)
+                    .fontWeight(.semibold)
+                    .frame(width: 110)
+                    .lineLimit(1)
+            }
+            .offset(y: viewModel.mapSelection == item.postID ? -30 : -22 )
+            .scaleEffect(viewModel.mapSelection == item.postID ? 1.2 : 1.0) // Scale the entire ZStack based on selection
+            .animation(.spring(response: 0.5, dampingFraction: 0.6, blendDuration: 0), value: viewModel.mapSelection)
+        
+    }
+    
+    func clusteringAnnotation(item: MapClusterAnnotation) -> some View {
+            VStack{
+                ZStack(alignment: .bottom){
+                    Rectangle()
+                        .rotation(.degrees(45))
+                        .fill(Color.white)
+                        .frame(width: 10, height: 10)
+                        .offset(y:5)
+
+                    KFImage(URL(string: item.image))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: viewModel.mapSelection == item.postID ? 60 : 44, height: viewModel.mapSelection == item.postID ? 60 : 44)
+                        .background(.gray)
+                        .clipShape(.circle)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white, lineWidth: 3)
+                        )
+                }
+
+                VStack(alignment: .center, spacing: 0){
+                    Text("\(item.name)")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .frame(width: 110)
+                        .lineLimit(1)
+                    
+                    Text("+ \(item.count - 1) more")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .frame(width: 110)
+                        .lineLimit(1)
+                }
+            }
+            .offset(y: viewModel.mapSelection == item.postID ? -30 : -22 )
+            .scaleEffect(viewModel.mapSelection == item.postID ? 1.2 : 1.0) // Scale the entire ZStack based on selection
+            .animation(.spring(response: 0.5, dampingFraction: 0.6, blendDuration: 0), value: viewModel.mapSelection)
+        
+    }
+    
+    func annotationPost(item: Components.Schemas.PostResponseDto) -> some View {
+            VStack{
+                ZStack(alignment: .bottom){
+                    Rectangle()
+                        .rotation(.degrees(45))
+                        .fill(Color.white)
+                        .frame(width: 10, height: 10)
+                        .offset(y:5)
+
+                    KFImage(URL(string: item.images[0]))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: viewModel.mapSelection == item.id ? 60 : 44, height: viewModel.mapSelection == item.id ? 60 : 44)
+                        .background(.gray)
+                        .clipShape(.circle)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white, lineWidth: 3)
+                        )
+                }
+                .offset(y: viewModel.mapSelection == item.id ? -30 : -22 )
+
+
+                Text(item.title)
+                    .font(.footnote)
+                    .foregroundStyle(.gray)
+                    .fontWeight(.semibold)
+            }
+
+            .scaleEffect(viewModel.mapSelection == item.id ? 1.2 : 1.0) // Scale the entire ZStack based on selection
+            .animation(.spring(response: 0.5, dampingFraction: 0.6, blendDuration: 0), value: viewModel.mapSelection)
+        
+    }
 }
 
 

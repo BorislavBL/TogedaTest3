@@ -51,7 +51,7 @@ struct ChatMessageCell: View {
                                 .resizable()
                                 .scaledToFill()
                                 .clipped()
-                                .frame(maxWidth: UIScreen.main.bounds.width / 1.5, maxHeight: 400)
+                                .frame(width: 180, height: 300)
                                 .cornerRadius(10)
                                 .padding(.trailing)
                         }
@@ -90,7 +90,7 @@ struct ChatMessageCell: View {
                                     .foregroundStyle(.gray)
                             }
                             MessageClubPreview(clubID: message.content)
-                                .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
+                                .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
                             
                         }
                     case .IMAGE:
@@ -108,10 +108,10 @@ struct ChatMessageCell: View {
                                     .resizable()
                                     .scaledToFill()
                                     .clipped()
-                                    .frame(maxWidth: UIScreen.main.bounds.width / 1.5, maxHeight: 400)
+                                    .frame(width: 180, height: 300)
                                     .cornerRadius(10)
                                     .padding(.trailing)
-                                    .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
+                                    .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
                             }
                             
                         }
@@ -131,7 +131,7 @@ struct ChatMessageCell: View {
                                 .foregroundColor(Color("blackAndWhite"))
                                 .clipShape(ChatBubble(isFromCurrentUser: false, shouldRoundAllCorners: !shouldShowChatPartnerImage))
                                 .frame(maxWidth: UIScreen.main.bounds.width / 1.75, alignment: .leading)
-                                .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
+                                .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
                         }
                     case .POST:
                         VStack(alignment: .leading) {
@@ -141,7 +141,7 @@ struct ChatMessageCell: View {
                                     .foregroundStyle(.gray)
                             }
                             MessagePostPreview(postID: message.content)
-                                .padding(.leading, shouldShowChatPartnerImage ? 0 : 32)
+                                .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
                         }
                         
                     }

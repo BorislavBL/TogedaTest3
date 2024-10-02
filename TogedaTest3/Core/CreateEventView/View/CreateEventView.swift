@@ -605,6 +605,11 @@ struct CreateEventView: View {
                                         self.isLoading = false
                                     }
                                     dismiss()
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                        self.postVM.clickedPost = post
+                                        self.postVM.showSharePostSheet = true
+                                    }
                                 }
                             }
                             else {

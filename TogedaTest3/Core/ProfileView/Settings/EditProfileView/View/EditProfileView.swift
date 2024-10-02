@@ -27,6 +27,7 @@ struct EditProfileView: View {
     @State private var showLocationView: Bool = false
     @State private var showInterestsView: Bool = false
     @State private var showPhoneNumberView: Bool = false
+    @State private var showPasswordView = false
     
     @State var isLoading = false
     @State private var errorMessage: String?
@@ -114,6 +115,7 @@ struct EditProfileView: View {
                         .createEventTabStyle()
                     }
                     
+                    
                     Button{
                         showGenderView = true
                     } label:{
@@ -164,6 +166,26 @@ struct EditProfileView: View {
                     
                     if occupationError {
                         WarningTextComponent(text: "You need to pick at least 5 interests.")
+                    }
+                    
+                    Button{
+                        showPasswordView = true
+                    } label:{
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "lock.circle")
+                                .imageScale(.large)
+                            
+                            Text("Change Password")
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .padding(.trailing, 10)
+                                .foregroundColor(.gray)
+                            
+                            
+                        }
+                        .createEventTabStyle()
                     }
                     
                     EditProfileBioView(text: $editProfileVM.description, placeholder: "Bio")
@@ -416,6 +438,9 @@ struct EditProfileView: View {
         })
         .navigationDestination(isPresented: $showInterestsView, destination: {
             EditProfileInterestView(selectedInterests: $editProfileVM.interests)
+        })
+        .navigationDestination(isPresented: $showPasswordView, destination: {
+            ChangePasswordView()
         })
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

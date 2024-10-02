@@ -100,7 +100,7 @@ func convertCmToFeetAndInches(_ centimeters: String) -> String? {
 }
 
 func createURLLink(postID: String?, clubID: String?, userID: String?) -> String{
-    let baseURL = "togedaapp://"
+    let baseURL = "https://api.togeda.net/in-app/"
     var url = baseURL
     if let id = postID {
         url += "event?id=\(id)"

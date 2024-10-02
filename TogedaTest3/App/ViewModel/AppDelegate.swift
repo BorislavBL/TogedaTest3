@@ -59,7 +59,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             }
         }
         
-        print("Kvo da gi pravq tiq pari beeeeee\(response.notification.request.content.userInfo)")
+        print("Not userInfo: \(response.notification.request.content.userInfo)")
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {

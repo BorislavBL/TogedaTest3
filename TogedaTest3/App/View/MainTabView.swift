@@ -155,8 +155,11 @@ struct MainTabView: View {
                     CreateStripeView()
                 case .chatParticipants(chatId: let chatId):
                     ChatParticipantsView(chatId: chatId)
+                case .changePassword:
+                    ChangePasswordView()
                 case .test:
                     TestView()
+
                 }
             })
         }

@@ -12,6 +12,7 @@ struct ContentView: View {
     @EnvironmentObject var navManager: NavigationManager
 
     @StateObject var networkManager = NetworkManager()
+    @Environment(\.openURL) var openURL
     
     var body: some View {
         
@@ -36,19 +37,7 @@ struct ContentView: View {
             
 //            VStack{
 //                Button("Click"){
-//                    Task{
-//                        if let response = try await APIClient.shared.checkForPaidEvents() {
-//                            print("The string:",response.data)
-//                            if let bool = Bool(response.data) {
-//                                print("The value: \(bool)")
-//                                if bool {
-//                                    print("hahha true")
-//                                } else {
-//                                    print("hahha false")
-//                                }
-//                            }
-//                        }
-//                    }
+//
 //                }
 //            }
 //            .background(.base)

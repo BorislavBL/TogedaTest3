@@ -106,10 +106,10 @@ extension EditEventViewModel {
         var fromDate: Date?
         var toDate: Date?
         
-        if dateTimeSettings == 0 {
+        if dateTimeSettings == 1 {
             fromDate = from
             toDate = nil
-        } else if dateTimeSettings == 1 {
+        } else if dateTimeSettings == 2 {
             fromDate = from
             toDate = to
         } else {

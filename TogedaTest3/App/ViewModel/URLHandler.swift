@@ -17,20 +17,44 @@ class URLHandler {
     }
     
     func handleURL(_ url: URL) {
-        if url.host == "event" {
-            handleEventURL(url)
-        } else if url.host == "user" {
-            handleUserURL(url)
-        } else if url.host == "club" {
-            handleClubURL(url)
-        } else if url.host == "review" {
-            handleEventReviewURL(url)
-        } else if url.host == "joinRequest" {
-           handleJoinRequestURL(url)
-        }  else if url.host == "chatRoom" {
-           handleChatroomURL(url)
+        var URL = transformURL(url: url)
+        if URL.host == "event" {
+            handleEventURL(URL)
+        } else if URL.host == "user" {
+            handleUserURL(URL)
+        } else if URL.host == "club" {
+            handleClubURL(URL)
+        } else if URL.host == "review" {
+            handleEventReviewURL(URL)
+        } else if URL.host == "joinRequest" {
+           handleJoinRequestURL(URL)
+        }  else if URL.host == "chatRoom" {
+           handleChatroomURL(URL)
          }
     }
+    
+    func transformURL(url: URL) -> URL {
+        // Check if the URL contains "api.togeda.net" and has the "in-app" path component
+        if let host = url.host, host.contains("api.togeda.net") {
+            if var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+                // Modify the scheme to `togedaapp`
+                components.scheme = "togedaapp"
+                
+                // Remove the "api.togeda.net" part, and adjust the host/path as needed
+                if let firstPath = components.path.split(separator: "/").first, firstPath == "in-app" {
+                    components.host = components.path.split(separator: "/").dropFirst().first.map { String($0) } // Set host to the next path component (event, user, etc.)
+                    components.path = "/" + components.path.split(separator: "/").dropFirst(2).joined(separator: "/") // Remove "in-app" and next component from path
+                }
+                
+                // Return transformed URL, or original if transformation fails
+                return components.url ?? url
+            }
+        }
+        
+        // Return the original URL if no transformation is needed
+        return url
+    }
+
     
     private func handleEventURL(_ url: URL) {
         if let queryParameters = url.queryParameters,

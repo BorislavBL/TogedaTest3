@@ -32,11 +32,15 @@ struct TogedaTest3App: App {
                     APIClient.shared.setViewModel(vm)
                 }
                 .onOpenURL { url in
+                    print(url)
                     if vm.miniValidation() {
                         let stripeHandled = StripeAPI.handleURLCallback(with: url)
                         if (!stripeHandled) {
                             urlHandler?.handleURL(url)
                         }
+                    } else {
+                        // If session is invalid, store the URL for later
+                        vm.pendingURL = url
                     }
                 }
         }

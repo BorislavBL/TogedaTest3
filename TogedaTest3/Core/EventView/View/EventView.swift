@@ -576,6 +576,11 @@ struct EventView: View {
                         } else {
                             Button {
                                 if post.payment > 0 {
+                                    if let max = post.maximumPeople, max <= post.participantsCount{
+                                        showJoinRequest = true
+                                    } else {
+                                        showPaymentSheet = true
+                                    }
                                     showPaymentSheet = true
                                 } else {
                                     showJoinRequest = true

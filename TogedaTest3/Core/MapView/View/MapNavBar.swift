@@ -10,7 +10,6 @@ import SwiftUI
 struct MapNavBar: View {
     @Binding var searchText: String
     @Binding var showSearch: Bool
-    @ObservedObject var viewModel: FilterViewModel
     
     var body: some View {
         VStack(){
@@ -44,5 +43,5 @@ struct MapNavBar: View {
 }
 
 #Preview {
-    MapNavBar(searchText: .constant(""), showSearch: .constant(false), viewModel: FilterViewModel())
+    MapNavBar(searchText: .constant(""), showSearch: .constant(false))
 }

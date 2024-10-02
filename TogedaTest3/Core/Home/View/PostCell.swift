@@ -104,7 +104,11 @@ struct PostCellSkeleton: View {
                 Button {
                     viewModel.clickedPost = post
                     if post.payment > 0, !isOwner, post.currentUserStatus == .NOT_PARTICIPATING, post.status == .NOT_STARTED {
-                        viewModel.showPaymentView = true
+                        if let max = post.maximumPeople, max <= post.participantsCount{
+                            viewModel.showJoinRequest = true
+                        } else {
+                            viewModel.showPaymentView = true
+                        }
                     } else {
                         viewModel.showJoinRequest = true
                     }

@@ -92,6 +92,28 @@ class APIClient: ObservableObject {
         }
     }
     
+    func retryWithExponentialDelay<T>(task: @escaping () async throws -> T) async throws -> T {
+        var delay: TimeInterval = 10 // Initial delay of 10 seconds
+        let maxDelay: TimeInterval = 20 // After the first delay, retry every 20 seconds
+
+        while true {
+            do {
+                // Try the task
+                let result = try await task()
+                return result // If it succeeds, return the result and stop the loop
+            } catch {
+                // If it fails, print the error
+                print("Task failed, retrying in \(delay) seconds...")
+            }
+
+            // Wait for the current delay
+            try? await Task.sleep(nanoseconds: UInt64(delay * Double(NSEC_PER_SEC)))
+
+            // Adjust delay: after the first attempt, it will stay at 20 seconds
+            delay = maxDelay
+        }
+    }
+    
 }
 
 
@@ -126,6 +148,45 @@ extension APIClient {
             print("Internal server error")
         }
         return nil
+    }
+    
+    func changePassword(old: String, new: String, completion: @escaping (Bool?, String?) -> Void) async throws{
+        let response = try await client.changePassword(.init(query: .init(prevPassword: old, newPassword: new)))
+        switch response {
+        case let .ok(okResponse):
+            switch okResponse.body{
+            case .json(let message):
+                completion(message.success, nil)
+            }
+            
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(let error):
+            switch error.body {
+            case .json(let error):
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for hasBasicInfo")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(let error):
+            switch error.body {
+            case .json(let error):
+                print(error)
+                let errorMessage = errorHandler(error: error)
+                completion(nil, errorMessage)
+            }
+        }
     }
     
     func getCurrentUserInfo() async throws -> Components.Schemas.UserInfoDto? {
@@ -2841,6 +2902,38 @@ extension APIClient {
             print("Conflict")
         case .tooManyRequests(_):
             print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func updateChatMessages(chatId: String, lastTimestamp: Date) async throws -> Components.Schemas.ListResponseDtoReceivedChatMessageDto? {
+        let response = try await client.findChatMessagesAfterTimestamp(.init(path: .init(chatId: chatId), query: .init(latestMessageTimestamp: lastTimestamp)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from notifications:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for notificationsList")
         case .requestTimeout(_):
             print("Requested timeout")
         case .notFound(_):

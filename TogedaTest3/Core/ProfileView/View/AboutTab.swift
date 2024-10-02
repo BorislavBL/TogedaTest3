@@ -59,8 +59,21 @@ struct AboutTab: View {
                         if let personalityType = user.details.personalityType {
                             aboutTag(img: Image(systemName: "puzzlepiece.extension"), text: personalityType)
                         }
-                        if let instagram = user.details.instagram, !instagram.isEmpty, showInstagram {
-                            aboutTag(img:Image("instagram"), text: instagram)
+                        if let instagram = user.details.instagram, !instagram.isEmpty{
+                            if showInstagram {
+                                aboutTag(img:Image("instagram"), text: instagram)
+                            } else {
+                                HStack{
+                                    Image("instagram")                                       .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 20, height: 20)
+                                    
+                                    Text(instagram)
+                                        .normalTagTextStyle()
+                                        .blur(radius: 3)
+                                }
+                                .normalTagCapsuleStyle()
+                            }
                         }
                     }
                     

@@ -160,7 +160,6 @@ class PhotoPickerViewModel: ObservableObject {
         
         do {
             if let response = try await APIClient.shared.generatePresignedPutUrl(bucketName: bucketName, keyName: UUID) {
-                print("generated shit:", response)
                 try await ImageService().uploadImage(imageData: jpeg, urlString: response)
                 let imageUrl = "https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
                 

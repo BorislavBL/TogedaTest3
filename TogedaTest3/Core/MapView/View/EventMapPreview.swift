@@ -119,7 +119,7 @@ struct EventMapPreview: View {
                             .foregroundStyle(.gray)
                             .multilineTextAlignment(.leading)
                     } else {
-                        Text("$ \(String(format: "%.2f", post.payment))")
+                        Text("€ \(String(format: "%.2f", post.payment))")
                             .font(.footnote)
                             .foregroundStyle(.gray)
                             .multilineTextAlignment(.leading)

@@ -48,6 +48,7 @@ enum SelectionPath: Hashable, Codable {
     case userReviewView(user: Components.Schemas.UserInfoDto)
     case paymentPage
     case chatParticipants(chatId: String)
+    case changePassword
     case test
 }
 

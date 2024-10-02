@@ -278,9 +278,15 @@ struct JoinRequestView: View {
                                 .cornerRadius(10)
                         }
                     } else {
+
                         if post.payment <= 0 {
                             if post.askToJoin{
                                 Text("Submit a request to join and wait for the organizer's approval!")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .multilineTextAlignment(.center)
+                            } else if let max = post.maximumPeople, max <= post.participantsCount{
+                                Text("Oops, the event is packed! But don’t worry—you can hop on the waitlist and snag a spot if someone changes their plans!")
                                     .font(.headline)
                                     .fontWeight(.bold)
                                     .multilineTextAlignment(.center)
@@ -315,107 +321,122 @@ struct JoinRequestView: View {
                             }
                             
                         } else {
-                            if let error = paymentVM.error {
-                                Text("Error: \(error).")
+                            if let max = post.maximumPeople, max <= post.participantsCount{
+                                Text("Oh no, tickets are sold out! But keep an eye out—if someone cancels, you’ll have the chance to grab their spot. Stay ready to snag a ticket if it opens up!")
                                     .font(.headline)
                                     .fontWeight(.bold)
+                                    .multilineTextAlignment(.center)
+                                
+                                Text("Waiting...")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
                             } else {
-                                if post.askToJoin {
-                                    Text("Request a ticket, and once the organizer approves, your ticket will be automatically purchased!")
+                                if let error = paymentVM.error {
+                                    Text("Error: \(error).")
                                         .font(.headline)
                                         .fontWeight(.bold)
                                 } else {
-                                    Text("Buy a ticket and join the Event!")
-                                        .font(.headline)
-                                        .fontWeight(.bold)
-                                }
-                            }
-
-                            
-                            VStack {
-                                if let paymentSheet = paymentVM.paymentSheet {
-                                    PaymentSheet.PaymentButton(
-                                        paymentSheet: paymentSheet,
-                                        onCompletion: paymentVM.onPaymentCompletion
-                                    ) {
-                                        
-                                        if let result = paymentVM.paymentResult {
-                                            switch result {
-                                            case .completed:
-                                                Text("Payment complete.")
-                                                    .fontWeight(.semibold)
-                                                    .frame(maxWidth: .infinity)
-                                                    .frame(height: 60)
-                                                    .background(Color("blackAndWhite"))
-                                                    .foregroundColor(Color("testColor"))
-                                                    .cornerRadius(10)
-                                                    .onAppear(){
-                                                        Task{
-                                                            if let response = try await APIClient.shared.getEvent(postId: post.id){
-                                                                postsViewModel.localRefreshEventOnAction(post: response)
-                                                                
-                                                                refreshParticipants()
-                                                                
-                                                                post = response
-                                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                                                    
-                                                                    isActive = false
-                                                                }
-                                                            }
- 
-                                                        }
-                                                    }
-                                            case .failed(let error):
-                                                Text("Payment failed.")
-                                                    .fontWeight(.semibold)
-                                                    .frame(maxWidth: .infinity)
-                                                    .frame(height: 60)
-                                                    .background(Color("blackAndWhite"))
-                                                    .foregroundColor(Color("testColor"))
-                                                    .cornerRadius(10)
-                                                    .onAppear(){
-                                                        paymentVM.error = error.localizedDescription
-                                                    }
-                                            case .canceled:
-                                                Text("Payment canceled.")
-                                                    .fontWeight(.semibold)
-                                                    .frame(maxWidth: .infinity)
-                                                    .frame(height: 60)
-                                                    .background(Color("blackAndWhite"))
-                                                    .foregroundColor(Color("testColor"))
-                                                    .cornerRadius(10)
-                                                    .onAppear(){
-                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                                            isActive = false
-                                                        }
-                                                    }
-                                            }
-                                        } else {
-                                            Text("Buy \(post.payment, specifier: "%.2f")")
-                                                .fontWeight(.semibold)
-                                                .frame(maxWidth: .infinity)
-                                                .frame(height: 60)
-                                                .background(Color("blackAndWhite"))
-                                                .foregroundColor(Color("testColor"))
-                                                .cornerRadius(10)
-
-                                        }
+                                    if post.askToJoin {
+                                        Text("Request a ticket, and once the organizer approves, your ticket will be automatically purchased!")
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                    } else {
+                                        Text("Buy a ticket and join the Event!")
+                                            .font(.headline)
+                                            .fontWeight(.bold)
                                     }
                                 }
-                                else {
-                                   Text("Loading…")
-                                       .fontWeight(.semibold)
-                                       .frame(maxWidth: .infinity)
-                                       .frame(height: 60)
-                                       .background(Color("blackAndWhite"))
-                                       .foregroundColor(Color("testColor"))
-                                       .cornerRadius(10)
-
-                               }
-
-                            }.onAppear {
-                                paymentVM.eventID = post.id
-                                paymentVM.preparePaymentSheet()
+                                
+                                
+                                VStack {
+                                    if let paymentSheet = paymentVM.paymentSheet {
+                                        PaymentSheet.PaymentButton(
+                                            paymentSheet: paymentSheet,
+                                            onCompletion: paymentVM.onPaymentCompletion
+                                        ) {
+                                            
+                                            if let result = paymentVM.paymentResult {
+                                                switch result {
+                                                case .completed:
+                                                    Text("Payment complete.")
+                                                        .fontWeight(.semibold)
+                                                        .frame(maxWidth: .infinity)
+                                                        .frame(height: 60)
+                                                        .background(Color("blackAndWhite"))
+                                                        .foregroundColor(Color("testColor"))
+                                                        .cornerRadius(10)
+                                                        .onAppear(){
+                                                            Task{
+                                                                if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                                                    postsViewModel.localRefreshEventOnAction(post: response)
+                                                                    
+                                                                    refreshParticipants()
+                                                                    
+                                                                    post = response
+                                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                                        
+                                                                        isActive = false
+                                                                    }
+                                                                }
+                                                                
+                                                            }
+                                                        }
+                                                case .failed(let error):
+                                                    Text("Payment failed.")
+                                                        .fontWeight(.semibold)
+                                                        .frame(maxWidth: .infinity)
+                                                        .frame(height: 60)
+                                                        .background(Color("blackAndWhite"))
+                                                        .foregroundColor(Color("testColor"))
+                                                        .cornerRadius(10)
+                                                        .onAppear(){
+                                                            paymentVM.error = error.localizedDescription
+                                                        }
+                                                case .canceled:
+                                                    Text("Payment canceled.")
+                                                        .fontWeight(.semibold)
+                                                        .frame(maxWidth: .infinity)
+                                                        .frame(height: 60)
+                                                        .background(Color("blackAndWhite"))
+                                                        .foregroundColor(Color("testColor"))
+                                                        .cornerRadius(10)
+                                                        .onAppear(){
+                                                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                                isActive = false
+                                                            }
+                                                        }
+                                                }
+                                            } else {
+                                                Text("Buy \(post.payment, specifier: "%.2f")")
+                                                    .fontWeight(.semibold)
+                                                    .frame(maxWidth: .infinity)
+                                                    .frame(height: 60)
+                                                    .background(Color("blackAndWhite"))
+                                                    .foregroundColor(Color("testColor"))
+                                                    .cornerRadius(10)
+                                                
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        Text("Loading…")
+                                            .fontWeight(.semibold)
+                                            .frame(maxWidth: .infinity)
+                                            .frame(height: 60)
+                                            .background(Color("blackAndWhite"))
+                                            .foregroundColor(Color("testColor"))
+                                            .cornerRadius(10)
+                                        
+                                    }
+                                    
+                                }.onAppear {
+                                    paymentVM.eventID = post.id
+                                    paymentVM.preparePaymentSheet()
+                                }
                             }
                         }
                         
