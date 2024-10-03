@@ -82,14 +82,14 @@ struct ProfileView: View {
                         
                         HStack(alignment: .top, spacing: 0) {
                             NavigationLink(value: SelectionPath.userFriendsList(user)){
-                                UserStats(value: String(Int(user.friendsCount)), title: "Friends")
+                                UserStats(value: formatBigNumbers(Int(user.friendsCount)), title: "Friends")
                                     .frame(width: 105)
                             }
                             Divider()
                                 .frame(height: 50)
                             
                             NavigationLink(value: SelectionPath.allUserEvents(userID: user.id)){
-                                UserStats(value: String(Int(user.participatedPostsCount)), title: "Events")
+                                UserStats(value: formatBigNumbers(Int(user.participatedPostsCount)), title: "Events")
                                     .frame(width: 105)
                             }
                             Divider()
@@ -97,7 +97,7 @@ struct ProfileView: View {
                             
                             NavigationLink(value: SelectionPath.userReviewView(user: user)){
                                 VStack{
-                                    UserStats(value: "\(viewModel.likesCount)", title: "Likes")
+                                    UserStats(value: "\(formatBigNumbers(Int(viewModel.likesCount)))", title: "Likes")
                                     Text("\(viewModel.noShows) no shows")
                                         .font(.footnote)
                                         .foregroundStyle(viewModel.noShows == 0 ? .gray :

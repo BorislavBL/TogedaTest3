@@ -102,10 +102,10 @@ struct PostTags: View {
             HStack(spacing: 3) {
                 Image(systemName: "person.2")
                 if let maxPeople = post.maximumPeople {
-                    Text("\(post.participantsCount)/\(maxPeople)")
+                    Text("\(formatBigNumbers(Int(post.participantsCount)))/\(formatBigNumbers(Int(maxPeople)))")
                         .normalTagTextStyle()
                 } else {
-                    Text("\(post.participantsCount)")
+                    Text("\(formatBigNumbers(Int(post.participantsCount)))")
                         .normalTagTextStyle()
                 }
             }

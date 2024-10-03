@@ -1,5 +1,5 @@
 //
-//  GroupAccessibilityView.swift
+//  GroupPermissionsView.swift
 //  TogedaTest3
 //
 //  Created by Borislav Lorinkov on 29.12.23.
@@ -7,19 +7,41 @@
 
 import SwiftUI
 
-struct GroupAccessibilityView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Binding var selectedVisability: String
-    @Binding var askToJoin: Bool
+enum Permissions: Hashable, Codable {
+    case All_members
+    case Admins_only
+    
+    var value : String {
+      switch self {
+      // Use Internationalization, as appropriate.
+      case .All_members: return "All members"
+      case .Admins_only: return "Admins only"
+     
+      }
+    }
+    
+    var backendValue : String {
+      switch self {
+      // Use Internationalization, as appropriate.
+      case .All_members: return "ALL"
+      case .Admins_only: return "ADMINS_ONLY"
+     
+      }
+    }
+}
 
-    var body: some View {
+struct GroupPermissionsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var selectedPermission: Permissions
+    
+    var body: some View{
         VStack(alignment: .leading, spacing: 20){
             VStack(alignment: .leading){
                 Button{
-                    selectedVisability = "PUBLIC"
+                    selectedPermission = .All_members
                 } label:{
                     HStack {
-                        if selectedVisability == "PUBLIC" {
+                        if selectedPermission == .All_members {
                             Image(systemName: "checkmark.circle.fill")
                                 .imageScale(.large)
                                 .foregroundStyle(.blue)
@@ -28,7 +50,7 @@ struct GroupAccessibilityView: View {
                                 .imageScale(.large)
                                 .foregroundStyle(.gray)
                         }
-                        Text("Public").tag("PUBLIC")
+                        Text("All Members").tag(Permissions.All_members)
                     }
                 }
                 
@@ -37,19 +59,18 @@ struct GroupAccessibilityView: View {
                             .imageScale(.large)
                             .foregroundStyle(.gray.opacity(0))
                     
-                    Text("Everyone will be able to join your group without any restrictions.")
+                    Text("Everyone in this club will be able to create events.")
                         .font(.callout)
                         .foregroundColor(.gray)
                 }
             }
             
             VStack(alignment: .leading){
-                
                 Button{
-                    selectedVisability = "PRIVATE"
+                    selectedPermission = .Admins_only
                 } label:{
-                    HStack{
-                        if selectedVisability == "PRIVATE"{
+                    HStack {
+                        if selectedPermission == .Admins_only {
                             Image(systemName: "checkmark.circle.fill")
                                 .imageScale(.large)
                                 .foregroundStyle(.blue)
@@ -58,7 +79,7 @@ struct GroupAccessibilityView: View {
                                 .imageScale(.large)
                                 .foregroundStyle(.gray)
                         }
-                        Text("Private").tag("PRIVATE")
+                        Text("Admins only").tag(Permissions.Admins_only)
                     }
                 }
                 
@@ -67,28 +88,17 @@ struct GroupAccessibilityView: View {
                             .imageScale(.large)
                             .foregroundStyle(.gray.opacity(0))
                     
-                    Text("Your group won't be visible on the feed page and people will be able to join it only if you personally invite them.")
+                    Text("Only admins will be capable of creating club events.")
                         .font(.callout)
                         .foregroundColor(.gray)
                 }
-            }
-
-            VStack(alignment: .leading){
-                Toggle(isOn: $askToJoin) {
-                    Text("Ask for permission")
-                        .fontWeight(.semibold)
-                }
-                
-                Text("Each user will have to be approved by you in order to join.")
-                    .font(.callout)
-                    .foregroundColor(.gray)
             }
             
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .swipeBack()
-        .navigationTitle("Accessibility")
+        .navigationTitle("Permissions")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
@@ -101,10 +111,9 @@ struct GroupAccessibilityView: View {
         
         
     }
+
 }
 
 #Preview {
-    GroupAccessibilityView(selectedVisability: .constant("PUBLIC"), askToJoin: .constant(true))
+    GroupPermissionsView(selectedPermission: .constant(.All_members))
 }
-
-

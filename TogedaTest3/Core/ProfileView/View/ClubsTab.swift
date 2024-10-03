@@ -20,7 +20,7 @@ struct ClubsTab: View {
                     .font(.body)
                     .fontWeight(.bold)
                 
-                Text("\(count)")
+                Text("\(formatBigNumbers(Int(count)))")
                     .foregroundStyle(.gray)
                 
                 

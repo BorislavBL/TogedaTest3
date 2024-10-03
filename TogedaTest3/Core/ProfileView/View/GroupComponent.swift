@@ -66,7 +66,7 @@ struct GroupComponent: View {
                             .font(.caption)
                             .foregroundColor(Color("light-gray"))
                         
-                        Text("\(club.membersCount)")
+                        Text("\(formatBigNumbers(Int(club.membersCount)))")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(Color("light-gray"))

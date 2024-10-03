@@ -22,7 +22,7 @@ struct ClubMembersView: View {
                         .fontWeight(.bold)
                     
                     
-                    Text("\(groupVM.membersCount)")
+                    Text("\(formatBigNumbers(Int(groupVM.membersCount)))")
                         .foregroundStyle(.gray)
                     
                 }
@@ -61,7 +61,7 @@ struct ClubMembersView: View {
                                     .foregroundStyle(.black)
                                     .opacity(0.5)
                                 
-                                Text(" + \(club.membersCount - 10)")
+                                Text(" + \(formatBigNumbers(Int(club.membersCount - 10)))")
                             }
                         }
                     }

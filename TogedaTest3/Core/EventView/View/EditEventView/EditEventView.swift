@@ -29,7 +29,6 @@ struct EditEventView: View {
                 
                 if let errorMessage = errorMessage {
                     WarningTextComponent(text: errorMessage)
-                    
                 }
                 
                 VStack(alignment: .leading, spacing: 10){

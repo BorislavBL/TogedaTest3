@@ -41,6 +41,7 @@ class UserViewModel: ObservableObject {
     }
     
     func fetchCurrentUser() async throws{
+        print("Current user fetched")
         currentUser = try await APIClient.shared.getCurrentUserInfo()
     }
 }

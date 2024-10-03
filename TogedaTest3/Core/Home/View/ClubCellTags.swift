@@ -37,7 +37,7 @@ struct ClubCellTags: View {
             
             HStack(spacing: 3) {
                 Image(systemName: "person.2")
-                Text("\(club.membersCount)")
+                Text("\(formatBigNumbers(Int(club.membersCount)))")
                     .normalTagTextStyle()
             }
             .normalTagCapsuleStyle()

@@ -13,9 +13,11 @@ enum AuthenticationState {
     case authenticatedNoInformation
     case authenticated
     case unauthenticated
+    case update
 }
 
 class ContentViewModel: ObservableObject {
+    @Published var resetCurrentUser = false
     @Published var authenticationState: AuthenticationState = .checking
     private var tokenCheckTimer: Timer?
 //    @Published var mainAccessToken: String?
@@ -41,6 +43,22 @@ class ContentViewModel: ObservableObject {
         }
     }
  
+}
+
+extension ContentViewModel{
+    func getAppVersion() -> String {
+        if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+            return appVersion
+        }
+        return "Unknown"
+    }
+
+    func getBuildNumber() -> String {
+        if let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+            return buildNumber
+        }
+        return "Unknown"
+    }
 }
 
 

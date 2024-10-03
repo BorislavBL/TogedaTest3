@@ -17,7 +17,7 @@ struct ClubMemoryView: View {
                     .font(.body)
                     .fontWeight(.bold)
                 
-                Text("\(groupVM.images.count)")
+                Text("\(formatBigNumbers(Int(groupVM.images.count)))")
                     .foregroundStyle(.gray)
                 
             }

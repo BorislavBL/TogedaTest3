@@ -375,6 +375,7 @@ extension APIClient {
             case .badRequest(let error):
                 switch error.body {
                 case .json(let error):
+                    print("Error", error)
                     let errorMessage = errorHandler(error: error)
                     completion(nil, errorMessage)
                 }
@@ -983,6 +984,13 @@ extension APIClient {
                 }
             }
         }
+        
+        if message.isEmpty, let errorMessage = error.message {
+            message = errorMessage
+        } else if message.isEmpty {
+            message = "An unknown error occurred."
+        }
+        
         return message.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

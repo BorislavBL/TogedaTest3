@@ -143,11 +143,11 @@ struct AllEventTabsView: View {
                         
                         VStack(alignment: .leading, spacing: 5) {
                             if let maxPeople = post.maximumPeople {
-                                Text("Participants \(eventVM.participantsCount)/\(maxPeople)")
+                                Text("Participants \(formatBigNumbers(Int(eventVM.participantsCount)))/\(formatBigNumbers(Int(maxPeople)))")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
                             } else {
-                                Text("Participants \(eventVM.participantsCount)")
+                                Text("Participants \(formatBigNumbers(Int(eventVM.participantsCount)))")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
                             }
@@ -181,7 +181,7 @@ struct AllEventTabsView: View {
                                             .frame(width: 40, height: 40)
                                             .overlay(
                                                 ZStack(alignment:.center){
-                                                    Text("+\(eventVM.participantsList.count - 3)")
+                                                    Text("+\(formatBigNumbers(Int(eventVM.participantsList.count - 3)))")
                                                         .font(.caption2)
                                                         .fontWeight(.semibold)
                                                         .foregroundColor(.white)

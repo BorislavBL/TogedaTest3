@@ -7,6 +7,21 @@
 
 import Foundation
 
+func formatBigNumbers(_ num: Int) -> String {
+    let number = Double(num)
+    
+    switch number {
+    case 1_000_000_000...:
+        return String(format: "%.1fB", number / 1_000_000_000)
+    case 1_000_000...:
+        return String(format: "%.1fM", number / 1_000_000)
+    case 1_000...:
+        return String(format: "%.1fK", number / 1_000)
+    default:
+        return "\(num)"
+    }
+}
+
 func interestsOrder(_ interests: [Interest]) -> String {
     var text = ""
     for i in interests.indices {

@@ -270,13 +270,15 @@ struct ReviewProfileView: View {
             group.addTask {
                 do {
                     if let response = try await APIClient.shared.getUserLikesList(userId: user.id, page: likesPage, size: likesSize) {
-                        
-                        likesList = response.data
-                        likesPage += 1
-                        likesLastPage = response.lastPage
-                        likesCount = response.listCount
-                        
-                        likesInit = false
+                        DispatchQueue.main.async {
+                            self.likesList = response.data
+                            self.likesPage += 1
+                            self.likesLastPage = response.lastPage
+                            self.likesCount = response.listCount
+                            
+                            self.likesInit = false
+                        }
+
                     }
                 } catch {
                     print("Error fetching user posts: \(error)")
@@ -286,7 +288,9 @@ struct ReviewProfileView: View {
                 do {
                     if let resposne = try await APIClient.shared.getUserRatingAvg(userId: user.id) {
                         if let rating = resposne.averageRating {
-                            self.rating = rating
+                            DispatchQueue.main.async {
+                                self.rating = rating
+                            }
                         }
                     }
                 }

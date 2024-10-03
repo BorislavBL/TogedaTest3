@@ -60,7 +60,7 @@ struct ClubMembersListView: View {
                     
                     Spacer()
                     
-                        if club.currentUserStatus == .PARTICIPATING {
+                        if club.currentUserStatus == .PARTICIPATING && club.currentUserRole == .ADMIN {
                             Menu {
                                 if let cuser = userVM.currentUser, club.owner.id == cuser.id{
                                     if user._type == .MEMBER  {
@@ -88,11 +88,6 @@ struct ClubMembersListView: View {
                                                 }
                                             }
                                         }
-                                    }
-                                }
-                                if club.currentUserStatus == .PARTICIPATING {
-                                    Button("Report") {
-                                        
                                     }
                                 }
                                 

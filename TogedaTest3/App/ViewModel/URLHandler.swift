@@ -27,10 +27,10 @@ class URLHandler {
         } else if URL.host == "review" {
             handleEventReviewURL(URL)
         } else if URL.host == "joinRequest" {
-           handleJoinRequestURL(URL)
-        }  else if URL.host == "chatRoom" {
-           handleChatroomURL(URL)
-         }
+            handleJoinRequestURL(URL)
+        } else if URL.host == "chatRoom" {
+            handleChatroomURL(URL)
+        }
     }
     
     func transformURL(url: URL) -> URL {

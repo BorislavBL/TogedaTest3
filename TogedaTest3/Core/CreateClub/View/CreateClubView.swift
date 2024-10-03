@@ -22,7 +22,7 @@ struct CreateClubView: View {
     @State private var showAcessibility: Bool = false
     @State private var showPermission: Bool = false
     
-    let placeholder = "Provide a brief overview of your group. What is the main focus or interest? Describe the typical activities, meetings, or events you organize. Highlight any unique aspects or notable achievements."
+    let placeholder = "Provide a brief overview of your club. What is the main focus or interest? Describe the typical activities, meetings, or events you organize. Highlight any unique aspects or notable achievements."
     
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .club, mode: .normal)
     @State var isLoading = false
@@ -40,7 +40,7 @@ struct CreateClubView: View {
                     VStack(alignment: .leading){
                         Text("Title:")
                             .foregroundStyle(.tint)
-                        TextField("What group would you like to make", text: $createGroupVM.title, axis: .vertical)
+                        TextField("What club would you like to make", text: $createGroupVM.title, axis: .vertical)
                             .font(.headline)
                             .fontWeight(.bold)
                             .autocorrectionDisabled(true)
@@ -314,7 +314,7 @@ struct CreateClubView: View {
                     KeyboardToolbarItems()
                 }
             }
-            .navigationTitle("Create Group")
+            .navigationTitle("Create Club")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(trailing:Button(action: {showExitSheet.toggle()}) {
                 Image(systemName: "xmark")
@@ -328,13 +328,13 @@ struct CreateClubView: View {
                 DescriptionView(description: $createGroupVM.description, placeholder: placeholder)
             }
             .navigationDestination(isPresented: $showPhotos) {
-                NormalPhotoPickerView(photoPickerVM: photoPickerVM, message: "Select images related to the group activities.")
+                NormalPhotoPickerView(photoPickerVM: photoPickerVM, message: "Select images related to the club activities.")
             }
             .navigationDestination(isPresented: $showLocation) {
                 LocationPicker(returnedPlace: $createGroupVM.returnedPlace, isActivePrev: $showLocation)
             }
             .navigationDestination(isPresented: $showInterests) {
-                CategoryView(selectedInterests: $createGroupVM.selectedInterests, text: "Select at least one tag related to your group", minInterests: 0)
+                CategoryView(selectedInterests: $createGroupVM.selectedInterests, text: "Select at least one tag related to your club", minInterests: 0)
             }
             .navigationDestination(isPresented: $showAcessibility) {
                 GroupAccessibilityView(selectedVisability: $createGroupVM.selectedVisability, askToJoin: $createGroupVM.askToJoin)

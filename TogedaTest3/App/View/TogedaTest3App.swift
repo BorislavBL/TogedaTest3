@@ -37,7 +37,12 @@ struct TogedaTest3App: App {
                         let stripeHandled = StripeAPI.handleURLCallback(with: url)
                         if (!stripeHandled) {
                             urlHandler?.handleURL(url)
+                            var URL = urlHandler?.transformURL(url: url)
+                            if let url = URL, url.host == "resetUser" {
+                                vm.resetCurrentUser = true
+                            }
                         }
+                        
                     } else {
                         // If session is invalid, store the URL for later
                         vm.pendingURL = url

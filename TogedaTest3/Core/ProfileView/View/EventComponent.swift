@@ -80,12 +80,12 @@ struct EventComponent: View {
                             .foregroundColor(Color("light-gray"))
                         
                         if let maxPeople = post.maximumPeople {
-                            Text("\(post.participantsCount)/\(maxPeople)")
+                            Text("\(formatBigNumbers(Int(post.participantsCount)))/\(formatBigNumbers(Int(maxPeople)))")
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("light-gray"))
                         } else {
-                            Text("\(post.participantsCount)")
+                            Text("\(formatBigNumbers(Int(post.participantsCount)))")
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("light-gray"))

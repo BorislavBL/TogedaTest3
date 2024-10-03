@@ -40,6 +40,32 @@ func hasAge(day: String, month: String, year: String) -> Bool {
     return false
 }
 
+func validAge(day: String, month: String, year: String) -> Bool {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd"
+    dateFormatter.locale = Locale(identifier: "en_US_POSIX") // Ensures consistent date parsing
+    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // UTC time zone
+
+    // Check for valid date format
+    guard let birthDate = dateFormatter.date(from: "\(year)-\(month)-\(day)"),
+          day.count == 2, month.count == 2, year.count == 4 else {
+        return false
+    }
+
+    let calendar = Calendar.current
+    let currentDate = Date()
+
+    // Check if the person is not older than 120 years
+    if let date120YearsAgo = calendar.date(byAdding: .year, value: -120, to: currentDate),
+       birthDate < date120YearsAgo {
+        return false // The person is older than 120
+    }
+
+    // The person is between 18 and 120 years old
+    return true
+}
+
+
 func isValidEmail(testStr: String) -> Bool {
     let emailRegEx = "^(?:(?:(?:(?: )*(?:(?:(?:\\t| )*\\r\\n)?(?:\\t| )+))+(?: )*)|(?: )+)?(?:(?:(?:[-A-Za-z0-9!#$%&’*+/=?^_'{|}~]+(?:\\.[-A-Za-z0-9!#$%&’*+/=?^_'{|}~]+)*)|(?:\"(?:(?:(?:(?: )*(?:(?:[!#-Z^-~]|\\[|\\])|(?:\\\\(?:\\t|[ -~]))))+(?: )*)|(?: )+)\"))(?:@)(?:(?:(?:[A-Za-z0-9](?:[-A-Za-z0-9]{0,61}[A-Za-z0-9])?)(?:\\.[A-Za-z0-9](?:[-A-Za-z0-9]{0,61}[A-Za-z0-9])?)*)|(?:\\[(?:(?:(?:(?:(?:[0-9]|(?:[1-9][0-9])|(?:1[0-9][0-9])|(?:2[0-4][0-9])|(?:25[0-5]))\\.){3}(?:[0-9]|(?:[1-9][0-9])|(?:1[0-9][0-9])|(?:2[0-4][0-9])|(?:25[0-5]))))|(?:(?:(?: )*[!-Z^-~])*(?: )*)|(?:[Vv][0-9A-Fa-f]+\\.[-A-Za-z0-9._~!$&'()*+,;=:]+))\\])))(?:(?:(?:(?: )*(?:(?:(?:\\t| )*\\r\\n)?(?:\\t| )+))+(?: )*)|(?: )+)?$"
     let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)

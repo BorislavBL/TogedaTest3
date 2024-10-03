@@ -19,7 +19,7 @@ struct ClubEventsView: View {
                     .fontWeight(.bold)
                 
                 
-                Text("\(groupVM.clubEventsCount)")
+                Text("\(formatBigNumbers(Int(groupVM.clubEventsCount)))")
                     .foregroundStyle(.gray)
                 
                 Spacer()

@@ -110,6 +110,14 @@ struct MainView: View {
                 print("main token")
                 webSocketManager.reconnectWithNewToken()
             }
+            .onChange(of: vm.resetCurrentUser) { oldValue, newValue in
+                if newValue{
+                    Task{
+                        try await userViewModel.fetchCurrentUser()
+                        vm.resetCurrentUser = false
+                    }
+                }
+            }
     }
     
     func fetchOnDidBecomeActive() async throws{

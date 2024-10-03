@@ -46,7 +46,7 @@ struct EditClubView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 10){
-                    Text("Group Photos")
+                    Text("Club Photos")
                         .font(.title3)
                         .fontWeight(.bold)
                     
@@ -58,7 +58,7 @@ struct EditClubView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 10){
-                    Text("Group Info")
+                    Text("Club Info")
                         .font(.title3)
                         .fontWeight(.bold)
                     
@@ -104,7 +104,7 @@ struct EditClubView: View {
                     }
                     
                     NavigationLink {
-                        CategoryView(selectedInterests: $editGroupVM.selectedInterests, text: "Select at least one tag related to your group", minInterests: 0)
+                        CategoryView(selectedInterests: $editGroupVM.selectedInterests, text: "Select at least one tag related to your club", minInterests: 0)
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
                             Image(systemName: "circle.grid.2x2")
@@ -208,7 +208,7 @@ struct EditClubView: View {
             LocationPicker(returnedPlace: $editGroupVM.returnedPlace, isActivePrev: $showLocation)
         }
         .navigationDestination(isPresented: $showInterests) {
-            CategoryView(selectedInterests: $editGroupVM.selectedInterests, text: "Select at least one tag related to your group", minInterests: 0)
+            CategoryView(selectedInterests: $editGroupVM.selectedInterests, text: "Select at least one tag related to your club", minInterests: 0)
         }
         .navigationDestination(isPresented: $showAcessibility) {
             GroupAccessibilityView(selectedVisability: $editGroupVM.selectedVisability, askToJoin: $editGroupVM.editClub.askToJoin)

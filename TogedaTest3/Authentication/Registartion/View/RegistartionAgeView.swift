@@ -101,6 +101,9 @@ struct RegistartionAgeView: View {
             } else if displayError && !hasAge(day: vm.day, month: vm.month, year: vm.year){
                 WarningTextComponent(text: "You must be at least 18 years old.")
                     .padding(.bottom, 15)
+            } else if displayError && !validAge(day: vm.day, month: vm.month, year: vm.year){
+                WarningTextComponent(text: "You can't be that old...")
+                    .padding(.bottom, 15)
             }
             
             
@@ -122,9 +125,9 @@ struct RegistartionAgeView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(!hasAge(day: vm.day, month: vm.month, year: vm.year))
+            .disableWithOpacity(!hasAge(day: vm.day, month: vm.month, year: vm.year) || !validAge(day: vm.day, month: vm.month, year: vm.year))
             .onTapGesture {
-                if !hasAge(day: vm.day, month: vm.month, year: vm.year){
+                if !hasAge(day: vm.day, month: vm.month, year: vm.year) || !validAge(day: vm.day, month: vm.month, year: vm.year){
                     displayError.toggle()
                 }
             }

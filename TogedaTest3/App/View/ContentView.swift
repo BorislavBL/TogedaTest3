@@ -32,12 +32,14 @@ struct ContentView: View {
                     }
             case .authenticatedNoInformation:
                 RegistrationFullNameView()
+            case .update:
+                UpdateAppView()
             }
             
             
 //            VStack{
 //                Button("Click"){
-//
+//                    print("\(vm.getBuildNumber()) : \(vm.getAppVersion())")
 //                }
 //            }
 //            .background(.base)

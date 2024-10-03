@@ -323,7 +323,7 @@ struct MapView: View {
                         .frame(width: 110)
                         .lineLimit(1)
                     
-                    Text("+ \(item.count - 1) more")
+                    Text("+ \(formatBigNumbers(item.count - 1)) more")
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .frame(width: 110)

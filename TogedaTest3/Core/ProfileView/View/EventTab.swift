@@ -24,7 +24,7 @@ struct EventTab: View {
                     .fontWeight(.bold)
                 
                 if posts.count > 0 {
-                    Text("\(count)")
+                    Text("\(formatBigNumbers(Int(count)))")
                         .foregroundStyle(.gray)
                 }
                 

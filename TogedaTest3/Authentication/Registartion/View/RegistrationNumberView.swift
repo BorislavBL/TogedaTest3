@@ -114,7 +114,7 @@ struct RegistrationNumberView: View {
                                 withAnimation {
                                     self.isLoading = false
                                 }
-                                
+                                print("error")
                                 self.errorMessage = error
                             }
                         }
