@@ -108,7 +108,21 @@ struct IntroView: View {
 //                            .cornerRadius(10)
 //                            .fontWeight(.semibold)
 //                        }
-//                        
+                    HStack{
+                        Text("By signing up you agree to Togeda's ")
+                            .foregroundStyle(.gray) +
+                        Text("[Terms of Use]()")
+                            .foregroundStyle(.blue) +
+                        Text(" and ")
+                            .foregroundStyle(.gray) +
+                        Text("[Privacy Policy]()")
+                            .foregroundStyle(.blue) +
+                        Text(".")
+                            .foregroundStyle(.gray)
+                    }
+                    .multilineTextAlignment(.center)
+                    .font(.footnote)
+                    .padding()
                     }
                     .padding(.bottom, 20)
                     

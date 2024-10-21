@@ -21,8 +21,7 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var chatRoomId: String?
     
     @Published var swiftStomp: SwiftStomp!
-    @Published var currentUserId: String?
-    {
+    @Published var currentUserId: String? {
         didSet {
             connectToCurrentUser(oldValue: oldValue)
         }
@@ -46,9 +45,9 @@ extension WebSocketManager {
     
     func reconnectWithNewToken() {
         if let token = AuthService.shared.getAccessToken() {
-            if isConnected {
-                swiftStomp.disconnect() // Disconnect current connection
-            }
+//            if isConnected {
+                self.disconnect() // Disconnect current connection
+//            }
             let url = URL(string: "wss://api.togeda.net/ws")!
             self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization": "Bearer \(token)"]) // Reinitialize with new token
             self.swiftStomp.delegate = self // Reset delegate
@@ -60,6 +59,7 @@ extension WebSocketManager {
     }
     
     func websocketInit() {
+        print("oooooooooo--------OOOOOOOOOO---------")
         if let token = AuthService.shared.getAccessToken() {
             let url = URL(string: "wss://api.togeda.net/ws")! // Ensure using 'wss' or 'ws' schema
             self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization" : "Bearer \(token)"]) //< Create instance
@@ -76,15 +76,19 @@ extension WebSocketManager {
         self.swiftStomp.connect() //< Connect
     }
     
+    func recconect() {
+        self.disconnect()
+        self.connect()
+    }
+    
     func disconnect() {
         print("Disconnected websocket")
-        //        if !Init {
         if let id = self.currentUserId{
+            print("Suffer from success")
             swiftStomp.unsubscribe(from: "/user/\(id)/queue/messages")
             swiftStomp.unsubscribe(from: "/user/\(id)/queue/notifications")
         }
-        //        }
-        
+        self.swiftStomp.disableAutoPing()
         self.swiftStomp.disconnect()
     }
     
@@ -151,7 +155,13 @@ extension WebSocketManager {
                     
                     if let chatRoomId, messageData.chatId == chatRoomId {
                         DispatchQueue.main.async {
-                            self.messages.append(messageData)
+                            if let message = self.messages.last {
+                                if message.id != messageData.id{
+                                    self.messages.append(messageData)
+                                }
+                            } else {
+                                self.messages.append(messageData)
+                            }
                         }
                     }
                 } else {
@@ -165,9 +175,10 @@ extension WebSocketManager {
                     decoder.dateDecodingStrategy = .iso8601
                     
                     let notificationData = try decoder.decode(Components.Schemas.NotificationDto.self, from: jsonData)
-
-                    addNotification(newNotification: notificationData)
-                    newNotification = notificationData
+                    DispatchQueue.main.async {
+                        self.addNotification(newNotification: notificationData)
+                        self.newNotification = notificationData
+                    }
                 }
             }
         } catch {
@@ -203,7 +214,8 @@ extension WebSocketManager {
     }
     
     func sendMessage(senderId: String, chatId: String, content: String, type: Components.Schemas.ReceivedChatMessageDto.contentTypePayload) {
-        let chatMessage = ChatMessages(senderId: senderId, chatId: chatId, content: content, contentType: type.rawValue)
+        let modifiedContent = limitConsecutiveReturns(in: content)
+        let chatMessage = ChatMessages(senderId: senderId, chatId: chatId, content: modifiedContent, contentType: type.rawValue)
         do {
             let jsonData = try JSONEncoder().encode(chatMessage)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
@@ -259,8 +271,8 @@ extension WebSocketManager {
     //        }
     //    }
     func chatRoomCheck(chatRoom: Components.Schemas.ChatRoomDto) {
-        allChatRooms.removeAll(where: { $0.id == chatRoom.id})
         DispatchQueue.main.async {
+            self.allChatRooms.removeAll(where: { $0.id == chatRoom.id})
             self.allChatRooms.insert(chatRoom, at: 0)
             
         }
@@ -286,15 +298,26 @@ extension WebSocketManager {
     }
     
     func chatMessageCheck(message: Components.Schemas.ReceivedChatMessageDto) {
-        messages.removeAll(where: { msg in
-            if msg.id == message.id && msg.content == message.content && msg.createdAt == message.createdAt {
-                return true
-            }
-            return false
-        })
         DispatchQueue.main.async {
+            self.messages.removeAll(where: { msg in
+                if msg.id == message.id && msg.content == message.content && msg.createdAt == message.createdAt {
+                    return true
+                }
+                return false
+            })
             self.messages.append(message)
         }
+    }
+    
+    func limitConsecutiveReturns(in text: String) -> String {
+        // First, handle trailing newlines without text (remove them)
+        let trimmedText = text.replacingOccurrences(of: "\n+$", with: "", options: .regularExpression)
+
+        // Then, limit consecutive newlines to 3 if they exist inside the text
+        let regexPattern = "\n{4,}"  // Matches 4 or more consecutive newlines
+        let modifiedText = trimmedText.replacingOccurrences(of: regexPattern, with: "\n\n\n", options: .regularExpression)
+
+        return modifiedText
     }
     
     func chatMessagesCheck(messages: [Components.Schemas.ReceivedChatMessageDto], chatId: String) {
@@ -446,6 +469,7 @@ extension WebSocketManager {
             notificationsList.removeAll { $0.alertBodyFriendRequestReceived?.sender.id == newNotification.alertBodyFriendRequestReceived?.sender.id }
             notificationsList.insert(newNotification, at: 0)
         } else if newNotification.alertBodyReviewEndedPost != nil {
+            notificationsList.removeAll { $0.alertBodyReviewEndedPost?.post.id == newNotification.alertBodyReviewEndedPost?.post.id }
             notificationsList.insert(newNotification, at: 0)
         } else if newNotification.alertBodyPostHasStarted != nil {
             notificationsList.insert(newNotification, at: 0)
@@ -459,9 +483,10 @@ extension WebSocketManager {
         //        let range = min(count + 10, notificationsList.count)
         
         // Remove the notification with the same ID from the first 'range' elements
-        notificationsList.removeAll(where: {$0.id == notification.id})
-        
         DispatchQueue.main.async {
+            self.notificationsList.removeAll(where: {$0.id == notification.id})
+        
+
             print("triggered nottt")
             self.notificationsList.insert(notification, at: 0)
         }

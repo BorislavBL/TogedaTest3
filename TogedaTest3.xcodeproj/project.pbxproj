@@ -134,8 +134,6 @@
 		1467C8B62AC5C2FF0034A3BB /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1467C8B52AC5C2FF0034A3BB /* UserViewModel.swift */; };
 		1468C40D2CAB1A7E003CBA46 /* ClusterMap in Frameworks */ = {isa = PBXBuildFile; productRef = 1468C40C2CAB1A7E003CBA46 /* ClusterMap */; };
 		1468C40F2CAB1A7E003CBA46 /* ClusterMapSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 1468C40E2CAB1A7E003CBA46 /* ClusterMapSwiftUI */; };
-		1468C4122CAC2F5C003CBA46 /* LocalSeatchCompleter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1468C4112CAC2F5C003CBA46 /* LocalSeatchCompleter.swift */; };
-		1468C4142CAC3093003CBA46 /* LocationRequestIsOnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1468C4132CAC3093003CBA46 /* LocationRequestIsOnView.swift */; };
 		147613D72B445E19001C1AA8 /* GroupComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147613D62B445E19001C1AA8 /* GroupComponent.swift */; };
 		147613D92B4463F3001C1AA8 /* AllUserEventsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147613D82B4463F3001C1AA8 /* AllUserEventsView.swift */; };
 		147613DB2B4469C0001C1AA8 /* AllUserGroupsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147613DA2B4469C0001C1AA8 /* AllUserGroupsView.swift */; };
@@ -276,6 +274,8 @@
 		14F10B8D2B1E3F5500298737 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8C2B1E3F5500298737 /* ShareView.swift */; };
 		14F10B902B1E568A00298737 /* SystemNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8F2B1E568A00298737 /* SystemNotificationView.swift */; };
 		14F10B922B1F889C00298737 /* AllInOneFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B912B1F889C00298737 /* AllInOneFilterView.swift */; };
+		14F296A42CB9558E00752356 /* ExternalAppsDeepLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F296A32CB9558E00752356 /* ExternalAppsDeepLinks.swift */; };
+		14F296AA2CB97D3000752356 /* AddEventCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F296A92CB97D3000752356 /* AddEventCalendar.swift */; };
 		14F29A082CAC73A300ABE470 /* StrokeText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F29A072CAC73A300ABE470 /* StrokeText.swift */; };
 		14F29A0C2CAED5BD00ABE470 /* UpdateAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F29A0B2CAED5BD00ABE470 /* UpdateAppView.swift */; };
 		14F3017C2C0A246000D98E14 /* ClubJoinRequestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F3017B2C0A246000D98E14 /* ClubJoinRequestsView.swift */; };
@@ -430,8 +430,6 @@
 		14651BD82AE9378A0091FECE /* JoinRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinRequestView.swift; sourceTree = "<group>"; };
 		146591632B726FA50004B6DC /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		1467C8B52AC5C2FF0034A3BB /* UserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
-		1468C4112CAC2F5C003CBA46 /* LocalSeatchCompleter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalSeatchCompleter.swift; sourceTree = "<group>"; };
-		1468C4132CAC3093003CBA46 /* LocationRequestIsOnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationRequestIsOnView.swift; sourceTree = "<group>"; };
 		147613D62B445E19001C1AA8 /* GroupComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupComponent.swift; sourceTree = "<group>"; };
 		147613D82B4463F3001C1AA8 /* AllUserEventsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllUserEventsView.swift; sourceTree = "<group>"; };
 		147613DA2B4469C0001C1AA8 /* AllUserGroupsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllUserGroupsView.swift; sourceTree = "<group>"; };
@@ -564,6 +562,8 @@
 		14F10B8C2B1E3F5500298737 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		14F10B8F2B1E568A00298737 /* SystemNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotificationView.swift; sourceTree = "<group>"; };
 		14F10B912B1F889C00298737 /* AllInOneFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllInOneFilterView.swift; sourceTree = "<group>"; };
+		14F296A32CB9558E00752356 /* ExternalAppsDeepLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalAppsDeepLinks.swift; sourceTree = "<group>"; };
+		14F296A92CB97D3000752356 /* AddEventCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEventCalendar.swift; sourceTree = "<group>"; };
 		14F29A072CAC73A300ABE470 /* StrokeText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeText.swift; sourceTree = "<group>"; };
 		14F29A0B2CAED5BD00ABE470 /* UpdateAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAppView.swift; sourceTree = "<group>"; };
 		14F3017B2C0A246000D98E14 /* ClubJoinRequestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubJoinRequestsView.swift; sourceTree = "<group>"; };
@@ -910,7 +910,6 @@
 			isa = PBXGroup;
 			children = (
 				14FB72092ABF4BA000A2852D /* MapViewModel.swift */,
-				1468C4112CAC2F5C003CBA46 /* LocalSeatchCompleter.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -918,7 +917,6 @@
 		145D72352ABA06F8005934E2 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				1468C4132CAC3093003CBA46 /* LocationRequestIsOnView.swift */,
 				145D72362ABA0702005934E2 /* MapView.swift */,
 				142814142ACC7F8F0046886B /* EventMapPreview.swift */,
 				14519D632ACDA12C00173624 /* MapNavBar.swift */,
@@ -1332,6 +1330,7 @@
 				14ED466B2C73A544006DEAED /* ImageViewer.swift */,
 				14F29A072CAC73A300ABE470 /* StrokeText.swift */,
 				14F29A0B2CAED5BD00ABE470 /* UpdateAppView.swift */,
+				14F296A92CB97D3000752356 /* AddEventCalendar.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1512,6 +1511,7 @@
 				143302552B712E090099EAC8 /* ImageHelpers.swift */,
 				14FF9A892BED0E6E004CF5A2 /* JWTDecoder.swift */,
 				14C8EFB02C7F7EEA0076BB56 /* KeyboardResponser.swift */,
+				14F296A32CB9558E00752356 /* ExternalAppsDeepLinks.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1834,7 +1834,6 @@
 				14390D792B30ABF500D677FB /* RegistartionInterestsView.swift in Sources */,
 				14B677042B0D40C900823FCA /* DateHelpers.swift in Sources */,
 				1445A20D2AFE88C20057613B /* Message.swift in Sources */,
-				1468C4122CAC2F5C003CBA46 /* LocalSeatchCompleter.swift in Sources */,
 				1400BD082B459DC6000EB8BC /* ClubLocationView.swift in Sources */,
 				14BFB44E2AF2781F00500190 /* MemoriesTab.swift in Sources */,
 				142263C32BE001DE002DB3CE /* InterestsMoreLess.swift in Sources */,
@@ -1892,6 +1891,7 @@
 				14E4F9872B8F99F400D2A50C /* VerifyPhoneProfileTab.swift in Sources */,
 				14004ACD2C5939B500DDE6AD /* UIBottomBar.Constraints.swift in Sources */,
 				1467C8B62AC5C2FF0034A3BB /* UserViewModel.swift in Sources */,
+				14F296A42CB9558E00752356 /* ExternalAppsDeepLinks.swift in Sources */,
 				145FEB472AE95C3B002301D1 /* UserSettingsView.swift in Sources */,
 				14F301942C12109500D98E14 /* FriendsListView.swift in Sources */,
 				14E26E2B2C95F5E400876992 /* InstagramStoryView.swift in Sources */,
@@ -1929,7 +1929,6 @@
 				14D7E4492AF9469100A76D09 /* RatingButtonView.swift in Sources */,
 				141B4A902C1E19CC00C493D0 /* ReviewProfileView.swift in Sources */,
 				1489AEAA2B35F798001524DC /* SelectTabTypeView.swift in Sources */,
-				1468C4142CAC3093003CBA46 /* LocationRequestIsOnView.swift in Sources */,
 				142263E62BE28621002DB3CE /* ConfirmLocationBlock.swift in Sources */,
 				141537CF2B629DC5005669EC /* EditEventViewModel.swift in Sources */,
 				14807A692AB4C1DA00716A17 /* MainTabView.swift in Sources */,
@@ -2054,6 +2053,7 @@
 				14F10B8D2B1E3F5500298737 /* ShareView.swift in Sources */,
 				1460FB002B7A60FD00DE05AE /* DecodedJWT.swift in Sources */,
 				14E35BA72B56ECD900CD662E /* Interests.swift in Sources */,
+				14F296AA2CB97D3000752356 /* AddEventCalendar.swift in Sources */,
 				141DF3682B09155000CE94F5 /* LinkPreview.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2192,7 +2192,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TogedaTest3/TogedaTest3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"TogedaTest3/Preview Content\"";
 				DEVELOPMENT_TEAM = 6AFJ8F9GLH;
@@ -2202,6 +2202,7 @@
 				INFOPLIST_FILE = TogedaTest3/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Togeda;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "We need access to your calendar to create events.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow us to access your camera to capture photos and enhance your experience within the app.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please allow us to access your location to provide personalized experiences and services nearby.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to provide personalized experiences and services nearby.";
@@ -2220,7 +2221,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -2239,7 +2240,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TogedaTest3/TogedaTest3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"TogedaTest3/Preview Content\"";
 				DEVELOPMENT_TEAM = 6AFJ8F9GLH;
@@ -2249,6 +2250,7 @@
 				INFOPLIST_FILE = TogedaTest3/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Togeda;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "We need access to your calendar to create events.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow us to access your camera to capture photos and enhance your experience within the app.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please allow us to access your location to provide personalized experiences and services nearby.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to provide personalized experiences and services nearby.";
@@ -2267,7 +2269,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;

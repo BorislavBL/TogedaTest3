@@ -22,9 +22,11 @@ struct ChatView: View {
     @State var isChatActive: Bool = false
     @State var atBottom: Bool = false
     @State var activateArrow: Bool = false
-    @StateObject private var keyboard = KeyboardResponder()
+//    @StateObject private var keyboard = KeyboardResponder()
     @State var recPadding: CGFloat = 60
     @State var setDateOnLeave = Date()
+    @State private var keyboardHeight: CGFloat = 0
+
     
     var body: some View {
         ZStack(alignment: .top){
@@ -104,12 +106,19 @@ struct ChatView: View {
                         }
                     }
                     .scrollDismissesKeyboard(.interactively)
+                    .defaultScrollAnchor(.bottom)
+                    .scrollIndicators(.hidden)
                     .ignoresSafeArea(.keyboard, edges: .all)                    //                    .padding(.top, 86)
                     .onChange(of: chatManager.messages) { oldValue, newValue in
-                        if isInitialLoad {
-                            proxy.scrollTo("Bottom", anchor:.bottom)
-                            
-                        } else if !shouldNotScrollToBottom && !isInitialLoad && atBottom {
+//                        if isInitialLoad {
+//                            proxy.scrollTo("Bottom", anchor:.bottom)
+//                            
+//                        } else
+                        if !shouldNotScrollToBottom && !isInitialLoad && atBottom {
+                            withAnimation(.spring()) {
+                                proxy.scrollTo("Bottom", anchor:.bottom)
+                            }
+                        } else if newValue.last?.sender.id == userVm.currentUser?.id && !isInitialLoad {
                             withAnimation(.spring()) {
                                 proxy.scrollTo("Bottom", anchor:.bottom)
                             }
@@ -117,11 +126,16 @@ struct ChatView: View {
                         
                         shouldNotScrollToBottom = false
                     }
-                    .onChange(of: keyboard.currentHeight) { oldValue, newValue in
-                        if keyboard.currentHeight > 0 {
-                            recPadding = keyboard.currentHeight + 30
+                    .onChange(of: keyboardHeight) { oldValue, newValue in
+                        if keyboardHeight > 0 {
+                            let min = min(oldValue, newValue)
+                            let max = max(oldValue, newValue)
+                            if min > max - 100 {
+                                recPadding = min + 30
+                            } else {
+                                recPadding = max + 30
+                            }
                             if atBottom {
-                                
                                 withAnimation() {
                                     proxy.scrollTo("Bottom", anchor:.bottom)
                                 }
@@ -153,25 +167,25 @@ struct ChatView: View {
             VStack{
                 Spacer()
                 
-                MessageInputView(messageText: $messageText, isActive: $isChatActive, viewModel: viewModel) {
-                    if let currentUser = userVm.currentUser {
-                        if let uiImage = viewModel.messageImage {
-                            Task {
-                                if let imageURL = await viewModel.uploadImageAsync(uiImage: uiImage) {
-                                    chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: imageURL, type: .IMAGE)
-                                    messageText = ""
-                                    viewModel.messageImage = nil
-                                }
-                            }
-                        }
-                        else if !messageText.isEmpty {
-                            chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: messageText , type: .NORMAL)
-                            messageText = ""
-                        }
-                    }
-                }
-                .padding(.top, 8)
-                .background(.bar)
+//                MessageInputView(messageText: $messageText, isActive: $isChatActive, viewModel: viewModel) {
+//                    if let currentUser = userVm.currentUser {
+//                        if let uiImage = viewModel.messageImage {
+//                            Task {
+//                                if let imageURL = await viewModel.uploadImageAsync(uiImage: uiImage) {
+//                                    chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: imageURL, type: .IMAGE)
+//                                    messageText = ""
+//                                    viewModel.messageImage = nil
+//                                }
+//                            }
+//                        }
+//                        else if !messageText.isEmpty {
+//                            chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: messageText , type: .NORMAL)
+//                            messageText = ""
+//                        }
+//                    }
+//                }
+//                .padding(.top, 8)
+//                .background(.bar)
                 
             }
             
@@ -211,7 +225,7 @@ struct ChatView: View {
                 }
             }
         }
-        
+        .keyboardHeight($keyboardHeight)
         
         
     }
@@ -417,6 +431,7 @@ struct ChatView: View {
         }
         return nil
     }
+    
 }
 
 #Preview {

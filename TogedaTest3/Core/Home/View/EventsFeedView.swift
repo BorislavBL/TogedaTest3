@@ -88,6 +88,36 @@ struct EventsFeedView: View {
                         }
                         .padding(.all)
                         .frame(maxHeight: .infinity, alignment: .center)
+                    } else if postsViewModel.state == .refresh {
+                        VStack(spacing: 15){
+                            Text("👀")
+                                .font(.custom("image", fixedSize: 120))
+                            
+                            Text("Oops! There seems to be a problem with your internet connection, and the content couldn’t load.\n Please check your connection and click 'Refresh' to try again.")
+                                .font(.body)
+                                .foregroundStyle(.gray)
+                                .fontWeight(.semibold)
+                                .multilineTextAlignment(.center)
+                                .padding(.bottom)
+                            
+                            Button {
+                                Task{
+                                    try await refresh()
+                                }
+                            } label: {
+                                Text("Refresh")
+                                    .font(.subheadline)
+                                    .foregroundStyle(Color("base"))
+                                    .fontWeight(.semibold)
+                                    .frame(minWidth: 0, maxWidth: 200, alignment: .center)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 13)
+                                    .background{Color("blackAndWhite")}
+                                    .cornerRadius(10)
+                            }
+                        }
+                        .padding(.all)
+                        .frame(maxHeight: .infinity, alignment: .center)
                     }
                     
                     Rectangle()

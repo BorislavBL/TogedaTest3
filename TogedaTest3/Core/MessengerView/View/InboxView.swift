@@ -10,7 +10,7 @@ import Kingfisher
 
 struct InboxView: View {
     @EnvironmentObject var chatManager: WebSocketManager
-    @ObservedObject var chatVM: ChatViewModel
+    @StateObject var chatVM = ChatViewModel()
     @State private var showNewMessageView = false
 
     

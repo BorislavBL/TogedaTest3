@@ -26,11 +26,18 @@ struct FriendsListView: View {
     @State var friendsRequestPage: Int32 = 0
     @State var friendsRequestSize: Int32 = 15
 
+    var isCurrentUser: Bool {
+        if let user = userVm.currentUser, user.id == user.id {
+            return true
+        } else {
+            return false
+        }
+    }
     
     var body: some View {
         ScrollView{
             LazyVStack(alignment:.leading){
-                if let user = userVm.currentUser, user.id == user.id, friendsRequestList.count > 0{
+                if let user = userVm.currentUser, user.id == user.id, friendsRequestList.count > 0 {
                     NavigationLink(value: SelectionPath.userFriendRequestsList){
                         UserRequestTab(users: friendsRequestList)
                     }

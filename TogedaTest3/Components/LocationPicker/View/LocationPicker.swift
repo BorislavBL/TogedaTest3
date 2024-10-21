@@ -27,14 +27,15 @@ struct LocationPicker: View {
                 
                 if locationManager.authorizationStatus == .authorizedWhenInUse{
                     Button {
-//                        locationManager.requestAuthorization()
+                        locationManager.requestCurrentLocation()
                         findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace) {
                             UIApplication.shared.endEditing(true)
                             placeVM.searchText = ""
                             showCancelButton = false
                             isActive = true
                         }
-                        
+                        locationManager.stopLocation()
+
                     } label: {
                         Label {
                             Text("Use Current Location")

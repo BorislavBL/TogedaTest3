@@ -370,3 +370,42 @@ extension AuthService {
         return message.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
+
+//System
+extension AuthService{
+    func version() async throws -> Components.Schemas.VersionInfoDto? {
+        print("here")
+        let response = try await client.versionsSupported()
+        print("here2")
+
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body {
+            case .json(let returnResponse):
+                print("\(returnResponse)")
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+}

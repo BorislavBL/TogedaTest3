@@ -9,6 +9,7 @@ import SwiftUI
 import MapKit
 import WrappingHStack
 import Kingfisher
+import EventKit
 
 struct EventView: View {
     @StateObject var eventVM = EventViewModel()
@@ -40,6 +41,9 @@ struct EventView: View {
     @State private var Init = true
     @State private var openCreateEvent = false
     @State var deleteSheet: Bool = false
+    
+    @State var event: EKEvent?
+    @State var store = EKEventStore()
     
     var body: some View {
         
@@ -92,7 +96,7 @@ struct EventView: View {
                             }
                         }
                         
-                        AllEventTabsView(eventVM: eventVM, post: post, club: club)
+                        AllEventTabsView(eventVM: eventVM, post: post, club: club, event: $event, store: $store)
                         
                         
                         if let description = post.description {
@@ -120,7 +124,27 @@ struct EventView: View {
                                 .normalTagTextStyle()
                                 .normalTagCapsuleStyle()
                             
-                            MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
+                            
+                                Button(action: {
+                                    if isGoogleMapsInstalled() {
+                                        eventVM.openMapSheet = true
+                                    } else {
+                                        let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)")
+                                        if UIApplication.shared.canOpenURL(url!) {
+                                            UIApplication.shared.open(url!, options: [:], completionHandler: nil)
+                                        }
+                                    }
+                                }, label: {
+                                    Map(initialPosition: .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude), latitudinalMeters: 1000, longitudinalMeters: 1000))
+                                    ){
+                                        Marker(post.title, coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude))
+                                            .tint(.black)
+                                    }
+                                    .allowsHitTesting(false)
+                                    .frame(height: 300)
+                                    .cornerRadius(20)
+                                })
+                            
                             
                         } else {
                             Text("The location will be revealed upon joining.")
@@ -299,9 +323,54 @@ struct EventView: View {
                 .presentationDetents([.fraction(0.8), .fraction(1)])
                 .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $eventVM.showAddEvent) {
+            EventEditViewController(event: $event, eventStore: store)
+        }
         .fullScreenCover(isPresented: $openCreateEvent, content: {
             CreateEventView(prevEvent: post)
         })
+        .confirmationDialog("Select Calendar", isPresented: $eventVM.openCalendarSheet) {
+            Button("Open in Apple Calendar"){
+                if let fromDate = post.fromDate {
+                    eventVM.openCalendarSheet = false
+                    event = EKEvent(eventStore: store)
+                    event?.title = post.title
+                    event?.location = post.location.name
+                    event?.startDate = fromDate
+                    event?.endDate = post.toDate ?? fromDate.addingTimeInterval(3600)
+                    event?.notes = post.description ?? "Event in Togeda."
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        eventVM.showAddEvent = true
+                    }
+                }
+            }
+            if isGoogleCalendarInstalled() {
+                Button("Open in Google Calendar"){
+                    if let fromDate = post.fromDate {
+                        createGoogleCalendarEventWeb(
+                            title: post.title,
+                            location: post.location.name,
+                            startDate: fromDate,
+                            endDate: post.toDate ?? fromDate.addingTimeInterval(3600),
+                            details: post.description ?? "Event in Togeda."
+                        )
+                    }
+                }
+            }
+        }
+        .confirmationDialog("Select Map", isPresented: $eventVM.openMapSheet) {
+            Button("Open in Apple Maps"){
+                let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)")
+                if UIApplication.shared.canOpenURL(url!) {
+                    UIApplication.shared.open(url!, options: [:], completionHandler: nil)
+                }
+            }
+            Button("Open in Google Maps"){
+                if isGoogleMapsInstalled() {
+                    openGoogleMaps(latitude: post.location.latitude, longitude: post.location.longitude)
+                }
+            }
+        }
         
     }
     
@@ -501,8 +570,10 @@ struct EventView: View {
                     }
                 } else {
                     if post.status == .HAS_STARTED {
+                        
                         if post.currentUserStatus == .PARTICIPATING && post.needsLocationalConfirmation && post.currentUserArrivalStatus != .ARRIVED {
                             Button {
+                                locationManager.requestCurrentLocation()
                                 if let location = locationManager.location{
                                     let distance = calculateDistance(lat1: location.coordinate.latitude, lon1: location.coordinate.longitude, lat2: post.location.latitude, lon2: post.location.longitude)
                                     eventVM.distance = Int(distance.rounded())
@@ -525,6 +596,7 @@ struct EventView: View {
                                         })
                                     }
                                 }
+                                locationManager.stopLocation()
                             } label: {
                                 Text("Confirm Arrival")
                                     .fontWeight(.semibold)
@@ -685,6 +757,10 @@ struct EventView: View {
                     if let response = try await APIClient.shared.getEvent(postId: post.id){
                         DispatchQueue.main.async {
                             self.post = response
+                            self.postsVM.localRefreshEventOnAction(post: post)
+                            if let index = self.activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
+                                self.activityVM.activityFeed[index].post = response
+                            }
                         }
 
                     } else {

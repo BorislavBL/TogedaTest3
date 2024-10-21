@@ -22,6 +22,7 @@ struct EditEventView: View {
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .post, mode: .edit)
     @State var isLoading = false
     @State private var errorMessage: String?
+    @State private var deleteError: Bool = false
     
     var body: some View {
         ScrollView{
@@ -281,16 +282,30 @@ struct EditEventView: View {
                         .createEventTabStyle()
                     }
                     
-                    Button{
-                        deleteSheet = true
-                    } label:{
+                    if post.payment > 0, post.participantsCount > 0  {
+                        if deleteError{
+                            WarningTextComponent(text: "Sorry you can't just delete a paid event with participants in it. If you want to cancel the activity discuss it with your participants via the chat.")
+                        }
                         HStack(spacing: 20){
                             Image(systemName: "trash")
                             Text("Delete")
                         }
-                        .foregroundStyle(.red)
+                        .createEventTabStyle()
+                        .onTapGesture {
+                            deleteError.toggle()
+                        }
+                    } else {
+                        Button{
+                            deleteSheet = true
+                        } label:{
+                            HStack(spacing: 20){
+                                Image(systemName: "trash")
+                                Text("Delete")
+                            }
+                            .foregroundStyle(.red)
+                        }
+                        .createEventTabStyle()
                     }
-                    .createEventTabStyle()
                     
                 }
             }

@@ -41,7 +41,7 @@ struct MainTabView: View {
                         Image(systemName: "plus.square")
                     }
                     
-                    InboxView(chatVM: chatVM)
+                    InboxView()
                         .tag(Screen.message)
                         .tabItem {
                             Image(systemName: "message")
@@ -138,7 +138,7 @@ struct MainTabView: View {
                 case .clubMemersList(let club):
                     ClubMembersListView(club: club)
                 case .userChat(chatroom: let chatroom):
-                    ChatView(chatRoom: chatroom)
+                    ChatView2(chatRoom: chatroom)
                 case .notification:
                     NotificationView()
                 case .userRequest:

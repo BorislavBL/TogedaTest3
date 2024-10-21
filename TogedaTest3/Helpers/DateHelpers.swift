@@ -134,3 +134,10 @@ func formatDateForNotifications(from date: Date) -> String {
         return "Just now"
     }
 }
+
+func formatDateToISO8601(_ date: Date) -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyyMMdd'T'HHmmss'Z'"
+    dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+    return dateFormatter.string(from: date)
+}

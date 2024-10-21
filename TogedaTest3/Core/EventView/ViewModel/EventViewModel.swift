@@ -9,6 +9,10 @@ import Foundation
 import SwiftUI
 
 class EventViewModel: ObservableObject {
+    @Published var openCalendarSheet: Bool = false
+    @Published var openMapSheet: Bool = false
+    
+    @Published var showAddEvent: Bool = false
     @Published var participantsList: [Components.Schemas.ExtendedMiniUser] = []
     @Published var participantsPage: Int32 = 0
     @Published var participantsSize: Int32 = 15

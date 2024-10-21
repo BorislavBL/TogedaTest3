@@ -195,6 +195,7 @@ class MapViewModel: ObservableObject{
     }
     
     func getCurrentAreaPosts(region: MKCoordinateRegion) async throws {
+        print("serach for posts triggered")
         Task{
             if let response = try await APIClient.shared.getMapEvents(
                 centerLatitude: region.center.latitude,

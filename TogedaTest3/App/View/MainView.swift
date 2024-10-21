@@ -57,7 +57,7 @@ struct MainView: View {
                 }
             }
             .onDisappear(){
-                print("Diappear")
+                print("Diappearrrr")
                 Task {
                     do {
                         if let _  = try await APIClient.shared.setUserActivityStatus(status: .OFFLINE) {
@@ -107,8 +107,9 @@ struct MainView: View {
                 }
             }
             .onChange(of: vm.sessionCount) { oldValue, newValue in
-                print("main token")
-                webSocketManager.reconnectWithNewToken()
+                if webSocketManager.isConnected {
+                    webSocketManager.reconnectWithNewToken()
+                }
             }
             .onChange(of: vm.resetCurrentUser) { oldValue, newValue in
                 if newValue{
@@ -167,10 +168,10 @@ struct MainView: View {
             }
             
             // Wait for both tasks to complete
-            await group.waitForAll()
+//            await group.waitForAll()
             
             // After both tasks are complete, trigger the connect method
-            webSocketManager.connect()
+//            webSocketManager.recconect()
         }
     }
     

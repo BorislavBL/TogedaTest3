@@ -44,6 +44,7 @@ class ClubsViewModel: ObservableObject {
                 DispatchQueue.main.async{
                     self.lat = location.coordinate.latitude
                     self.long = location.coordinate.longitude
+                    self.locationManager.stopLocation()
                 }
             }
             .store(in: &locationCancellables)

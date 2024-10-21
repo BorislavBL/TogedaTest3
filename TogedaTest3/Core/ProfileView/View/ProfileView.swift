@@ -15,6 +15,7 @@ struct ProfileView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @EnvironmentObject var userVm: UserViewModel
+    @EnvironmentObject var mainVM: ContentViewModel
     
     @State var showSheet: Bool = false
     @State var showCreateEvent: Bool = false
@@ -154,6 +155,12 @@ struct ProfileView: View {
                         }
                         
                         InitEvent = false
+                    } else {
+                        Task{
+                            if let response = try await APIClient.shared.getFriendList(userId: user.id, page: 0, size: 2){
+                                userVm.currentUser?.friendsCount = Double(response.listCount)
+                            }
+                        }
                     }
                 }
                 .edgesIgnoringSafeArea(.top)
@@ -165,6 +172,21 @@ struct ProfileView: View {
                 
             } else {
                 UserProfileSkeletonView()
+                HStack(alignment: .center, spacing: 10) {
+                    Spacer()
+                    Button{
+                        mainVM.logout()
+                    }label:{
+                        Text("Log out")
+                            .font(.footnote)
+                            .bold()
+                            .frame(height: 35)
+                            .padding(.horizontal)
+                            .background(.bar)
+                            .clipShape(Capsule())
+                    }
+                }
+                .padding(.horizontal)
             }
         }
         .sheet(isPresented: $showSheet, content: {

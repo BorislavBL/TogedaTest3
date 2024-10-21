@@ -57,6 +57,7 @@ class PostsViewModel: ObservableObject {
                         DispatchQueue.main.async{
                             self.lat = location.coordinate.latitude
                             self.long = location.coordinate.longitude
+                            self.locationManager.stopLocation()
                             continuation.resume()
                         }
                     }

@@ -42,7 +42,8 @@ let MockUser: Components.Schemas.UserInfoDto = .init(
     ),
     participatedPostsCount: 3,
     friendsCount: 3,
-    currentFriendshipStatus: nil
+    currentFriendshipStatus: nil,
+    isDeleted: false
 )
 
 

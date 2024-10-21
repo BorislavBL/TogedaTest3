@@ -9,15 +9,12 @@ import SwiftUI
 import Kingfisher
 
 struct ChatView2: View {
-
     @State private var messageText = ""
     @State private var isInitialLoad = true
     @State private var Init = true
     @StateObject var viewModel = ChatViewModel()
     @Environment(\.dismiss) private var dismiss
     var chatRoom: Components.Schemas.ChatRoomDto
-    @State var isLoading: Bool = false
-    @State var shouldStartLoading: Bool = true
     @State var shouldNotScrollToBottom: Bool = false
     @EnvironmentObject var chatManager: WebSocketManager
     @EnvironmentObject var userVm: UserViewModel
@@ -25,205 +22,199 @@ struct ChatView2: View {
     @State var isChatActive: Bool = false
     @State var atBottom: Bool = false
     @State var activateArrow: Bool = false
-    @StateObject private var keyboard = KeyboardResponder()
+    //    @StateObject private var keyboard = KeyboardResponder()
+    @State var recPadding: CGFloat = 60
+    @State var setDateOnLeave = Date()
+    @State private var keyboardHeight: CGFloat = 0
+    @State var keyboardUp: Bool = false
+    
     
     
     var body: some View {
-        ZStack(alignment: .top){
-                ScrollViewReader { proxy in
-                    ScrollView{
-                        LazyVStack{
-                            if let currentUser = userVm.currentUser{
-                                
-                                if chatManager.messages.count == 0 && !Init{
-                                    VStack{
-                                        Text("Write a message to start the chat.")
-                                            .font(.body)
-                                            .fontWeight(.semibold)
-                                            .padding()
-                                            .normalTagRectangleStyle()
-                                            .padding()
-                                    }
-                                }
-                                
-                                if isLoading {
-                                    ProgressView() // Show spinner while loading
-                                }
-                                
-                                ForEach(Array(chatManager.messages.enumerated()), id: \.element.id) { index, message in
-                                    VStack{
-                                        if index == 0 {
-                                            Text("\(formatDateAndTime(date: message.createdAt))")
-                                                .font(.footnote)
-                                                .foregroundStyle(.gray)
-                                                .padding(8)
-                                        }
-                                        else if index > 0, let date = Calendar.current.dateComponents([.minute], from: chatManager.messages[index - 1].createdAt, to: message.createdAt).minute, date > 30 {
-                                            Text("\(formatDateAndTime(date: message.createdAt))")
-                                                .font(.footnote)
-                                                .foregroundStyle(.gray)
-                                                .padding(8)
-                                            
-                                        }
-                                        
-                                        ChatMessageCell(message: message,
-                                                        nextMessage: nextMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
-                                    }
-                                    
-                                }
-                                
-                                if chatManager.messages.last?.sender.id == currentUser.id {
-                                    Text("Sent")
-                                        .font(.footnote)
-                                        .foregroundStyle(.gray)
-                                        .frame(maxWidth:.infinity, alignment: .trailing)
-                                        .padding(.horizontal)
-                                }
-                                
-                                Color.clear
-                                    .frame(height: (keyboard.currentHeight > 0 ? keyboard.currentHeight + 40 : 60))
-                                    .id("Bottom")
-                                    .onAppear(){
-                                        print("Appeared >")
-                                        atBottom = true
-                                        activateArrow = false
-                                    }
-                                    .onDisappear(){
-                                        print("DisAppeared >")
-                                        atBottom = false
-                                        activateArrow = true
-                                    }
-                                    
-                            }
-                        }
-                        .padding(.top, 86)
-                        .background(
-                            GeometryReader { geo in
-                                Color.clear
-                                    .frame(width: 0, height: 0)
-                                    .onChange(of: geo.frame(in: .global).minY) { oldMinY, newMinY in
-                                        if newMinY >= 90 && !isLoading && !chatManager.lastMessagesPage && shouldStartLoading && !isInitialLoad {
-                                            shouldNotScrollToBottom = true
-                                            shouldStartLoading = false
-                                            isLoading = true
-                                            Task {
-                                                defer {
-                                                    Task{
-                                                        isLoading = false
-                                                        try await Task.sleep(nanoseconds: 2_000_000_000)
-                                                        shouldStartLoading = true
-                                                    }
-                                                } // Ensure isLoading is set to false after the task completes
-                                                do {
-                                                    try await chatManager.getMessages(chatId: chatRoom.id)
-                                                } catch {
-                                                    print("Failed to get messages: \(error)")
-                                                }
-                                            }
-                                            
-                                            print("Triggered")
-                                        }
-                                    }
-                            }
-                        )
+        ScrollViewReader{ proxy in
+            navbar()
+            ScrollView(.vertical){
+                LazyVStack{
+                    if let currentUser = userVm.currentUser{
                         
-                        
-                    }
-                    .defaultScrollAnchor(.bottom)
-                    .scrollDismissesKeyboard(.interactively)
-                    .onChange(of: chatManager.messages) { oldValue, newValue in
-                        if !shouldNotScrollToBottom && !isInitialLoad && atBottom {
-                            withAnimation(.spring()) {
-                                proxy.scrollTo("Bottom", anchor:.bottom)
-                            }
-                        }
-                        
-                        shouldNotScrollToBottom = false
-                    }
-                    .onChange(of: isChatActive) { oldValue, newValue in
-                        if newValue && atBottom {
-                            withAnimation() {
-                                proxy.scrollTo("Bottom", anchor:.bottom)
-                            }
-                        }
-                    }
-                    .overlay(alignment:.bottomTrailing){
-                        if activateArrow {
-                            Button{
-                                withAnimation() {
-                                    proxy.scrollTo("Bottom", anchor:.bottom)
-                                }
-                                
-                                activateArrow = false
-                            } label:{
-                                Image(systemName: "arrow.down")
+                        if chatManager.messages.count == 0 && !Init{
+                            VStack{
+                                Text("Write a message to start the chat.")
+                                    .font(.body)
+                                    .fontWeight(.semibold)
                                     .padding()
-                                    .background(.bar)
-                                    .clipShape(Circle())
+                                    .normalTagRectangleStyle()
+                                    .padding()
                             }
-                            .padding(.bottom, (keyboard.currentHeight > 0 ? keyboard.currentHeight + 40 : 70))
                         }
+                        
+                        ForEach(chatManager.messages, id: \.id) { message in
+                            VStack{
+                                //                                                                    if index == 0 {
+                                //                                                                        Text("\(formatDateAndTime(date: message.createdAt))")
+                                //                                                                            .font(.footnote)
+                                //                                                                            .foregroundStyle(.gray)
+                                //                                                                            .padding(8)
+                                //                                                                    }
+                                //                                                                    else if index > 0, let date = Calendar.current.dateComponents([.minute], from: chatManager.messages[index - 1].createdAt, to: message.createdAt).minute, date > 30 {
+                                //                                                                        Text("\(formatDateAndTime(date: message.createdAt))")
+                                //                                                                            .font(.footnote)
+                                //                                                                            .foregroundStyle(.gray)
+                                //                                                                            .padding(8)
+                                //
+                                //                                                                    }
+                                
+                                ChatMessageCell(message: message,
+                                                nextMessage: nil, currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
+                                
+                            }
+                            
+                            .id(message.id)
+                            
+                        }
+                        
+                        if chatManager.messages.last?.sender.id == currentUser.id {
+                            Text("Sent")
+                                .font(.footnote)
+                                .foregroundStyle(.gray)
+                                .frame(maxWidth:.infinity, alignment: .trailing)
+                                .padding(.horizontal)
+                        }
+                        
                     }
                 }
-                .ignoresSafeArea(.keyboard, edges: .bottom)
-                
-                //            Spacer()
-                
-            VStack{
-                navbar()
-                
-                Spacer()
-
-                MessageInputView(messageText: $messageText, isActive: $isChatActive, viewModel: viewModel) {
-                    if let currentUser = userVm.currentUser {
-                        if let uiImage = viewModel.messageImage {
-                            Task {
-                                if let imageURL = await viewModel.uploadImageAsync(uiImage: uiImage) {
-                                    chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: imageURL, type: .IMAGE)
-                                    messageText = ""
-                                    viewModel.messageImage = nil
+                .background(
+                    GeometryReader { geo -> Color in
+                        // Detect if we are at the bottom by comparing scroll position and content size
+                        DispatchQueue.main.async {
+                            let maxScrollY = geo.frame(in: .global).maxY
+                            let scrollViewHeight = UIScreen.main.bounds.height
+                            // If the maxY of the content is equal to or smaller than the screen height, we are at the bottom
+                            if maxScrollY <= scrollViewHeight + 10 {
+                                if !atBottom {
+                                    atBottom = true
+                                    activateArrow = false
+                                }
+                            } else {
+                                if atBottom {
+                                    atBottom = false
+                                    activateArrow = true
                                 }
                             }
                         }
-                        else if !messageText.isEmpty {
-                            chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: messageText , type: .NORMAL)
-                            messageText = ""
+                        return Color.clear
+                    }
+                )
+                
+            }
+            .refreshable {
+                Task {
+                    do {
+                        try await chatManager.getMessages(chatId: chatRoom.id)
+                    } catch {
+                        print("Failed to get messages: \(error)")
+                    }
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .defaultScrollAnchor(.bottom)
+            .scrollIndicators(.hidden)
+            //                    .ignoresSafeArea(.keyboard, edges: .all)
+            //                    .padding(.top, 86)
+            .onChange(of: chatManager.messages) { oldValue, newValue in
+                //                        if isInitialLoad {
+                //                            proxy.scrollTo("Bottom", anchor:.bottom)
+                //
+                //                        } else
+                if !shouldNotScrollToBottom && !isInitialLoad && atBottom {
+                    withAnimation(.easeIn) {
+                        proxy.scrollTo(chatManager.messages.last?.id, anchor: .bottom)
+                    }
+                }
+//                else if newValue.last?.sender.id == userVm.currentUser?.id && !isInitialLoad {
+//                    withAnimation(.easeIn) {
+//                        proxy.scrollTo(chatManager.messages.last?.id, anchor: .bottom)
+//                    }
+//                }
+                
+                shouldNotScrollToBottom = false
+            }
+            .overlay(alignment:.bottomTrailing){
+                if activateArrow {
+                    Button{
+                        withAnimation(.easeIn) {
+                            proxy.scrollTo(chatManager.messages.last?.id, anchor: .bottom)
+                        }
+                        
+                        activateArrow = false
+                    } label:{
+                        Image(systemName: "arrow.down")
+                            .padding()
+                            .background(.bar)
+                            .clipShape(Circle())
+                    }
+                    .padding(.bottom, 5)
+                }
+            }
+            MessageInputView(messageText: $messageText, isChatActive: $isChatActive, viewModel: viewModel, proxy: proxy) {
+                if let currentUser = userVm.currentUser {
+                    if let uiImage = viewModel.messageImage {
+                        Task {
+                            if let imageURL = await viewModel.uploadImageAsync(uiImage: uiImage) {
+                                chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: imageURL, type: .IMAGE)
+                                messageText = ""
+                                viewModel.messageImage = nil
+                            }
+                        }
+                    }
+                    else if !messageText.isEmpty {
+                        chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: messageText , type: .NORMAL)
+                        messageText = ""
+                    }
+                    
+                    if !atBottom {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4){
+                            withAnimation(.easeIn) {
+                                proxy.scrollTo(chatManager.messages.last?.id, anchor: .bottom)
+                            }
                         }
                     }
                 }
-                .padding(.top, 8)
-                .background(.bar)
-                
-                
-
             }
-            
+            .padding(.top, 8)
+            .background(.bar)
+        }
+        .overlay {
             if viewModel.isImageView, let image = viewModel.selectedImage{
                 ImageViewer(isActive: $viewModel.isImageView, image: image)
             }
-            
         }
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-            onInit()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-            Task {
-                do{
-                    try await chatManager.setChatAsLeft(chatId: chatRoom.id)
-                } catch {
-                    print(error)
-                }
-            }
-        }
+        
+        //        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+        //            onActive()
+        //        }
+        //        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+        //            Task {
+        //                do{
+        //                    try await chatManager.setChatAsLeft(chatId: chatRoom.id)
+        //                } catch {
+        //                    print(error)
+        //                }
+        //            }
+        //
+        //            setDateOnLeave = Date()
+        //        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .swipeBack()
         .onAppear(){
+            print("Trigger Appear")
             if Init{
                 onInit()
             }
         }
         .onDisappear(){
+            print("Trigger Disappear")
             Task {
                 do{
                     try await chatManager.setChatAsLeft(chatId: chatRoom.id)
@@ -232,7 +223,7 @@ struct ChatView2: View {
                 }
             }
         }
-        
+        //        .keyboardHeight($keyboardHeight)
         
         
     }
@@ -400,6 +391,37 @@ struct ChatView2: View {
         }
     }
     
+    func onActive() {
+        Task{
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    do {
+                        if let date = await chatManager.messages.last?.createdAt, let response = try await APIClient.shared.updateChatMessages(chatId: chatRoom.id, lastTimestamp: chatManager.messages.count > 0 ? date : setDateOnLeave) {
+                            print("Messages triggered")
+                            print("response", response.data)
+                            DispatchQueue.main.async {
+                                chatManager.chatMessagesCheck(messages: response.data, chatId: chatRoom.id)
+                            }
+                            
+                        }
+                    } catch {
+                        // Handle the error if needed
+                        print("Error updating chat rooms: \(error)")
+                    }
+                }
+                
+                group.addTask {
+                    do{
+                        try await chatManager.setChatAsEntered(chatId: chatRoom.id)
+                    } catch {
+                        print(error)
+                    }
+                }
+            }
+        }
+    }
+    
+    
     
     func nextMessage(forIndex index: Int) -> Components.Schemas.ReceivedChatMessageDto? {
         if index > 0 {
@@ -407,6 +429,7 @@ struct ChatView2: View {
         }
         return nil
     }
+    
 }
 
 #Preview {
@@ -414,5 +437,5 @@ struct ChatView2: View {
         .environmentObject(WebSocketManager())
         .environmentObject(UserViewModel())
         .environmentObject(NavigationManager())
-
+    
 }

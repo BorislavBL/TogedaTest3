@@ -61,28 +61,52 @@ struct JoinRequestView: View {
                     }
                 } else if post.status == .NOT_STARTED {
                     if post.fromDate != nil {
-                        Text("Would you like to delete the event?")
-                            .font(.headline)
-                            .fontWeight(.bold)
+                        if post.participantsCount > 0 {
+                            if post.payment <= 0 {
+                                Text("Already \(post.participantsCount) people have joined your event! Are you sure you want to delete it?")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .multilineTextAlignment(.center)
+                            } else {
+                                Text("Sorry, you can't delete a paid event with participants. To cancel the activity, please discuss it with your participants through the chat.")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .multilineTextAlignment(.center)
+                            }
+                        } else {
+                            Text("Would you like to delete the event?")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                        }
                         
-                        Button {
-                            Task{
-                                if try await APIClient.shared.deleteEvent(postId: post.id) != nil {
-                                    if let index = postsViewModel.feedPosts.firstIndex(where: { $0.id == post.id }) {
-                                        postsViewModel.feedPosts.remove(at: index)
-                                    }
-                                    
-                                    if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
-                                        activityVM.activityFeed.remove(at: index)
-                                    }
-                                    
-                                    if navManager.selectionPath.count > 0 {
-                                        isActive = false
-                                        navManager.selectionPath.removeLast(1)
+                        if post.payment <= 0 {
+                            Button {
+                                Task{
+                                    if try await APIClient.shared.deleteEvent(postId: post.id) != nil {
+                                        if let index = postsViewModel.feedPosts.firstIndex(where: { $0.id == post.id }) {
+                                            postsViewModel.feedPosts.remove(at: index)
+                                        }
+                                        
+                                        if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
+                                            activityVM.activityFeed.remove(at: index)
+                                        }
+                                        
+                                        if navManager.selectionPath.count > 0 {
+                                            isActive = false
+                                            navManager.selectionPath.removeLast(1)
+                                        }
                                     }
                                 }
+                            } label: {
+                                Text("Delete the Event")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
                             }
-                        } label: {
+                        } else {
                             Text("Delete the Event")
                                 .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
@@ -90,6 +114,7 @@ struct JoinRequestView: View {
                                 .background(Color("blackAndWhite"))
                                 .foregroundColor(Color("testColor"))
                                 .cornerRadius(10)
+                                .disableWithOpacity(true)
                         }
                     } else {
                         Text("Would you like to start the event?")

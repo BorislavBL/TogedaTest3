@@ -34,6 +34,7 @@ enum LoadingCases: Hashable {
     case loading
     case noResults
     case loaded
+    case refresh
 }
 
 class HomeViewModel: ObservableObject {

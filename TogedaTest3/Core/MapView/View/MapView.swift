@@ -5,8 +5,8 @@
 //  Created by Borislav Lorinkov on 19.09.23.
 //
 
-//import ClusterMap
-//import ClusterMapSwiftUI
+import ClusterMap
+import ClusterMapSwiftUI
 import SwiftUI
 import MapKit
 import Kingfisher
@@ -21,6 +21,8 @@ struct MapView: View {
     @StateObject var filterViewModel = FilterViewModel()
     
     @State private var isInitialLocationSet = false
+    @State private var hasDisappeared = false
+
     
     @State private var offset = CGSize.zero
     var body: some View {
@@ -55,7 +57,9 @@ struct MapView: View {
                     .tag(item.postID)
                     .annotationTitles(.hidden)
                 }
-                UserAnnotation()
+                if !hasDisappeared{
+                    UserAnnotation()
+                }
             }
             .readSize(onChange: { newValue in
                 viewModel.mapSize = newValue
@@ -66,8 +70,15 @@ struct MapView: View {
             .onAppear(){
                 if !isInitialLocationSet {
                     setLocation()
+                    locationManager.requestAuthorization()
                     isInitialLocationSet = true
+                } else {
+                    hasDisappeared = false
                 }
+            }
+            .onDisappear(){
+                locationManager.stopLocation()
+                hasDisappeared = true
             }
             .onMapCameraChange(frequency: .onEnd) { context in
                 Task.detached {
@@ -256,6 +267,8 @@ struct MapView: View {
                     print("Error map fetch", error.localizedDescription)
                 }
             }
+            
+            locationManager.stopUpdatingLocation()
             
         }
     }

@@ -200,32 +200,7 @@ struct InstagramOverlay: View {
         }
     }
     
-    func canOpenInstagram() -> Bool {
-        let url = URL(string: "instagram-stories://share")!
-        return UIApplication.shared.canOpenURL(url)
-    }
 
-    func shareToInstagram(backgroundImage: UIImage, appID: String) {
-        guard let imageData = backgroundImage.pngData() else { return }
-
-        let urlScheme = URL(string: "instagram-stories://share?source_application=\(appID)")!
-
-        if UIApplication.shared.canOpenURL(urlScheme) {
-            // Prepare the pasteboard item with the image data
-            let pasteboardItems: [String: Any] = [
-                "com.instagram.sharedSticker.backgroundImage": imageData
-            ]
-            UIPasteboard.general.setItems([pasteboardItems], options: [
-                UIPasteboard.OptionsKey.expirationDate: Date().addingTimeInterval(60 * 5)
-            ])
-
-            // Open Instagram
-            UIApplication.shared.open(urlScheme, options: [:], completionHandler: nil)
-        } else {
-            // Instagram is not installed
-            print("Instagram is not installed")
-        }
-    }
 
 }
 

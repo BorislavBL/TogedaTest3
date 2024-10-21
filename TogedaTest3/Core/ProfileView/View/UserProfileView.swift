@@ -361,6 +361,14 @@ struct UserProfileView: View {
                     Init = false
                 }
                 
+            }  else {
+                Task{
+                    if let user = userVm.currentUser, miniUser.id == user.id {
+                        if let response = try await APIClient.shared.getFriendList(userId: user.id, page: 0, size: 2){
+                            self.user?.friendsCount = Double(response.listCount)
+                        }
+                    }
+                }
             }
         }
     }

@@ -11,7 +11,7 @@ struct ContentView: View {
     @EnvironmentObject var vm: ContentViewModel
     @EnvironmentObject var navManager: NavigationManager
 
-    @StateObject var networkManager = NetworkManager()
+    @EnvironmentObject var networkManager: NetworkManager
     @Environment(\.openURL) var openURL
     
     var body: some View {
@@ -38,8 +38,15 @@ struct ContentView: View {
             
             
 //            VStack{
-//                Button("Click"){
-//                    print("\(vm.getBuildNumber()) : \(vm.getAppVersion())")
+//                Button("Click1"){
+//                    if isGoogleMapsInstalled() {
+//                        print("Google Maps is installed.")
+//                        // Open Google Maps with a location or perform other actions
+//                        openGoogleMaps(latitude: 37.4220, longitude: -122.0841)
+//                    } else {
+//                        print("Google Maps is not installed.")
+//                        // Provide an alternative option, such as opening a web map
+//                    }
 //                }
 //            }
 //            .background(.base)
@@ -54,11 +61,14 @@ struct ContentView: View {
     }
 }
 
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
             .environmentObject(ContentViewModel())
             .environmentObject(NavigationManager())
+            .environmentObject(NetworkManager())
+
 
     }
 }

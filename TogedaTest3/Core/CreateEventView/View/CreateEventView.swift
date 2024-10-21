@@ -423,10 +423,15 @@ struct CreateEventView: View {
                                         .textFieldStyle(.roundedBorder)
                                         .keyboardType(.decimalPad) // Changed to decimalPad to allow decimal numbers
                                         .onChange(of: ceVM.price) { old, new in
-                                            if let number = new, number > 5000 {
+                                            if let number = new, number >= 2000 {
                                                 ceVM.price = old
                                             }
                                         }
+                                    
+                                    Text("The maximum price you can charge per participant is €2000. For higher amounts, please contact us at info@togeda.net. Don’t forget to review our [Paid Activity Agreement]() for more details.")
+                                        .font(.footnote)
+                                        .multilineTextAlignment(.leading)
+                                        .opacity(0.5)
                                     
                                     
                                 }

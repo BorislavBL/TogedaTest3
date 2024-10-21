@@ -10,6 +10,7 @@ import SwiftUI
 @MainActor
 class UserViewModel: ObservableObject {
     @Published var currentUser: Components.Schemas.UserInfoDto?
+    @Published var friendsList: [Components.Schemas.GetFriendsDto] = []
     
     init(){
 //        self.retryFetchUser()

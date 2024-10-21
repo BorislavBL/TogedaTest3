@@ -20,7 +20,7 @@ class RegistrationViewModel: ObservableObject {
     
     func addUserInfoModel() -> Components.Schemas.UserDto{
         let createdUser: Components.Schemas.UserDto = .init(
-            subToEmail: true,
+            subToEmail: subToEmail,
             firstName: firstName,
             lastName: lastName,
             gender: gender!,
@@ -47,7 +47,7 @@ class RegistrationViewModel: ObservableObject {
     }
     
     @Published var referralCode: String = ""
-    
+    @Published var subToEmail: Bool = false
     //Name
     @Published var firstName = ""
     @Published var lastName = ""

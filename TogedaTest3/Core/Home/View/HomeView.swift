@@ -15,6 +15,7 @@ struct HomeView: View {
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var clubsVM: ClubsViewModel
     @EnvironmentObject var activityVM: ActivityViewModel
+    @EnvironmentObject var networkManager: NetworkManager
     
     var body: some View {
         ZStack{
@@ -71,6 +72,19 @@ struct HomeView: View {
                         viewModel.stopSearch()
                     }
                 }
+                .onChange(of: networkManager.isDisconected) { oldValue, newValue in
+                    if newValue {
+                        if postsViewModel.state == .loading, postsViewModel.feedPosts.count == 0 {
+                            postsViewModel.state = .refresh
+                        }
+                        if clubsVM.state == .loading, clubsVM.feedClubs.count == 0 {
+                            clubsVM.state = .refresh
+                        }
+                        if activityVM.state == .loading, activityVM.activityFeed.count == 0 {
+                            activityVM.state = .refresh
+                        }
+                    }
+                }
 
                 CustomNavBar(showFilter: $showFilter, filterVM: filterViewModel, homeViewModel: viewModel)
             }
@@ -104,6 +118,8 @@ struct HomeView_Previews: PreviewProvider {
             .environmentObject(UserViewModel())
             .environmentObject(NavigationManager())
             .environmentObject(ActivityViewModel())
+            .environmentObject(NetworkManager())
+
     }
 }
 

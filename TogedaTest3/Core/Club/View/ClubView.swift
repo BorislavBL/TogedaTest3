@@ -169,6 +169,7 @@ struct ClubView: View {
                     if let response = try await APIClient.shared.getClub(clubID: clubId) {
                         DispatchQueue.main.async {
                             self.club = response
+                            self.clubsVM.refreshClubOnAction(club: response)
                         }
                     } else {
                         DispatchQueue.main.async {

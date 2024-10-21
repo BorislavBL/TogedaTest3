@@ -23,10 +23,17 @@ class ContentViewModel: ObservableObject {
 //    @Published var mainAccessToken: String?
     @Published var pendingURL: URL?
     @Published var sessionCount = 0
+    @State var appVersion: String?
+    @State var buildNumber: String?
     
     init(){
         Task{
-            await validateTokensAndCheckState()
+//            await validateTokensAndCheckState()
+            do{
+                try await generalCheck()
+            } catch{
+                print(error)
+            }
         }
     }
     
@@ -46,19 +53,60 @@ class ContentViewModel: ObservableObject {
 }
 
 extension ContentViewModel{
-    func getAppVersion() -> String {
+    func getAppVersion() -> String? {
         if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+            self.appVersion = appVersion
             return appVersion
         }
-        return "Unknown"
+        return nil
     }
 
-    func getBuildNumber() -> String {
+    func getBuildNumber() -> String? {
         if let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+            self.buildNumber = buildNumber
             return buildNumber
         }
-        return "Unknown"
+        return nil
     }
+    
+    func generalCheck() async throws {
+        print("11")
+        if let versionData = try await AuthService.shared.version() {
+            print("1")
+            if let version = getAppVersion(), let build = getBuildNumber() {
+                print("2")
+                if checkForUpdate(appVersion: version, appBuild: build, data: versionData) {
+                    DispatchQueue.main.async {
+                        self.authenticationState = .update
+                    }
+                } else {
+                    print("3")
+                    print("All good here")
+                    await validateTokensAndCheckState()
+                }
+            }
+        }  else {
+            print("4")
+            await validateTokensAndCheckState()
+        }
+    }
+    
+    func checkForUpdate(appVersion: String, appBuild: String, data: Components.Schemas.VersionInfoDto) -> Bool {
+        // First check if the version is less than the minimum supported version
+        if appVersion.compare(data.minVersion, options: .numeric) == .orderedAscending {
+            // App version is less than the minimum required version
+            return true // Suggest update
+        } else if appVersion == data.minVersion {
+            // If the version is the same, check the build number
+            if Int(appBuild)! < Int(data.minBuild)! {
+                // App build is less than the minimum required build
+                return true // Suggest update
+            }
+        }
+        // App is up to date, no need to suggest update
+        return false
+    }
+
 }
 
 
@@ -187,6 +235,7 @@ extension ContentViewModel {
     }
     
     private func startTokenRefreshTimer(accessToken: DecodedJWTBody) {
+        //keep in mind that sessionCount handels the websocket conncetion upon user becoming active again
         DispatchQueue.main.async {
             self.sessionCount += 1
         }

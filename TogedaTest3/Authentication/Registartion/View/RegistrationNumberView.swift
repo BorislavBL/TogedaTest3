@@ -173,6 +173,11 @@ struct RegistrationNumberView: View {
         .onAppear(){
             keyIsFocused = true
             countries = vm.loadJsonData()
+            if let emailSubscriptionData = KeychainManager.shared.retrieve(itemForAccount: userKeys.emailSubscription.toString, service: userKeys.service.toString) {
+                if let bool = try? JSONDecoder().decode(Bool.self, from: emailSubscriptionData) {
+                    vm.subToEmail = bool
+                }
+            }
         }
         .toolbar{
             ToolbarItemGroup(placement: .keyboard) {

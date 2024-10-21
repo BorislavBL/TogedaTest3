@@ -347,13 +347,14 @@ struct LocationPickerFilterView: View {
                         .padding(.horizontal)
                     
                     Button {
+                        locationManager.requestCurrentLocation()
                         findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace){
                             UIApplication.shared.endEditing(true)
                             locationVM.searchText = ""
                             isCurrentLocation = true
                             focus = false
                         }
-                        
+                        locationManager.stopLocation()
                     } label: {
                         Label {
                             Text("Current Location")

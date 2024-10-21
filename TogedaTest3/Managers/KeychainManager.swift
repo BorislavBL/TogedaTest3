@@ -13,6 +13,7 @@ enum userKeys {
     case refreshToken
     case userId
     case service
+    case emailSubscription
     
     var toString: String {
         switch self {
@@ -22,6 +23,8 @@ enum userKeys {
             return "userRefreshToken"
         case .userId:
             return "userId"
+        case .emailSubscription:
+            return "emailSubscription"
         case .service:
             return "net-togeda-app"
         }
@@ -48,6 +51,7 @@ class KeychainManager {
             return add(item: item, account: account, service: service)
         }
     }
+    
     
     // Retrieve an item from the Keychain
     func retrieve(itemForAccount account: String, service: String) -> Data? {
@@ -130,6 +134,7 @@ extension KeychainManager {
             return nil
         }
     }
+    
     
 }
 

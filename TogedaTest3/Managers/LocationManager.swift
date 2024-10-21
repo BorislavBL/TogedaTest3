@@ -47,18 +47,31 @@ class LocationManager: NSObject, ObservableObject {
     
     
     func stopLocation() {
-        locationManager.stopUpdatingLocation()
+        DispatchQueue.main.async {
+            self.locationManager.stopUpdatingLocation()
+        }
     }
     
     func requestAuthorization(){
-       if authorizationStatus == .notDetermined{
-           locationManager.requestWhenInUseAuthorization()
+       if authorizationStatus == .authorizedWhenInUse {
            locationManager.startUpdatingLocation()
-       }
-       else if authorizationStatus == .denied{
+       } else if authorizationStatus == .denied {
            showLocationServicesView = true
+       } else if authorizationStatus == .notDetermined {
+           locationManager.requestWhenInUseAuthorization()
        }
    }
+    
+    func requestCurrentLocation() {
+        if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
+            locationManager.startUpdatingLocation()
+            locationManager.requestLocation() // Request a single location update
+        } else if authorizationStatus == .notDetermined {
+            locationManager.requestWhenInUseAuthorization()
+        } else if authorizationStatus == .denied {
+            showLocationServicesView = true
+        }
+    }
     
     func setLocation(cameraPosition: Binding<MapCameraPosition>, span: CLLocationDegrees) {
         let locationManager = CLLocationManager()
@@ -81,8 +94,10 @@ extension LocationManager: CLLocationManagerDelegate{
         guard let location = locations.last else {return}
         self.location = location
         self.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 5000, longitudinalMeters: 5000)
-//        locationManager.stopUpdatingLocation()
+        locationManager.stopUpdatingLocation()
     }
     
-    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Failed to find user's location: \(error.localizedDescription)")
+    }
 }

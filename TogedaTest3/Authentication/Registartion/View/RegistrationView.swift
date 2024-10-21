@@ -20,6 +20,8 @@ struct RegistrationView: View {
     @State var email: String = ""
     @State var password: String = ""
     @State var userId: String = ""
+    @State var subToEmail: Bool = true
+
     
     enum FocusedField: Hashable{
         case email, password1, password2
@@ -133,26 +135,29 @@ struct RegistrationView: View {
                 WarningTextComponent(text: message)
             }
             
-//            Button{
-//                vm.createdUser.subToEmail.toggle()
-//            } label: {
-//                HStack(alignment: .center, spacing: 16, content: {
-//                    Image(systemName: vm.createdUser.subToEmail ? "checkmark.square.fill" : "square")
-//                    Text("Would you like to receive news and updates from Togeda?")
-//                        .multilineTextAlignment(.leading)
-//                        .font(.footnote)
-//                        .bold()
-//                    
-//                })
-//                .foregroundStyle(.gray)
-//            }
+            Button{
+                subToEmail.toggle()
+            } label: {
+                HStack(alignment: .top, spacing: 16, content: {
+                    Image(systemName: subToEmail ? "checkmark.square.fill" : "square")
+                    Text("I agree to receive email updates from Togeda about events, products, apps, latest news, and more information relevant to me.")
+                        .multilineTextAlignment(.leading)
+                        .font(.footnote)
+                        .bold()
+                    
+                })
+                .foregroundStyle(.gray)
+            }
             
             Spacer()
+            
             
             Button{
                 Task{
                     try await AuthService.shared.signUp(email: email, password: password) { userId, error in
                         DispatchQueue.main.async {
+                            let emailSubscriptionData = KeychainManager.shared.saveOrUpdate(item: String(subToEmail), account: userKeys.emailSubscription.toString, service: userKeys.service.toString)
+                            
                             if let userId = userId {
                                 self.userId = userId
                                 self.isLoading = false

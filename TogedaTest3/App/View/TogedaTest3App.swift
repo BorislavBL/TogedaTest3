@@ -11,6 +11,7 @@ import StripeCore
 @main
 struct TogedaTest3App: App {
     @StateObject var vm = ContentViewModel()
+    @StateObject var networkManager = NetworkManager()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State var showToken: Bool = true
     @StateObject var navigationManager = NavigationManager()
@@ -28,6 +29,7 @@ struct TogedaTest3App: App {
             ContentView()
                 .environmentObject(vm)
                 .environmentObject(navigationManager)
+                .environmentObject(networkManager)
                 .onAppear(){
                     APIClient.shared.setViewModel(vm)
                 }
