@@ -156,7 +156,7 @@ struct ChatView2: View {
                     .padding(.bottom, 5)
                 }
             }
-            MessageInputView(messageText: $messageText, isChatActive: $isChatActive, viewModel: viewModel, proxy: proxy) {
+            MessageInputView2(messageText: $messageText, isChatActive: $isChatActive, viewModel: viewModel, proxy: proxy) {
                 if let currentUser = userVm.currentUser {
                     if let uiImage = viewModel.messageImage {
                         Task {

@@ -92,6 +92,7 @@ struct EditEventView: View {
                             
                             Text(vm.editPost.location.name)
                                 .foregroundColor(.gray)
+                                .lineLimit(1)
                             
                             Image(systemName: "chevron.right")
                                 .padding(.trailing, 10)
@@ -182,6 +183,7 @@ struct EditEventView: View {
                                     } else if vm.dateTimeSettings == 2 {
                                         Text("\(separateDateAndTime(from: vm.from).date) - \(separateDateAndTime(from: vm.to).date)")
                                             .foregroundColor(.gray)
+                                            .lineLimit(1)
                                     } else {
                                         Text("Anyday")
                                             .foregroundColor(.gray)
@@ -244,6 +246,7 @@ struct EditEventView: View {
                                     if let max = vm.editPost.maximumPeople {
                                         Text("\(max)")
                                             .foregroundColor(.gray)
+                                            .lineLimit(1)
                                     } else {
                                         Text("No Limit")
                                             .foregroundColor(.gray)
@@ -404,7 +407,12 @@ struct EditEventView: View {
                         isLoading = true
                     }
                     if vm.editPost != vm.initialPost {
-                        try await APIClient.shared.editEvent(postId: vm.editPost.id, editPost: vm.convertToPathcPost(post: vm.editPost)) { response, error in
+                        vm.editPost.title = trimAndLimitWhitespace(vm.editPost.title)
+                        if let description = vm.editPost.description{
+                            vm.editPost.description = trimAndLimitWhitespace(description)
+                        }
+
+                        try await APIClient.shared.editEvent(postId: vm.editPost.id, editPost: vm.convertToPatchPost(post: vm.editPost)) { response, error in
                             if let _ = response {
                                 Task {
                                     if let response = try await APIClient.shared.getEvent(postId: post.id) {

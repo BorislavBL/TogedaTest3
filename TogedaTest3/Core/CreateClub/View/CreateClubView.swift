@@ -151,6 +151,7 @@ struct CreateClubView: View {
                                 
                                 Text(location.name)
                                     .foregroundColor(.gray)
+                                    .lineLimit(1)
                             } else {
                                 Text("Select")
                                     .foregroundColor(.gray)

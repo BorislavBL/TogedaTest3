@@ -109,11 +109,22 @@ struct AboutTab: View {
                     .fontWeight(.bold)
                     .padding(.bottom, 5)
                 
-                ExpandableText(bio, lineLimit: 4)
-                    .lineSpacing(8.0)
-                    .fontWeight(.medium)
-                    .foregroundColor(.gray)
+//                ExpandableText(bio, lineLimit: 4)
+//                    .lineSpacing(8.0)
+//                    .fontWeight(.medium)
+//                    .foregroundColor(.gray)
+//                    .padding(.bottom, 8)
+                
+                ExpandableText(bio)
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .lineLimit(4)
+                    .moreButtonText("read more")
+                    .moreButtonFont(.system(.headline, design: .rounded).bold())
+                    .trimMultipleNewlinesWhenTruncated(false)
+                    .enableCollapse(true)
                     .padding(.bottom, 8)
+                
             }
             
         }

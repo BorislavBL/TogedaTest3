@@ -126,12 +126,11 @@ struct ProfileView: View {
                     if viewModel.badgeTasks.count > 0 {
                         UserTaskView(badgeTask: viewModel.badgeTasks[0], referralCode: user.details.referralCode)
                     }
-                    if viewModel.posts.count > 0 {
-                        EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: $viewModel.postsCount)
-                    }
-                    if viewModel.clubs.count > 0 {
-                        ClubsTab(userID: user.id, count: viewModel.clubsCount, clubs: $viewModel.clubs)
-                    }
+                    
+                    EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: $viewModel.postsCount)
+                    
+                    ClubsTab(userID: user.id, count: viewModel.clubsCount, createClub: $showCreateClub, clubs: $viewModel.clubs)
+                    
                 }
                 .refreshable(action: {
                     viewModel.posts = []
@@ -155,9 +154,10 @@ struct ProfileView: View {
                         }
                         
                         InitEvent = false
-                    } else {
+                    }
+                    else {
                         Task{
-                            if let response = try await APIClient.shared.getFriendList(userId: user.id, page: 0, size: 2){
+                            if let response = try await APIClient.shared.getFriendList(userId: user.id, page: 0, size: 1){
                                 userVm.currentUser?.friendsCount = Double(response.listCount)
                             }
                         }
@@ -236,7 +236,7 @@ struct ProfileView: View {
                     .navButton3()
             }
             
-            NavigationLink(value: SelectionPath.userSettings) {
+            NavigationLink(value: SelectionPath.userSettings(isSupportNeeded: false)) {
                 Image(systemName: "gear")
                     .imageScale(.large)
                     .foregroundColor(.accentColor)

@@ -15,6 +15,14 @@ struct ClubCellTags: View {
         WrappingHStack(alignment: .leading, horizontalSpacing: 5) {
             
             HStack(spacing: 3) {
+                Image(systemName: "location")
+//                Text(locationCityAndCountry(club.baseLocation))
+                Text(truncatedText(locationCityAndCountry(club.location), maxLength: 25))
+                    .normalTagTextStyle()
+            }
+            .normalTagCapsuleStyle()
+            
+            HStack(spacing: 3) {
                 Image(systemName: "globe.europe.africa.fill")
                 if club.askToJoin {
                     Text("Ask to join")
@@ -26,13 +34,7 @@ struct ClubCellTags: View {
             }
             .normalTagCapsuleStyle()
             
-            HStack(spacing: 3) {
-                Image(systemName: "location")
-//                Text(locationCityAndCountry(club.baseLocation))
-                Text(club.location.name)
-                    .normalTagTextStyle()
-            }
-            .normalTagCapsuleStyle()
+
             
             
             HStack(spacing: 3) {

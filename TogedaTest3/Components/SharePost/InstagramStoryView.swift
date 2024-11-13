@@ -77,14 +77,14 @@ struct InstagramStoryView: View {
                             .foregroundStyle(.white)
                             .multilineTextAlignment(.center)
                     }
-                    .padding()
+                    .padding(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(.white, lineWidth: 2)
                     )
                 }
                 .padding()
-                .padding(.bottom, 100)
+                .padding(.bottom, 180)
             }
         }
         .ignoresSafeArea(.all)

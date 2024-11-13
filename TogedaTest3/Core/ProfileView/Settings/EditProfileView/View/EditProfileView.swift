@@ -493,6 +493,12 @@ struct EditProfileView: View {
                         isLoading = true
                     }
                     if editProfileVM.editUser != editProfileVM.initialUser {
+                        editProfileVM.editUser.firstName = trimAndLimitWhitespace(editProfileVM.editUser.firstName)
+                        editProfileVM.editUser.lastName = trimAndLimitWhitespace(editProfileVM.editUser.lastName)
+                        editProfileVM.editUser.occupation = trimAndLimitWhitespace(editProfileVM.editUser.occupation)
+                        if let bio = editProfileVM.editUser.details.bio {
+                            editProfileVM.editUser.details.bio = trimAndLimitWhitespace(bio)
+                        }
                        try await APIClient.shared.updateUserInfo(body: editProfileVM.convertToPathcUser(currentUser: editProfileVM.editUser)) { response, error in
                            if let response = response {
     

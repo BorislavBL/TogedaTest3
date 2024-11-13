@@ -34,10 +34,13 @@ class CreateClubViewModel: ObservableObject {
             Components.Schemas.Interest(name: interest.name, icon: interest.icon, category: interest.category)
         }
         
+        let trimTitle = trimAndLimitWhitespace(title)
+        let trimDescription = trimAndLimitWhitespace(description)
+        
         return .init(
-            title: title,
+            title: trimTitle,
             images: publishedPhotosURLs,
-            description: description.isEmpty ? nil : description,
+            description: trimDescription.isEmpty ? nil : trimDescription,
             location: location!,
             interests: interests,
             accessibility: .init(rawValue: selectedVisability.uppercased())!,

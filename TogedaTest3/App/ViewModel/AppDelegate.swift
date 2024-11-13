@@ -9,9 +9,10 @@ import SwiftUI
 import UIKit
 import UserNotifications
 
-class AppDelegate: UIResponder, UIApplicationDelegate , ObservableObject{
+class AppDelegate: UIResponder, UIApplicationDelegate, ObservableObject{
     
-   @Published var urlHandler: URLHandler?
+    @Published var urlHandler: URLHandler?
+    @Published var deeplink: URL?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Configure AWS Cognito
@@ -50,12 +51,14 @@ extension AppDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        print("This one is also activated")
         if let deepLink = response.notification.request.content.userInfo["link"] as? String {
             print("\(deepLink)")
             if let url = URL(string: deepLink) {
-                Task{
-                    urlHandler?.handleURL(_: url)
-                }
+//                Task{
+//                    urlHandler?.handleURL(_: url)
+//                }
+                self.deeplink = url
             }
         }
         

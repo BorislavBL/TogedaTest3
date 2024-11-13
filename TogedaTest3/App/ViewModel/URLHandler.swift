@@ -17,6 +17,7 @@ class URLHandler {
     }
     
     func handleURL(_ url: URL) {
+        print("URLLLLLLL: \(url)")
         var URL = transformURL(url: url)
         if URL.host == "event" {
             handleEventURL(URL)
@@ -30,6 +31,8 @@ class URLHandler {
             handleJoinRequestURL(URL)
         } else if URL.host == "chatRoom" {
             handleChatroomURL(URL)
+        } else if URL.host == "support" {
+            handleSupportURL()
         }
     }
     
@@ -120,14 +123,22 @@ class URLHandler {
             Task {
                 if let response = try await APIClient.shared.getEvent(postId: id) {
                     DispatchQueue.main.async{
-                        if response.currentUserRole == .NORMAL {
-                            self.navigationManager.selectionPath.append(.eventReview(post: response))
-                        } else {
-                            self.navigationManager.selectionPath.append(.rateParticipants(post: response, rating: .init(value: Double(5), comment: nil)))
-                        }
+//                        if response.currentUserRole == .NORMAL {
+//                            self.navigationManager.selectionPath.append(.eventReview(post: response))
+//                        } else {
+//                            self.navigationManager.selectionPath.append(.rateParticipants(post: response, rating: .init(value: Double(5), comment: nil)))
+//                        }
+                        self.navigationManager.activateReviewSheet = true
+                        self.navigationManager.selectionPath.append(.notification)
                     }
                 }
             }
+        }
+    }
+    
+    private func handleSupportURL() {
+        DispatchQueue.main.async{
+            self.navigationManager.selectionPath.append(.userSettings(isSupportNeeded: true))
         }
     }
     

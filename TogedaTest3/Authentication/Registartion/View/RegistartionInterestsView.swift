@@ -43,8 +43,11 @@ struct RegistartionInterestsView: View {
                     
                     CustomSearchBar(searchText: $searchText, showCancelButton: $cancelSearch)
                     
-                    if displayError {
+                    if displayError && vm.selectedInterests.count < 5 {
                         WarningTextComponent(text: "Select at least 5 interests.")
+                            .padding(.bottom, 15)
+                    } else if displayError && vm.selectedInterests.count > 20 {
+                        WarningTextComponent(text: "Pleas select no more than 20 interests.")
                             .padding(.bottom, 15)
                     }
                     
@@ -126,9 +129,9 @@ struct RegistartionInterestsView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
-            .disableWithOpacity(vm.selectedInterests.count < 5)
+            .disableWithOpacity(vm.selectedInterests.count < 5 || vm.selectedInterests.count > 20)
             .onTapGesture {
-                if vm.selectedInterests.count < 5 {
+                if vm.selectedInterests.count < 5 || vm.selectedInterests.count > 20 {
                     displayError.toggle()
                 }
             }
@@ -223,9 +226,9 @@ struct InterestCategorySection: View {
                     if selectedInterests.contains(where:{ interest.name == $0.name}) {
                         selectedInterests.removeAll { $0.name == interest.name}
                     } else {
-                        
-                        selectedInterests.append(interest)
-                        
+                        if selectedInterests.count < 20 {
+                            selectedInterests.append(interest)
+                        }
                     }
                 } label: {
                     if selectedInterests.contains(where:{ interest.name == $0.name}) {

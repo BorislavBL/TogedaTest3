@@ -14,10 +14,11 @@ struct MessageClubPreview: View {
     @State var club: Components.Schemas.ClubDto?
     var size: CGSize = .init(width: 180, height: 300)
     @State var Init: Bool = true
+    @State var loadingCases: LoadingCases = .loading
     
     var body: some View {
         VStack(alignment: .leading){
-            if let club = club {
+            if let club = club, loadingCases == .loaded {
                 NavigationLink(value: SelectionPath.club(club)) {
                     VStack(alignment: .leading){
                         ZStack(alignment: .bottom) {
@@ -105,6 +106,14 @@ struct MessageClubPreview: View {
                         .cornerRadius(20)
                     }
                 }
+            } else if loadingCases == .noResults{
+                VStack(alignment: .center){
+                    Text("No such club")
+                        .font(.footnote)
+                        .fontWeight(.bold)
+                        .opacity(0.5)
+                }
+                .frame(size)
             } else {
                 ProgressView()
                     .frame(size)
@@ -118,7 +127,10 @@ struct MessageClubPreview: View {
                 if Init{
                     if let response =  try await APIClient.shared.getClub(clubID: clubID) {
                         self.club = response
+                        self.loadingCases = .loaded
                         self.Init = false
+                    } else {
+                        self.loadingCases = .noResults
                     }
                 }
             }

@@ -21,9 +21,10 @@ class ClubsViewModel: ObservableObject {
     @Published var page: Int32 = 0
     @Published var size: Int32 = 15
     
+    @Published var sortBy: Operations.getAllClubs.Input.Query.sortByPayload = .LOCATION
     @Published var lat: Double = 43
     @Published var long: Double = 39
-    @Published var distance: Int = 300
+    @Published var distance: Int = 3000000
     @Published var categories: [String]? = nil
     @Published var clickedClub: Components.Schemas.ClubDto = MockClub
     @Published var showShareClubSheet: Bool = false
@@ -31,6 +32,7 @@ class ClubsViewModel: ObservableObject {
     
     @Published var showOption: Bool = false
     @Published var showReport: Bool = false
+    
     
     private var locationCancellables = Set<AnyCancellable>()
     private var locationManager = LocationManager()
@@ -60,6 +62,7 @@ class ClubsViewModel: ObservableObject {
         if let response = try await APIClient.shared.getAllClubs(
             page: page,
             size: size,
+            sortBy: sortBy,
             long: long,
             lat: lat,
             distance: Int32(distance),
@@ -101,17 +104,21 @@ class ClubsViewModel: ObservableObject {
         }
     }
     
-    func applyFilter(lat: Double, long: Double, distance: Int, categories: [String]?) async throws {
+    func applyFilter(sort: Operations.getAllClubs.Input.Query.sortByPayload, lat: Double, long: Double, distance: Int, categories: [String]?) async throws {
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async{
                 self.page = 0
                 self.feedClubs = []
                 self.lastPage = true
+                self.sortBy = sort
                 
                 self.lat = lat
                 self.long = long
                 self.distance = distance
                 self.categories = categories
+                
+                self.state = .loading
+
                 continuation.resume()
             }
         }

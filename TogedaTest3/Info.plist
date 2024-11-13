@@ -27,6 +27,8 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>629571492962-heo8rlu8t1c3poudb62lqco4ggk67j49.apps.googleusercontent.com</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string></string>

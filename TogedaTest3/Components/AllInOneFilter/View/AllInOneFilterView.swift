@@ -58,6 +58,13 @@ struct AllInOneFilterView: View {
                                 WarningTextComponent(text: "Please select location")
                             }
                             
+                            Toggle(isOn: $filterVM.noDistanceLimit) {
+                                Text("No distance limit")
+                                    .font(.body)
+                                    .bold()
+                                
+                            }
+                            
                             VStack(alignment: .leading, spacing: 16){
                                 HStack{
                                     Text("Distance")
@@ -66,7 +73,7 @@ struct AllInOneFilterView: View {
                                     
                                     Spacer()
                                     
-                                    Text("\(filterVM.sliderValue) km")
+                                    Text("\(filterVM.sliderValue > 300 ? 300 : filterVM.sliderValue ) km")
                                         .font(.callout)
                                         .fontWeight(.semibold)
                                         .foregroundStyle(.gray)
@@ -80,6 +87,7 @@ struct AllInOneFilterView: View {
                                 )
                                 
                             }
+                            .disableWithOpacity(filterVM.noDistanceLimit)
                             
                             VStack(alignment: .leading, spacing: 16){
                                 HStack{
@@ -126,6 +134,7 @@ struct AllInOneFilterView: View {
                                 switch filterVM.selectedType {
                                 case .events:
                                     try await postsVM.applyFilter(
+                                        sort: filterVM.selectedSortFilter == "Location" ? .LOCATION : .CREATED_AT,
                                         lat: filterVM.returnedPlace.latitude,
                                         long: filterVM.returnedPlace.longitude,
                                         distance: filterVM.sliderValue,
@@ -137,6 +146,7 @@ struct AllInOneFilterView: View {
                                     )
                                 case .clubs:
                                     try await clubsVM.applyFilter(
+                                        sort: filterVM.selectedSortFilter == "Location" ? .LOCATION : .CREATED_AT,
                                         lat: filterVM.returnedPlace.latitude,
                                         long: filterVM.returnedPlace.longitude,
                                         distance: filterVM.sliderValue,

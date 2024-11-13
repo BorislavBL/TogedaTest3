@@ -12,14 +12,27 @@ struct EventReviewView: View {
     @Environment(\.dismiss) var dismiss
     @State var rating: Int = 0
     @State var displayWarrning: Bool = false
+    @State private var isActive: Bool = false
     
     var post: Components.Schemas.PostResponseDto
     @State var description: String = ""
+    @ObservedObject var vm: RatingViewModel
     
     let placeholder = "Share your experience...\nTell us what you thought about the event. What was the highlight for you? Was there anything that could be improved? Your feedback helps others decide which events to attend and assists organizers in making future events even better. Whether it’s the atmosphere, the music, the people, or the venue, let us know your thoughts! \nRemember to keep your review respectful and constructive – everyone reads these!"
     
     var body: some View {
         VStack(spacing: 0){
+            HStack{
+                Spacer()
+                Button(action: {vm.openReviewSheet = false}) {
+                    Image(systemName: "xmark")
+                        .imageScale(.medium)
+                        .padding(.all, 8)
+                        .background(Color("main-secondary-color"))
+                        .clipShape(Circle())
+                }
+            }
+            .padding()
             ScrollView(){
                 LazyVStack(alignment:.center, spacing: 30){
                     KFImage(URL(string: post.images[0]))
@@ -62,7 +75,11 @@ struct EventReviewView: View {
                 Divider()
                 
                 if rating > 0 {
-                    NavigationLink(value: SelectionPath.rateParticipants(post: post, rating: .init(value: Double(rating), comment: description))) {
+                    //RateParticipantsView(post: post, rating: .init(value: 5.0, comment: nil))
+                    //                    NavigationLink(value: SelectionPath.rateParticipants(post: post, rating: .init(value: Double(rating), comment: description))) {
+                    Button{
+                        isActive = true
+                    } label: {
                         HStack(spacing:2){
                             
                             Text("Next")
@@ -96,9 +113,12 @@ struct EventReviewView: View {
                 
             }
             .background(.bar)
-        
+            
         }
         .swipeBack()
+        .navigationDestination(isPresented: $isActive, destination: {
+            RateParticipantsView(post: post, rating: .init(value: Double(rating), comment: description), vm: vm)
+        })
         .navigationTitle("Rating")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -110,5 +130,5 @@ struct EventReviewView: View {
 
 
 #Preview {
-    EventReviewView(post: MockPost)
+    EventReviewView(post: MockPost, vm: RatingViewModel())
 }

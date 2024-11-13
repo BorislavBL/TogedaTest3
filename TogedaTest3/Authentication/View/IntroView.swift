@@ -16,6 +16,9 @@ struct IntroView: View {
     @State private var showLogin = false
     @State private var showRegistartion = false
     
+    let termsOfUse = try! AttributedString(markdown: "[Terms of Use](\(TogedaLinks().termsOfUse))")
+    let privacyPolicy = try! AttributedString(markdown: "[Privacy Policy](\(TogedaLinks().privacyPolicy))")
+    
     var body: some View {
         NavigationStack{
             ZStack(alignment:.bottom){
@@ -111,15 +114,14 @@ struct IntroView: View {
                     HStack{
                         Text("By signing up you agree to Togeda's ")
                             .foregroundStyle(.gray) +
-                        Text("[Terms of Use]()")
-                            .foregroundStyle(.blue) +
+                        Text(termsOfUse) +
                         Text(" and ")
                             .foregroundStyle(.gray) +
-                        Text("[Privacy Policy]()")
-                            .foregroundStyle(.blue) +
+                        Text(privacyPolicy) +
                         Text(".")
                             .foregroundStyle(.gray)
                     }
+                    .accentColor(.blue)
                     .multilineTextAlignment(.center)
                     .font(.footnote)
                     .padding()

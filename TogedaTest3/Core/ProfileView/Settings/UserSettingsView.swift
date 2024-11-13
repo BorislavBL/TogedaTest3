@@ -6,17 +6,24 @@
 //
 
 import SwiftUI
+import MessageUI
 
 struct UserSettingsView: View {
+    var isSupportNeeded: Bool = false
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var mainVM: ContentViewModel
+    @EnvironmentObject var userVm: UserViewModel
     @State var paidEventMessage = false
     @State var deleteSheet = false
+    @State private var showMailView = false
+    @State private var showAlert = false
+    
+    
     var body: some View {
         List{
             Section(header: Text("Profile")){
                 NavigationLink(value: SelectionPath.editProfile){
-                    Text("Edit Profile ")
+                    Text("Edit Profile")
                 }
 //                NavigationLink(value: SelectionPath.test){
 //                    Text("Privacy Settings")
@@ -26,39 +33,54 @@ struct UserSettingsView: View {
                 }
             }
             Section(header: Text("Togeda")){
-                NavigationLink(value: SelectionPath.test){
+                Button{
+                    if let url = URL(string: TogedaLinks().website) {
+                        UIApplication.shared.open(url)
+                    }
+                } label:{
                     Text("Website")
                 }
                 Button{
-                    if let url = URL(string: "https://www.instagram.com/togeda_net/") {
+                    if let url = URL(string: TogedaLinks().instagram) {
                         UIApplication.shared.open(url)
                     }
                 } label:{
                     Text("Instagram")
                 }
-                Button{
-                    if let url = URL(string: "https://discord.gg/e4uzckuK") {
-                        UIApplication.shared.open(url)
+//                Button{
+//                    if let url = URL(string: "https://discord.gg/e4uzckuK") {
+//                        UIApplication.shared.open(url)
+//                    }
+//                } label:{
+//                    Text("Discord")
+//                }
+//                NavigationLink(value: SelectionPath.test){
+//                    Text("Linked in")
+//                }
+                Button(action: {
+                    if MFMailComposeViewController.canSendMail() {
+                        showMailView = true
+                    } else {
+                        showAlert = true
                     }
-                } label:{
-                    Text("Discord")
-                }
-                NavigationLink(value: SelectionPath.test){
-                    Text("Linked in")
-                }
-                NavigationLink(value: SelectionPath.test){
+                }) {
                     Text("Contact us")
                 }
             }
             Section(header: Text("About")){
-                NavigationLink(value: SelectionPath.test){
+                Button{
+                    if let url = URL(string: TogedaLinks().privacyPolicy) {
+                        UIApplication.shared.open(url)
+                    }
+                } label:{
                     Text("Privacy Policy")
                 }
-                NavigationLink(value: SelectionPath.test){
+                Button{
+                    if let url = URL(string: TogedaLinks().termsOfUse) {
+                        UIApplication.shared.open(url)
+                    }
+                } label:{
                     Text("Terms of Use")
-                }
-                NavigationLink(value: SelectionPath.test){
-                    Text("Licenses")
                 }
             }
             
@@ -131,9 +153,28 @@ struct UserSettingsView: View {
                     }
                 }
                 .padding()
-                .presentationDetents([.fraction(0.4)])
+                .presentationDetents([.height(250)])
             
         })
+        .sheet(isPresented: $showMailView) {
+            MailView(recipient: "togeda.info@gmail.com", user: userVm.currentUser)
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("No Email Accounts"),
+                message: Text("Please configure an email account in the Mail app to send an email or contact us at info@togeda.net using other platform.."),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+        .onAppear(){
+            if isSupportNeeded {
+                if MFMailComposeViewController.canSendMail() {
+                    showMailView = true
+                } else {
+                    showAlert = true
+                }
+            }
+        }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
         .listStyle(.insetGrouped)
@@ -148,4 +189,5 @@ struct UserSettingsView: View {
 #Preview {
     UserSettingsView()
         .environmentObject(ContentViewModel())
+        .environmentObject(UserViewModel())
 }

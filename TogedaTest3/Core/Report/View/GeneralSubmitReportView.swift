@@ -42,10 +42,14 @@ struct GeneralSubmitReportView: View {
                         .padding()
                     
                     if let caseDescription = caseDescription {
-                        ExpandableText(caseDescription, lineLimit: 4)
-                            .lineSpacing(8.0)
-                            .fontWeight(.medium)
-                            .foregroundColor(.gray)
+                        ExpandableText(caseDescription)
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundColor(.secondary)
+                            .lineLimit(4)
+                            .moreButtonText("read more")
+                            .moreButtonFont(.system(.headline, design: .rounded).bold())
+                            .trimMultipleNewlinesWhenTruncated(false)
+                            .enableCollapse(true)
                             .padding(.bottom, 8)
                     }
                     

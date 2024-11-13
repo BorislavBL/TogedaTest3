@@ -34,6 +34,9 @@ struct CreateEventView: View {
     @EnvironmentObject var userVM: UserViewModel
     @EnvironmentObject var postVM: PostsViewModel
     
+    let paidActivitiesAgreement = try! AttributedString(markdown: "[Paid Activity Agreement](\(TogedaLinks().paidActivitiesAgreement))")
+
+    
     var body: some View {
         NavigationStack() {
             ScrollView(showsIndicators: false){
@@ -275,6 +278,7 @@ struct CreateEventView: View {
                             } else if ceVM.dateTimeSettings == 2 {
                                 Text("\(separateDateAndTime(from:ceVM.from).date) - \(separateDateAndTime(from:ceVM.to).date)")
                                     .foregroundColor(.gray)
+                                    .lineLimit(1)
                             } else {
                                 Text("Anyday")
                                     .foregroundColor(.gray)
@@ -341,6 +345,7 @@ struct CreateEventView: View {
                             if let participant = ceVM.participants{
                                 Text(participant > 0 ? "\(participant)" : "No Limit")
                                     .foregroundColor(.gray)
+                                    .lineLimit(1)
                             } else {
                                 Text("No Limit")
                                     .foregroundColor(.gray)
@@ -398,6 +403,7 @@ struct CreateEventView: View {
                                     
                                     Text(price > 0.0 ? "€ \(price, specifier: "%.2f")" : "Free")
                                         .foregroundColor(.gray)
+                                        .lineLimit(1)
                                 } else {
                                     Text("Free")
                                         .foregroundColor(.gray)
@@ -410,6 +416,8 @@ struct CreateEventView: View {
                             }
                             
                         }
+                        
+                        
                         if ceVM.showPricing {
                             if user.stripeAccountId != nil{
                                 HStack(alignment: .center, spacing: 10) {
@@ -428,13 +436,20 @@ struct CreateEventView: View {
                                             }
                                         }
                                     
-                                    Text("The maximum price you can charge per participant is €2000. For higher amounts, please contact us at info@togeda.net. Don’t forget to review our [Paid Activity Agreement]() for more details.")
-                                        .font(.footnote)
-                                        .multilineTextAlignment(.leading)
-                                        .opacity(0.5)
-                                    
-                                    
                                 }
+                                
+                                
+                                HStack{
+                                    Text("The maximum price you can charge per participant is €2000. For higher amounts, please contact us at info@togeda.net. \nBy making Paid event you agree with our ")
+                                        .foregroundStyle(.gray) +
+                                    Text(paidActivitiesAgreement) +
+                                    Text(" for more details.")
+                                        .foregroundStyle(.gray)
+                                }
+                                .accentColor(.blue)
+                                .font(.footnote)
+                                .multilineTextAlignment(.leading)
+
                             } else {
                                 VStack(alignment: .center){
                                     Text("To create a paid event frist create a Stripe account!")

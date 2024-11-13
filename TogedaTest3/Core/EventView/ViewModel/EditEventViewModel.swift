@@ -101,7 +101,7 @@ extension EditEventViewModel {
     }
 
     
-    func convertToPathcPost(post: Components.Schemas.PostResponseDto) -> Components.Schemas.PatchPostDto {
+    func convertToPatchPost(post: Components.Schemas.PostResponseDto) -> Components.Schemas.PatchPostDto {
         
         var fromDate: Date?
         var toDate: Date?

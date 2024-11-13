@@ -45,10 +45,19 @@ class FilterViewModel: ObservableObject {
     }
     @Published var selectedTimeFrame = "Custom Time"
     
-    @Published var selectedSortFilter: String = "Relevance"
-    var sortFilterOptions: [String] = ["Relevance", "Date"]
+    @Published var selectedSortFilter: String = "Location"
+    var sortFilterOptions: [String] = ["Location", "Newest"]
     
-    @Published var sliderValue: Int = 300
+    @Published var noDistanceLimit: Bool = true {
+        didSet{
+            if noDistanceLimit {
+                sliderValue = 3000000
+            } else {
+                sliderValue = 300
+            }
+        }
+    }
+    @Published var sliderValue: Int = 3000000
     
     @Published var selectedCategories: [Category] = []
     var categories: [Category] = Category.Categories
@@ -64,8 +73,9 @@ class FilterViewModel: ObservableObject {
         self.searchText = ""
         self.isCurrentLocation = true
         self.selectedTimeFilter = .timeFilterOptions[0]
+        self.noDistanceLimit = true
         self.sliderValue = 300
-        self.selectedSortFilter = "Relevance"
+        self.selectedSortFilter = "Location"
         self.selectedCategories = []
     }
     

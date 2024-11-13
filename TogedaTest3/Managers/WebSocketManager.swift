@@ -14,6 +14,19 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var chatSize: Int32 = 15
     @Published var lastChatPage = true
     
+//    struct ReceivedChatMessageExtension: Hashable {
+//        var message: Components.Schemas.ReceivedChatMessageDto
+//        var post: Components.Schemas.PostResponseDto?
+//        var club: Components.Schemas.ClubDto?
+//    }
+//    
+//    func receivedChatMessageConverter(
+//        _ message: Components.Schemas.ReceivedChatMessageDto,
+//        post: Components.Schemas.PostResponseDto? = nil,
+//        club: Components.Schemas.ClubDto? = nil) -> ReceivedChatMessageExtension{
+//        return .init(message: message, post: post, club: club)
+//    }
+    
     @Published var messages: [Components.Schemas.ReceivedChatMessageDto] = []
     @Published var lastMessagesPage: Bool = true
     @Published var messagesPage: Int32 = 0
@@ -34,6 +47,7 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var count: Int64 = 0
     @Published var lastPage: Bool = true
     @Published var isConnected = false
+    @Published var loadingState: LoadingCases = .loading
     
     init(){
         websocketInit()
@@ -245,9 +259,37 @@ extension WebSocketManager {
             
             else {
                 Task{
-                    if let chatRoom = try await APIClient.shared.getChat(chatId:messageData.chatId) {
-                        DispatchQueue.main.async {
-                            self.allChatRooms.insert(chatRoom, at: 0)
+                    var attempt = 0
+                    var chatRoom: Components.Schemas.ChatRoomDto?
+                    while attempt < 2 {
+                        do {
+                            chatRoom = try await APIClient.shared.getChat(chatId: messageData.chatId)
+                            if let room = chatRoom {
+                                if let latestMessage = room.latestMessage, !latestMessage.content.isEmpty {
+                                    DispatchQueue.main.async {
+                                        self.allChatRooms.insert(room, at: 0)
+                                    }
+                                    break
+                                } else if attempt == 1 {
+                                    chatRoom?.latestMessage = messageData
+                                    if let room_ = chatRoom {
+                                        DispatchQueue.main.async {
+                                            self.allChatRooms.insert(room_, at: 0)
+                                        }
+                                        break
+                                    }
+                                }
+                            }
+                        } catch {
+                            print("Failed to fetch chatRoom: \(error)")
+                            break // Exit if an error occurs
+                        }
+                        
+                        attempt += 1
+                        
+                        // Delay for 5 seconds if this was the first attempt
+                        if attempt == 1 {
+                            try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
                         }
                     }
                 }
@@ -383,7 +425,7 @@ extension WebSocketManager {
     }
     
     func setChatAsEntered(chatId: String) async throws {
-        if let response = try await APIClient.shared.enterChat(chatId: chatId) {
+        if (try await APIClient.shared.enterChat(chatId: chatId)) != nil {
             DispatchQueue.main.async{
                 if let index = self.allChatRooms.firstIndex(where: { $0.id == chatId }) {
                     // Update the chat room's last message and timestamp
@@ -396,7 +438,7 @@ extension WebSocketManager {
     }
     
     func setChatAsLeft(chatId: String) async throws {
-        if let response = try await APIClient.shared.leaveChat(chatId: chatId) {
+        if (try await APIClient.shared.leaveChat(chatId: chatId)) != nil {
         }
     }
 }
@@ -414,8 +456,12 @@ extension WebSocketManager {
                     self.page += 1
                     self.count = response.listCount
                     self.lastPage = response.lastPage
-                    
+                    self.loadingState = .loaded
                     completion(true)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.loadingState = .noResults
                 }
             }
         } catch {

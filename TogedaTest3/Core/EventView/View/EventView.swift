@@ -105,10 +105,14 @@ struct EventView: View {
                                 .fontWeight(.bold)
                                 .padding(.vertical, 8)
                             
-                            ExpandableText(description, lineLimit: 4)
-                                .lineSpacing(8.0)
-                                .fontWeight(.medium)
-                                .foregroundColor(.gray)
+                            ExpandableText(description)
+                                .font(.system(.headline, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .lineLimit(4)
+                                .moreButtonText("read more")
+                                .moreButtonFont(.system(.headline, design: .rounded).bold())
+                                .trimMultipleNewlinesWhenTruncated(false)
+                                .enableCollapse(true)
                                 .padding(.bottom, 8)
                         }
                         

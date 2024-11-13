@@ -1,20 +1,21 @@
 //
-//  MessageInputView.swift
+//  MessageInputView2.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 15.11.23.
+//  Created by Borislav Lorinkov on 21.10.24.
 //
 
 import SwiftUI
 import PhotosUI
 
-struct MessageInputView: View {
+struct MessageInputView2: View {
     @Binding var messageText: String
     @Binding var isChatActive: Bool
     @ObservedObject var viewModel: ChatViewModel
     @FocusState var isFocused: Bool
+    var proxy: ScrollViewProxy?
     var onSubmit: () -> ()
-//    @EnvironmentObject var webSocketMangager: WebSocketManager
+    @EnvironmentObject var webSocketMangager: WebSocketManager
     
     var body: some View {
         HStack(alignment: .top){
@@ -54,16 +55,16 @@ struct MessageInputView: View {
                 }
                 
                 TextField("Message..", text: $messageText, axis: .vertical)
-                    .lineLimit(6)
                     .focused($isFocused)
                     .padding(.leading, 4)
                     .font(.subheadline)
                     .onChange(of: isFocused) {
                         if isFocused{
-                            isChatActive = true
-
-                        } else {
-                            isChatActive = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4){
+                                withAnimation(.easeIn) {
+                                    proxy?.scrollTo(webSocketMangager.messages.last?.id, anchor: .bottom)
+                                }
+                            }
 
                         }
                     }
@@ -96,7 +97,7 @@ struct MessageInputView: View {
 
 #Preview {
     ScrollViewReader { proxy in
-        MessageInputView(
+        MessageInputView2(
             messageText: .constant(""),
             isChatActive: .constant(false),
             viewModel: ChatViewModel(),
@@ -104,4 +105,5 @@ struct MessageInputView: View {
             .environmentObject(WebSocketManager())
     }
 }
+
 

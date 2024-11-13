@@ -12,7 +12,6 @@ struct InboxView: View {
     @EnvironmentObject var chatManager: WebSocketManager
     @StateObject var chatVM = ChatViewModel()
     @State private var showNewMessageView = false
-
     
     @State var navHeight: CGFloat = .zero
     @State var isLoading = false
@@ -42,48 +41,65 @@ struct InboxView: View {
             }
             .background(.bar)
             
-            ScrollView {
-                LazyVStack {
-                    ForEach(chatManager.allChatRooms, id: \.id){ chatroom in
-                        NavigationLink(value: SelectionPath.userChat(chatroom: chatroom)){
-                            InboxRowView(chatroom: chatroom)
+            if chatManager.allChatRooms.count > 0 {
+                ScrollView {
+                    LazyVStack {
+                        ForEach(chatManager.allChatRooms, id: \.id){ chatroom in
+                            NavigationLink(value: SelectionPath.userChat(chatroom: chatroom)){
+                                InboxRowView(chatroom: chatroom)
+                            }
+                            
+                        }
+                        .padding(.top)
+                        .padding(.horizontal)
+                        
+                        if isLoading {
+                            ProgressView() // Show spinner while loading
                         }
                         
-                    }
-                    .padding(.top)
-                    .padding(.horizontal)
-                    
-                    if isLoading {
-                        ProgressView() // Show spinner while loading
-                    }
-                    
-                    Rectangle()
-                        .frame(width: 0, height: 0)
-                        .onAppear {
-                            if !chatManager.lastChatPage{
-                                isLoading = true
-                                Task{
-                                    try await chatManager.getAllChats()
-                                    isLoading = false
-                                    
+                        Rectangle()
+                            .frame(width: 0, height: 0)
+                            .onAppear {
+                                if !chatManager.lastChatPage{
+                                    isLoading = true
+                                    Task{
+                                        try await chatManager.getAllChats()
+                                        isLoading = false
+                                        
+                                    }
                                 }
                             }
-                        }
+                    }
                 }
-            }
-            .overlay{
-                if chatVM.isSearching {
-                    ChatSearchView(chatVM: chatVM)
-                        .onAppear(){
-                            chatVM.startSearch()
-                        }
-                        .onDisappear(){
-                            chatVM.stopSearch()
-                        }
+                .scrollIndicators(.hidden)
+                .overlay{
+                    if chatVM.isSearching {
+                        ChatSearchView(chatVM: chatVM)
+                            .onAppear(){
+                                chatVM.startSearch()
+                            }
+                            .onDisappear(){
+                                chatVM.stopSearch()
+                            }
+                    }
                 }
+            } else {
+                VStack(spacing: 15){
+                    Text("🫵")
+                        .font(.custom("image", fixedSize: 120))
+                    
+                    Text("Looks a little quiet here! Start by joining events or clubs around you to make new friends, and jump into chats with people who share your vibe!")
+                        .font(.body)
+                        .foregroundStyle(.gray)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom)
+                    
+                }
+                .padding(.all)
+                .frame(maxHeight: .infinity, alignment: .center)
             }
         }
-        .scrollIndicators(.hidden)
         .fullScreenCover(isPresented: $showNewMessageView, content: {
             NewMessageView(chatVM: chatVM)
         })
@@ -103,6 +119,7 @@ struct InboxRowView: View {
                     KFImage(URL(string: club.images[0]))
                         .resizable()
                         .scaledToFill()
+                        .background(.gray)
                         .frame(width: size.dimension, height: size.dimension)
                         .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
                 }
@@ -111,6 +128,7 @@ struct InboxRowView: View {
                     KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
                         .resizable()
                         .scaledToFill()
+                        .background(.gray)
                         .frame(width: size.dimension, height: size.dimension)
                         .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
                 }
@@ -121,6 +139,7 @@ struct InboxRowView: View {
                         KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
+                            .background(.gray)
                             .frame(width: 2 * size.dimension/3, height: 2 * size.dimension/3)
                             .clipShape(Circle())
                             .overlay(
@@ -132,6 +151,7 @@ struct InboxRowView: View {
                         KFImage(URL(string: chatroom.previewMembers[1].profilePhotos[0]))
                             .resizable()
                             .scaledToFill()
+                            .background(.gray)
                             .frame(width: 2 * size.dimension/3, height: 2 * size.dimension/3)
                             .clipShape(Circle())
                             .overlay(

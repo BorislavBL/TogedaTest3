@@ -56,12 +56,6 @@ struct EventsFeedView: View {
                         }
                     } else if postsViewModel.state == .noResults{
                         VStack(spacing: 15){
-//                            Image(systemName: "doc.text.magnifyingglass")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 120, height: 120)
-//                                .foregroundStyle(.gray)
-//                            
                             Text("😎")
                                 .font(.custom("image", fixedSize: 120))
                             

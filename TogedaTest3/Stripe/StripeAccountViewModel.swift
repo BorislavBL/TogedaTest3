@@ -23,7 +23,8 @@ class StripeAccountViewModel: ObservableObject {
                 do {
                     if let request = try await APIClient.shared.getPaymentSheet(postId: id) {
                         print("Received request: \(request)")
-                        STPAPIClient.shared.publishableKey = "pk_test_\(request.publishableKey)"
+                        //pk_test_
+                        STPAPIClient.shared.publishableKey = "\(request.publishableKey)"
                         
                         STPAPIClient.shared.stripeAccount = request.ownerStripeAccountId
                         // MARK: Create a PaymentSheet instance
@@ -31,7 +32,7 @@ class StripeAccountViewModel: ObservableObject {
                         configuration.merchantDisplayName = "Togeda Net"
                         configuration.returnURL = "https://www.togeda.net/"
                         configuration.applePay = .init(
-                          merchantId: "merchant.net.togeda.ios",
+                          merchantId: "merchant.net.togeda.app",
                           merchantCountryCode: "BG"
                         )
                         // configuration.customer = .init(id: customerId, ephemeralKeySecret: customerEphemeralKeySecret)

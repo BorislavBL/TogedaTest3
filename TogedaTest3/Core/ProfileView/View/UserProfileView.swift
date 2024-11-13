@@ -202,6 +202,11 @@ struct UserProfileView: View {
                                         .frame(width: UIScreen.main.bounds.width/2 - 60)
                                         .normalTagRectangleStyle()
                                 }
+                            } else {
+                                Text("Loading...")
+                                    .normalTagTextStyle()
+                                    .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                    .normalTagRectangleStyle()
                             }
                             
                             if isFriend {
@@ -212,7 +217,6 @@ struct UserProfileView: View {
                                             navManager.screen = .message
 //                                            websocket.selectedUser = _user
                                             navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
-                                            print("Chat id:", _user.chatRoomId)
                                         }
                                     }
                                 } label: {
@@ -245,12 +249,12 @@ struct UserProfileView: View {
                 AboutTab(user: user, showInstagram: (isCurrentUser || isFriend))
                 
 
-                if viewModel.posts.count > 0 {
+                if let currentUser = userVm.currentUser, currentUser.id == miniUser.id || viewModel.posts.count > 0 {
                     EventTab(userID: miniUser.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: $viewModel.postsCount)
                 }
                 
-                if viewModel.clubs.count > 0 {
-                    ClubsTab(userID: miniUser.id, count: viewModel.clubsCount, clubs:  $viewModel.clubs)
+                if let currentUser = userVm.currentUser, currentUser.id == miniUser.id || viewModel.clubs.count > 0 {
+                    ClubsTab(userID: miniUser.id, count: viewModel.clubsCount, createClub: $showCreateClub, clubs:  $viewModel.clubs)
                 }
                 
                 
@@ -350,7 +354,6 @@ struct UserProfileView: View {
                 if let user = userVm.currentUser, miniUser.id != user.id {
                     Task {
                         await fetchAll()
-                        
                         Init = false
                     }
                 } else {
@@ -361,7 +364,8 @@ struct UserProfileView: View {
                     Init = false
                 }
                 
-            }  else {
+            }
+            else {
                 Task{
                     if let user = userVm.currentUser, miniUser.id == user.id {
                         if let response = try await APIClient.shared.getFriendList(userId: user.id, page: 0, size: 2){
@@ -395,7 +399,7 @@ struct UserProfileView: View {
                         .navButton3()
                 }
                 
-                NavigationLink(value: SelectionPath.userSettings) {
+                NavigationLink(value: SelectionPath.userSettings(isSupportNeeded: false)) {
                     Image(systemName: "gear")
                         .imageScale(.large)
                         .foregroundColor(.accentColor)

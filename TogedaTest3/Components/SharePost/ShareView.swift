@@ -24,6 +24,7 @@ class ShareViewModel: ObservableObject {
     @Published var page: Int32 = 0
     @Published var listSize: Int32 = 15
     @Published var isLoading = false
+    @Published var loadingState: LoadingCases = .loading
     
     init() {
         cancellable = $searchText
@@ -67,6 +68,12 @@ class ShareViewModel: ObservableObject {
                 self.chatRoomsList += uniqueNewResponse
                 self.page += 1
                 self.lastPage = response.lastPage
+                self.loadingState = .loaded
+            }
+        } else {
+            DispatchQueue.main.async {
+                
+                self.loadingState = .noResults
             }
         }
     }
@@ -173,41 +180,58 @@ struct ShareView: View {
                             .padding(.bottom)
                         }
                         
-                        ForEach(vm.searchChatRoomsResults, id: \.id) { chatroom in
-                            VStack {
-                                Button{
-                                    if vm.selectedChatRooms.contains(chatroom) {
-                                        vm.selectedChatRooms.removeAll(where: { $0 == chatroom })
-                                    } else {
-                                        vm.selectedChatRooms.append(chatroom)
+                        if vm.searchChatRoomsResults.count > 0{
+                            ForEach(vm.searchChatRoomsResults, id: \.id) { chatroom in
+                                VStack {
+                                    Button{
+                                        if vm.selectedChatRooms.contains(chatroom) {
+                                            vm.selectedChatRooms.removeAll(where: { $0 == chatroom })
+                                        } else {
+                                            vm.selectedChatRooms.append(chatroom)
+                                        }
+                                        
+                                        if !vm.chatRoomsList.contains(chatroom) {
+                                            vm.chatRoomsList.insert(chatroom, at: 0)
+                                        }
+                                    } label:{
+                                        chatRoomLabel(chatroom: chatroom)
                                     }
                                     
-                                    if !vm.chatRoomsList.contains(chatroom) {
-                                        vm.chatRoomsList.insert(chatroom, at: 0)
-                                    }
-                                } label:{
-                                    chatRoomLabel(chatroom: chatroom)
+                                    Divider()
+                                        .padding(.leading, 40)
                                 }
-                                
-                                Divider()
-                                    .padding(.leading, 40)
+                                .padding(.leading)
                             }
-                            .padding(.leading)
+                            
+                            Rectangle()
+                                .frame(width: 0, height: 0)
+                                .onAppear {
+                                    if !vm.lastPage && !vm.searchText.isEmpty{
+                                        vm.isLoading = true
+                                        Task{
+                                            try await vm.fetchList()
+                                            vm.isLoading = false
+                                            
+                                        }
+                                    }
+                                    
+                                }
+                        } else if vm.loadingState == .noResults {
+                            VStack(spacing: 15){
+                                Text("📣")
+                                    .font(.custom("image", fixedSize: 120))
+                                
+                                Text("Nothing to share yet! Join some events and clubs or make new friends to start spreading the word!")
+                                    .font(.body)
+                                    .foregroundStyle(.gray)
+                                    .fontWeight(.semibold)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.bottom)
+                                
+                            }
+                            .padding(.all)
+                            .frame(maxHeight: .infinity, alignment: .center)
                         }
-                        
-                        Rectangle()
-                            .frame(width: 0, height: 0)
-                            .onAppear {
-                                if !vm.lastPage && !vm.searchText.isEmpty{
-                                    vm.isLoading = true
-                                    Task{
-                                        try await vm.fetchList()
-                                        vm.isLoading = false
-                                        
-                                    }
-                                }
-                                
-                            }
                         
                     }
                 }

@@ -25,7 +25,7 @@ enum SelectionPath: Hashable, Codable {
     case allUserEvents(userID: String)
     case bookmarkedEvents(userID: String)
     case profile(Components.Schemas.MiniUser)
-    case userSettings
+    case userSettings(isSupportNeeded: Bool)
     case userFriendsList(Components.Schemas.UserInfoDto)
     case userFriendRequestsList
     case editProfile
@@ -42,9 +42,9 @@ enum SelectionPath: Hashable, Codable {
     case userChat(chatroom: Components.Schemas.ChatRoomDto)
     case notification
     case userRequest
-    case eventReview(post: Components.Schemas.PostResponseDto)
-    case reviewMemories
-    case rateParticipants(post: Components.Schemas.PostResponseDto, rating: Components.Schemas.RatingDto)
+//    case eventReview(post: Components.Schemas.PostResponseDto)
+//    case reviewMemories
+//    case rateParticipants(post: Components.Schemas.PostResponseDto, rating: Components.Schemas.RatingDto)
     case userReviewView(user: Components.Schemas.UserInfoDto)
     case paymentPage
     case chatParticipants(chatId: String)
@@ -62,6 +62,8 @@ class NavigationManager: ObservableObject {
     @Published var isPresentingEvent = false
     @Published var isPresentingClub = false
     @Published var homeScrollTop = false
+    
+    @Published var activateReviewSheet = false
     
     func change(to screen: Screen) {
         self.screen = screen

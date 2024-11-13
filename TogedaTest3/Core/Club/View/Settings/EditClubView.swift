@@ -86,7 +86,9 @@ struct EditClubView: View {
                                 .imageScale(.large)
                             
 
-                                Text(editGroupVM.editClub.location.name)
+                            Text(editGroupVM.editClub.location.name)
+                                .lineLimit(1)
+
                             
                             Spacer()
                             
@@ -310,44 +312,48 @@ struct EditClubView: View {
                         isLoading = true
                     }
                     if editGroupVM.editClub != editGroupVM.initialClub {
-                       try await APIClient.shared.editClub(clubID: club.id, body: editGroupVM.convertToPatchClub(), completion: {
+                        editGroupVM.editClub.title = trimAndLimitWhitespace( editGroupVM.editClub.title)
+                        if let description = editGroupVM.editClub.description {
+                            editGroupVM.editClub.description = trimAndLimitWhitespace(description)
+                        }
+                        try await APIClient.shared.editClub(clubID: club.id, body: editGroupVM.convertToPatchClub(), completion: {
                             response, error in
-                           if let response = response, response {
-                               Task{
-                                   if let response = try await APIClient.shared.getClub(clubID: club.id) {
-                                       if let index = clubsVM.feedClubs.firstIndex(where: { $0.id == club.id }) {
-                                           DispatchQueue.main.async{
-                                               clubsVM.feedClubs[index] = response
-                                           }
-                                       }
-                                       
-                                       if let index = activityVM.activityFeed.firstIndex(where: { $0.club?.id == club.id }) {
-                                           DispatchQueue.main.async{
-                                               activityVM.activityFeed[index].club = response
-                                           }
-                                       }
-                                   }
-                               }
-                               DispatchQueue.main.async {
-                                   self.club = editGroupVM.editClub
-                                   
-                                   withAnimation{
-                                       self.isLoading = false
-                                   }
-                                   dismiss()
-                               }
-                           } else if let error = error {
-                               DispatchQueue.main.async {
-                                   withAnimation{
-                                       self.isLoading = false
-                                   }
-                                   
-                                   self.errorMessage = error
-                               }
-                           }
-                           
+                            if let response = response, response {
+                                Task{
+                                    if let response = try await APIClient.shared.getClub(clubID: club.id) {
+                                        if let index = clubsVM.feedClubs.firstIndex(where: { $0.id == club.id }) {
+                                            DispatchQueue.main.async{
+                                                clubsVM.feedClubs[index] = response
+                                            }
+                                        }
+                                        
+                                        if let index = activityVM.activityFeed.firstIndex(where: { $0.club?.id == club.id }) {
+                                            DispatchQueue.main.async{
+                                                activityVM.activityFeed[index].club = response
+                                            }
+                                        }
+                                    }
+                                }
+                                DispatchQueue.main.async {
+                                    self.club = editGroupVM.editClub
+                                    
+                                    withAnimation{
+                                        self.isLoading = false
+                                    }
+                                    dismiss()
+                                }
+                            } else if let error = error {
+                                DispatchQueue.main.async {
+                                    withAnimation{
+                                        self.isLoading = false
+                                    }
+                                    
+                                    self.errorMessage = error
+                                }
+                            }
+                            
                         })
-
+                        
                     } else {
                         print("No changes")
                         withAnimation{

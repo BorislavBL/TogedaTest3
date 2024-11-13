@@ -23,8 +23,7 @@ class ContentViewModel: ObservableObject {
 //    @Published var mainAccessToken: String?
     @Published var pendingURL: URL?
     @Published var sessionCount = 0
-    @State var appVersion: String?
-    @State var buildNumber: String?
+    @Published var initialSetupDone = false
     
     init(){
         Task{
@@ -55,7 +54,6 @@ class ContentViewModel: ObservableObject {
 extension ContentViewModel{
     func getAppVersion() -> String? {
         if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-            self.appVersion = appVersion
             return appVersion
         }
         return nil
@@ -63,7 +61,6 @@ extension ContentViewModel{
 
     func getBuildNumber() -> String? {
         if let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
-            self.buildNumber = buildNumber
             return buildNumber
         }
         return nil
@@ -120,31 +117,33 @@ extension ContentViewModel {
     
     func miniValidation() -> Bool {
         if let _ = KeychainManager.shared.retrieve(itemForAccount: userKeys.refreshToken.toString, service: userKeys.service.toString), let accessToken = KeychainManager.shared.getToken(item: userKeys.accessToken.toString, service: userKeys.service.toString),
-           !isTokenExpired(accessToken) {
-            if let url = pendingURL, UIApplication.shared.canOpenURL(url) {
-                DispatchQueue.main.async {
-                    print("Trigger 1")
-                    self.processPendingURL()
-                }
-            }
+           !isTokenExpired(accessToken), authenticationState == .authenticated {
+//            self.triggerPendingURL()
             return true
         } else {
             return false
         }
     }
     
-    // Call this after the token refresh to handle the stored URL
-    func processPendingURL() {
-        print("Trigger 2")
-        guard let url = pendingURL else { return }
-        print("Trigger 3", url)
-        // Call the URL handler here after session is refreshed
-        if UIApplication.shared.canOpenURL(url){
-            UIApplication.shared.open(url)
-            print("Trigger push")
-            pendingURL = nil
-        }
-    }
+//    func triggerPendingURL() {
+//        if let url = pendingURL, UIApplication.shared.canOpenURL(url) {
+//            DispatchQueue.main.async {
+//                self.processPendingURL()
+//            }
+//        }
+//    }
+//    
+//    // Call this after the token refresh to handle the stored URL
+//    func processPendingURL() {
+//        print("Trigger 2")
+//        guard let url = pendingURL else { return }
+//        print("Trigger 3", url)
+//        // Call the URL handler here after session is refreshed
+//        if UIApplication.shared.canOpenURL(url){
+//            print("Trigger push")
+//            pendingURL = nil
+//        }
+//    }
     
     func validateTokensAndCheckState() async {
         guard let _ = KeychainManager.shared.retrieve(itemForAccount: userKeys.refreshToken.toString, service: userKeys.service.toString) else {
@@ -215,10 +214,12 @@ extension ContentViewModel {
                         self.startTokenRefreshTimer(accessToken: newAccessToken)
                         
                         print("Trigger 4")
-                        if let url = self.pendingURL, UIApplication.shared.canOpenURL(url) {
-                            print("Trigger 5")
-                            self.processPendingURL()
-                        }
+//                        if let url = self.pendingURL, UIApplication.shared.canOpenURL(url) {
+//                            DispatchQueue.main.async {
+//                                print("Trigger 5")
+//                                self.processPendingURL()
+//                            }
+//                        }
                     }
                 }
             } else {
@@ -256,7 +257,7 @@ extension ContentViewModel {
         return max(0, token.exp - currentTime - 300) // Refresh 5 minutes before expiration
     }
     
-    private func isTokenExpired(_ token: DecodedJWTBody) -> Bool {
+    func isTokenExpired(_ token: DecodedJWTBody) -> Bool {
         let currentTime = Int(Date().timeIntervalSince1970)
         return token.exp <= currentTime
     }

@@ -34,20 +34,51 @@ struct TogedaTest3App: App {
                     APIClient.shared.setViewModel(vm)
                 }
                 .onOpenURL { url in
-                    print(url)
-                    if vm.miniValidation() {
+                    print("HEEEEEEREEEEE",url)
+                    if vm.initialSetupDone {
+//                        vm.triggerPendingURL()
                         let stripeHandled = StripeAPI.handleURLCallback(with: url)
                         if (!stripeHandled) {
                             urlHandler?.handleURL(url)
+                            print("123")
                             var URL = urlHandler?.transformURL(url: url)
                             if let url = URL, url.host == "resetUser" {
                                 vm.resetCurrentUser = true
                             }
                         }
                         
-                    } else {
+                    }
+                    else {
                         // If session is invalid, store the URL for later
+                        print("Pending URL")
                         vm.pendingURL = url
+                    }
+                }
+                .onChange(of: vm.initialSetupDone) {
+                    if let url = vm.pendingURL, vm.initialSetupDone{
+                        urlHandler?.handleURL(url)
+                        var URL = urlHandler?.transformURL(url: url)
+                        if let url = URL, url.host == "resetUser" {
+                            vm.resetCurrentUser = true
+                        }
+                        vm.pendingURL = nil
+                    }
+                }
+                .onChange(of: appDelegate.deeplink) {
+                    if let link = appDelegate.deeplink {
+                        if vm.initialSetupDone {
+                            urlHandler?.handleURL(link)
+                            let URL = urlHandler?.transformURL(url: link)
+                            if let url = URL, url.host == "resetUser" {
+                                vm.resetCurrentUser = true
+                            }
+                        
+                            appDelegate.deeplink = nil
+                        } else {
+                            // If session is invalid, store the URL for later
+                            print("Pending URLLLLLLLLLLLLLLLLLLLLL")
+                            vm.pendingURL = link
+                        }
                     }
                 }
         }

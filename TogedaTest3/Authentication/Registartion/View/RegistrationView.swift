@@ -32,6 +32,8 @@ struct RegistrationView: View {
     @State var confirmPassword: String = ""
     @State private var isPasswordVisible: Bool = false
     
+    let directMarketingAgreement = try! AttributedString(markdown: "[Direct Marketing Agreement](\(TogedaLinks().directMarketingAgreement))")
+    
     
     var body: some View {
         VStack {
@@ -135,19 +137,31 @@ struct RegistrationView: View {
                 WarningTextComponent(text: message)
             }
             
-            Button{
-                subToEmail.toggle()
-            } label: {
-                HStack(alignment: .top, spacing: 16, content: {
+
+            HStack(alignment: .top, spacing: 16, content: {
+                Button{
+                    subToEmail.toggle()
+                } label: {
                     Image(systemName: subToEmail ? "checkmark.square.fill" : "square")
-                    Text("I agree to receive email updates from Togeda about events, products, apps, latest news, and more information relevant to me.")
-                        .multilineTextAlignment(.leading)
+
+                }
+                
+                HStack(alignment: .top, spacing: 16, content: {
+                    Text("I agree to receive email updates from Togeda about events, products, apps, news, and other information included in our ")
+                        .foregroundStyle(.gray)
+                        .font(.footnote)
+                        .bold() +
+                    Text(directMarketingAgreement)
+                        .font(.footnote)
+                        .bold() +
+                    Text(".")
+                        .foregroundStyle(.gray)
                         .font(.footnote)
                         .bold()
-                    
                 })
-                .foregroundStyle(.gray)
-            }
+                .accentColor(.blue)
+            })
+            .multilineTextAlignment(.leading)
             
             Spacer()
             

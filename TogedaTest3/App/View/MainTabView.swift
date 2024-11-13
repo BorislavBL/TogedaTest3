@@ -111,8 +111,8 @@ struct MainTabView: View {
                     BookmarkedEventsView(userID: userID)
                 case .profile(let miniUser):
                     UserProfileView(miniUser: miniUser)
-                case .userSettings:
-                    UserSettingsView()
+                case .userSettings(let isSupportNeeded):
+                    UserSettingsView(isSupportNeeded: isSupportNeeded)
                 case .userFriendsList(let user):
                     FriendsListView(user: user)
                 case .userFriendRequestsList:
@@ -138,17 +138,17 @@ struct MainTabView: View {
                 case .clubMemersList(let club):
                     ClubMembersListView(club: club)
                 case .userChat(chatroom: let chatroom):
-                    ChatView2(chatRoom: chatroom)
+                    ChatView(chatRoom: chatroom)
                 case .notification:
                     NotificationView()
                 case .userRequest:
                     UserRequestView()
-                case .eventReview(post: let post):
-                    EventReviewView(post: post)
-                case .reviewMemories:
-                    ReviewMemoriesView()
-                case .rateParticipants(post: let post, rating: let rating):
-                    RateParticipantsView(post: post, rating: rating)
+//                case .eventReview(post: let post):
+//                    EventReviewView(post: post)
+//                case .reviewMemories:
+//                    ReviewMemoriesView()
+//                case .rateParticipants(post: let post, rating: let rating):
+//                    RateParticipantsView(post: post, rating: rating)
                 case .userReviewView(user: let user):
                     ReviewProfileView(user: user)
                 case .paymentPage:

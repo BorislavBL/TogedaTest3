@@ -21,12 +21,12 @@ class RegistrationViewModel: ObservableObject {
     func addUserInfoModel() -> Components.Schemas.UserDto{
         let createdUser: Components.Schemas.UserDto = .init(
             subToEmail: subToEmail,
-            firstName: firstName,
-            lastName: lastName,
+            firstName: trimAndLimitWhitespace(firstName),
+            lastName: trimAndLimitWhitespace(lastName),
             gender: gender!,
             birthDate: birthDayFromStringToDate(dateString: birthDate)!,
             visibleGender: visibleGender,
-            occupation: occupation,
+            occupation: trimAndLimitWhitespace(occupation),
             profilePhotos: profilePhotos,
             interests: selectedInterests.map({ interest in
                     .init(name: interest.name, icon: interest.icon, category: interest.category)

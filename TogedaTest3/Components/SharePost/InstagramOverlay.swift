@@ -136,6 +136,7 @@ struct InstagramOverlay: View {
                     VStack(spacing: 5){
                         Button{
                             UIPasteboard.general.string = createURLLink(postID: post.id, clubID: nil, userID: nil)
+//                            UIPasteboard.general.string = "https://www.youtube.com/"
                         } label:{
                             Text("Copy Link")
                                 .font(.subheadline)
@@ -151,13 +152,14 @@ struct InstagramOverlay: View {
                         Button{
                             UIPasteboard.general.string = createURLLink(postID: post.id, clubID: nil, userID: nil)
                             
-                            isActive = false
+                            //isActive = false
                             
                             takeSnapshot(of: content) { image in
                                 if let img = image {
                                     shareToInstagram(backgroundImage: img, appID: "togeda.net")
                                 }
                             }
+                            
                         } label:{
                             Text("Open Instagram")
                                 .font(.subheadline)

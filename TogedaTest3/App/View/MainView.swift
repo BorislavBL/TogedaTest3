@@ -88,6 +88,7 @@ struct MainView: View {
                 vm.handleAppDidEnterBackground()
                 setDateOnLeave = Date()
                 webSocketManager.disconnect()
+                vm.initialSetupDone = false
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
                 print("opened once again")
@@ -168,7 +169,10 @@ struct MainView: View {
             }
             
             // Wait for both tasks to complete
-//            await group.waitForAll()
+            await group.waitForAll()
+            DispatchQueue.main.async {
+                vm.initialSetupDone = true
+            }
             
             // After both tasks are complete, trigger the connect method
 //            webSocketManager.recconect()
@@ -214,6 +218,14 @@ struct MainView: View {
                     print(error)
                 }
             }
+            
+             //Wait for both tasks to complete
+            await group.waitForAll()
+            DispatchQueue.main.async {
+                vm.initialSetupDone = true
+                print("Dooooooooneeeeeeeeee")
+            }
+
             
         }
     }

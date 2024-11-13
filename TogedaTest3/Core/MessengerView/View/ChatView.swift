@@ -8,6 +8,12 @@
 import SwiftUI
 import Kingfisher
 
+enum RefreshCases {
+    case loaded
+    case loading
+    case done
+}
+
 struct ChatView: View {
     @State private var messageText = ""
     @State private var isInitialLoad = true
@@ -22,11 +28,16 @@ struct ChatView: View {
     @State var isChatActive: Bool = false
     @State var atBottom: Bool = false
     @State var activateArrow: Bool = false
-//    @StateObject private var keyboard = KeyboardResponder()
+    //    @StateObject private var keyboard = KeyboardResponder()
     @State var recPadding: CGFloat = 60
     @State var setDateOnLeave = Date()
     @State private var keyboardHeight: CGFloat = 0
-
+    @State private var polishedKeyboardHeight: CGFloat = 0
+    @State var currentUsersMessage = false
+    @State private var inputHeight: CGFloat = 30
+    @State private var lastMessageIdBeforeLoading: String?
+    @State private var refresh: RefreshCases = .done
+    @State private var otherUser: Components.Schemas.UserInfoDto?
     
     var body: some View {
         ZStack(alignment: .top){
@@ -36,6 +47,11 @@ struct ChatView: View {
                     ScrollView{
                         LazyVStack{
                             if let currentUser = userVm.currentUser{
+                                
+                                if refresh == .loading {
+                                    ProgressView() // Loading indicator while refreshing
+                                        .frame(height: 40)
+                                }
                                 
                                 if chatManager.messages.count == 0 && !Init{
                                     VStack{
@@ -68,6 +84,7 @@ struct ChatView: View {
                                                         nextMessage: nextMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
                                         
                                     }
+                                    .id(message.id)
                                     
                                 }
                                 
@@ -94,46 +111,95 @@ struct ChatView: View {
                                     }
                             }
                         }
+                        .background(
+                            GeometryReader { geo -> Color in
+                                // Detect if we are at the bottom by comparing scroll position and content size
+                                DispatchQueue.main.async {
+                                    let minY = geo.frame(in: .global).minY
+                                    let threshold = 250.0
+                                    if minY >= threshold && self.refresh == .done && !shouldNotScrollToBottom && !isInitialLoad{
+                                        self.refresh = .loading
+                                        if chatManager.messages.count > 0 {
+                                            self.lastMessageIdBeforeLoading = chatManager.messages[0].id
+                                        }
+                                        Task {
+                                            defer{
+                                                Task{
+//                                                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                                                    self.refresh = .loaded
+                                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                                }
+                                            }
+                                            do {
+                                                try await chatManager.getMessages(chatId: chatRoom.id)
+                                            } catch {
+                                                print("Failed to get messages: \(error)")
+                                            }
+                                        }
+                                    } else if self.refresh == .loaded && minY < threshold {
+                                        self.refresh = .done
+                                    }
+                                }
+                                return Color.clear
+                            }
+                        )
                         
                     }
-                    .refreshable {
-                        Task {
-                            do {
-                                try await chatManager.getMessages(chatId: chatRoom.id)
-                            } catch {
-                                print("Failed to get messages: \(error)")
-                            }
-                        }
-                    }
+//                    .refreshable {
+//                        lastMessageIdBeforeLoading = chatManager.messages[0].id
+//                        Task {
+//                            do {
+//                                try await chatManager.getMessages(chatId: chatRoom.id)
+//                            } catch {
+//                                print("Failed to get messages: \(error)")
+//                            }
+//                        }
+//                    }
                     .scrollDismissesKeyboard(.interactively)
                     .defaultScrollAnchor(.bottom)
                     .scrollIndicators(.hidden)
                     .ignoresSafeArea(.keyboard, edges: .all)                    //                    .padding(.top, 86)
                     .onChange(of: chatManager.messages) { oldValue, newValue in
-//                        if isInitialLoad {
-//                            proxy.scrollTo("Bottom", anchor:.bottom)
-//                            
-//                        } else
+                        //                        if isInitialLoad {
+                        //                            proxy.scrollTo("Bottom", anchor:.bottom)
+                        //
+                        //                        } else
+                        if let messageId = lastMessageIdBeforeLoading {
+                            proxy.scrollTo(messageId, anchor:.top)
+                            self.lastMessageIdBeforeLoading = nil
+                        }
                         if !shouldNotScrollToBottom && !isInitialLoad && atBottom {
                             withAnimation(.spring()) {
                                 proxy.scrollTo("Bottom", anchor:.bottom)
                             }
-                        } else if newValue.last?.sender.id == userVm.currentUser?.id && !isInitialLoad {
+                        } else if currentUsersMessage {
+                            print("on that one")
+
                             withAnimation(.spring()) {
                                 proxy.scrollTo("Bottom", anchor:.bottom)
                             }
+                            
+                            currentUsersMessage = false
                         }
                         
                         shouldNotScrollToBottom = false
                     }
                     .onChange(of: keyboardHeight) { oldValue, newValue in
-                        if keyboardHeight > 0 {
-                            let min = min(oldValue, newValue)
-                            let max = max(oldValue, newValue)
-                            if min > max - 100 {
-                                recPadding = min + 30
+                        print("Keyboard H:", keyboardHeight, oldValue, newValue)
+                        if keyboardHeight > 0{
+                            if oldValue == 0 {
+                                let min = min(oldValue, newValue)
+                                let max = max(oldValue, newValue)
+                                if min > max - 100 {
+                                    polishedKeyboardHeight = min
+                                    recPadding = min + inputHeight
+                                } else {
+                                    polishedKeyboardHeight = max
+                                    recPadding = max + inputHeight
+                                }
                             } else {
-                                recPadding = max + 30
+                                polishedKeyboardHeight = newValue
+                                recPadding = newValue + inputHeight
                             }
                             if atBottom {
                                 withAnimation() {
@@ -141,7 +207,9 @@ struct ChatView: View {
                                 }
                             }
                         } else {
-                            recPadding = 60
+                            polishedKeyboardHeight = 0
+                            recPadding = inputHeight > 0 ? inputHeight : 60
+//                            recPadding = 60
                         }
                     }
                     .overlay(alignment:.bottomTrailing){
@@ -151,14 +219,14 @@ struct ChatView: View {
                                     proxy.scrollTo("Bottom", anchor:.bottom)
                                 }
                                 
-                                activateArrow = false
+//                                activateArrow = false
                             } label:{
                                 Image(systemName: "arrow.down")
                                     .padding()
                                     .background(.bar)
                                     .clipShape(Circle())
                             }
-                            .padding(.bottom, 70)
+                            .padding(.bottom, inputHeight > 0 ? inputHeight + 40 : 70)
                         }
                     }
                 }
@@ -166,28 +234,78 @@ struct ChatView: View {
             
             VStack{
                 Spacer()
+                if let otherUser = self.otherUser, otherUser.currentFriendshipStatus != .FRIENDS, chatRoom._type == .FRIENDS {
+                    HStack{
+                        Image(systemName: "lock.fill")
+                            .opacity(0.5)
+                        Text("Oops! You can only message people who are on your friends list.")
+                            .bold()
+                            .font(.footnote)
+                            .opacity(0.5)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(8)
+                    .background(.bar)
+                    
+                    
+                    
+                } else {
+                    MessageInputView(messageText: $messageText, isChatActive: $isChatActive, viewModel: viewModel) {
+                        if let currentUser = userVm.currentUser {
+                            if let uiImage = viewModel.messageImage {
+                                Task {
+                                    if let imageURL = await viewModel.uploadImageAsync(uiImage: uiImage) {
+                                        chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: imageURL, type: .IMAGE)
+                                        messageText = ""
+                                        viewModel.messageImage = nil
+                                    }
+                                }
+                            }
+                            else if !messageText.isEmpty {
+                                chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: messageText , type: .NORMAL)
+                                messageText = ""
+                            }
+                            
+                            self.currentUsersMessage = true
+                        }
+                    }
+                    .padding(.top, 8)
+                    .background(.bar)
+                    .background(GeometryReader { geometry in
+                        Color.clear
+                            .onChange(of: messageText) {
+                                // Adjust height based on TextEditor's content
+                                self.inputHeight = max(30, geometry.size.height - 30) // minimum height of 40
+                                if keyboardHeight > 0 {
+                                    recPadding = polishedKeyboardHeight + inputHeight
+                                }
+                            }
+                    })
+                }
                 
-//                MessageInputView(messageText: $messageText, isActive: $isChatActive, viewModel: viewModel) {
-//                    if let currentUser = userVm.currentUser {
-//                        if let uiImage = viewModel.messageImage {
-//                            Task {
-//                                if let imageURL = await viewModel.uploadImageAsync(uiImage: uiImage) {
-//                                    chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: imageURL, type: .IMAGE)
-//                                    messageText = ""
-//                                    viewModel.messageImage = nil
-//                                }
-//                            }
-//                        }
-//                        else if !messageText.isEmpty {
-//                            chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: messageText , type: .NORMAL)
-//                            messageText = ""
-//                        }
-//                    }
-//                }
-//                .padding(.top, 8)
-//                .background(.bar)
+                
+                //                MessageInputView(messageText: $messageText, isActive: $isChatActive, viewModel: viewModel) {
+                //                    if let currentUser = userVm.currentUser {
+                //                        if let uiImage = viewModel.messageImage {
+                //                            Task {
+                //                                if let imageURL = await viewModel.uploadImageAsync(uiImage: uiImage) {
+                //                                    chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: imageURL, type: .IMAGE)
+                //                                    messageText = ""
+                //                                    viewModel.messageImage = nil
+                //                                }
+                //                            }
+                //                        }
+                //                        else if !messageText.isEmpty {
+                //                            chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: messageText , type: .NORMAL)
+                //                            messageText = ""
+                //                        }
+                //                    }
+                //                }
+                //                .padding(.top, 8)
+                //                .background(.bar)
                 
             }
+
             
             if viewModel.isImageView, let image = viewModel.selectedImage{
                 ImageViewer(isActive: $viewModel.isImageView, image: image)
@@ -388,6 +506,20 @@ struct ChatView: View {
                             print(error)
                         }
                     }
+                    
+                    if chatRoom._type == .FRIENDS {
+                        group.addTask {
+                            do{
+                                if let result = try await APIClient.shared.getUserInfo(userId: chatRoom.previewMembers[0].id) {
+                                    DispatchQueue.main.async{
+                                        otherUser = result
+                                    }
+                                }
+                            } catch {
+                                print(error)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -423,7 +555,7 @@ struct ChatView: View {
         }
     }
     
-
+    
     
     func nextMessage(forIndex index: Int) -> Components.Schemas.ReceivedChatMessageDto? {
         if index > 0 {

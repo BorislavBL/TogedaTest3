@@ -121,10 +121,13 @@ class CreateEventViewModel: ObservableObject {
             clubId = club.id
         }
         
+        let trimTitle = trimAndLimitWhitespace(title)
+        let trimDescription = trimAndLimitWhitespace(description)
+
         return .init(
-            title: title,
+            title: trimTitle,
             images: postPhotosURls,
-            description: description.isEmpty ? nil : description,
+            description: trimDescription.isEmpty ? nil : trimDescription,
             maximumPeople: (participants == 0 || participants == nil) ? nil : Int32(participants!),
             location: location!,
             interests: interests,

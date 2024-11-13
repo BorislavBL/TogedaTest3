@@ -126,6 +126,8 @@
 		145D62F92ADD7AE500941BC3 /* PhotoPickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145D62F82ADD7AE500941BC3 /* PhotoPickerViewModel.swift */; };
 		145D72372ABA0702005934E2 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145D72362ABA0702005934E2 /* MapView.swift */; };
 		145D72392ABA07B0005934E2 /* MapSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145D72382ABA07B0005934E2 /* MapSlot.swift */; };
+		145DBC552CDC097D005E1D92 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145DBC542CDC097D005E1D92 /* MailView.swift */; };
+		145DBC5C2CE500D7005E1D92 /* ExpandableTextSimple.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145DBC5B2CE500D7005E1D92 /* ExpandableTextSimple.swift */; };
 		145FEB472AE95C3B002301D1 /* UserSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145FEB462AE95C3B002301D1 /* UserSettingsView.swift */; };
 		1460FB002B7A60FD00DE05AE /* DecodedJWT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1460FAFF2B7A60FD00DE05AE /* DecodedJWT.swift */; };
 		1462A9BC2B7FC65A00727BDF /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1462A9BB2B7FC65A00727BDF /* Kingfisher */; };
@@ -196,7 +198,6 @@
 		148F669D2C21B5D20080F4FD /* StripePaymentSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 148F669C2C21B5D20080F4FD /* StripePaymentSheet */; };
 		148F669F2C21B5D20080F4FD /* StripePayments in Frameworks */ = {isa = PBXBuildFile; productRef = 148F669E2C21B5D20080F4FD /* StripePayments */; };
 		148F66A12C21B5D20080F4FD /* StripePaymentsUI in Frameworks */ = {isa = PBXBuildFile; productRef = 148F66A02C21B5D20080F4FD /* StripePaymentsUI */; };
-		148F66A82C21CA140080F4FD /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F66A72C21CA140080F4FD /* WebView.swift */; };
 		148F66AD2C21E7E90080F4FD /* CreateStripeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F66AC2C21E7E90080F4FD /* CreateStripeView.swift */; };
 		14973BBD2B3DC40D0067D1A8 /* TransparentBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14973BBC2B3DC40D0067D1A8 /* TransparentBlurView.swift */; };
 		14973BBF2B3DEE000067D1A8 /* EventComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14973BBE2B3DEE000067D1A8 /* EventComponent.swift */; };
@@ -270,6 +271,7 @@
 		14ED46652C6CF60A006DEAED /* PageNotFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED46642C6CF60A006DEAED /* PageNotFoundView.swift */; };
 		14ED46692C737F55006DEAED /* NoInternetConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED46682C737F55006DEAED /* NoInternetConnectionView.swift */; };
 		14ED466C2C73A544006DEAED /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14ED466B2C73A544006DEAED /* ImageViewer.swift */; };
+		14EE4F142CC69A8B006EC3D8 /* MessageInputView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14EE4F132CC69A8B006EC3D8 /* MessageInputView2.swift */; };
 		14F10B8B2B1E363C00298737 /* MapSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8A2B1E363C00298737 /* MapSnapshotView.swift */; };
 		14F10B8D2B1E3F5500298737 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8C2B1E3F5500298737 /* ShareView.swift */; };
 		14F10B902B1E568A00298737 /* SystemNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F10B8F2B1E568A00298737 /* SystemNotificationView.swift */; };
@@ -425,6 +427,8 @@
 		145D62F82ADD7AE500941BC3 /* PhotoPickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerViewModel.swift; sourceTree = "<group>"; };
 		145D72362ABA0702005934E2 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		145D72382ABA07B0005934E2 /* MapSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSlot.swift; sourceTree = "<group>"; };
+		145DBC542CDC097D005E1D92 /* MailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailView.swift; sourceTree = "<group>"; };
+		145DBC5B2CE500D7005E1D92 /* ExpandableTextSimple.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableTextSimple.swift; sourceTree = "<group>"; };
 		145FEB462AE95C3B002301D1 /* UserSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsView.swift; sourceTree = "<group>"; };
 		1460FAFF2B7A60FD00DE05AE /* DecodedJWT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedJWT.swift; sourceTree = "<group>"; };
 		14651BD82AE9378A0091FECE /* JoinRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinRequestView.swift; sourceTree = "<group>"; };
@@ -484,7 +488,6 @@
 		148B81A72B4C6A12009801BC /* ClubCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubCell.swift; sourceTree = "<group>"; };
 		148B81A92B4D9726009801BC /* ClubCellTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubCellTags.swift; sourceTree = "<group>"; };
 		148B81AB2B4DB55E009801BC /* CreateSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSheetView.swift; sourceTree = "<group>"; };
-		148F66A72C21CA140080F4FD /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		148F66AC2C21E7E90080F4FD /* CreateStripeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateStripeView.swift; sourceTree = "<group>"; };
 		14973BBC2B3DC40D0067D1A8 /* TransparentBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransparentBlurView.swift; sourceTree = "<group>"; };
 		14973BBE2B3DEE000067D1A8 /* EventComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventComponent.swift; sourceTree = "<group>"; };
@@ -558,6 +561,7 @@
 		14ED46642C6CF60A006DEAED /* PageNotFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageNotFoundView.swift; sourceTree = "<group>"; };
 		14ED46682C737F55006DEAED /* NoInternetConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoInternetConnectionView.swift; sourceTree = "<group>"; };
 		14ED466B2C73A544006DEAED /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
+		14EE4F132CC69A8B006EC3D8 /* MessageInputView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageInputView2.swift; sourceTree = "<group>"; };
 		14F10B8A2B1E363C00298737 /* MapSnapshotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSnapshotView.swift; sourceTree = "<group>"; };
 		14F10B8C2B1E3F5500298737 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		14F10B8F2B1E568A00298737 /* SystemNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotificationView.swift; sourceTree = "<group>"; };
@@ -820,6 +824,7 @@
 				141DF3542B05369400CE94F5 /* ChatView2.swift */,
 				142E8B682CA448E800137378 /* ChatView.swift */,
 				141DF3562B053ED400CE94F5 /* MessageInputView.swift */,
+				14EE4F132CC69A8B006EC3D8 /* MessageInputView2.swift */,
 				141DF35A2B090EF000CE94F5 /* ChatMessageCell.swift */,
 				141DF35C2B090EFB00CE94F5 /* ChatBubble.swift */,
 				14B677012B0D3D3100823FCA /* MessageReadView.swift */,
@@ -1096,7 +1101,6 @@
 				14807A6C2AB4C22A00716A17 /* CreateEventView */,
 				14807A122AB4B9A000716A17 /* EventView */,
 				14807A152AB4B9B700716A17 /* ProfileView */,
-				14807A0F2AB4B99500716A17 /* TabView */,
 				14807A0C2AB4B98A00716A17 /* Home */,
 				14807A0A2AB4B97500716A17 /* TestView */,
 				14807A072AB4B94600716A17 /* Search */,
@@ -1184,29 +1188,6 @@
 			children = (
 				14807A502AB4C08200716A17 /* HomeViewModel.swift */,
 				1441FE202C29D3360015435C /* NotificationsViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		14807A0F2AB4B99500716A17 /* TabView */ = {
-			isa = PBXGroup;
-			children = (
-				14807A112AB4B99C00716A17 /* ViewModel */,
-				14807A102AB4B99900716A17 /* View */,
-			);
-			path = TabView;
-			sourceTree = "<group>";
-		};
-		14807A102AB4B99900716A17 /* View */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		14807A112AB4B99C00716A17 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1322,7 +1303,6 @@
 				14F301882C10CC4900D98E14 /* RefreshableScrollView.swift */,
 				14F3018D2C11D73B00D98E14 /* RefresherViews.swift */,
 				147A13A32C1888030097CE18 /* AutoSizeSheetView.swift */,
-				148F66A72C21CA140080F4FD /* WebView.swift */,
 				14F5B3F42C39983900C714D1 /* SwipeBackModifier.swift */,
 				14F5B3F72C3C4F6200C714D1 /* LoadingScreenView.swift */,
 				14ED46642C6CF60A006DEAED /* PageNotFoundView.swift */,
@@ -1331,6 +1311,8 @@
 				14F29A072CAC73A300ABE470 /* StrokeText.swift */,
 				14F29A0B2CAED5BD00ABE470 /* UpdateAppView.swift */,
 				14F296A92CB97D3000752356 /* AddEventCalendar.swift */,
+				145DBC542CDC097D005E1D92 /* MailView.swift */,
+				145DBC5B2CE500D7005E1D92 /* ExpandableTextSimple.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1785,10 +1767,11 @@
 				142487AC2BBDAB9500671014 /* EditProfileHeightView.swift in Sources */,
 				14F10B922B1F889C00298737 /* AllInOneFilterView.swift in Sources */,
 				14132F2B2C078059006DAD08 /* NetworkStatusView.swift in Sources */,
+				145DBC552CDC097D005E1D92 /* MailView.swift in Sources */,
 				141DF3642B09152900CE94F5 /* LInkPreviewViewModel.swift in Sources */,
-				148F66A82C21CA140080F4FD /* WebView.swift in Sources */,
 				1441FE3D2C2DC2590015435C /* CropTestView.swift in Sources */,
 				148079F42AB4B8B800716A17 /* ContentView.swift in Sources */,
+				14EE4F142CC69A8B006EC3D8 /* MessageInputView2.swift in Sources */,
 				1418C7782B6D1EF60037BE5A /* GoogleAuthService.swift in Sources */,
 				14BEC1792AFBCFFA00DDCD63 /* GroupAcceptanceView.swift in Sources */,
 				14BEC17B2AFBD25700DDCD63 /* NetworkManager.swift in Sources */,
@@ -2008,6 +1991,7 @@
 				141B4A882C1DBFEC00C493D0 /* JoinRequestClubView.swift in Sources */,
 				14F5B3F82C3C4F6200C714D1 /* LoadingScreenView.swift in Sources */,
 				144006AC2B8D1C2C0085D549 /* EditProfilePhoneNumberView.swift in Sources */,
+				145DBC5C2CE500D7005E1D92 /* ExpandableTextSimple.swift in Sources */,
 				143512032B2742D600004A16 /* TypeFilters.swift in Sources */,
 				145A6C792B2B3CD50015F7C6 /* CountryNumbersView.swift in Sources */,
 				14F5B3DF2C35A23800C714D1 /* ClubsFeedView.swift in Sources */,
@@ -2192,10 +2176,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TogedaTest3/TogedaTest3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"TogedaTest3/Preview Content\"";
-				DEVELOPMENT_TEAM = 6AFJ8F9GLH;
+				DEVELOPMENT_TEAM = BYX7QJL256;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2221,8 +2205,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
-				MARKETING_VERSION = 1.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.ios;
+				MARKETING_VERSION = 1.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -2240,10 +2224,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TogedaTest3/TogedaTest3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"TogedaTest3/Preview Content\"";
-				DEVELOPMENT_TEAM = 6AFJ8F9GLH;
+				DEVELOPMENT_TEAM = BYX7QJL256;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2269,8 +2253,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
-				MARKETING_VERSION = 1.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.ios;
+				MARKETING_VERSION = 1.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

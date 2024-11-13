@@ -70,9 +70,15 @@ struct AllEventTabsView: View {
                         VStack(alignment: .leading, spacing: 5) {
                             
                             if let to = post.toDate{
-                                Text("\(separateDateAndTime(from: from).date) - \(separateDateAndTime(from: to).date)")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
+                                if separateDateAndTime(from: from).date == separateDateAndTime(from: to).date {
+                                    Text("\(separateDateAndTime(from: from).date)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                } else {
+                                    Text("\(separateDateAndTime(from: from).date) - \(separateDateAndTime(from: to).date)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                }
                                 
                                 Text("\(separateDateAndTime(from: from).time) - \(separateDateAndTime(from: to).time)")
                                     .font(.footnote)
@@ -314,7 +320,7 @@ struct AllEventTabsView: View {
                             .font(.subheadline)
                             .fontWeight(.semibold)
                         
-                        Text("$ \(String(format: "%.2f", post.payment)) per person")
+                        Text("€ \(String(format: "%.2f", post.payment)) per person")
                             .font(.footnote)
                             .foregroundColor(.gray)
                             .fontWeight(.bold)

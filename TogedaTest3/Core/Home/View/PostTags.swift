@@ -92,10 +92,11 @@ struct PostTags: View {
             
             HStack(spacing: 3) {
                 Image(systemName: "location")
-                Text(locationCityAndCountry(post.location))
+                Text(truncatedText(locationCityAndCountry(post.location), maxLength: 25))
                     .normalTagTextStyle()
             }
             .normalTagCapsuleStyle()
+       
             
             
             

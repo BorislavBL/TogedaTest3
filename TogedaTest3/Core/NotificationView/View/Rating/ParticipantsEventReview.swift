@@ -12,35 +12,39 @@ struct ParticipantsEventReview: View {
     let size: ImageSize = .medium
     var alertBody: Components.Schemas.AlertBodyReviewEndedPost
     var createDate: Date
-    @Binding var selectionPath: [SelectionPath]
-    
+    @ObservedObject var ratingVM: RatingViewModel
+    @EnvironmentObject var navManager: NavigationManager
+
     var body: some View {
         VStack {
-            if alertBody.post.currentUserRole == .NORMAL {
+//            if alertBody.post.currentUserRole == .NORMAL {
 //                NavigationLink(value: SelectionPath.eventReview(post: alertBody.post))
                 Button{
                     Task{
                         if let response = try await APIClient.shared.getEvent(postId: alertBody.post.id){
-                            selectionPath.append(.eventReview(post: response))
+                            ratingVM.post = response
+                            ratingVM.reviewAlertBody = alertBody
+                            ratingVM.openReviewSheet = true
                         }
                     }
                 } label:
                 {
                     frame()
                 }
-            } else {
-//                NavigationLink(value: SelectionPath.rateParticipants(post: alertBody.post, rating: .init(value: Double(5), comment: nil)))
-                Button{
-                    Task{
-                        if let response = try await APIClient.shared.getEvent(postId: alertBody.post.id){
-                            selectionPath.append(.rateParticipants(post: response, rating: .init(value: Double(5), comment: nil)))
-                        }
-                    }
-                } label:
-                {
-                    frame()
-                }
-            }
+//            } else {
+////                NavigationLink(value: SelectionPath.rateParticipants(post: alertBody.post, rating: .init(value: Double(5), comment: nil)))
+//                Button{
+//                    Task{
+//                        if let response = try await APIClient.shared.getEvent(postId: alertBody.post.id){
+//                            ratingVM.post = response
+//                            ratingVM.openReviewSheet = true
+//                        }
+//                    }
+//                } label:
+//                {
+//                    frame()
+//                }
+//            }
             
         }
     }
@@ -86,5 +90,6 @@ struct ParticipantsEventReview: View {
 }
 
 #Preview {
-    ParticipantsEventReview(alertBody: mockAlertBodyReviewEndedPost, createDate: Date(), selectionPath: .constant([]))
+    ParticipantsEventReview(alertBody: mockAlertBodyReviewEndedPost, createDate: Date(), ratingVM: RatingViewModel())
+        .environmentObject(NavigationManager())
 }

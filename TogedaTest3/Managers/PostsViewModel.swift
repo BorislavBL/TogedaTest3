@@ -33,9 +33,10 @@ class PostsViewModel: ObservableObject {
     
     @Published var page: Int32 = 0
     @Published var size: Int32 = 15
+    @Published var sortBy: Operations.getAllPosts.Input.Query.sortByPayload = .LOCATION
     @Published var lat: Double = 43
     @Published var long: Double = 39
-    @Published var distance: Int = 300
+    @Published var distance: Int = 3000000
     @Published var from: Date? = nil
     @Published var to: Date? = nil
     @Published var categories: [String]? = nil
@@ -90,9 +91,10 @@ class PostsViewModel: ObservableObject {
         }
     }
     
-    func applyFilter(lat: Double, long: Double, distance: Int, from: Date?, to: Date?, categories: [String]?) async throws {
+    func applyFilter(sort: Operations.getAllPosts.Input.Query.sortByPayload, lat: Double, long: Double, distance: Int, from: Date?, to: Date?, categories: [String]?) async throws {
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
+                self.sortBy = sort
                 self.page = 0
                 self.feedPosts = []
                 self.lastPage = true
@@ -103,6 +105,8 @@ class PostsViewModel: ObservableObject {
                 self.from = from
                 self.to = to
                 self.categories = categories
+                
+                self.state = .loading
                 
                 continuation.resume()
             }
@@ -121,6 +125,7 @@ class PostsViewModel: ObservableObject {
         if let response = try await APIClient.shared.getAllEvents(
             page: page,
             size: size,
+            sortBy: sortBy,
             long: long,
             lat: lat,
             distance: Int32(distance),

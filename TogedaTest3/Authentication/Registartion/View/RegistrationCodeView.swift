@@ -21,6 +21,7 @@ struct RegistrationCodeView: View {
     
     @State private var isTimerActive: Bool = false
     @State private var remainingTime: Int = 30
+    @State private var Init = true
     
     var body: some View {
         VStack {
@@ -141,16 +142,19 @@ struct RegistrationCodeView: View {
         }
         .padding(.vertical)
         .swipeBack()
-        .onAppear(){
-            code = ""
-            Task {
-                if let success = try await AuthService.shared.resendEmailConfirmationCode(email: email) {
-                    if success {
-                        
-                    }
-                }
-            }
-        }
+//        .onAppear(){
+//            code = ""
+//            if Init{
+//                Task {
+//                    if let success = try await AuthService.shared.resendEmailConfirmationCode(email: email) {
+//                        if success {
+//                            
+//                        }
+//                    }
+//                }
+//                Init = false
+//            }
+//        }
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading: Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")

@@ -49,14 +49,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -122,14 +122,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -193,14 +193,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -305,14 +305,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -381,14 +381,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -467,14 +467,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -529,14 +529,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -597,14 +597,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -629,6 +629,14 @@ paths:
       - post-controller
       operationId: getAllPosts
       parameters:
+      - name: sortBy
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - CREATED_AT
+          - LOCATION
       - name: categories
         in: query
         required: false
@@ -710,14 +718,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -777,14 +785,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -856,14 +864,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -924,14 +932,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -998,14 +1006,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1071,14 +1079,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1145,14 +1153,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1213,14 +1221,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1294,14 +1302,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1362,14 +1370,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1430,14 +1438,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1503,14 +1511,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1579,14 +1587,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1647,14 +1655,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1715,14 +1723,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1783,14 +1791,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1851,14 +1859,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1919,14 +1927,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1985,14 +1993,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2056,14 +2064,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2127,14 +2135,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2193,14 +2201,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2264,14 +2272,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2340,14 +2348,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2370,6 +2378,14 @@ paths:
       - club-controller
       operationId: getAllClubs
       parameters:
+      - name: sortBy
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - CREATED_AT
+          - LOCATION
       - name: categories
         in: query
         required: false
@@ -2439,14 +2455,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2506,14 +2522,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2580,14 +2596,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2661,14 +2677,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2728,14 +2744,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2809,14 +2825,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2877,14 +2893,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2945,14 +2961,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3018,14 +3034,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3090,14 +3106,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3158,14 +3174,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3226,14 +3242,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3332,14 +3348,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3400,14 +3416,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3467,14 +3483,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3540,14 +3556,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3608,14 +3624,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3675,14 +3691,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3748,14 +3764,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3816,14 +3832,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3897,14 +3913,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -3978,14 +3994,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4046,14 +4062,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4119,14 +4135,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4187,14 +4203,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4267,14 +4283,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4347,14 +4363,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4428,14 +4444,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4504,14 +4520,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4566,14 +4582,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4628,14 +4644,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4701,14 +4717,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4782,14 +4798,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4849,14 +4865,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4925,14 +4941,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5000,14 +5016,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5065,14 +5081,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5130,14 +5146,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5198,14 +5214,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5266,14 +5282,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5334,14 +5350,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5415,14 +5431,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5496,14 +5512,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5577,14 +5593,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5645,14 +5661,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5731,14 +5747,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5831,14 +5847,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5907,14 +5923,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -5978,14 +5994,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6059,14 +6075,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6131,14 +6147,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6197,14 +6213,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6276,14 +6292,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6357,14 +6373,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6433,14 +6449,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6514,14 +6530,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6582,14 +6598,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6663,14 +6679,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6734,14 +6750,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6815,14 +6831,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6891,14 +6907,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6967,14 +6983,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -7029,14 +7045,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -7107,14 +7123,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -7169,14 +7185,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -7231,14 +7247,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -7304,14 +7320,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -7377,14 +7393,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -7445,14 +7461,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -7513,14 +7529,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -7586,14 +7602,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-        "403":
-          description: Forbidden
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -8637,7 +8653,6 @@ components:
       - completionNumber
       - counterName
       - currentNumber
-      - id
       - title
       type: object
       properties:

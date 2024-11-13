@@ -66,6 +66,10 @@ struct MapView: View {
             })
             .onMapCameraChange { context in
                 viewModel.visibleRegion = context.region
+                if viewModel.hasSignificantChange(newRegion: context.region) {
+                    print("Significant change detected")
+                }
+                viewModel.resetStationaryCheckTimer(region: context.region)
             }
             .onAppear(){
                 if !isInitialLocationSet {
@@ -89,21 +93,28 @@ struct MapView: View {
                 VStack(spacing: 15){
                     MapCompass(scope: locationSpace)
                     //                    MapPitchToggle(scope: locationSpace)
-                    Button {
-                        Task{
-                            do {
-                                if let region = viewModel.visibleRegion{
-                                    try await viewModel.getCurrentAreaPosts(region: region)
-                                }
-                            } catch {
-                                print("Error map fetch", error.localizedDescription)
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "location.viewfinder")
+                    
+                    if viewModel.isActionTriggered {
+                        ProgressView()
                             .padding(12)
                             .background(.ultraThickMaterial)
                             .clipShape(Circle())
+                    }
+                    else {
+                        Button {
+                            viewModel.isActionTriggered = true
+                            
+                            if let region = viewModel.visibleRegion{
+                                viewModel.fetchEvents(region: region)
+                            }
+
+                            
+                        } label: {
+                            Image(systemName: "location.viewfinder")
+                                .padding(12)
+                                .background(.ultraThickMaterial)
+                                .clipShape(Circle())
+                        }
                     }
                     
                     MapUserLocationButton(scope: locationSpace)

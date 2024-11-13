@@ -130,6 +130,36 @@ func createURLLink(postID: String?, clubID: String?, userID: String?) -> String{
     return url
 }
 
+// Helper function to truncate text to a maximum of 20 characters
+func truncatedText(_ text: String, maxLength: Int) -> String {
+    if text.count > maxLength {
+        let index = text.index(text.startIndex, offsetBy: maxLength)
+        return String(text[..<index]) + "..."
+    } else {
+        return text
+    }
+}
+
+func trimAndLimitWhitespace(_ text: String) -> String {
+    // Step 1: Trim leading and trailing whitespace and newlines
+    var trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    
+    // Step 2: Check if the resulting text is empty (only whitespace originally)
+    if trimmedText.isEmpty {
+        return ""
+    }
+    
+    // Step 3: Replace occurrences of more than three consecutive newlines with three newlines
+    // This regex matches four or more consecutive newline characters
+    let excessiveNewlinesPattern = "\n{4,}"
+    let regex = try? NSRegularExpression(pattern: excessiveNewlinesPattern, options: [])
+    
+    // Replace matches of the pattern with exactly three newlines
+    trimmedText = regex?.stringByReplacingMatches(in: trimmedText, options: [], range: NSRange(location: 0, length: trimmedText.utf16.count), withTemplate: "\n\n\n") ?? trimmedText
+
+    return trimmedText
+}
+
 //func formatURLsInText(in text: String) -> String {
 //    // Define the regular expression pattern for URLs
 //    let pattern = "(https?://[a-zA-Z0-9./?=_-]+)"

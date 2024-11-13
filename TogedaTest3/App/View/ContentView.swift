@@ -38,15 +38,11 @@ struct ContentView: View {
             
             
 //            VStack{
-//                Button("Click1"){
-//                    if isGoogleMapsInstalled() {
-//                        print("Google Maps is installed.")
-//                        // Open Google Maps with a location or perform other actions
-//                        openGoogleMaps(latitude: 37.4220, longitude: -122.0841)
-//                    } else {
-//                        print("Google Maps is not installed.")
-//                        // Provide an alternative option, such as opening a web map
-//                    }
+//                Button{
+//                    vm.triggerPendingURL()
+//
+//                } label:{
+//                    Text("Wazzup")
 //                }
 //            }
 //            .background(.base)

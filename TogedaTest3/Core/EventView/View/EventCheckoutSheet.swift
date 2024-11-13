@@ -114,63 +114,67 @@ struct EventCheckoutSheet: View {
             
             VStack {
                 if let paymentSheet = paymentVM.paymentSheet {
-                    PaymentSheet.PaymentButton(
-                        paymentSheet: paymentSheet,
-                        onCompletion: paymentVM.onPaymentCompletion
-                    ) {
-                        
-                        if let result = paymentVM.paymentResult {
-                            switch result {
-                            case .completed:
-                                Text("Payment complete.")
-                                    .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 60)
-                                    .background(Color("blackAndWhite"))
-                                    .foregroundColor(Color("testColor"))
-                                    .cornerRadius(10)
-                                    .onAppear(){
-                                        Task{
-                                            if let response = try await APIClient.shared.getEvent(postId: post.id){
-                                                postsViewModel.localRefreshEventOnAction(post: response)
+                    if let result = paymentVM.paymentResult {
+                        switch result {
+                        case .completed:
+                            Text("Payment complete.")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                                .padding()
+                                .onAppear(){
+                                    Task{
+                                        if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                            postsViewModel.localRefreshEventOnAction(post: response)
+                                            
+                                            refreshParticipants()
+                                            
+                                            post = response
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                                 
-                                                refreshParticipants()
-                                                
-                                                post = response
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                                    
-                                                    isActive = false
-                                                }
+                                                isActive = false
                                             }
+                                        }
 
-                                        }
                                     }
-                            case .failed(let error):
-                                Text("Payment failed.")
-                                    .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 60)
-                                    .background(Color("blackAndWhite"))
-                                    .foregroundColor(Color("testColor"))
-                                    .cornerRadius(10)
-                                    .onAppear(){
-                                        paymentVM.error = error.localizedDescription
+                                }
+                        case .failed(let error):
+                            Text("Payment failed.")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                                .onAppear(){
+                                    paymentVM.error = error.localizedDescription
+                                }
+                                .padding()
+
+                        case .canceled:
+                            Text("Payment canceled.")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .cornerRadius(10)
+                                .onAppear(){
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                        isActive = false
                                     }
-                            case .canceled:
-                                Text("Payment canceled.")
-                                    .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 60)
-                                    .background(Color("blackAndWhite"))
-                                    .foregroundColor(Color("testColor"))
-                                    .cornerRadius(10)
-                                    .onAppear(){
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                            isActive = false
-                                        }
-                                    }
-                            }
-                        } else {
+                                }
+                                .padding()
+
+                        }
+                    } else {
+                        PaymentSheet.PaymentButton(
+                            paymentSheet: paymentSheet,
+                            onCompletion: paymentVM.onPaymentCompletion
+                        ) {
                             Text("Pay")
                                 .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
@@ -178,10 +182,13 @@ struct EventCheckoutSheet: View {
                                 .background(Color("blackAndWhite"))
                                 .foregroundColor(Color("testColor"))
                                 .cornerRadius(10)
-                            
+
                         }
+                        .padding()
+
+                        
                     }
-                    .padding()
+
                 }
                 else {
                     Text("Loading…")

@@ -24,16 +24,16 @@ struct DescriptionView: View {
 //                    .fontWeight(.bold)
 //                    .padding(.horizontal)
 //                
-                if showWarning {
-                    HStack(spacing: 5){
-                        Image(systemName: "exclamationmark.circle")
-                            .foregroundStyle(.red)
-                        Text("Description should not contain any links.")
-                            .foregroundStyle(.red)
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal)
-                }
+//                if showWarning {
+//                    HStack(spacing: 5){
+//                        Image(systemName: "exclamationmark.circle")
+//                            .foregroundStyle(.red)
+//                        Text("Description should not contain any links.")
+//                            .foregroundStyle(.red)
+//                    }
+//                    .padding(.vertical, 8)
+//                    .padding(.horizontal)
+//                }
                 
                 TextField(placeholder, text: $description, axis: .vertical)
                     .lineLimit(20, reservesSpace: true)
@@ -45,11 +45,11 @@ struct DescriptionView: View {
         .navigationTitle("Description")
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {
-            if !containsLink(text: description){
+//            if !containsLink(text: description){
                 dismiss()
-            } else {
-                showWarning = true
-            }
+//            } else {
+//                showWarning = true
+//            }
         }) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)

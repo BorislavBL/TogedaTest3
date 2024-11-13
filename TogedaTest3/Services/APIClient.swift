@@ -1365,10 +1365,11 @@ extension APIClient {
         return nil
     }
     
-    func getAllEvents(page: Int32, size: Int32, long: Double, lat: Double, distance: Int32, from: Date?, to: Date?, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
+    func getAllEvents(page: Int32, size: Int32, sortBy: Operations.getAllPosts.Input.Query.sortByPayload, long: Double, lat: Double, distance: Int32, from: Date?, to: Date?, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
         //        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to), Category: \(categories)")
         
         let response = try await client.getAllPosts(query: .init(
+            sortBy: sortBy,
             categories: categories,
             toDate: to,
             fromDate: from,
@@ -1858,10 +1859,11 @@ extension APIClient {
 //Clubs
 
 extension APIClient {
-    func getAllClubs(page: Int32, size: Int32, long: Double, lat: Double, distance: Int32, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoClubDto? {
+    func getAllClubs(page: Int32, size: Int32, sortBy: Operations.getAllClubs.Input.Query.sortByPayload, long: Double, lat: Double, distance: Int32, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoClubDto? {
         //        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to), Category: \(categories)")
         
         let response = try await client.getAllClubs(query:(.init(
+            sortBy: sortBy,
             categories: categories,
             longitude: long,
             latitude: lat,
