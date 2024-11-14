@@ -43,192 +43,196 @@ struct ChatView: View {
         ZStack(alignment: .top){
             VStack(spacing: 0) {
                 navbar()
-                ScrollViewReader{ proxy in
-                    ScrollView{
-                        LazyVStack{
-                            if let currentUser = userVm.currentUser{
-                                
-                                if refresh == .loading {
-                                    ProgressView() // Loading indicator while refreshing
-                                        .frame(height: 40)
-                                }
-                                
-                                if chatManager.messages.count == 0 && !Init{
-                                    VStack{
-                                        Text("Write a message to start the chat.")
-                                            .font(.body)
-                                            .fontWeight(.semibold)
-                                            .padding()
-                                            .normalTagRectangleStyle()
-                                            .padding()
+                if !Init {
+                    ScrollViewReader{ proxy in
+                        ScrollView{
+                            LazyVStack{
+                                if let currentUser = userVm.currentUser{
+                                    
+                                    if refresh == .loading {
+                                        ProgressView() // Loading indicator while refreshing
+                                            .frame(height: 40)
                                     }
-                                }
-                                
-                                ForEach(Array(chatManager.messages.enumerated()), id: \.element.id) { index, message in
-                                    VStack{
-                                        if index == 0 {
-                                            Text("\(formatDateAndTime(date: message.createdAt))")
-                                                .font(.footnote)
-                                                .foregroundStyle(.gray)
-                                                .padding(8)
+                                    
+                                    if chatManager.messages.count == 0 && !Init{
+                                        VStack{
+                                            Text("Write a message to start the chat.")
+                                                .font(.body)
+                                                .fontWeight(.semibold)
+                                                .padding()
+                                                .normalTagRectangleStyle()
+                                                .padding()
                                         }
-                                        else if index > 0, let date = Calendar.current.dateComponents([.minute], from: chatManager.messages[index - 1].createdAt, to: message.createdAt).minute, date > 30 {
-                                            Text("\(formatDateAndTime(date: message.createdAt))")
-                                                .font(.footnote)
-                                                .foregroundStyle(.gray)
-                                                .padding(8)
+                                    }
+                                    
+                                    ForEach(Array(chatManager.messages.enumerated()), id: \.element.id) { index, message in
+                                        VStack{
+                                            if index == 0 {
+                                                Text("\(formatDateAndTime(date: message.createdAt))")
+                                                    .font(.footnote)
+                                                    .foregroundStyle(.gray)
+                                                    .padding(8)
+                                            }
+                                            else if index > 0, let date = Calendar.current.dateComponents([.minute], from: chatManager.messages[index - 1].createdAt, to: message.createdAt).minute, date > 30 {
+                                                Text("\(formatDateAndTime(date: message.createdAt))")
+                                                    .font(.footnote)
+                                                    .foregroundStyle(.gray)
+                                                    .padding(8)
+                                                
+                                            }
+                                            
+                                            ChatMessageCell(message: message,
+                                                            nextMessage: nextMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
                                             
                                         }
-                                        
-                                        ChatMessageCell(message: message,
-                                                        nextMessage: nextMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
+                                        .id(message.id)
                                         
                                     }
-                                    .id(message.id)
                                     
-                                }
-                                
-                                if chatManager.messages.last?.sender.id == currentUser.id {
-                                    Text("Sent")
-                                        .font(.footnote)
-                                        .foregroundStyle(.gray)
-                                        .frame(maxWidth:.infinity, alignment: .trailing)
-                                        .padding(.horizontal)
-                                }
-                                
-                                Color.clear
-                                    .frame(height: recPadding)
-                                    .id("Bottom")
-                                    .onAppear(){
-                                        print("Appeared >")
-                                        atBottom = true
-                                        activateArrow = false
+                                    if chatManager.messages.last?.sender.id == currentUser.id {
+                                        Text("Sent")
+                                            .font(.footnote)
+                                            .foregroundStyle(.gray)
+                                            .frame(maxWidth:.infinity, alignment: .trailing)
+                                            .padding(.horizontal)
                                     }
-                                    .onDisappear(){
-                                        print("DisAppeared >")
-                                        atBottom = false
-                                        activateArrow = true
-                                    }
-                            }
-                        }
-                        .background(
-                            GeometryReader { geo -> Color in
-                                // Detect if we are at the bottom by comparing scroll position and content size
-                                DispatchQueue.main.async {
-                                    let minY = geo.frame(in: .global).minY
-                                    let threshold = 250.0
-                                    if minY >= threshold && self.refresh == .done && !shouldNotScrollToBottom && !isInitialLoad{
-                                        self.refresh = .loading
-                                        if chatManager.messages.count > 0 {
-                                            self.lastMessageIdBeforeLoading = chatManager.messages[0].id
+                                    
+                                    Color.clear
+                                        .frame(height: recPadding)
+                                        .id("Bottom")
+                                        .onAppear(){
+                                            print("Appeared >")
+                                            atBottom = true
+                                            activateArrow = false
                                         }
-                                        Task {
-                                            defer{
-                                                Task{
-//                                                    try await Task.sleep(nanoseconds: 1_000_000_000)
-                                                    self.refresh = .loaded
-                                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                        .onDisappear(){
+                                            print("DisAppeared >")
+                                            atBottom = false
+                                            activateArrow = true
+                                        }
+                                }
+                            }
+                            .background(
+                                GeometryReader { geo -> Color in
+                                    // Detect if we are at the bottom by comparing scroll position and content size
+                                    DispatchQueue.main.async {
+                                        let minY = geo.frame(in: .global).minY
+                                        let threshold = 250.0
+                                        if minY >= threshold && self.refresh == .done && !shouldNotScrollToBottom && !isInitialLoad{
+                                            self.refresh = .loading
+                                            if chatManager.messages.count > 0 {
+                                                self.lastMessageIdBeforeLoading = chatManager.messages[0].id
+                                            }
+                                            Task {
+                                                defer{
+                                                    Task{
+                                                        //                                                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                                                        self.refresh = .loaded
+                                                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                                    }
+                                                }
+                                                do {
+                                                    try await chatManager.getMessages(chatId: chatRoom.id)
+                                                } catch {
+                                                    print("Failed to get messages: \(error)")
                                                 }
                                             }
-                                            do {
-                                                try await chatManager.getMessages(chatId: chatRoom.id)
-                                            } catch {
-                                                print("Failed to get messages: \(error)")
-                                            }
+                                        } else if self.refresh == .loaded && minY < threshold {
+                                            self.refresh = .done
                                         }
-                                    } else if self.refresh == .loaded && minY < threshold {
-                                        self.refresh = .done
                                     }
+                                    return Color.clear
                                 }
-                                return Color.clear
-                            }
-                        )
-                        
-                    }
-//                    .refreshable {
-//                        lastMessageIdBeforeLoading = chatManager.messages[0].id
-//                        Task {
-//                            do {
-//                                try await chatManager.getMessages(chatId: chatRoom.id)
-//                            } catch {
-//                                print("Failed to get messages: \(error)")
-//                            }
-//                        }
-//                    }
-                    .scrollDismissesKeyboard(.interactively)
-                    .defaultScrollAnchor(.bottom)
-                    .scrollIndicators(.hidden)
-                    .ignoresSafeArea(.keyboard, edges: .all)                    //                    .padding(.top, 86)
-                    .onChange(of: chatManager.messages) { oldValue, newValue in
-                        //                        if isInitialLoad {
-                        //                            proxy.scrollTo("Bottom", anchor:.bottom)
-                        //
-                        //                        } else
-                        if let messageId = lastMessageIdBeforeLoading {
-                            proxy.scrollTo(messageId, anchor:.top)
-                            self.lastMessageIdBeforeLoading = nil
-                        }
-                        if !shouldNotScrollToBottom && !isInitialLoad && atBottom {
-                            withAnimation(.spring()) {
-                                proxy.scrollTo("Bottom", anchor:.bottom)
-                            }
-                        } else if currentUsersMessage {
-                            print("on that one")
-
-                            withAnimation(.spring()) {
-                                proxy.scrollTo("Bottom", anchor:.bottom)
-                            }
+                            )
                             
-                            currentUsersMessage = false
                         }
-                        
-                        shouldNotScrollToBottom = false
-                    }
-                    .onChange(of: keyboardHeight) { oldValue, newValue in
-                        print("Keyboard H:", keyboardHeight, oldValue, newValue)
-                        if keyboardHeight > 0{
-                            if oldValue == 0 {
-                                let min = min(oldValue, newValue)
-                                let max = max(oldValue, newValue)
-                                if min > max - 100 {
-                                    polishedKeyboardHeight = min
-                                    recPadding = min + inputHeight
-                                } else {
-                                    polishedKeyboardHeight = max
-                                    recPadding = max + inputHeight
-                                }
-                            } else {
-                                polishedKeyboardHeight = newValue
-                                recPadding = newValue + inputHeight
+                        //                    .refreshable {
+                        //                        lastMessageIdBeforeLoading = chatManager.messages[0].id
+                        //                        Task {
+                        //                            do {
+                        //                                try await chatManager.getMessages(chatId: chatRoom.id)
+                        //                            } catch {
+                        //                                print("Failed to get messages: \(error)")
+                        //                            }
+                        //                        }
+                        //                    }
+                        .scrollDismissesKeyboard(.interactively)
+//                        .defaultScrollAnchor(.bottom)
+                        .scrollIndicators(.hidden)
+                        .ignoresSafeArea(.keyboard, edges: .all)                    //                    .padding(.top, 86)
+                        .onChange(of: chatManager.messages) { oldValue, newValue in
+                            if isInitialLoad {
+                                proxy.scrollTo("Bottom", anchor:.bottom)
+                                
                             }
-                            if atBottom {
-                                withAnimation() {
+                            if let messageId = lastMessageIdBeforeLoading {
+                                proxy.scrollTo(messageId, anchor:.top)
+                                self.lastMessageIdBeforeLoading = nil
+                            }
+                            if !shouldNotScrollToBottom && !isInitialLoad && atBottom {
+                                withAnimation(.spring()) {
                                     proxy.scrollTo("Bottom", anchor:.bottom)
                                 }
-                            }
-                        } else {
-                            polishedKeyboardHeight = 0
-                            recPadding = inputHeight > 0 ? inputHeight : 60
-//                            recPadding = 60
-                        }
-                    }
-                    .overlay(alignment:.bottomTrailing){
-                        if activateArrow {
-                            Button{
-                                withAnimation() {
+                            } else if currentUsersMessage {
+                                print("on that one")
+                                
+                                withAnimation(.spring()) {
                                     proxy.scrollTo("Bottom", anchor:.bottom)
                                 }
                                 
-//                                activateArrow = false
-                            } label:{
-                                Image(systemName: "arrow.down")
-                                    .padding()
-                                    .background(.bar)
-                                    .clipShape(Circle())
+                                currentUsersMessage = false
                             }
-                            .padding(.bottom, inputHeight > 0 ? inputHeight + 40 : 70)
+                            
+                            shouldNotScrollToBottom = false
+                        }
+                        .onChange(of: keyboardHeight) { oldValue, newValue in
+                            print("Keyboard H:", keyboardHeight, oldValue, newValue)
+                            if keyboardHeight > 0{
+                                if oldValue == 0 {
+                                    let min = min(oldValue, newValue)
+                                    let max = max(oldValue, newValue)
+                                    if min > max - 100 {
+                                        polishedKeyboardHeight = min
+                                        recPadding = min + inputHeight
+                                    } else {
+                                        polishedKeyboardHeight = max
+                                        recPadding = max + inputHeight
+                                    }
+                                } else {
+                                    polishedKeyboardHeight = newValue
+                                    recPadding = newValue + inputHeight
+                                }
+                                if atBottom {
+                                    withAnimation() {
+                                        proxy.scrollTo("Bottom", anchor:.bottom)
+                                    }
+                                }
+                            } else {
+                                polishedKeyboardHeight = 0
+                                recPadding = inputHeight > 0 ? inputHeight : 60
+                                //                            recPadding = 60
+                            }
+                        }
+                        .overlay(alignment:.bottomTrailing){
+                            if activateArrow {
+                                Button{
+                                    withAnimation() {
+                                        proxy.scrollTo("Bottom", anchor:.bottom)
+                                    }
+                                    
+                                    //                                activateArrow = false
+                                } label:{
+                                    Image(systemName: "arrow.down")
+                                        .padding()
+                                        .background(.bar)
+                                        .clipShape(Circle())
+                                }
+                                .padding(.bottom, inputHeight > 0 ? inputHeight + 40 : 70)
+                            }
                         }
                     }
+                } else {
+                    ProgressView()
                 }
             }
             

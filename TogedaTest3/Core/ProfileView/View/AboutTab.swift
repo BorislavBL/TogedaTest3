@@ -61,10 +61,15 @@ struct AboutTab: View {
                         }
                         if let instagram = user.details.instagram, !instagram.isEmpty{
                             if showInstagram {
-                                aboutTag(img:Image("instagram"), text: instagram)
+                                Button{
+                                    openInstagramProfile(instagramUsername: instagram)
+                                } label:{
+                                    aboutTag(img:Image("instagram"), text: instagram)
+                                }
                             } else {
                                 HStack{
-                                    Image("instagram")                                       .resizable()
+                                    Image("instagram")
+                                        .resizable()
                                         .scaledToFit()
                                         .frame(width: 20, height: 20)
                                     

@@ -67,23 +67,17 @@ extension ContentViewModel{
     }
     
     func generalCheck() async throws {
-        print("11")
         if let versionData = try await AuthService.shared.version() {
-            print("1")
             if let version = getAppVersion(), let build = getBuildNumber() {
-                print("2")
                 if checkForUpdate(appVersion: version, appBuild: build, data: versionData) {
                     DispatchQueue.main.async {
                         self.authenticationState = .update
                     }
                 } else {
-                    print("3")
-                    print("All good here")
                     await validateTokensAndCheckState()
                 }
             }
         }  else {
-            print("4")
             await validateTokensAndCheckState()
         }
     }

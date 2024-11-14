@@ -374,11 +374,7 @@ extension AuthService {
 //System
 extension AuthService{
     func version() async throws -> Components.Schemas.VersionInfoDto? {
-        print("here")
         let response = try await client.versionsSupported()
-        print("here2")
-
-        
         switch response {
         case .ok(let okResponse):
             switch okResponse.body {

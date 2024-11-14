@@ -64,7 +64,6 @@ class PostsViewModel: ObservableObject {
                     }
                     do {
                         try await self.fetchPosts()
-                        print("End post fetch")
                     } catch {
                         print("Error fetching data: \(error)")
                     }
@@ -80,7 +79,6 @@ class PostsViewModel: ObservableObject {
             while true {
                 do {
                     try await fetchPosts()
-                    print("End post fetch")
                     break // Exit loop if fetchPosts succeeds
                 } catch {
                     // Handle the error if needed

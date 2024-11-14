@@ -14,6 +14,7 @@ struct EditClubView: View {
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .club, mode: .edit)
     @EnvironmentObject var clubsVM: ClubsViewModel
     @EnvironmentObject var activityVM: ActivityViewModel
+    @EnvironmentObject var userVM: UserViewModel
 
     @Environment(\.dismiss) var dismiss
     @State private var showTypeSheet = false
@@ -284,6 +285,7 @@ struct EditClubView: View {
                     DispatchQueue.main.async {
                         isActive = false
                         navManager.selectionPath.removeLast(1)
+                        userVM.removeClub(club: club)
                     }
                     
                 }
@@ -433,4 +435,6 @@ struct EditClubView: View {
         .environmentObject(NavigationManager())
         .environmentObject(ActivityViewModel())
         .environmentObject(ClubsViewModel())
+        .environmentObject(UserViewModel())
+
 }

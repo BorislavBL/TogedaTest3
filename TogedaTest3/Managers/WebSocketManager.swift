@@ -73,7 +73,6 @@ extension WebSocketManager {
     }
     
     func websocketInit() {
-        print("oooooooooo--------OOOOOOOOOO---------")
         if let token = AuthService.shared.getAccessToken() {
             let url = URL(string: "wss://api.togeda.net/ws")! // Ensure using 'wss' or 'ws' schema
             self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization" : "Bearer \(token)"]) //< Create instance
@@ -419,7 +418,9 @@ extension WebSocketManager {
                 self.chatRoomId = chatId
                 self.messages.insert(contentsOf: uniqueNewResponse, at: 0)
                 self.lastMessagesPage = response.lastPage
-                self.messagesPage += 1
+                if !response.lastPage{
+                    self.messagesPage += 1
+                }
             }
         }
     }

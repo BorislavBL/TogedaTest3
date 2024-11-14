@@ -11,6 +11,28 @@ import SwiftUI
 class UserViewModel: ObservableObject {
     @Published var currentUser: Components.Schemas.UserInfoDto?
     @Published var friendsList: [Components.Schemas.GetFriendsDto] = []
+    @Published var clubs: [Components.Schemas.ClubDto] = []
+    @Published var posts: [Components.Schemas.PostResponseDto] = []
+    
+    func addPost(post: Components.Schemas.PostResponseDto) {
+        if !posts.contains(where: {$0.id == post.id}) {
+            posts.insert(post, at: 0)
+        }
+    }
+    
+    func removePost(post: Components.Schemas.PostResponseDto) {
+        posts.removeAll(where: {$0.id == post.id})
+    }
+    
+    func addClub(club: Components.Schemas.ClubDto) {
+        if !clubs.contains(where: {$0.id == club.id}) {
+            clubs.insert(club, at: 0)
+        }
+    }
+    
+    func removeClub(club: Components.Schemas.ClubDto) {
+        clubs.removeAll(where: {$0.id == club.id})
+    }
     
     init(){
 //        self.retryFetchUser()

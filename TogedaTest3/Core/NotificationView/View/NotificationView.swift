@@ -130,7 +130,6 @@ struct NotificationView: View {
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationBarBackButtonHidden(true)
                     .onDisappear(){
-                        print("Disappeared")
                         ratingVM.resetAll()
                     }
                 }

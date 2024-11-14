@@ -68,7 +68,7 @@ struct JoinRequestClubView: View {
                                 if let response = try await APIClient.shared.getClub(clubID: club.id) {
                                     clubsVM.refreshClubOnAction(club: response)
                                     activityVM.localRefreshClubOnAction(club: response)
-
+                                    userViewModel.addClub(club: response)
                                     club = response
                                     isActive = false
                                 }
@@ -96,6 +96,7 @@ struct JoinRequestClubView: View {
                                 if let response = try await APIClient.shared.getClub(clubID: club.id) {
                                     clubsVM.refreshClubOnAction(club: response)
                                     activityVM.localRefreshClubOnAction(club: response)
+                                    userViewModel.removeClub(club: response)
 
                                     club = response
                                     refreshParticipants()

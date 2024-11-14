@@ -181,6 +181,37 @@ extension APIClient {
         return nil
     }
     
+    func blockUser(userId: String) async throws -> Bool?{
+        let response = try await client.blockUser(.init(path: .init(userId: userId)))
+        switch response {
+        case let .ok(okResponse):
+            switch okResponse.body{
+            case .json(let message):
+                return message.success
+            }
+            
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for hasBasicInfo")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        return nil
+    }
+    
     func changePassword(old: String, new: String, completion: @escaping (Bool?, String?) -> Void) async throws{
         let response = try await client.changePassword(.init(query: .init(prevPassword: old, newPassword: new)))
         switch response {

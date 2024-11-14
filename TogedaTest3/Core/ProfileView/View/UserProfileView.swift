@@ -31,6 +31,7 @@ struct UserProfileView: View {
     @State var showRemoveSheet = false
     @State var showCancelSheet = false
     @State var showReportSheet = false
+    @State var showBlockSheet = false
     
     var isCurrentUser: Bool {
         return userVm.currentUser?.id == miniUser.id
@@ -263,7 +264,14 @@ struct UserProfileView: View {
                 viewModel.posts = []
                 viewModel.clubs = []
                 Task{
-                    await fetchAll()
+                    if let user = userVm.currentUser, miniUser.id != user.id {
+                        await fetchAll()
+                    } else {
+                        user = userVm.currentUser
+                        Task{
+                            await viewModel.fetchAllData(userId: miniUser.id, _posts: $userVm.posts, _clubs: $userVm.clubs)
+                        }
+                    }
                 }
             })
             //            .refresher(style:.system2 ,config: .init(headerShimMaxHeight: 220)) { done in
@@ -325,6 +333,33 @@ struct UserProfileView: View {
         .sheet(isPresented: $showReportSheet, content: {
             ReportUserView(user: miniUser, isActive: $showReportSheet)
         })
+        .sheet(isPresented: $showBlockSheet, content: {
+            VStack(spacing: 30){
+                Text("Are you sure you want to block \(miniUser.firstName) \(miniUser.lastName)?")
+                    .multilineTextAlignment(.leading)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                
+                Button{
+                    Task {
+                        if let response = try await APIClient.shared.blockUser(userId: miniUser.id){
+                            
+                        }
+                    }
+                } label:{
+                    Text("Block")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(.red)
+                        .cornerRadius(10)
+                }
+            }
+            .padding()
+            .presentationDetents([.fraction(0.25)])
+        })
         .fullScreenCover(isPresented: $showCreateClub, content: {
             CreateClubView(resetClubsOnCreate: {
                 Task{
@@ -359,7 +394,7 @@ struct UserProfileView: View {
                 } else {
                     user = userVm.currentUser
                     Task{
-                        await viewModel.fetchAllData(userId: miniUser.id)
+                        await viewModel.fetchAllData(userId: miniUser.id, _posts: $userVm.posts, _clubs: $userVm.clubs)
                     }
                     Init = false
                 }
@@ -415,6 +450,13 @@ struct UserProfileView: View {
                         showReportSheet = true
                     } label:{
                         Text("Report")
+                            .foregroundStyle(.red)
+                    }
+                    
+                    Button{
+                        showBlockSheet = true
+                    } label:{
+                        Text("Block")
                             .foregroundStyle(.red)
                     }
                 } label: {

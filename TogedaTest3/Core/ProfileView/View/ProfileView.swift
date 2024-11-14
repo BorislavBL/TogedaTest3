@@ -22,8 +22,10 @@ struct ProfileView: View {
     @State var showCreateClub: Bool = false
     @StateObject var viewModel = ProfileViewModel()
     
+    @State var Init: Bool = true
     @State var InitEvent: Bool = true
-    
+    @State var InitClub: Bool = true
+
     var body: some View {
         ZStack(alignment: .top){
             if let user = userVm.currentUser {
@@ -141,19 +143,19 @@ struct ProfileView: View {
                         } catch {
                             print("Error fetching current user: \(error)")
                         }
-                        await viewModel.fetchAllData(userId: user.id)
+                        await viewModel.fetchAllData(userId: user.id, _posts: $userVm.posts, _clubs: $userVm.clubs)
                         
                     }
                 })
                 .onAppear(){
-                    if InitEvent {
+                    if Init {
                         viewModel.posts = []
                         viewModel.clubs = []
                         Task{
-                            await viewModel.fetchAllData(userId: user.id)
+                            await viewModel.fetchAllData(userId: user.id, _posts: $userVm.posts, _clubs: $userVm.clubs)
                         }
                         
-                        InitEvent = false
+                        Init = false
                     }
                     else {
                         Task{
@@ -166,7 +168,20 @@ struct ProfileView: View {
                 .edgesIgnoringSafeArea(.top)
                 .frame(maxWidth: .infinity)
                 .background(Color("testColor"))
-                
+                .onChange(of: userVm.posts) { oldValue, newValue in
+                    if !viewModel.postsAreUpdating {
+                        viewModel.posts = newValue
+                    } else {
+                        viewModel.postsAreUpdating = false
+                    }
+                }
+                .onChange(of: userVm.clubs) { oldValue, newValue in
+                    if !viewModel.clubsAreUpdating {
+                        viewModel.clubs = newValue
+                    } else {
+                        viewModel.clubsAreUpdating = false
+                    }
+                }
                 
                 navbar()
                 
@@ -205,6 +220,7 @@ struct ProfileView: View {
             CreateEventView()
         })
     }
+    
     
     var foregroundColor: Color {
         if colorScheme == .dark {

@@ -621,6 +621,7 @@ struct CreateEventView: View {
                             if let post = try await APIClient.shared.getEvent(postId: responseID){
                                 DispatchQueue.main.async{
                                     postVM.feedPosts.insert(post, at: 0)
+                                    userVM.addPost(post: post)
                                     withAnimation{
                                         self.isLoading = false
                                     }

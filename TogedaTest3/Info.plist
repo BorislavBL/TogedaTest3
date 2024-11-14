@@ -31,7 +31,7 @@
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-		<string></string>
+		<string>instagram</string>
 		<string>instagram-stories</string>
 		<string>comgooglemaps</string>
 		<string>com.google.calendar</string>

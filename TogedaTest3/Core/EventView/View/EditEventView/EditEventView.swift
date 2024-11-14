@@ -23,6 +23,8 @@ struct EditEventView: View {
     @State var isLoading = false
     @State private var errorMessage: String?
     @State private var deleteError: Bool = false
+    @EnvironmentObject var userVM: UserViewModel
+
     
     var body: some View {
         ScrollView{
@@ -339,6 +341,7 @@ struct EditEventView: View {
                 DispatchQueue.main.async {
                     isActive = false
                     navManager.selectionPath.removeLast(1)
+                    userVM.removePost(post: post)
                 }
             }
             .presentationDetents([.height(190)])
@@ -518,4 +521,6 @@ struct EditEventView: View {
         .environmentObject(NavigationManager())
         .environmentObject(PostsViewModel())
         .environmentObject(ActivityViewModel())
+        .environmentObject(UserViewModel())
+
 }

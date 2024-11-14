@@ -47,7 +47,6 @@ struct MainView: View {
                 }
             }
             .onAppear() {
-                print("appeared")
                 if locationManager.authorizationStatus == .authorizedWhenInUse {
                     NotificationsManager.shared.registerForPushNotifications()
                 }
@@ -57,7 +56,6 @@ struct MainView: View {
                 }
             }
             .onDisappear(){
-                print("Diappearrrr")
                 Task {
                     do {
                         if let _  = try await APIClient.shared.setUserActivityStatus(status: .OFFLINE) {
@@ -184,7 +182,6 @@ struct MainView: View {
             group.addTask {
                 do {
                     try await userViewModel.fetchCurrentUser()
-                    print("End user fetch")
                 } catch {
                     // Handle the error if needed
                     print("Error fetching data: \(error)")
@@ -223,7 +220,6 @@ struct MainView: View {
             await group.waitForAll()
             DispatchQueue.main.async {
                 vm.initialSetupDone = true
-                print("Dooooooooneeeeeeeeee")
             }
 
             

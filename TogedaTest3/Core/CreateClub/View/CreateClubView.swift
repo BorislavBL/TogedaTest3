@@ -27,6 +27,8 @@ struct CreateClubView: View {
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .club, mode: .normal)
     @State var isLoading = false
     @State private var errorMessage: String?
+    @EnvironmentObject var userVM: UserViewModel
+
     
     var body: some View {
         NavigationStack{
@@ -371,6 +373,7 @@ struct CreateClubView: View {
                                 DispatchQueue.main.async{
                                     
                                     self.clubVM.feedClubs.insert(club, at: 0)
+                                    self.userVM.addClub(club: club)
                                     
                                     withAnimation{
                                         self.isLoading = false
@@ -473,4 +476,6 @@ struct CreateClubView: View {
     CreateClubView(resetClubsOnCreate: {})
         .environmentObject(LocationManager())
         .environmentObject(ClubsViewModel())
+        .environmentObject(UserViewModel())
+
 }

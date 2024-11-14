@@ -84,3 +84,20 @@ func shareToInstagram(backgroundImage: UIImage, appID: String) {
         print("Instagram is not installed")
     }
 }
+
+func openInstagramProfile(instagramUsername: String?) {
+    guard let username = instagramUsername, !username.isEmpty else {
+        print("Invalid Instagram username")
+        return
+    }
+
+    // Check if Instagram app URL scheme is available
+    let appURL = URL(string: "instagram://user?username=\(username)")!
+    let webURL = URL(string: "https://www.instagram.com/\(username)/")!
+    
+    if UIApplication.shared.canOpenURL(appURL) {
+        UIApplication.shared.open(appURL, options: [:], completionHandler: nil)
+    } else {
+        UIApplication.shared.open(webURL, options: [:], completionHandler: nil)
+    }
+}

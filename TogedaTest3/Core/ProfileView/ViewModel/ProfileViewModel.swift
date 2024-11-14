@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 class ProfileViewModel: ObservableObject {
 
@@ -18,6 +19,9 @@ class ProfileViewModel: ObservableObject {
     @Published var noShows: Int32 = 0
     @Published var badges: [Components.Schemas.Badge] = []
     @Published var badgeTasks: [Components.Schemas.BadgeTask] = []
+    @Published var postsAreUpdating = true
+    @Published var clubsAreUpdating = true
+
 
     
     func getUserClubs(userId: String) async throws {
@@ -47,12 +51,19 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
-    func fetchAllData(userId: String) async {
+    func fetchAllData(userId: String, _posts: Binding<[Components.Schemas.PostResponseDto]>, _clubs: Binding<[Components.Schemas.ClubDto]>) async {
         // Use a task group to fetch all data concurrently
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
                 do {
-                    try await self.getUserPosts(userId: userId)
+                    if let response = try await APIClient.shared.getUserEvents(userId: userId, page: 0, size: 15) {
+                        DispatchQueue.main.async {
+                            self.postsAreUpdating = true
+                            self.posts = response.data
+                            _posts.wrappedValue = response.data
+                            self.postsCount = response.listCount
+                        }
+                    }
                 } catch {
                     print("Error fetching user posts: \(error)")
                 }
@@ -84,7 +95,15 @@ class ProfileViewModel: ObservableObject {
             
             group.addTask {
                 do {
-                    try await self.getUserClubs(userId: userId)
+                    if let response = try await APIClient.shared.getUserClubs(userId: userId, page: 0, size: 15) {
+                        DispatchQueue.main.async {
+                            self.clubsAreUpdating = true
+                            self.clubs = response.data
+                            _clubs.wrappedValue = response.data
+                            self.clubsCount = response.listCount
+                        }
+                       
+                    }
                 } catch {
                     print("Error fetching user clubs: \(error)")
                 }

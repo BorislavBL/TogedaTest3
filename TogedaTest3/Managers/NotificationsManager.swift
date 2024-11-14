@@ -28,7 +28,6 @@ class NotificationsManager: ObservableObject {
             if allowed {
                 // register for remote push notification
                 self.getNotificationSettings()
-                print("Push notification allowed by user")
             } else {
                 print("Error while requesting push notification permission. Error \(error)")
             }

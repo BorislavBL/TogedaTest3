@@ -264,6 +264,7 @@ struct JoinRequestView: View {
                                         activityVM.localRefreshEventOnAction(post: response)
                                         post = response
                                         refreshParticipants()
+                                        userViewModel.removePost(post: response)
                                         isActive = false
                                     }
                                 }
@@ -288,6 +289,7 @@ struct JoinRequestView: View {
                                 if try await APIClient.shared.cancelJoinRequestForEvent(postId: post.id) != nil {
                                     if let response = try await APIClient.shared.getEvent(postId: post.id){
                                         postsViewModel.localRefreshEventOnAction(post: response)
+                                        activityVM.localRefreshEventOnAction(post: response)
                                         post = response
                                         isActive = false
                                     }
@@ -327,9 +329,11 @@ struct JoinRequestView: View {
                                     if try await APIClient.shared.joinEvent(postId: post.id) != nil {
                                         if let response = try await APIClient.shared.getEvent(postId: post.id){
                                             postsViewModel.localRefreshEventOnAction(post: response)
+                                            activityVM.localRefreshEventOnAction(post: response)
                                             
                                             refreshParticipants()
-                                            
+                                            userViewModel.addPost(post: response)
+
                                             post = response
                                             isActive = false
                                         }
@@ -398,6 +402,7 @@ struct JoinRequestView: View {
                                                             Task{
                                                                 if let response = try await APIClient.shared.getEvent(postId: post.id){
                                                                     postsViewModel.localRefreshEventOnAction(post: response)
+                                                                    activityVM.localRefreshEventOnAction(post: response)
                                                                     
                                                                     refreshParticipants()
                                                                     
@@ -499,6 +504,7 @@ struct JoinRequestView: View {
                                     postsViewModel.localRefreshEventOnAction(post: response)
                                     activityVM.localRefreshEventOnAction(post: response)
                                     post = response
+                                    userViewModel.addPost(post: response)
                                     isActive = false
                                 }
                             }
