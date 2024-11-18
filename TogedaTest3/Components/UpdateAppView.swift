@@ -25,7 +25,9 @@ struct UpdateAppView: View {
                 .padding(.bottom, UIScreen.main.bounds.height * 0.2)
             
             Button{
-                
+                if let url = URL(string: TogedaLinks().appstore) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
             } label:{
                 Text("Update App")
                     .frame(maxWidth: .infinity)

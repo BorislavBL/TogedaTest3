@@ -128,6 +128,9 @@
 		145D72392ABA07B0005934E2 /* MapSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145D72382ABA07B0005934E2 /* MapSlot.swift */; };
 		145DBC552CDC097D005E1D92 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145DBC542CDC097D005E1D92 /* MailView.swift */; };
 		145DBC5C2CE500D7005E1D92 /* ExpandableTextSimple.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145DBC5B2CE500D7005E1D92 /* ExpandableTextSimple.swift */; };
+		145DBC612CE7C3E6005E1D92 /* BlockedUsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145DBC602CE7C3E6005E1D92 /* BlockedUsersView.swift */; };
+		145DBC672CEB8DBC005E1D92 /* PageIsNotAvailableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145DBC662CEB8DBC005E1D92 /* PageIsNotAvailableView.swift */; };
+		145DBC6A2CEB9617005E1D92 /* HiddenPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145DBC692CEB9617005E1D92 /* HiddenPageView.swift */; };
 		145FEB472AE95C3B002301D1 /* UserSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145FEB462AE95C3B002301D1 /* UserSettingsView.swift */; };
 		1460FB002B7A60FD00DE05AE /* DecodedJWT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1460FAFF2B7A60FD00DE05AE /* DecodedJWT.swift */; };
 		1462A9BC2B7FC65A00727BDF /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1462A9BB2B7FC65A00727BDF /* Kingfisher */; };
@@ -429,6 +432,9 @@
 		145D72382ABA07B0005934E2 /* MapSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSlot.swift; sourceTree = "<group>"; };
 		145DBC542CDC097D005E1D92 /* MailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailView.swift; sourceTree = "<group>"; };
 		145DBC5B2CE500D7005E1D92 /* ExpandableTextSimple.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableTextSimple.swift; sourceTree = "<group>"; };
+		145DBC602CE7C3E6005E1D92 /* BlockedUsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedUsersView.swift; sourceTree = "<group>"; };
+		145DBC662CEB8DBC005E1D92 /* PageIsNotAvailableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageIsNotAvailableView.swift; sourceTree = "<group>"; };
+		145DBC692CEB9617005E1D92 /* HiddenPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiddenPageView.swift; sourceTree = "<group>"; };
 		145FEB462AE95C3B002301D1 /* UserSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsView.swift; sourceTree = "<group>"; };
 		1460FAFF2B7A60FD00DE05AE /* DecodedJWT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedJWT.swift; sourceTree = "<group>"; };
 		14651BD82AE9378A0091FECE /* JoinRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinRequestView.swift; sourceTree = "<group>"; };
@@ -730,6 +736,7 @@
 				148F66AB2C21E7CF0080F4FD /* CreateStripeView */,
 				141E72BA2B31D5AA00BB213D /* EditProfileView */,
 				145FEB462AE95C3B002301D1 /* UserSettingsView.swift */,
+				145DBC602CE7C3E6005E1D92 /* BlockedUsersView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1313,6 +1320,8 @@
 				14F296A92CB97D3000752356 /* AddEventCalendar.swift */,
 				145DBC542CDC097D005E1D92 /* MailView.swift */,
 				145DBC5B2CE500D7005E1D92 /* ExpandableTextSimple.swift */,
+				145DBC662CEB8DBC005E1D92 /* PageIsNotAvailableView.swift */,
+				145DBC692CEB9617005E1D92 /* HiddenPageView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1874,6 +1883,7 @@
 				14E4F9872B8F99F400D2A50C /* VerifyPhoneProfileTab.swift in Sources */,
 				14004ACD2C5939B500DDE6AD /* UIBottomBar.Constraints.swift in Sources */,
 				1467C8B62AC5C2FF0034A3BB /* UserViewModel.swift in Sources */,
+				145DBC6A2CEB9617005E1D92 /* HiddenPageView.swift in Sources */,
 				14F296A42CB9558E00752356 /* ExternalAppsDeepLinks.swift in Sources */,
 				145FEB472AE95C3B002301D1 /* UserSettingsView.swift in Sources */,
 				14F301942C12109500D98E14 /* FriendsListView.swift in Sources */,
@@ -1917,6 +1927,7 @@
 				14807A692AB4C1DA00716A17 /* MainTabView.swift in Sources */,
 				14DC6F192B16765F0078C6D7 /* NewGroupChatView.swift in Sources */,
 				14807A292AB4BB4000716A17 /* Filter.swift in Sources */,
+				145DBC612CE7C3E6005E1D92 /* BlockedUsersView.swift in Sources */,
 				14ED46652C6CF60A006DEAED /* PageNotFoundView.swift in Sources */,
 				14BBFA002C233D6600D63E22 /* InappropriatePhotoReport.swift in Sources */,
 				14BFD2E22AE00599006A26F9 /* Crop.swift in Sources */,
@@ -1973,6 +1984,7 @@
 				14853AEE2C611A240004EB93 /* WebsocketTestManager.swift in Sources */,
 				14132F342C08BEEE006DAD08 /* PostSkeleton.swift in Sources */,
 				14C8EFB42C7F8CB50076BB56 /* ViewGeneral.swift in Sources */,
+				145DBC672CEB8DBC005E1D92 /* PageIsNotAvailableView.swift in Sources */,
 				14F3017C2C0A246000D98E14 /* ClubJoinRequestsView.swift in Sources */,
 				14519D642ACDA12C00173624 /* MapNavBar.swift in Sources */,
 				14FF9A8A2BED0E6E004CF5A2 /* JWTDecoder.swift in Sources */,
@@ -2176,7 +2188,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TogedaTest3/TogedaTest3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 5;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"TogedaTest3/Preview Content\"";
 				DEVELOPMENT_TEAM = BYX7QJL256;
@@ -2205,7 +2217,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.5;
 				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -2224,7 +2236,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TogedaTest3/TogedaTest3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 5;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"TogedaTest3/Preview Content\"";
 				DEVELOPMENT_TEAM = BYX7QJL256;
@@ -2253,7 +2265,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.5;
 				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;

@@ -17,6 +17,9 @@ struct UserProfileView: View {
     @EnvironmentObject var userVm: UserViewModel
     @EnvironmentObject var websocket: WebSocketManager
     @EnvironmentObject var navManager: NavigationManager
+    @EnvironmentObject var postsVM: PostsViewModel
+    @EnvironmentObject var activityVM: ActivityViewModel
+    @EnvironmentObject var clubsVM: ClubsViewModel
     
     @State var Init: Bool = true
     @State var InitEvent: Bool = true
@@ -41,221 +44,232 @@ struct UserProfileView: View {
         return user?.currentFriendshipStatus == .FRIENDS
     }
     
+    var isBlocked: Bool {
+        return user?.currentFriendshipStatus == .BLOCKED_BY_YOU || user?.currentFriendshipStatus == .BLOCKED_YOU
+    }
+    
     var body: some View {
         ZStack(alignment: .top){
             ScrollView(showsIndicators: false){
-                VStack(alignment: .center) {
-                    TabView {
-                        ForEach(miniUser.profilePhotos, id: \.self) { image in
-                            KFImage(URL(string: image))
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: UIScreen.main.bounds.width)
-                                .clipped()
+                if isBlocked {
+
+                    blockedView()
+                    
+                } else {
+                    VStack(alignment: .center) {
+                        TabView {
+                            ForEach(miniUser.profilePhotos, id: \.self) { image in
+                                KFImage(URL(string: image))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: UIScreen.main.bounds.width)
+                                    .clipped()
+                                
+                            }
                             
                         }
+                        .tabViewStyle(PageTabViewStyle())
+                        .frame(height: UIScreen.main.bounds.width * 1.5)
                         
-                    }
-                    .tabViewStyle(PageTabViewStyle())
-                    .frame(height: UIScreen.main.bounds.width * 1.5)
-                    
-                    VStack(spacing: 10) {
-                        Text("\(miniUser.firstName) \(miniUser.lastName)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        
-                        WrappingHStack(horizontalSpacing: 5, verticalSpacing: 5){
-                            HStack(spacing: 5){
-                                Image(systemName: "suitcase")
-                                
-                                Text(miniUser.occupation)
-                                    .font(.footnote)
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundColor(.gray)
+                        VStack(spacing: 10) {
+                            Text("\(miniUser.firstName) \(miniUser.lastName)")
+                                .font(.title2)
+                                .fontWeight(.bold)
                             
-                            if let age = calculateAge(from: miniUser.birthDate){
+                            WrappingHStack(horizontalSpacing: 5, verticalSpacing: 5){
                                 HStack(spacing: 5){
-                                    Image(systemName: "birthday.cake")
+                                    Image(systemName: "suitcase")
                                     
-                                    Text("\(age)y")
+                                    Text(miniUser.occupation)
                                         .font(.footnote)
                                         .fontWeight(.semibold)
                                 }
                                 .foregroundColor(.gray)
-                            }
-                        }
-                        
-                        
-                        if let location = user?.location.name {
-                            HStack(spacing: 5){
-                                Image(systemName: "mappin.circle")
                                 
-                                Text(location)
-                                    .font(.footnote)
-                                    .fontWeight(.semibold)
+                                if let age = calculateAge(from: miniUser.birthDate){
+                                    HStack(spacing: 5){
+                                        Image(systemName: "birthday.cake")
+                                        
+                                        Text("\(age)y")
+                                            .font(.footnote)
+                                            .fontWeight(.semibold)
+                                    }
                                     .foregroundColor(.gray)
-                            }
-                            .foregroundColor(.gray)
-                        }
-                        
-                        
-                    }.padding()
-                    
-                    HStack(alignment: .top, spacing: 0
-                    ) {
-                        if let user = self.user {
-                            NavigationLink(value: SelectionPath.userFriendsList(user)){
-                                UserStats(value: formatBigNumbers(Int(user.friendsCount)), title: "Friends")
-                                    .frame(width: 105)
+                                }
                             }
                             
                             
-                            Divider()
-                                .frame(height: 50)
-                            
-                            NavigationLink(value: SelectionPath.allUserEvents(userID: user.id)){
-                                UserStats(value: formatBigNumbers(Int(user.participatedPostsCount)), title: "Events")
-                                    .frame(width: 105)
-                            }
-                            Divider()
-                                .frame(height: 50)
-                            
-                            NavigationLink(value: SelectionPath.userReviewView(user: user)){
-                                VStack{
-                                    UserStats(value: "\(formatBigNumbers(Int(viewModel.likesCount)))", title: "Likes")
-                                    Text("\(viewModel.noShows) no shows")
+                            if let location = user?.location.name {
+                                HStack(spacing: 5){
+                                    Image(systemName: "mappin.circle")
+                                    
+                                    Text(location)
                                         .font(.footnote)
-                                        .foregroundStyle(viewModel.noShows == 0 ? .gray :
-                                                            (viewModel.noShows >= 5  && viewModel.noShows < 10) ? .yellow : .red)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.gray)
+                                }
+                                .foregroundColor(.gray)
+                            }
+                            
+                            
+                        }.padding()
+                        
+                        HStack(alignment: .top, spacing: 0
+                        ) {
+                            if let user = self.user {
+                                NavigationLink(value: SelectionPath.userFriendsList(user)){
+                                    UserStats(value: formatBigNumbers(Int(user.friendsCount)), title: "Friends")
+                                        .frame(width: 105)
+                                }
+                                
+                                
+                                Divider()
+                                    .frame(height: 50)
+                                
+                                NavigationLink(value: SelectionPath.allUserEvents(userID: user.id)){
+                                    UserStats(value: formatBigNumbers(Int(user.participatedPostsCount)), title: "Events")
+                                        .frame(width: 105)
+                                }
+                                Divider()
+                                    .frame(height: 50)
+                                
+                                NavigationLink(value: SelectionPath.userReviewView(user: user)){
+                                    VStack{
+                                        UserStats(value: "\(formatBigNumbers(Int(viewModel.likesCount)))", title: "Likes")
+                                        Text("\(viewModel.noShows) no shows")
+                                            .font(.footnote)
+                                            .foregroundStyle(viewModel.noShows == 0 ? .gray :
+                                                                (viewModel.noShows >= 5  && viewModel.noShows < 10) ? .yellow : .red)
+                                    }
+                                    .frame(width: 105)
+                                }
+                                
+                            } else {
+                                UserStats(value: String(Int(0)), title: "Friends")
+                                    .frame(width: 105)
+                                
+                                
+                                Divider()
+                                    .frame(height: 50)
+                                
+                                
+                                UserStats(value: "\(0)", title: "Events")
+                                    .frame(width: 105)
+                                
+                                Divider()
+                                    .frame(height: 50)
+                                
+                                
+                                VStack{
+                                    UserStats(value: "\(0)", title: "Likes")
+                                    Text("0 no shows")
+                                        .font(.footnote)
+                                        .foregroundStyle(.gray)
                                 }
                                 .frame(width: 105)
+                                
                             }
                             
-                        } else {
-                            UserStats(value: String(Int(0)), title: "Friends")
-                                .frame(width: 105)
-                            
-                            
-                            Divider()
-                                .frame(height: 50)
-                            
-                            
-                            UserStats(value: "\(0)", title: "Events")
-                                .frame(width: 105)
-                            
-                            Divider()
-                                .frame(height: 50)
-                            
-                            
-                            VStack{
-                                UserStats(value: "\(0)", title: "Likes")
-                                Text("0 no shows")
-                                    .font(.footnote)
-                                    .foregroundStyle(.gray)
+                        }
+                        .padding(.bottom, 8)
+                        
+                        if let currentUser = userVm.currentUser, miniUser.id != currentUser.id {
+                            HStack(alignment:.center, spacing: 10) {
+                                if user?.currentFriendshipStatus == .FRIENDS{
+                                    Button {
+                                        showRemoveSheet = true
+                                    } label: {
+                                        Text("Friends")
+                                            .normalTagTextStyle()
+                                            .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                            .normalTagRectangleStyle()
+                                    }
+                                } else if user?.currentFriendshipStatus == .NOT_FRIENDS{
+                                    Button {
+                                        Task{
+                                            if let user = self.user, try await APIClient.shared.sendFriendRequest(sendToUserId: user.id) != nil {
+                                                self.user?.currentFriendshipStatus = .SENT_FRIEND_REQUEST
+                                            }
+                                        }
+                                    } label: {
+                                        Text("Add Friend")
+                                            .normalTagTextStyle()
+                                            .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                            .normalTagRectangleStyle()
+                                    }
+                                } else if user?.currentFriendshipStatus == .RECEIVED_FRIEND_REQUEST {
+                                    Button {
+                                        showRespondSheet = true
+                                    } label: {
+                                        Text("Respond")
+                                            .normalTagTextStyle()
+                                            .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                            .normalTagRectangleStyle()
+                                    }
+                                } else if user?.currentFriendshipStatus == .SENT_FRIEND_REQUEST {
+                                    Button {
+                                        showCancelSheet = true
+                                    } label: {
+                                        Text("Cancel")
+                                            .normalTagTextStyle()
+                                            .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                            .normalTagRectangleStyle()
+                                    }
+                                } else {
+                                    Text("Loading...")
+                                        .normalTagTextStyle()
+                                        .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                        .normalTagRectangleStyle()
+                                }
+                                
+                                if isFriend {
+                                    Button {
+                                        Task{
+                                            if let _user = user, let chatroomID = _user.chatRoomId, let chatRoom = try await APIClient.shared.getChat(chatId: chatroomID) {
+                                                navManager.selectionPath = []
+                                                navManager.screen = .message
+                                                //                                            websocket.selectedUser = _user
+                                                navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
+                                            }
+                                        }
+                                    } label: {
+                                        Text("Message")
+                                            .normalTagTextStyle()
+                                            .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                            .normalTagRectangleStyle()
+                                    }
+                                } else {
+                                    ShareLink(item: URL(string: createURLLink(postID: nil, clubID: nil, userID: miniUser.id))!) {
+                                        Text("Share")
+                                            .normalTagTextStyle()
+                                            .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                            .normalTagRectangleStyle()
+                                    }
+                                }
                             }
-                            .frame(width: 105)
-                            
+                            .padding(.horizontal)
                         }
                         
+                        
                     }
-                    .padding(.bottom, 8)
+                    .padding(.bottom)
+                    .frame(width: UIScreen.main.bounds.width)
+                    .background(.bar)
+                    .cornerRadius(10)
                     
-                    if let currentUser = userVm.currentUser, miniUser.id != currentUser.id {
-                        HStack(alignment:.center, spacing: 10) {
-                            if user?.currentFriendshipStatus == .FRIENDS{
-                                Button {
-                                    showRemoveSheet = true
-                                } label: {
-                                    Text("Friends")
-                                        .normalTagTextStyle()
-                                        .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                        .normalTagRectangleStyle()
-                                }
-                            } else if user?.currentFriendshipStatus == .NOT_FRIENDS{
-                                Button {
-                                    Task{
-                                        if let user = self.user, try await APIClient.shared.sendFriendRequest(sendToUserId: user.id) != nil {
-                                            self.user?.currentFriendshipStatus = .SENT_FRIEND_REQUEST
-                                        }
-                                    }
-                                } label: {
-                                    Text("Add Friend")
-                                        .normalTagTextStyle()
-                                        .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                        .normalTagRectangleStyle()
-                                }
-                            } else if user?.currentFriendshipStatus == .RECEIVED_FRIEND_REQUEST {
-                                Button {
-                                    showRespondSheet = true
-                                } label: {
-                                    Text("Respond")
-                                        .normalTagTextStyle()
-                                        .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                        .normalTagRectangleStyle()
-                                }
-                            } else if user?.currentFriendshipStatus == .SENT_FRIEND_REQUEST {
-                                Button {
-                                    showCancelSheet = true
-                                } label: {
-                                    Text("Cancel")
-                                        .normalTagTextStyle()
-                                        .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                        .normalTagRectangleStyle()
-                                }
-                            } else {
-                                Text("Loading...")
-                                    .normalTagTextStyle()
-                                    .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                    .normalTagRectangleStyle()
-                            }
-                            
-                            if isFriend {
-                                Button {
-                                    Task{
-                                        if let _user = user, let chatroomID = _user.chatRoomId, let chatRoom = try await APIClient.shared.getChat(chatId: chatroomID) {
-                                            navManager.selectionPath = []
-                                            navManager.screen = .message
-//                                            websocket.selectedUser = _user
-                                            navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
-                                        }
-                                    }
-                                } label: {
-                                    Text("Message")
-                                        .normalTagTextStyle()
-                                        .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                        .normalTagRectangleStyle()
-                                }
-                            } else {
-                                ShareLink(item: URL(string: createURLLink(postID: nil, clubID: nil, userID: miniUser.id))!) {
-                                    Text("Share")
-                                        .normalTagTextStyle()
-                                        .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                        .normalTagRectangleStyle()
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
+                    
+                    //                BadgesTab()
+                    
+                    AboutTab(user: user, showInstagram: (isCurrentUser || isFriend))
+                    
+                    
+                    if let currentUser = userVm.currentUser, currentUser.id == miniUser.id || viewModel.posts.count > 0 {
+                        EventTab(userID: miniUser.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: $viewModel.postsCount)
                     }
                     
-                    
-                }
-                .padding(.bottom)
-                .frame(width: UIScreen.main.bounds.width)
-                .background(.bar)
-                .cornerRadius(10)
-                
-                //                BadgesTab()
-                
-                AboutTab(user: user, showInstagram: (isCurrentUser || isFriend))
-                
-
-                if let currentUser = userVm.currentUser, currentUser.id == miniUser.id || viewModel.posts.count > 0 {
-                    EventTab(userID: miniUser.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: $viewModel.postsCount)
-                }
-                
-                if let currentUser = userVm.currentUser, currentUser.id == miniUser.id || viewModel.clubs.count > 0 {
-                    ClubsTab(userID: miniUser.id, count: viewModel.clubsCount, createClub: $showCreateClub, clubs:  $viewModel.clubs)
+                    if let currentUser = userVm.currentUser, currentUser.id == miniUser.id || viewModel.clubs.count > 0 {
+                        ClubsTab(userID: miniUser.id, count: viewModel.clubsCount, createClub: $showCreateClub, clubs:  $viewModel.clubs)
+                    }
                 }
                 
                 
@@ -343,7 +357,11 @@ struct UserProfileView: View {
                 Button{
                     Task {
                         if let response = try await APIClient.shared.blockUser(userId: miniUser.id){
-                            
+                            if response {
+                                user?.currentFriendshipStatus = .BLOCKED_BY_YOU
+                                postsVM.feedPosts.removeAll(where: {$0.owner.id == user?.id})
+                                clubsVM.feedClubs.removeAll(where: {$0.owner.id == user?.id})
+                            }
                         }
                     }
                 } label:{
@@ -410,6 +428,108 @@ struct UserProfileView: View {
                 }
             }
         }
+    }
+    
+    @ViewBuilder
+    
+    func blockedView() -> some View {
+        VStack{
+            VStack(alignment: .center){
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 250, height: 250)
+                    .foregroundStyle(.gray)
+            }
+            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.5)
+            .background(.white)
+            
+            VStack(spacing: 10) {
+                Text(user?.currentFriendshipStatus == .BLOCKED_BY_YOU ? "Blocked User" : "Unknown User")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                WrappingHStack(horizontalSpacing: 5, verticalSpacing: 5){
+                    HStack(spacing: 5){
+                        Image(systemName: "suitcase")
+                        
+                        Text("Unknown")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.gray)
+                    
+                    
+                    HStack(spacing: 5){
+                        Image(systemName: "birthday.cake")
+                        
+                        Text("Unknown")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.gray)
+                    
+                }
+                
+                
+                
+                HStack(spacing: 5){
+                    Image(systemName: "mappin.circle")
+                    
+                    Text("Unknown")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.gray)
+                }
+                .foregroundColor(.gray)
+                
+                
+                
+            }.padding()
+            
+            HStack(alignment: .top, spacing: 0
+            ) {
+                    UserStats(value: String(Int(0)), title: "Friends")
+                        .frame(width: 105)
+                    
+                    
+                    Divider()
+                        .frame(height: 50)
+                    
+                    
+                    UserStats(value: "\(0)", title: "Events")
+                        .frame(width: 105)
+                    
+                    Divider()
+                        .frame(height: 50)
+                    
+                    
+                    VStack{
+                        UserStats(value: "\(0)", title: "Likes")
+                        Text("0 no shows")
+                            .font(.footnote)
+                            .foregroundStyle(.gray)
+                    }
+                    .frame(width: 105)
+                    
+                
+                
+            }
+            .padding(.bottom, 8)
+            
+            if user?.currentFriendshipStatus == .BLOCKED_BY_YOU {
+                Text("You have blocked this user. Go to settings and unblock them if you want to see more.")
+                    .font(.footnote)
+                    .bold()
+                    .foregroundStyle(.gray)
+                    .padding()
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .padding(.bottom)
+        .frame(width: UIScreen.main.bounds.width)
+        .background(.bar)
+        .cornerRadius(10)
     }
     
     @ViewBuilder
@@ -523,4 +643,7 @@ struct UserProfileView: View {
         .environmentObject(UserViewModel())
         .environmentObject(WebSocketManager())
         .environmentObject(NavigationManager())
+        .environmentObject(PostsViewModel())
+        .environmentObject(ClubsViewModel())
+        .environmentObject(ActivityViewModel())
 }

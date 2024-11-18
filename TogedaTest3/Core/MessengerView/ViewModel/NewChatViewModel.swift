@@ -20,6 +20,28 @@ class NewChatViewModel: ObservableObject {
         }
     }
     
+    @Published var searchedFriends: [Components.Schemas.MiniUser] = []
+    @Published var searchText: String = ""
+    @Published var lastPage = true
+    @Published var page: Int32 = 0
+    @Published var pageSize: Int32 = 15
+    func searchUsers() async throws{
+        Task{
+            if let response = try await APIClient.shared.searchFriends(
+                searchText: searchText,
+                page: page,
+                size: pageSize
+            )
+            {
+                
+                DispatchQueue.main.async { [weak self] in
+                    self?.searchedFriends += response.data
+                    self?.lastPage = response.lastPage
+                    self?.page += 1
+                }
+            }
+        }
+    }
     
     func setImage(from selection: PhotosPickerItem?){
         guard let selection else {return}

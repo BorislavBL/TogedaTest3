@@ -22,6 +22,7 @@ struct MapView: View {
     
     @State private var isInitialLocationSet = false
     @State private var hasDisappeared = false
+    @State private var showAllowLocationSheet: Bool = false
 
     
     @State private var offset = CGSize.zero
@@ -73,6 +74,9 @@ struct MapView: View {
             }
             .onAppear(){
                 if !isInitialLocationSet {
+                    if locationManager.showLocationServicesView {
+                        showAllowLocationSheet = true
+                    }
                     setLocation()
                     locationManager.requestAuthorization()
                     isInitialLocationSet = true
@@ -255,6 +259,36 @@ struct MapView: View {
             }
             
             
+        }
+        .sheet(isPresented: $showAllowLocationSheet) {
+            VStack(alignment: .leading, spacing: 16){
+                Text("Explore The World Around You")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                Text("Enable your location to discover the events and activities happening around you.\n It's easy! Just follow these steps: \n\n - Go to Settings \n\n - Tap on Location \n\n - Select While Using the App \n\n - Return to the App")
+                    .font(.body)
+                    .foregroundStyle(.gray)
+                
+                Spacer(minLength: 0)
+                
+                Button{
+                    UIApplication.shared.open(URL(string:UIApplication.openSettingsURLString)!)
+                    showAllowLocationSheet = false
+                } label: {
+                    Text("Let's GOOO!")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .fontWeight(.semibold)
+                        .cornerRadius(10)
+                        .padding(.bottom)
+                }
+            }
+            .padding(.all)
+            .frame(maxHeight: .infinity, alignment: .top)
+            .presentationDetents([.height(400)])
         }
     }
     

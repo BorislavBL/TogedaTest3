@@ -13,6 +13,7 @@ struct CustomNavBar: View {
     @EnvironmentObject var postViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     @ObservedObject var homeViewModel: HomeViewModel
+    @Binding var showLocationServicesView: Bool
     
     var body: some View {
         VStack{
@@ -27,13 +28,15 @@ struct CustomNavBar: View {
                     
                     Group{
                     
-                        Button{
-                            withAnimation{
-                                filterVM.showAllFilter = true
+                        if !showLocationServicesView {
+                            Button{
+                                withAnimation{
+                                    filterVM.showAllFilter = true
+                                }
+                            } label:{
+                                Image(systemName: "slider.horizontal.3")
+                                
                             }
-                        } label:{
-                            Image(systemName: "slider.horizontal.3")
-
                         }
                         
                         Button{
@@ -55,7 +58,7 @@ struct CustomNavBar: View {
                 }
                 .padding(.horizontal)
                 
-                if showFilter{
+                if showFilter && !showLocationServicesView {
 //                    Filters(viewModel: viewModel)
                     TypeFilters(filterVM: filterVM)
                         .transition(.move(edge: .top).combined(with: .opacity))
@@ -83,7 +86,7 @@ struct CustomNavBar: View {
 struct CustomNavBar_Previews: PreviewProvider {
     @State static var showFilterPreview = true
     static var previews: some View {
-        CustomNavBar(showFilter: $showFilterPreview, filterVM: FilterViewModel(), homeViewModel: HomeViewModel())
+        CustomNavBar(showFilter: $showFilterPreview, filterVM: FilterViewModel(), homeViewModel: HomeViewModel(), showLocationServicesView: .constant(false))
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
     }

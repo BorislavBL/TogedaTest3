@@ -33,7 +33,7 @@ struct MapClusterAnnotation: Identifiable {
 class MapViewModel: ObservableObject{
     @Published var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 34.052235, longitude: -118.243683),
-        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+        span: MKCoordinateSpan(latitudeDelta: 0.8, longitudeDelta: 0.8)
     ))
     
     @Published var mapSelection: String?

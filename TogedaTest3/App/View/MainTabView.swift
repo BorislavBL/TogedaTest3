@@ -74,9 +74,9 @@ struct MainTabView: View {
             .fullScreenCover(isPresented: $navigationManager.isPresentingClub) {
                 CreateClubView(resetClubsOnCreate: {})
             }
-            .fullScreenCover(isPresented: $locationManager.showLocationServicesView, content: {
-                AllowLocationView()
-            })
+//            .fullScreenCover(isPresented: $locationManager.showLocationServicesView, content: {
+//                AllowLocationView()
+//            })
             .sheet(isPresented: $postsViewModel.showReportEvent, content: {
                 ReportEventView(event: postsViewModel.clickedPost, isActive: $postsViewModel.showReportEvent)
             })
@@ -157,6 +157,8 @@ struct MainTabView: View {
                     ChatParticipantsView(chatId: chatId)
                 case .changePassword:
                     ChangePasswordView()
+                case .blockedUsers:
+                    BlockedUsersView()
                 case .test:
                     TestView()
 

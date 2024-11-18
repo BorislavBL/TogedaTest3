@@ -26,7 +26,6 @@ struct EventView: View {
     @EnvironmentObject var chatVM: WebSocketManager
     @EnvironmentObject var navManager: NavigationManager
     @EnvironmentObject var locationManager: LocationManager
-
     
     @Environment(\.dismiss) private var dismiss
     
@@ -44,6 +43,8 @@ struct EventView: View {
     
     @State var event: EKEvent?
     @State var store = EKEventStore()
+    
+    @State private var hideEvent: Bool = false
     
     var body: some View {
         
@@ -244,6 +245,18 @@ struct EventView: View {
                 .padding()
                 .background(.bar)
                 .cornerRadius(10)
+            } else if post.blockedForCurrentUser {
+                PageIsNotAvailableView()
+            } else if hideEvent {
+                HiddenPageView {
+                    Task{
+                        if let response = try await APIClient.shared.hideorRevealEvent(postId: post.id, isHide: false) {
+                            if response {
+                                hideEvent = false
+                            }
+                        }
+                    }
+                }
             }
         }
         .swipeBack()
@@ -490,6 +503,21 @@ struct EventView: View {
                     Button("Report") {
                         showPostOptions = false
                         showReportEvent = true
+                    }
+                    
+                    if post.currentUserStatus != .PARTICIPATING {
+                        Button("Hide") {
+                            showPostOptions = false
+                            Task{
+                                if let response = try await APIClient.shared.hideorRevealEvent(postId: post.id, isHide: true) {
+                                    if response {
+                                        postsVM.feedPosts.removeAll(where: {$0.id == post.id})
+                                        activityVM.activityFeed.removeAll(where: {$0.post?.id == post.id})
+                                        hideEvent = true
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 

@@ -459,6 +459,10 @@ extension WebSocketManager {
                     self.lastPage = response.lastPage
                     self.loadingState = .loaded
                     completion(true)
+                    
+                    if response.lastPage && self.notificationsList.count == 0{
+                        self.loadingState = .noResults
+                    }
                 }
             } else {
                 DispatchQueue.main.async {

@@ -28,5 +28,6 @@ struct TogedaLinks {
     let website: String  = "https://www.togeda.net/"
     let instagram: String  = "https://www.instagram.com/togeda_net/"
     let discord: String  = "https://discord.gg/mn6xcgF3BP"
+    let appstore: String = "https://apps.apple.com/us/app/togeda-friends-activities/id6737203832"
 }
 

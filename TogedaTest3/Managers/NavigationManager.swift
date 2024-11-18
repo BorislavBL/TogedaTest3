@@ -49,6 +49,7 @@ enum SelectionPath: Hashable, Codable {
     case paymentPage
     case chatParticipants(chatId: String)
     case changePassword
+    case blockedUsers
     case test
 }
 

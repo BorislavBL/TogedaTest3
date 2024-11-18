@@ -18,7 +18,7 @@ struct MessagePostPreview: View {
     
     var body: some View {
         VStack(alignment: .leading){
-            if let post = post, loadingCases == .loaded {
+            if let post = post, loadingCases == .loaded, !post.blockedForCurrentUser{
                 NavigationLink(value: SelectionPath.eventDetails(post)) {
                     VStack(alignment: .leading){
                         ZStack(alignment: .bottom) {
@@ -108,7 +108,7 @@ struct MessagePostPreview: View {
                         
                     }
                 }
-            } else if loadingCases == .noResults{
+            } else if let post = post, post.blockedForCurrentUser || loadingCases == .noResults {
                 VStack(alignment: .center){
                     Text("No such event")
                         .font(.footnote)

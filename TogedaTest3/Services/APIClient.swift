@@ -212,6 +212,37 @@ extension APIClient {
         return nil
     }
     
+    func unBlockUser(userId: String) async throws -> Bool?{
+        let response = try await client.removeBlock(.init(path: .init(userId: userId)))
+        switch response {
+        case let .ok(okResponse):
+            switch okResponse.body{
+            case .json(let message):
+                return message.success
+            }
+            
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for hasBasicInfo")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        return nil
+    }
+    
     func changePassword(old: String, new: String, completion: @escaping (Bool?, String?) -> Void) async throws{
         let response = try await client.changePassword(.init(query: .init(prevPassword: old, newPassword: new)))
         switch response {
@@ -294,6 +325,37 @@ extension APIClient {
     
     func searchFriends(searchText: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
         let response = try await client.searchFriends(.init(query: .init(query: searchText, pageNumber: page, pageSize: size)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func blockedUsers(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
+        let response = try await client.getBlockedUsers(.init(query: .init(pageNumber: page, pageSize: size)))
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
@@ -1139,6 +1201,40 @@ extension APIClient {
     func confirmUserLocation(postId: String) async throws -> Bool? {
         
         let response = try await client.sendUserArrival(.init(path: .init(postId: postId)))
+        
+        switch response {
+            
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let response):
+                return response.success
+            }
+        case .undocumented(statusCode: let statusCode, let message):
+            print("The status code:", statusCode, message)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getEvent")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func hideorRevealEvent(postId: String, isHide: Bool) async throws -> Bool? {
+        
+        let response = try await client.hideOrRevealPost(.init(path: .init(postId: postId), query: .init(isHide: isHide)))
         
         switch response {
             

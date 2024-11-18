@@ -140,6 +140,10 @@ struct FriendsListView: View {
                             lastPage = response.lastPage
                             loadingState = .loaded
                             Init = false
+                            
+                            if response.lastPage && friendsList.count == 0{
+                                loadingState = .noResults
+                            }
                         } else {
                             loadingState = .noResults
                             Init = false

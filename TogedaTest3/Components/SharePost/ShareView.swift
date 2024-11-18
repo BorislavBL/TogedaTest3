@@ -69,6 +69,9 @@ class ShareViewModel: ObservableObject {
                 self.page += 1
                 self.lastPage = response.lastPage
                 self.loadingState = .loaded
+                if response.lastPage && self.chatRoomsList.count == 0{
+                    self.loadingState = .noResults
+                }
             }
         } else {
             DispatchQueue.main.async {

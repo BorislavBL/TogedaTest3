@@ -169,15 +169,19 @@ struct ProfileView: View {
                 .frame(maxWidth: .infinity)
                 .background(Color("testColor"))
                 .onChange(of: userVm.posts) { oldValue, newValue in
+                    let countDifference = newValue.count - oldValue.count
                     if !viewModel.postsAreUpdating {
                         viewModel.posts = newValue
+                        viewModel.postsCount = max(viewModel.postsCount + Int64(countDifference), 0)
                     } else {
                         viewModel.postsAreUpdating = false
                     }
                 }
                 .onChange(of: userVm.clubs) { oldValue, newValue in
+                    let countDifference = newValue.count - oldValue.count
                     if !viewModel.clubsAreUpdating {
                         viewModel.clubs = newValue
+                        viewModel.clubsCount = max(viewModel.clubsCount + Int64(countDifference), 0)
                     } else {
                         viewModel.clubsAreUpdating = false
                     }

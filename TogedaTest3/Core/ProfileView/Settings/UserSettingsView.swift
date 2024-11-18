@@ -31,6 +31,9 @@ struct UserSettingsView: View {
                 NavigationLink(value: SelectionPath.paymentPage){
                     Text("Payment Methods")
                 }
+                NavigationLink(value: SelectionPath.blockedUsers){
+                    Text("Blocked Users")
+                }
             }
             Section(header: Text("Togeda")){
                 Button{

@@ -10,7 +10,7 @@ import Kingfisher
 
 struct NewMessageView: View {
     @Environment(\.dismiss) var dismiss
-    @State var searchText: String = ""
+
     @ObservedObject var chatVM: ChatViewModel
     @StateObject var newChatVM = NewChatViewModel()
     
@@ -25,9 +25,12 @@ struct NewMessageView: View {
     
     @State var Init: Bool = true
     @State var friendsList: [Components.Schemas.GetFriendsDto] = []
+
     @State var lastPage = true
     @State var page: Int32 = 0
     @State var pageSize: Int32 = 15
+    
+    @State var isSearchActive: Bool = false
     
     
     var body: some View {
@@ -116,6 +119,42 @@ struct NewMessageView: View {
                         }
                 }
             }
+//            .overlay(content: {
+//               if isSearchActive{
+//                   ScrollView{
+//                       LazyVStack{
+//                           ForEach(newChatVM.searchedFriends, id: \.id) { userData in
+//                               Button{
+//                                   Task{
+//                                       if let chatRoom = try await APIClient.shared.getChat(chatId: userData.chatRoomId) {
+//                                           dismiss()
+//                                           chatVM.selectedUser = userData
+//                                           navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
+//                                       }
+//                                   }
+//                               } label:{
+//                                   HStack {
+//                                       KFImage(URL(string: userData.profilePhotos[0]))
+//                                           .resizable()
+//                                           .scaledToFill()
+//                                           .frame(width: size.dimension, height: size.dimension)
+//                                           .clipShape(Circle())
+//                                       
+//                                       Text("\(userData.user.firstName) \(userData.user.lastName)")
+//                                           .font(.subheadline)
+//                                           .fontWeight(.semibold)
+//                                       
+//                                       Spacer()
+//                                   }
+//                               }
+//                           }
+//                       }
+//                   }
+//                    .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: UIScreen.main.bounds.height)
+//                    .background(.bar)
+//                    .ignoresSafeArea(.keyboard)
+//                }
+//            })
             .onAppear(){
                 Task{
                     do{
@@ -132,7 +171,7 @@ struct NewMessageView: View {
                     }
                 }
             }
-            .searchable(text: $searchText)
+//            .searchable(text: $newChatVM.searchText, isPresented: $isSearchActive)
             .navigationTitle("New Message")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showGroupChat){

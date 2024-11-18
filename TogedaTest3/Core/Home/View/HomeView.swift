@@ -16,6 +16,7 @@ struct HomeView: View {
     @EnvironmentObject var clubsVM: ClubsViewModel
     @EnvironmentObject var activityVM: ActivityViewModel
     @EnvironmentObject var networkManager: NetworkManager
+    @EnvironmentObject var locationManager: LocationManager
     
     var body: some View {
         ZStack{
@@ -23,6 +24,15 @@ struct HomeView: View {
                 .edgesIgnoringSafeArea(.vertical)
             
             ZStack(alignment: .top) {
+                if locationManager.showLocationServicesView {
+                    AllowLocationView()
+                        .ignoresSafeArea(.keyboard)
+                        .overlay{
+                            if viewModel.showCancelButton {
+                                SearchView(viewModel: viewModel)
+                            }
+                        }
+                } else {
                     TabView(selection: $filterViewModel.selectedType) {
                         EventsFeedView(showFilter: $showFilter, filterViewModel: filterViewModel, viewModel: viewModel)
                             .tag(FeedType.events)
@@ -55,38 +65,40 @@ struct HomeView: View {
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     .ignoresSafeArea()
-                .overlay{
-                    if viewModel.showCancelButton {
-                        SearchView(viewModel: viewModel)
-                    }
-                }
-                .onChange(of: filterViewModel.selectedType) {
-                    withAnimation{
-                        showFilter = true
-                    }
-                }
-                .onChange(of: viewModel.showCancelButton){
-                    if viewModel.showCancelButton {
-                        viewModel.startSearch()
-                    } else {
-                        viewModel.stopSearch()
-                    }
-                }
-                .onChange(of: networkManager.isDisconected) { oldValue, newValue in
-                    if newValue {
-                        if postsViewModel.state == .loading, postsViewModel.feedPosts.count == 0 {
-                            postsViewModel.state = .refresh
-                        }
-                        if clubsVM.state == .loading, clubsVM.feedClubs.count == 0 {
-                            clubsVM.state = .refresh
-                        }
-                        if activityVM.state == .loading, activityVM.activityFeed.count == 0 {
-                            activityVM.state = .refresh
+                    .overlay{
+                        if viewModel.showCancelButton {
+                            SearchView(viewModel: viewModel)
                         }
                     }
                 }
 
-                CustomNavBar(showFilter: $showFilter, filterVM: filterViewModel, homeViewModel: viewModel)
+
+                CustomNavBar(showFilter: $showFilter, filterVM: filterViewModel, homeViewModel: viewModel, showLocationServicesView: $locationManager.showLocationServicesView)
+            }
+            .onChange(of: filterViewModel.selectedType) {
+                withAnimation{
+                    showFilter = true
+                }
+            }
+            .onChange(of: viewModel.showCancelButton){
+                if viewModel.showCancelButton {
+                    viewModel.startSearch()
+                } else {
+                    viewModel.stopSearch()
+                }
+            }
+            .onChange(of: networkManager.isDisconected) { oldValue, newValue in
+                if newValue {
+                    if postsViewModel.state == .loading, postsViewModel.feedPosts.count == 0 {
+                        postsViewModel.state = .refresh
+                    }
+                    if clubsVM.state == .loading, clubsVM.feedClubs.count == 0 {
+                        clubsVM.state = .refresh
+                    }
+                    if activityVM.state == .loading, activityVM.activityFeed.count == 0 {
+                        activityVM.state = .refresh
+                    }
+                }
             }
             
         }
@@ -94,7 +106,21 @@ struct HomeView: View {
             JoinRequestView(post: $postsViewModel.clickedPost, isActive: $postsViewModel.showJoinRequest, refreshParticipants: {})
         }
         .sheet(isPresented: $postsViewModel.showPaymentView){
-            EventCheckoutSheet(post: $postsViewModel.clickedPost, isActive: $postsViewModel.showPaymentView, refreshParticipants: {})
+            if postsViewModel.clickedPost.payment > 0, let max = postsViewModel.clickedPost.maximumPeople, postsViewModel.clickedPost.participantsCount >= max {
+                VStack(spacing: 15){
+                    Text("😤")
+                        .font(.custom("image", fixedSize: 120))
+                    
+                    Text("The event has reached its maximum capacity.\n Check again later...")
+                        .font(.body)
+                        .foregroundStyle(.gray)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom)
+                }
+            } else {
+                EventCheckoutSheet(post: $postsViewModel.clickedPost, isActive: $postsViewModel.showPaymentView, refreshParticipants: {})
+            }
         }
         .sheet(isPresented: $clubsVM.showJoinClubSheet){
             JoinRequestClubView(club: $clubsVM.clickedClub, isActive: $clubsVM.showJoinClubSheet, refreshParticipants: {})

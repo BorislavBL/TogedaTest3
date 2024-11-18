@@ -195,7 +195,8 @@ let MockPost = Components.Schemas.PostResponseDto(
     clubId: nil,
     participantsCount: 5,
     status: .NOT_STARTED,
-    savedByCurrentUser: true
+    savedByCurrentUser: true,
+    blockedForCurrentUser: false
 )
 
 
@@ -236,6 +237,7 @@ let MockClub = Components.Schemas.ClubDto(
     membersCount: 0, 
     previewMembers: [MockMiniUser],
     permissions: .ADMINS_ONLY,
+    blockedForCurrentUser: false,
     createdAt: Date())
 
 

@@ -46,14 +46,14 @@ struct EventTab: View {
             if posts.count > 0 {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack{
-                        ForEach(posts.indices, id: \.self){ index in
+                        ForEach(posts, id: \.id){ post in
 //                            if posts[index].status == .HAS_ENDED {
 //                                NavigationLink(value: SelectionPath.completedEventDetails(post: posts[index])){
 //                                    EventComponent(userID: userID, post: posts[index])
 //                                }
 //                            } else {
-                                NavigationLink(value: SelectionPath.eventDetails(posts[index])){
-                                    EventComponent(userID: userID, post: posts[index])
+                                NavigationLink(value: SelectionPath.eventDetails(post)){
+                                    EventComponent(userID: userID, post: post)
                                 }
 //                            }
                         }
