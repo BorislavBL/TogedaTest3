@@ -19,6 +19,7 @@ class ProfileViewModel: ObservableObject {
     @Published var noShows: Int32 = 0
     @Published var badges: [Components.Schemas.Badge] = []
     @Published var badgeTasks: [Components.Schemas.BadgeTask] = []
+    @Published var badgeSupply: Components.Schemas.BadgeSupplyDto = .init(superUserBadgesLeft: 0, earlyAdopterBadgesLeft: 0)
     @Published var postsAreUpdating = true
     @Published var clubsAreUpdating = true
 
@@ -143,6 +144,18 @@ class ProfileViewModel: ObservableObject {
                             self.badgeTasks = badgeTasks.filter { task in
                                 return task.completionNumber != task.currentNumber
                             }
+                        }
+                    }
+                } catch {
+                    print("Error fetching user clubs: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getBadgeSupply() {
+                        DispatchQueue.main.async {
+                            self.badgeSupply = response
                         }
                     }
                 } catch {

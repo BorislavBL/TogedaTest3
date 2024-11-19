@@ -52,7 +52,7 @@ struct UserProfileView: View {
         ZStack(alignment: .top){
             ScrollView(showsIndicators: false){
                 if isBlocked {
-
+                    
                     blockedView()
                     
                 } else {
@@ -72,9 +72,19 @@ struct UserProfileView: View {
                         .frame(height: UIScreen.main.bounds.width * 1.5)
                         
                         VStack(spacing: 10) {
-                            Text("\(miniUser.firstName) \(miniUser.lastName)")
-                                .font(.title2)
-                                .fontWeight(.bold)
+                            HStack(spacing: 5){
+                                Text("\(miniUser.firstName) \(miniUser.lastName)")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+                                
+                                if user?.userRole == .PARTNER {
+                                    PartnerSeal()
+                                } else if user?.userRole == .AMBASSADOR {
+                                    AmbassadorSeal()
+                                }
+                            }
                             
                             WrappingHStack(horizontalSpacing: 5, verticalSpacing: 5){
                                 HStack(spacing: 5){
@@ -489,29 +499,29 @@ struct UserProfileView: View {
             
             HStack(alignment: .top, spacing: 0
             ) {
-                    UserStats(value: String(Int(0)), title: "Friends")
-                        .frame(width: 105)
-                    
-                    
-                    Divider()
-                        .frame(height: 50)
-                    
-                    
-                    UserStats(value: "\(0)", title: "Events")
-                        .frame(width: 105)
-                    
-                    Divider()
-                        .frame(height: 50)
-                    
-                    
-                    VStack{
-                        UserStats(value: "\(0)", title: "Likes")
-                        Text("0 no shows")
-                            .font(.footnote)
-                            .foregroundStyle(.gray)
-                    }
+                UserStats(value: String(Int(0)), title: "Friends")
                     .frame(width: 105)
-                    
+                
+                
+                Divider()
+                    .frame(height: 50)
+                
+                
+                UserStats(value: "\(0)", title: "Events")
+                    .frame(width: 105)
+                
+                Divider()
+                    .frame(height: 50)
+                
+                
+                VStack{
+                    UserStats(value: "\(0)", title: "Likes")
+                    Text("0 no shows")
+                        .font(.footnote)
+                        .foregroundStyle(.gray)
+                }
+                .frame(width: 105)
+                
                 
                 
             }
@@ -561,6 +571,7 @@ struct UserProfileView: View {
                         .navButton3()
                 }
             } else {
+                
                 Menu{
                     ShareLink(item: URL(string: createURLLink(postID: nil, clubID: nil, userID: miniUser.id))!) {
                         Text("Share via")
@@ -579,6 +590,35 @@ struct UserProfileView: View {
                         Text("Block")
                             .foregroundStyle(.red)
                     }
+                    
+                    if let currentUser = userVm.currentUser,
+                        currentUser.userRole == .ADMINISTRATOR,
+                        let user = user, user.userRole != .ADMINISTRATOR{
+                        Menu {
+                            Button{
+                                changeUserStatus(role: .PARTNER)
+                            } label:{
+                                Text("Partner")
+                                    .foregroundStyle(.red)
+                            }
+                            
+                            Button{
+                                changeUserStatus(role: .AMBASSADOR)
+                            } label:{
+                                Text("Ambassador")
+                                    .foregroundStyle(.red)
+                            }
+                            
+                            Button{
+                                changeUserStatus(role: .NORMAL)
+                            } label:{
+                                Text("Normal")
+                                    .foregroundStyle(.red)
+                            }
+                        } label: {
+                            Text("Change Status")
+                        }
+                    }
                 } label: {
                     Image(systemName: "ellipsis")
                         .rotationEffect(.degrees(90))
@@ -591,6 +631,25 @@ struct UserProfileView: View {
         .padding(.horizontal)
     }
     
+    func changeUserStatus(role: Operations.setUserRole.Input.Query.userRolePayload) {
+        Task {
+            if let response = try await APIClient.shared.giveUserRole(userId: miniUser.id, role: role) {
+                if response {
+                    switch role {
+                    case .ADMINISTRATOR:
+                        print("Admin")
+                    case .AMBASSADOR:
+                        user?.userRole = .AMBASSADOR
+                    case .PARTNER:
+                        user?.userRole = .PARTNER
+                    case .NORMAL:
+                        user?.userRole = .NORMAL
+                    }
+                }
+            }
+        }
+    }
+    
     func fetchAll() async {
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
@@ -598,7 +657,7 @@ struct UserProfileView: View {
                     if let response = try await APIClient.shared.getUserInfo(userId: miniUser.id) {
                         DispatchQueue.main.async {
                             self.user = response
-
+                            
                         }
                     }
                     

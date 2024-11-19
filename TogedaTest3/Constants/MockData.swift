@@ -15,6 +15,7 @@ let MockUser: Components.Schemas.UserInfoDto = .init(
     firstName: "Borislav",
     lastName: "Lorinkov",
     gender: .MALE,
+    userRole: .NORMAL,
     birthDate: "2000-07-11",
     visibleGender: true,
     location: .init(name: "Sofia, Bulgaria", address: nil, city: "Sofia", state: "Sofia", country: "Bulgaria", latitude: 42.6889525, longitude: 23.3188913),

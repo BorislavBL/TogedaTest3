@@ -54,19 +54,33 @@ struct PostCellSkeleton: View {
                                 .frame(width: 50, height: 50)
                                 .background(.gray)
                                 .cornerRadius(15)
+//                                .overlay(alignment: .bottomTrailing) {
+//                                    AmbassadorSealMini()
+//                                        .offset(x: 3, y: 3)
+//                                }
                             
                             
                             VStack(alignment: .leading, spacing: 3){
-                                Text(post.title)
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
-                                    .font(.body)
-                                    .fontWeight(.semibold)
+//                                HStack(spacing: 5){
+                                    Text(post.title)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .font(.body)
+                                        .fontWeight(.semibold)
+                                    
+//                                    AmbassadorSealMini()
+//                                }
                                 
-                                Text("\(post.owner.firstName) \(post.owner.lastName)")
-                                    .foregroundColor(.gray)
-                                    .fontWeight(.semibold)
-                                    .font(.footnote)
+                                HStack(spacing: 5){
+                                    Text("\(post.owner.firstName) \(post.owner.lastName)")
+                                        .foregroundColor(.gray)
+                                        .fontWeight(.semibold)
+                                        .font(.footnote)
+                                    
+                                    AmbassadorSealMiniature()
+                                }
+                                
+
                             }
                         }
                         

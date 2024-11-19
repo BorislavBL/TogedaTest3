@@ -21,6 +21,12 @@ struct AboutTab: View {
                 
                 WrappingHStack(alignment: .leading){
                     
+                    if user?.userRole == .AMBASSADOR {
+                        AmbassadorTag()
+                    } else if user?.userRole == .PARTNER {
+                        PartnerTag()
+                    }
+                    
                     if let badges = badges, badges.count > 0 {
                         ForEach(badges, id: \.id) { badge in
                             HStack{

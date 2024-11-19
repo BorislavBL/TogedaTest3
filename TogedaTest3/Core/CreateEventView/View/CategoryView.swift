@@ -48,8 +48,10 @@ struct CategoryView: View {
                             
                     }
                     
-                    if displayWarning{
+                    if displayWarning && selectedInterests.count < minInterests {
                         WarningTextComponent(text: "You need to select at least \(minInterests) interests!")
+                    } else if displayWarning && selectedInterests.count > 20 {
+                        WarningTextComponent(text: "You can not select more tahn 20 interests!")
                     }
                     
                     if sport.count > 0 || health.count > 0 {
@@ -173,7 +175,7 @@ struct CategoryView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading:Button(action: {
-            if selectedInterests.count >= minInterests {
+            if selectedInterests.count >= minInterests || selectedInterests.count > 20 {
                 dismiss()
             } else {
                 displayWarning.toggle()

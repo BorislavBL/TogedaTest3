@@ -43,9 +43,20 @@ struct ProfileView: View {
                         .frame(height: UIScreen.main.bounds.width * 1.5)
                         
                         VStack(spacing: 10) {
-                            Text("\(user.firstName) \(user.lastName)")
-                                .font(.title2)
-                                .fontWeight(.bold)
+                            HStack(spacing: 5){
+                                Text("\(user.firstName) \(user.lastName)")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+                                
+                                if user.userRole == .PARTNER {
+                                    PartnerSeal()
+                                } else if user.userRole == .AMBASSADOR {
+                                    AmbassadorSeal()
+                                }
+                                
+                            }
                             
                             WrappingHStack(horizontalSpacing: 5, verticalSpacing: 5){
                                 HStack(spacing: 5){
@@ -126,7 +137,7 @@ struct ProfileView: View {
                     
                     AboutTab(user: user, badges: viewModel.badges, showInstagram: true)
                     if viewModel.badgeTasks.count > 0 {
-                        UserTaskView(badgeTask: viewModel.badgeTasks[0], referralCode: user.details.referralCode)
+                        UserTaskView(badgeTask: viewModel.badgeTasks[0], referralCode: user.details.referralCode, badgesLeft: viewModel.badgeSupply)
                     }
                     
                     EventTab(userID: user.id, posts: $viewModel.posts, createEvent: $showCreateEvent, count: $viewModel.postsCount)

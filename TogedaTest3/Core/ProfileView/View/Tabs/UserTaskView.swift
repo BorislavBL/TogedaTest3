@@ -10,6 +10,7 @@ import SwiftUI
 struct UserTaskView: View {
     var badgeTask: Components.Schemas.BadgeTask
     var referralCode: String
+    var badgesLeft: Components.Schemas.BadgeSupplyDto
     var body: some View {
         VStack (alignment: .leading, spacing: 20) {
             
@@ -89,6 +90,19 @@ struct UserTaskView: View {
                 }
             }
             
+            if badgeTask.title == "Early Adopter" {
+                Text("Badges Left: \(badgesLeft.earlyAdopterBadgesLeft ?? 0)")
+                    .foregroundStyle(.gray)
+                    .fontWeight(.semibold)
+                    .font(.footnote)
+            } else if badgeTask.title == "Super User" {
+                Text("Badges Left: \(badgesLeft.superUserBadgesLeft ?? 0)")
+                    .foregroundStyle(.gray)
+                    .fontWeight(.semibold)
+                    .font(.footnote)
+            }
+            
+            
         }
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -98,7 +112,7 @@ struct UserTaskView: View {
 }
 
 #Preview {
-    UserTaskView(badgeTask: mockBadgeTask, referralCode: "12345678909876543")
+    UserTaskView(badgeTask: mockBadgeTask, referralCode: "12345678909876543", badgesLeft: .init(superUserBadgesLeft: 0, earlyAdopterBadgesLeft: 0))
 }
 
 

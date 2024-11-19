@@ -42,8 +42,11 @@ struct EditProfileInterestView: View {
                     
                     CustomSearchBar(searchText: $searchText, showCancelButton: $cancelSearch)
                     
-                    if displayError {
+                    if selectedInterests.count < 5 && displayError {
                         WarningTextComponent(text: "Select at least 5 interests.")
+                            .padding(.bottom, 15)
+                    } else if displayError && selectedInterests.count > 20 {
+                        WarningTextComponent(text: "you can not select more than 20 interests.")
                             .padding(.bottom, 15)
                     }
                     
@@ -167,9 +170,9 @@ struct EditProfileInterestView: View {
                 .background(Color(.tertiarySystemFill))
                 .clipShape(Circle())
         }
-            .disableWithOpacity(selectedInterests.count < 5)
+            .disableWithOpacity(selectedInterests.count < 5 || selectedInterests.count > 20)
             .onTapGesture {
-                if selectedInterests.count < 5 {
+                if selectedInterests.count < 5 || selectedInterests.count > 20 {
                     displayError.toggle()
                 }
             }
