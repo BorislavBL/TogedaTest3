@@ -82,7 +82,7 @@ class EventViewModel: ObservableObject {
                 }
             }
         } else if let not = not.alertBodyPostHasStarted {
-            post.wrappedValue.status =  .HAS_STARTED
+            post.wrappedValue.status = .HAS_STARTED
             post.wrappedValue.currentUserStatus = .init(rawValue: not.post.currentUserStatus.rawValue) ?? post.wrappedValue.currentUserStatus
             if let role = not.post.currentUserRole{
                 post.wrappedValue.currentUserRole = .init(rawValue: role.rawValue) ?? post.wrappedValue.currentUserRole
@@ -109,6 +109,7 @@ class EventViewModel: ObservableObject {
         post.wrappedValue.currentUserStatus = .init(rawValue: status) ?? post.wrappedValue.currentUserStatus
         post.wrappedValue.currentUserRole = .init(rawValue: role) ?? post.wrappedValue.currentUserRole
         post.wrappedValue.participantsCount += 1
+        self.participantsCount += 1
         
     }
     

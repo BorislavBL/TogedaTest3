@@ -11,6 +11,7 @@ struct CreateStripeView: View {
     @EnvironmentObject var userVM: UserViewModel
     @Environment(\.openURL) private var openURL
     @State var hasPaidEvents: Bool = true
+    @State var isOnBoardingDone = false
     var body: some View {
         VStack{
             if let user = userVM.currentUser {
@@ -21,22 +22,43 @@ struct CreateStripeView: View {
                             .fontWeight(.semibold)
                             .multilineTextAlignment(.center)
                         
-                        HStack{
-                            Text("Status: Connected")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .multilineTextAlignment(.center)
-                            
-                            Circle()
-                                .foregroundStyle(.green)
-                                .frame(width: 15, height: 15)
+                        if isOnBoardingDone {
+                            HStack{
+                                Text("Status: Connected")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .multilineTextAlignment(.center)
+                                
+                                Circle()
+                                    .foregroundStyle(.green)
+                                    .frame(width: 15, height: 15)
+                            }
+                        } else {
+                            HStack{
+                                Text("Status: Pending")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .multilineTextAlignment(.center)
+                                
+                                Circle()
+                                    .foregroundStyle(.yellow)
+                                    .frame(width: 15, height: 15)
+                            }
                         }
                         
-                        Text("You cannot change or remove your Stripe account while you have active paid events, as doing so could disrupt the payment process and affect the receipt of funds.")
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .multilineTextAlignment(.center)
-                            .padding()
+                        if !isOnBoardingDone {
+                            Text("Your Stripe account has been created, but the setup isn't complete yet. Please visit the Stripe dashboard on their official website to finish your onboarding.")
+                                .font(.footnote)
+                                .fontWeight(.semibold)
+                                .multilineTextAlignment(.center)
+                                .padding()
+                        } else if hasPaidEvents {
+                            Text("You cannot change or remove your Stripe account while you have active paid events, as doing so could disrupt the payment process and affect the receipt of funds.")
+                                .font(.footnote)
+                                .fontWeight(.semibold)
+                                .multilineTextAlignment(.center)
+                                .padding()
+                        }
                         
                         Button{
                             Task{
@@ -113,8 +135,16 @@ struct CreateStripeView: View {
                             hasPaidEvents = bool
                         }
                     }
+                    
+                    if let response = try await APIClient.shared.stripeOnBordingStatus(accountId: id) {
+                        print(response)
+                        if let bool = Bool(response.data) {
+                            isOnBoardingDone = bool
+                        }
+                    }
                 }
             }
+            
         }
     }
     

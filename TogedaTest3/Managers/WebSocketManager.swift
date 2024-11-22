@@ -53,6 +53,9 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
         websocketInit()
     }
     
+    struct ChatUpdates: Codable, Hashable {
+        var chatRoomId: String
+    }
 }
 
 extension WebSocketManager {
@@ -100,6 +103,7 @@ extension WebSocketManager {
             print("Suffer from success")
             swiftStomp.unsubscribe(from: "/user/\(id)/queue/messages")
             swiftStomp.unsubscribe(from: "/user/\(id)/queue/notifications")
+            swiftStomp.unsubscribe(from: "/user/\(id)/queue/updates")
         }
         self.swiftStomp.disableAutoPing()
         self.swiftStomp.disconnect()
@@ -113,6 +117,8 @@ extension WebSocketManager {
                 swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/notifications")
                 swiftStomp.subscribe(to: "/user/\(id)/queue/messages", mode: .clientIndividual)
                 swiftStomp.subscribe(to: "/user/\(id)/queue/notifications", mode: .clientIndividual)
+                swiftStomp.subscribe(to: "/user/\(id)/queue/updates", mode: .clientIndividual)
+
             }
         }
     }
@@ -143,6 +149,7 @@ extension WebSocketManager {
             if let id = self.currentUserId{
                 swiftStomp.subscribe(to: "/user/\(id)/queue/messages", mode: .clientIndividual)
                 swiftStomp.subscribe(to: "/user/\(id)/queue/notifications", mode: .clientIndividual)
+                swiftStomp.subscribe(to: "/user/\(id)/queue/updates", mode: .clientIndividual)
             }
             
         }
@@ -191,6 +198,19 @@ extension WebSocketManager {
                     DispatchQueue.main.async {
                         self.addNotification(newNotification: notificationData)
                         self.newNotification = notificationData
+                    }
+                }
+            } else if destination.hasSuffix("/updates") {
+                if let message = message as? String, let jsonData = message.data(using: .utf8) {
+                    print("MMMMMESSAGE", message)
+                    
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+                    
+                    let data = try decoder.decode(ChatUpdates.self, from: jsonData)
+                    print(data.chatRoomId)
+                    DispatchQueue.main.async {
+                        self.allChatRooms.removeAll(where: {$0.id == data.chatRoomId})
                     }
                 }
             }
@@ -472,6 +492,9 @@ extension WebSocketManager {
         } catch {
             print("error:", error)
             completion(false)
+            DispatchQueue.main.async {
+                self.loadingState = .noResults
+            }
         }
     }
     

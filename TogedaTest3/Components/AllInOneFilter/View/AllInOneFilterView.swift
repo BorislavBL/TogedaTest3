@@ -352,7 +352,7 @@ struct LocationPickerFilterView: View {
                 }
                 
                 
-                if locationManager.authorizationStatus == .authorizedWhenInUse {
+                if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
                     Divider()
                         .padding(.horizontal)
                     

@@ -30,6 +30,7 @@ struct ClubView: View {
     @State var showOption = false
     
     @State var showReport = false
+    @State var deleteSheet: Bool = false
     
     @State var Init = true
 
@@ -115,6 +116,10 @@ struct ClubView: View {
             .fullScreenCover(isPresented: $showCreateEvent, content: {
                 CreateEventView(fromClub: club)
             })
+            .sheet(isPresented: $deleteSheet, content: {
+                onDeleteSheet()
+                    
+            })
             .scrollIndicators(.hidden)
             .edgesIgnoringSafeArea(.top)
             .frame(maxWidth: .infinity)
@@ -144,7 +149,41 @@ struct ClubView: View {
         }
     }
     
+    func onDeleteSheet() -> some View {
+        VStack(spacing: 30){
+            Text("All of the information including the chat will be deleted!")
+                .multilineTextAlignment(.leading)
+                .font(.headline)
+                .fontWeight(.bold)
+            
+            Button{
+                Task{
+                    try await clubsVM.deleteClub(clubId: club.id)
+                    if let index = activityVM.activityFeed.firstIndex(where: {$0.club?.id == club.id}) {
+                        activityVM.activityFeed.remove(at: index)
+                    }
+                    DispatchQueue.main.async {
+                        navManager.selectionPath.removeLast(1)
+                        userVM.removeClub(club: club)
+                    }
+                    
+                }
 
+            } label:{
+                Text("Delete")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(.red)
+                    .cornerRadius(10)
+            }
+        }
+        .padding()
+        .presentationDetents([.fraction(0.2)])
+    }
+    
     func fetchAllData(clubId: String) async throws {
         // Use a task group to fetch all data concurrently
         await withTaskGroup(of: Void.self) { group in
@@ -282,6 +321,18 @@ struct ClubView: View {
                         Button("Report") {
                             showReport = true
                         }
+                        
+                        if userVM.currentUser?.userRole == .ADMINISTRATOR {
+                            Button(role: .destructive){
+                                deleteSheet = true
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "trash")
+                                    Text("Delete")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                        }
                     }
                 } label: {
                     Image(systemName: "ellipsis")
@@ -294,6 +345,7 @@ struct ClubView: View {
             }
         }
         .padding(.horizontal)
+        
     }
     
     func onLeaveSheet() -> some View {

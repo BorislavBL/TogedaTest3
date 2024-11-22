@@ -27,9 +27,17 @@ struct UserRequestComponent: View {
             }
             VStack(alignment:.leading){
                 HStack{
-                    Text("\(user.firstName) \(user.lastName)")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
+                    HStack(spacing: 5) {
+                        Text("\(user.firstName) \(user.lastName)")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                        
+                        if user.userRole == .AMBASSADOR {
+                            AmbassadorSealMini()
+                        } else if user.userRole == .PARTNER {
+                            PartnerSealMini()
+                        }
+                    }
                     
                     if let date = expiration {
                         Spacer()

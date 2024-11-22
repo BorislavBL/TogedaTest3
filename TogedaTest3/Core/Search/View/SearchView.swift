@@ -61,10 +61,18 @@ struct SearchView: View {
                                     .frame(width: size.dimension, height: size.dimension)
                                     .clipShape(Circle())
                                 
-                                Text("\(user.firstName) \(user.lastName)")
-                                    .multilineTextAlignment(.leading)
-                                    .fontWeight(.semibold)
-                                    .fontWeight(.bold)
+                                HStack(spacing: 5){
+                                    Text("\(user.firstName) \(user.lastName)")
+                                        .multilineTextAlignment(.leading)
+                                        .fontWeight(.semibold)
+                                        .fontWeight(.bold)
+                                    
+                                    if user.userRole == .AMBASSADOR {
+                                        AmbassadorSealMini()
+                                    } else if user.userRole == .PARTNER {
+                                        PartnerSealMini()
+                                    }
+                                }
                                 
                                 Spacer()
                                 

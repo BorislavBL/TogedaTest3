@@ -10,7 +10,38 @@ import SwiftUI
 struct AcceptDenySheet: View {
     @Binding var showRespondSheet: Bool
     @Binding var user: Components.Schemas.UserInfoDto?
+    var currentUser: Components.Schemas.UserInfoDto?
+
     var id: String
+    
+    var acceptEmoji: String {
+        if currentUser?.gender == .MALE && user?.gender == .MALE {
+            return "🤝"
+        } else if currentUser?.gender == .MALE && user?.gender == .FEMALE {
+            return "😉"
+        } else if currentUser?.gender == .FEMALE && user?.gender == .FEMALE {
+            return "✨"
+        } else if currentUser?.gender == .FEMALE && user?.gender == .MALE {
+            return "😎"
+        } else {
+            return "😁"
+        }
+    }
+    
+    var denyEmoji: String {
+        if currentUser?.gender == .MALE && user?.gender == .MALE {
+            return "🫡"
+        } else if currentUser?.gender == .MALE && user?.gender == .FEMALE {
+            return "🫠"
+        } else if currentUser?.gender == .FEMALE && user?.gender == .FEMALE {
+            return "🫣"
+        } else if currentUser?.gender == .FEMALE && user?.gender == .MALE {
+            return "🏋️"
+        } else {
+            return "😟"
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading){
             Button{
@@ -22,20 +53,23 @@ struct AcceptDenySheet: View {
                 }
             } label: {
                 HStack{
+                    Text(acceptEmoji)
                     Text("Accept")
                         .fontWeight(.semibold)
                         .normalTagTextStyle()
                     
                     Spacer()
                     
-                    Image(systemName: "checkmark.circle.fill")
-                        .frame(width: 35, height: 35)
-                        .foregroundColor(Color("textColor"))
+//                    Image(systemName: "checkmark.circle.fill")
+//                        .frame(width: 35, height: 35)
+//                        .foregroundColor(Color("textColor"))
+                    
+     
                     
 
                 }
                 .frame(maxWidth: .infinity)
-                .padding(8)
+                .padding()
                 .background{Color("main-secondary-color")}
                 .cornerRadius(10)
             }
@@ -49,20 +83,23 @@ struct AcceptDenySheet: View {
                 }
             } label: {
                 HStack{
+                    Text(denyEmoji)
                     Text("Deny")
                         .fontWeight(.semibold)
                         .normalTagTextStyle()
                     
                     Spacer()
                     
-                    Image(systemName: "x.circle.fill")
-                        .frame(width: 35, height: 35)
-                        .foregroundColor(Color("textColor"))
+//                    Image(systemName: "x.circle.fill")
+//                        .frame(width: 35, height: 35)
+//                        .foregroundColor(Color("textColor"))
+                    
+
                     
 
                 }
                 .frame(maxWidth: .infinity)
-                .padding(8)
+                .padding()
                 .background{Color("main-secondary-color")}
                 .cornerRadius(10)
                
@@ -73,5 +110,5 @@ struct AcceptDenySheet: View {
 }
 
 #Preview {
-    AcceptDenySheet(showRespondSheet: .constant(true), user: .constant(MockUser), id: "")
+    AcceptDenySheet(showRespondSheet: .constant(true), user: .constant(MockUser), currentUser: MockUser, id: "")
 }

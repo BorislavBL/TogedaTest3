@@ -55,8 +55,16 @@ struct UsersListView: View {
                                     .clipShape(Circle())
                                 
                                 VStack(alignment: .leading){
-                                    Text("\(user.user.firstName) \(user.user.lastName)")
-                                        .fontWeight(.semibold)
+                                    HStack(spacing: 5) {
+                                        Text("\(user.user.firstName) \(user.user.lastName)")
+                                            .fontWeight(.semibold)
+                                        
+                                        if user.user.userRole == .AMBASSADOR {
+                                            AmbassadorSealMini()
+                                        } else if user.user.userRole == .PARTNER {
+                                            PartnerSealMini()
+                                        }
+                                    }
                                     if user._type == .CO_HOST || user._type == .HOST {
                                         Text(user._type.rawValue.capitalized)
                                             .foregroundColor(.gray)

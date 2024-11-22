@@ -101,7 +101,7 @@ class MapViewModel: ObservableObject{
          stationaryTimer?.invalidate()
          
          // Start a new timer for 5 seconds of inactivity
-         stationaryTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
+         stationaryTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] _ in
              guard let self = self else { return }
              if self.significantChangeOccurred && !self.isActionTriggered {
                  self.isActionTriggered = true // Mark as triggered to prevent repeated actions

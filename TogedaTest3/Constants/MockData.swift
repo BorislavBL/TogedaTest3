@@ -62,7 +62,8 @@ let MockMiniUser = Components.Schemas.MiniUser(
         latitude: 42.6977,
         longitude: 23.3219
     ), 
-    birthDate: "2000-07-11"
+    birthDate: "2000-07-11",
+    userRole: .NORMAL
 )
 
 let MockBasicUserInfo = Components.Schemas.UserDto(
@@ -141,8 +142,9 @@ let MockMiniPost: Components.Schemas.MiniPostDto = .init(
         latitude: 42.6977,
         longitude: 23.3219
     ),
-    birthDate: "2000-07-11"
-), currentUserStatus: .NOT_PARTICIPATING, 
+    birthDate: "2000-07-11",
+    userRole: .NORMAL
+), currentUserStatus: .NOT_PARTICIPATING,
     currentUserRole: .NORMAL,
     status: .HAS_STARTED)
 
@@ -185,7 +187,8 @@ let MockPost = Components.Schemas.PostResponseDto(
             latitude: 42.6977,
             longitude: 23.3219
         ), 
-        birthDate: "2000-07-11"
+        birthDate: "2000-07-11",
+        userRole: .NORMAL
     ),
     payment: 0, 
     currentUserStatus: .NOT_PARTICIPATING,

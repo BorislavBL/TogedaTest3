@@ -25,7 +25,7 @@ struct LocationPicker: View {
             
             if placeVM.searchText.isEmpty {
                 
-                if locationManager.authorizationStatus == .authorizedWhenInUse{
+                if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
                     Button {
                         locationManager.requestCurrentLocation()
                         findLocationDetails(location: locationManager.location, returnedPlace: $returnedPlace) {

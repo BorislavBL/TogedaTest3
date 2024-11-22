@@ -395,9 +395,17 @@ struct ChatView: View {
                                     .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
                                 
                                 if chatRoom.previewMembers.count > 0 {
-                                    Text("\(chatRoom.previewMembers[0].firstName) \(chatRoom.previewMembers[0].lastName)")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
+                                    HStack(spacing: 5){
+                                        Text("\(chatRoom.previewMembers[0].firstName) \(chatRoom.previewMembers[0].lastName)")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                        
+                                        if chatRoom.previewMembers[0].userRole == .AMBASSADOR {
+                                            AmbassadorSealMini()
+                                        } else if chatRoom.previewMembers[0].userRole == .PARTNER {
+                                            PartnerSealMini()
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -408,7 +416,13 @@ struct ChatView: View {
                             navManager.selectionPath.append(.chatParticipants(chatId: chatRoom.id))
                         } label: {
                             HStack(alignment: .center){
-                                if chatRoom.previewMembers.count > 1 {
+                                if let image = chatRoom.image {
+                                    KFImage(URL(string: image))
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 30, height: 30)
+                                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                                } else if chatRoom.previewMembers.count > 1 {
                                     ZStack(alignment:.top){
                                         
                                         KFImage(URL(string: chatRoom.previewMembers[0].profilePhotos[0]))
@@ -437,7 +451,11 @@ struct ChatView: View {
                                     .padding([.trailing, .bottom, .top], 30/3)
                                 }
                                 
-                                if chatRoom.previewMembers.count > 1 {
+                                if let title = chatRoom.title {
+                                    Text("\(title)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                } else if chatRoom.previewMembers.count > 1 {
                                     Text("\(chatRoom.previewMembers[0].firstName), \(chatRoom.previewMembers[1].firstName) Group")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)

@@ -83,10 +83,18 @@ struct EventView: View {
                                 
                                 
                                 VStack(alignment: .leading, spacing: 5) {
-                                                                        
-                                    Text("\(post.owner.firstName) \(post.owner.lastName)")
-                                        .font(.body)
-                                        .fontWeight(.semibold)
+                                     
+                                    HStack(spacing: 5){
+                                        Text("\(post.owner.firstName) \(post.owner.lastName)")
+                                            .font(.body)
+                                            .fontWeight(.semibold)
+                                        
+                                        if post.owner.userRole == .AMBASSADOR {
+                                            AmbassadorSealMini()
+                                        } else if post.owner.userRole == .PARTNER {
+                                            PartnerSealMini()
+                                        }
+                                    }
                                     
                                     Text(post.owner.occupation)
                                         .font(.footnote)
@@ -519,8 +527,21 @@ struct EventView: View {
                             }
                         }
                     }
+                    
+                    if userViewModel.currentUser?.userRole == .ADMINISTRATOR {
+                        Button(role: .destructive){
+                            deleteSheet = true
+                        } label:{
+                            HStack(spacing: 20){
+                                Image(systemName: "trash")
+                                Text("Delete as Admin")
+                            }
+                            .foregroundStyle(.red)
+                        }
+                        .createEventTabStyle()
+                    }
                 }
-                
+
                 
             } label: {
                 Image(systemName: "ellipsis")
@@ -680,12 +701,20 @@ struct EventView: View {
                         } else {
                             Button {
                                 if post.payment > 0 {
-                                    if let max = post.maximumPeople, max <= post.participantsCount{
-                                        showJoinRequest = true
-                                    } else {
-                                        showPaymentSheet = true
+                                    Task{
+                                        if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                            postsVM.localRefreshEventOnAction(post: response)
+                                            post = response
+                                            if let max = post.maximumPeople, max <= post.participantsCount{
+                                                showJoinRequest = true
+                                            } else {
+                                                showPaymentSheet = true
+                                            }
+                                            
+                                        } else {
+                                            showJoinRequest = true
+                                        }
                                     }
-                                    showPaymentSheet = true
                                 } else {
                                     showJoinRequest = true
                                 }

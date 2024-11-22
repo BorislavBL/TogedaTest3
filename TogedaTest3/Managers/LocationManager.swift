@@ -53,7 +53,7 @@ class LocationManager: NSObject, ObservableObject {
     }
     
     func requestAuthorization(){
-       if authorizationStatus == .authorizedWhenInUse {
+       if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
            locationManager.startUpdatingLocation()
        } else if authorizationStatus == .denied {
            showLocationServicesView = true

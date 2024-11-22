@@ -61,7 +61,7 @@ struct JoinRequestView: View {
                     }
                 } else if post.status == .NOT_STARTED {
                     if post.fromDate != nil {
-                        if post.participantsCount > 0 {
+                        if post.participantsCount > 1 {
                             if post.payment <= 0 {
                                 Text("Already \(post.participantsCount) people have joined your event! Are you sure you want to delete it?")
                                     .font(.headline)
@@ -79,7 +79,7 @@ struct JoinRequestView: View {
                                 .fontWeight(.bold)
                         }
                         
-                        if post.payment <= 0 {
+                        if post.payment <= 0 || post.participantsCount < 2{
                             Button {
                                 Task{
                                     if try await APIClient.shared.deleteEvent(postId: post.id) != nil {

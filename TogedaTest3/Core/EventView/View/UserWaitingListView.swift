@@ -37,9 +37,16 @@ struct UserWaitingListView: View {
                                     .frame(width: size.dimension, height: size.dimension)
                                     .clipShape(Circle())
                                 
-
-                                Text("\(user.firstName) \(user.lastName)")
-                                    .fontWeight(.semibold)
+                                HStack(spacing: 5){
+                                    Text("\(user.firstName) \(user.lastName)")
+                                        .fontWeight(.semibold)
+                                    
+                                    if user.userRole == .AMBASSADOR {
+                                        AmbassadorSealMini()
+                                    } else if user.userRole == .PARTNER {
+                                        PartnerSealMini()
+                                    }
+                                }
 
                                 Spacer()
 

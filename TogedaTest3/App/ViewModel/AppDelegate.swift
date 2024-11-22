@@ -58,7 +58,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 //                Task{
 //                    urlHandler?.handleURL(_: url)
 //                }
-                self.deeplink = url
+                DispatchQueue.main.async {
+                    self.deeplink = url
+                }
+                
             }
         }
         

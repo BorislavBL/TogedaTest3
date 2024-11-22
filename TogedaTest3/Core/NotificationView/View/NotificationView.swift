@@ -97,6 +97,11 @@ struct NotificationView: View {
             }
             .padding()
         }
+        .onChange(of:ratingVM.openReviewSheet) { oldValue, newValue in
+            if !newValue {
+                ratingVM.resetAll()
+            }
+        }
         .fullScreenCover(isPresented: $ratingVM.openReviewSheet, content: {
             if let not = ratingVM.reviewAlertBody {
                 NavigationStack{
@@ -129,9 +134,6 @@ struct NotificationView: View {
                     }
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationBarBackButtonHidden(true)
-                    .onDisappear(){
-                        ratingVM.resetAll()
-                    }
                 }
 //                .navigationBarItems(trailing:Button(action: {ratingVM.openReviewSheet = false}) {
 //                    Image(systemName: "xmark")

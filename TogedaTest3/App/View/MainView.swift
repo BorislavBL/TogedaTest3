@@ -42,12 +42,12 @@ struct MainView: View {
             .environmentObject(navigationManager)
             .environmentObject(webSocketManager)
             .onChange(of: locationManager.authorizationStatus) {
-                if locationManager.authorizationStatus == .authorizedWhenInUse {
+                if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
                     NotificationsManager.shared.registerForPushNotifications()
                 }
             }
             .onAppear() {
-                if locationManager.authorizationStatus == .authorizedWhenInUse {
+                if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways{
                     NotificationsManager.shared.registerForPushNotifications()
                 }
                 NotificationsManager.shared.setupAuthStatus()

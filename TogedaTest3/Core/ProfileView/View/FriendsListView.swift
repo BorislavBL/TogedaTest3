@@ -54,8 +54,16 @@ struct FriendsListView: View {
                                         .frame(width: size.dimension, height: size.dimension)
                                         .clipShape(Circle())
                                     
-                                    Text("\(userData.user.firstName) \(userData.user.lastName)")
-                                        .fontWeight(.semibold)
+                                    HStack(spacing: 5){
+                                        Text("\(userData.user.firstName) \(userData.user.lastName)")
+                                            .fontWeight(.semibold)
+                                        
+                                        if userData.user.userRole == .AMBASSADOR {
+                                            AmbassadorSealMini()
+                                        } else if userData.user.userRole == .PARTNER {
+                                            PartnerSealMini()
+                                        }
+                                    }
                                     
                                     
                                     Spacer()
@@ -129,6 +137,33 @@ struct FriendsListView: View {
             }
             .padding(.horizontal)
             
+        }
+        .refreshable {
+            friendsList = []
+            lastPage = true
+            page = 0
+            Task{
+                if let response = try await APIClient.shared.getFriendList(userId: user.id, page: page, size: pageSize){
+                    friendsList = response.data
+                    page += 1
+                    lastPage = response.lastPage
+                    loadingState = .loaded
+                    Init = false
+                    
+                    if response.lastPage && friendsList.count == 0{
+                        loadingState = .noResults
+                    }
+                } else {
+                    loadingState = .noResults
+                    Init = false
+                }
+                friendsRequestList = []
+                friendsRequestPage = 0
+                if let response = try await APIClient.shared.getFriendRequests(page: friendsRequestPage, size: friendsRequestSize){
+                    friendsRequestList = response.data
+                }
+            }
+
         }
         .onAppear(){
             Task{

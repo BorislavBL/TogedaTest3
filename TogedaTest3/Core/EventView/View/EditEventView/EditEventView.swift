@@ -287,7 +287,7 @@ struct EditEventView: View {
                         .createEventTabStyle()
                     }
                     
-                    if post.payment > 0, post.participantsCount > 0  {
+                    if post.payment > 0, post.participantsCount > 1  {
                         if deleteError{
                             WarningTextComponent(text: "Sorry you can't just delete a paid event with participants in it. If you want to cancel the activity discuss it with your participants via the chat.")
                         }

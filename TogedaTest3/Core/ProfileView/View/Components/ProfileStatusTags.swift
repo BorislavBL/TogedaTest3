@@ -165,6 +165,26 @@ struct PartnerSealMini: View {
     }
 }
 
+struct PartnerSealMiniature: View {
+    var body: some View {
+        ZStack{
+            Image(systemName: "seal.fill")
+                .font(.custom("", size: 13))
+                .foregroundStyle(
+                    CommodityColor.silver.linearGradient
+                )
+
+            Text("P")
+                .fontWeight(.bold)
+                .fontDesign(.rounded)
+                .font(.custom("", size: 7))
+                .foregroundStyle(
+                    .white
+                )
+        }
+    }
+}
+
 #Preview {
     ProfileStatusTags()
 }

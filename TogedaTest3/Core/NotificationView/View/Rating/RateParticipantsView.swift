@@ -19,9 +19,7 @@ struct RateParticipantsView: View {
     
     var post: Components.Schemas.PostResponseDto
     var rating: Components.Schemas.RatingDto
-    @State var showUserLike = false
-    @State var showUserReport = false
-    @State var selectedExtendedUser: Components.Schemas.ExtendedMiniUser?
+
     @State var Init: Bool = true
     @EnvironmentObject var navManager: NavigationManager
     @ObservedObject var vm: RatingViewModel
@@ -48,7 +46,15 @@ struct RateParticipantsView: View {
                                             .clipShape(Circle())
                                         
                                         VStack(alignment: .leading){
-                                            Text("\(user.user.firstName) \(user.user.lastName)")
+                                            HStack(spacing: 5){
+                                                Text("\(user.user.firstName) \(user.user.lastName)")
+                                                
+                                                if user.user.userRole == .AMBASSADOR {
+                                                    AmbassadorSealMini()
+                                                } else if user.user.userRole == .PARTNER {
+                                                    PartnerSealMini()
+                                                }
+                                            }
                                                 .fontWeight(.semibold)
                                             if user._type == .CO_HOST || user._type == .HOST {
                                                 Text(user._type.rawValue.capitalized)
@@ -68,8 +74,11 @@ struct RateParticipantsView: View {
                                         .foregroundStyle(.green)
                                 } else {
                                     Button{
-                                        showUserLike = true
-                                        selectedExtendedUser = user
+                                        vm.selectedExtendedUser = user
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                            vm.showUserLike = true
+                                        }
+                                        
                                     } label: {
                                         Image(systemName: "hand.thumbsup")
                                             .foregroundStyle(.green)
@@ -78,8 +87,11 @@ struct RateParticipantsView: View {
                                 
                                 Menu{
                                     Button("Report"){
-                                        showUserReport = true
-                                        selectedExtendedUser = user
+                                        vm.selectedExtendedUser = user
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                            vm.showUserReport = true
+                                        }
+                                        
                                     }
                                     if (post.currentUserRole == .HOST) && (user._type != .HOST){
                                         Button("The user did not show"){
@@ -176,12 +188,12 @@ struct RateParticipantsView: View {
             .background(.bar)
         }
         .swipeBack()
-        .sheet(isPresented: $showUserLike, content: {
-            RateParticipantSheet(post: post, selectedExtendedUser: selectedExtendedUser, eventVM: eventVM, showUserLike: $showUserLike, vm: vm)
+        .sheet(isPresented: $vm.showUserLike, content: {
+            RateParticipantSheet(post: post, selectedExtendedUser: vm.selectedExtendedUser, eventVM: eventVM, showUserLike: $vm.showUserLike, vm: vm)
         })
-        .sheet(isPresented: $showUserReport, content: {
-            if let user = selectedExtendedUser {
-                ReportUserView(user: user.user, isActive: $showUserReport)
+        .sheet(isPresented: $vm.showUserReport, content: {
+            if let user = vm.selectedExtendedUser {
+                ReportUserView(user: user.user, isActive: $vm.showUserReport)
             }
         })
         .onAppear(){
@@ -242,18 +254,21 @@ struct RateParticipantSheet: View {
     var body: some View {
         VStack{
             if let user = selectedExtendedUser {
-                Text("Click below to give \(user.user.firstName) a like!")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .padding(.top)
+                VStack(alignment: .center, spacing: 10) {
+                    KFImage(URL(string: user.user.profilePhotos[0]))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 200, height: 200)
+                        .clipShape(Circle())
+                    
+                    Text("\(user.user.firstName) \(user.user.lastName)")
+                        .fontWeight(.semibold)
+                        .font(.title3)
+                }
+                
                 
                 VStack(alignment: .leading){
-                    Text("Tell us what you liked about this person?")
-                        .font(.body)
-                        .fontWeight(.bold)
-                    
-                    TextField("(Optional)", text: $description, axis: .vertical)
+                    TextField("Tell us what you liked about \(user.user.firstName)? (Optional)", text: $description, axis: .vertical)
                         .lineLimit(10, reservesSpace: true)
                         .padding()
                         .background{Color("main-secondary-color")}
@@ -283,7 +298,7 @@ struct RateParticipantSheet: View {
                 } label: {
                     HStack(spacing:2){
                         
-                        Text("Like")
+                        Text("Give \(user.user.firstName) a Like")
                             .fontWeight(.semibold)
                         
                     }
@@ -297,5 +312,6 @@ struct RateParticipantSheet: View {
                 
             }
         }
+        .padding(.top, 26)
     }
 }

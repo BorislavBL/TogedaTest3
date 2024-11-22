@@ -81,7 +81,7 @@ class URLHandler {
            let id = queryParameters["id"] {
             Task {
                 if let response = try await APIClient.shared.getUserInfo(userId: id) {
-                    let miniUser = Components.Schemas.MiniUser(id: response.id, firstName: response.firstName, lastName: response.lastName, profilePhotos: response.profilePhotos, occupation: response.occupation, location: response.location, birthDate: response.birthDate)
+                    let miniUser = Components.Schemas.MiniUser(id: response.id, firstName: response.firstName, lastName: response.lastName, profilePhotos: response.profilePhotos, occupation: response.occupation, location: response.location, birthDate: response.birthDate, userRole: .init(rawValue: response.userRole.rawValue) ?? .NORMAL)
                     DispatchQueue.main.async{
                         self.navigationManager.selectionPath.append(.profile(miniUser))
                     }

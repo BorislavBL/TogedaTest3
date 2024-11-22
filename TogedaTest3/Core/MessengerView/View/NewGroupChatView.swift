@@ -16,6 +16,7 @@ struct NewGroupChatView: View {
     @EnvironmentObject var userVm: UserViewModel
     @EnvironmentObject var chatManager: WebSocketManager
     @State var searchText: String = ""
+    @State var title: String = ""
     let size: ImageSize = .small
     @State var searchUserResults: [Components.Schemas.GetFriendsDto] = []
     @State var selectedUsers: [Components.Schemas.GetFriendsDto] = []
@@ -29,11 +30,11 @@ struct NewGroupChatView: View {
     
     var body: some View {
         ScrollView {
-            //                TextField("To: ", text: $searchText)
-            //                    .frame(height: 44)
-            //                    .padding(.leading)
-            //                //                    .background(Color(.systemGroupedBackground))
-            //                    .background(Color(.tertiarySystemFill))
+//            TextField("Write a name for the Chat. (Optional)", text: $title)
+//                .frame(height: 44)
+//                .padding(.leading)
+//            //                    .background(Color(.systemGroupedBackground))
+//                .background(Color(.tertiarySystemFill))
             
             if selectedUsers.count > 0{
                 ScrollView{
@@ -122,7 +123,7 @@ struct NewGroupChatView: View {
             }
         }
         .navigationTitle("New Group")
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+//        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .toolbar {
@@ -156,7 +157,7 @@ struct NewGroupChatView: View {
             return friend.user.id
         })
         Task {
-            if let response = try await APIClient.shared.createGroupChat(friendIds: .init(friendIds: ids)) {
+            if let response = try await APIClient.shared.createGroupChat(title: trimAndLimitWhitespace(title).isEmpty ? nil : trimAndLimitWhitespace(title), friendIds: .init(friendIds: ids)) {
                 if let chatRoom = try await APIClient.shared.getChat(chatId: response) {
                     DispatchQueue.main.async {
                         dismiss()

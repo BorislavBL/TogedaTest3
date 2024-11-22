@@ -1054,12 +1054,11 @@ extension APIClient {
 
 //User Badges
 extension APIClient {
-    func getBadges() async throws -> [Components.Schemas.Badge]? {
+    func getBadges(userId: String) async throws -> [Components.Schemas.Badge]? {
         
-        let response = try await client.getBadges()
+        let response = try await client.getBadges(.init(path: .init(userId: userId)))
         
         switch response {
-            
         case .ok(let okResponse):
             switch okResponse.body{
             case .json(let response):
@@ -2777,6 +2776,38 @@ extension APIClient {
         return nil
     }
     
+    func stripeOnBordingStatus(accountId: String) async throws -> Components.Schemas.StripeResponseDto? {
+        let response = try await client.getOnboardingStatus(.init(path: .init(accountId: accountId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for getPaymentSheet")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+            
+        }
+        return nil
+    }
+    
     func getPaymentSheet(postId: String) async throws -> Components.Schemas.StripePaymentSheet? {
         let response = try await client.getPaymentSheet(.init(path: .init(postId: postId)))
         
@@ -3431,8 +3462,9 @@ extension APIClient {
         return nil
     }
     
-    func createGroupChat(friendIds: Components.Schemas.FriendIdsDto) async throws -> String?{
-        let response = try await client.createChatForGroup(.init(body: .json(friendIds)))
+    func createGroupChat(title: String?, friendIds: Components.Schemas.FriendIdsDto) async throws -> String?{
+//        let response = try await client.createChatForGroup(.init(body: .json(friendIds)))
+        let response = try await client.createChatForGroup(.init(query:.init(title: title),body: .json(friendIds)))
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{

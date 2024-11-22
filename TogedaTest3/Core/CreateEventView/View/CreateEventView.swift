@@ -33,14 +33,15 @@ struct CreateEventView: View {
     
     @EnvironmentObject var userVM: UserViewModel
     @EnvironmentObject var postVM: PostsViewModel
+    @EnvironmentObject var navManager: NavigationManager
     
+    @State private var isStripeOnboardingDone: Bool = false
     let paidActivitiesAgreement = try! AttributedString(markdown: "[Paid Activity Agreement](\(TogedaLinks().paidActivitiesAgreement))")
 
     
     var body: some View {
         NavigationStack() {
             ScrollView(showsIndicators: false){
-                
                 if let error = serverErrorMessage {
                     WarningTextComponent(text: error)
                 }
@@ -420,35 +421,61 @@ struct CreateEventView: View {
                         
                         if ceVM.showPricing {
                             if user.stripeAccountId != nil{
-                                HStack(alignment: .center, spacing: 10) {
-                                    Text("Write a Price")
-                                    
-                                    Spacer()
-                                    
-                                    TextField("€ 0.00", value: $ceVM.price, format: .number)
-                                        .foregroundColor(.gray)
-                                        .frame(width: 70)
-                                        .textFieldStyle(.roundedBorder)
-                                        .keyboardType(.decimalPad) // Changed to decimalPad to allow decimal numbers
-                                        .onChange(of: ceVM.price) { old, new in
-                                            if let number = new, number >= 2000 {
-                                                ceVM.price = old
+                                if isStripeOnboardingDone {
+                                    HStack(alignment: .center, spacing: 10) {
+                                        Text("Write a Price")
+                                        
+                                        Spacer()
+                                        
+                                        TextField("€ 0.00", value: $ceVM.price, format: .number)
+                                            .foregroundColor(.gray)
+                                            .frame(width: 70)
+                                            .textFieldStyle(.roundedBorder)
+                                            .keyboardType(.decimalPad) // Changed to decimalPad to allow decimal numbers
+                                            .onChange(of: ceVM.price) { old, new in
+                                                if let number = new, number >= 2000 {
+                                                    ceVM.price = old
+                                                }
                                             }
-                                        }
+                                    }
                                     
+                                    HStack{
+                                        Text("The maximum price you can charge per participant is €2000. For higher amounts, please contact us at info@togeda.net. \nBy making Paid event you agree with our ")
+                                            .foregroundStyle(.gray) +
+                                        Text(paidActivitiesAgreement) +
+                                        Text(" for more details.")
+                                            .foregroundStyle(.gray)
+                                    }
+                                    .accentColor(.blue)
+                                    .font(.footnote)
+                                    .multilineTextAlignment(.leading)
+                                    
+                                } else {
+                                    VStack(alignment: .center){
+                                        Text("To create a paid event, you must complete the setup of your Stripe account!")
+                                            .foregroundColor(Color("blackAndWhite"))
+                                            .fontWeight(.semibold)
+                                            .multilineTextAlignment(.center)
+                                            .padding(.bottom)
+                                        
+                                        Button{
+                                            if let url = URL(string: "https://dashboard.stripe.com/dashboard") {
+                                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                                            }
+                                        } label: {
+                                            Text("Go to Stripe")
+                                                .foregroundStyle(Color("base"))
+                                                .fontWeight(.semibold)
+                                                .padding(.horizontal, 12)
+                                                .padding(.vertical, 10)
+                                                .background{Capsule().fill(Color("blackAndWhite"))}
+                                        }
+                                    }
+                                    .padding(.bottom)
+                                    .frame(maxWidth: .infinity, alignment: .center)
                                 }
                                 
-                                
-                                HStack{
-                                    Text("The maximum price you can charge per participant is €2000. For higher amounts, please contact us at info@togeda.net. \nBy making Paid event you agree with our ")
-                                        .foregroundStyle(.gray) +
-                                    Text(paidActivitiesAgreement) +
-                                    Text(" for more details.")
-                                        .foregroundStyle(.gray)
-                                }
-                                .accentColor(.blue)
-                                .font(.footnote)
-                                .multilineTextAlignment(.leading)
+
 
                             } else {
                                 VStack(alignment: .center){
@@ -459,16 +486,18 @@ struct CreateEventView: View {
                                         .padding(.bottom)
                                     
                                     Button{
-                                        Task{
-                                            if let accountId = try await APIClient.shared.createStripeAccount() {
-                                                print(accountId)
-                                                if let link = try await APIClient.shared.getStripeOnBoardingLink(accountId: accountId) {
-                                                    print(link)
-                                                    openURL(URL(string: link)!)
-                                                    dismiss()
-                                                }
-                                            }
-                                        }
+//                                        Task{
+//                                            if let accountId = try await APIClient.shared.createStripeAccount() {
+//                                                print(accountId)
+//                                                if let link = try await APIClient.shared.getStripeOnBoardingLink(accountId: accountId) {
+//                                                    print(link)
+//                                                    openURL(URL(string: link)!)
+//                                                    dismiss()
+//                                                }
+//                                            }
+//                                        }
+                                        dismiss()
+                                        navManager.selectionPath.append(.paymentPage)
                                         
                                     } label: {
                                         Text("Go to Stripe")
@@ -570,6 +599,18 @@ struct CreateEventView: View {
                         ceVM.mergeEvent(event: event)
                     }
                     ceVM.club = fromClub
+                    
+                    if let user = userVM.currentUser, let id = user.stripeAccountId{
+                        Task{
+                            if let response = try await APIClient.shared.stripeOnBordingStatus(accountId: id) {
+                                print(response)
+                                if let bool = Bool(response.data) {
+                                    isStripeOnboardingDone = bool
+                                }
+                            }
+                        }
+                    }
+                    
                     Init = false
                 }
             }
@@ -758,6 +799,7 @@ struct CreateEventView: View {
         .environmentObject(UserViewModel())
         .environmentObject(LocationManager())
         .environmentObject(PostsViewModel())
+        .environmentObject(NavigationManager())
 }
 
 extension View {

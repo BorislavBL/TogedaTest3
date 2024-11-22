@@ -109,11 +109,11 @@ struct UserProfileView: View {
                             }
                             
                             
-                            if let location = user?.location.name {
+                            if let user = self.user {
                                 HStack(spacing: 5){
                                     Image(systemName: "mappin.circle")
                                     
-                                    Text(location)
+                                    Text(user.location.name)
                                         .font(.footnote)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.gray)
@@ -270,7 +270,7 @@ struct UserProfileView: View {
                     
                     //                BadgesTab()
                     
-                    AboutTab(user: user, showInstagram: (isCurrentUser || isFriend))
+                    AboutTab(user: user, badges: viewModel.badges, showInstagram: (isCurrentUser || isFriend))
                     
                     
                     if let currentUser = userVm.currentUser, currentUser.id == miniUser.id || viewModel.posts.count > 0 {
@@ -347,7 +347,7 @@ struct UserProfileView: View {
         })
         .sheet(isPresented: $showRespondSheet, content: {
             AutoSizeSheetView{
-                AcceptDenySheet(showRespondSheet: $showRespondSheet, user: $user, id: miniUser.id)
+                AcceptDenySheet(showRespondSheet: $showRespondSheet, user: $user, currentUser: userVm.currentUser, id: miniUser.id)
             }
             .presentationDragIndicator(.visible)
         })
@@ -402,11 +402,11 @@ struct UserProfileView: View {
         })
         .onChange(of: user, { oldValue, newValue in
             if let response = newValue{
-                self.miniUser = .init(id: response.id, firstName: response.firstName, lastName: response.lastName, profilePhotos: response.profilePhotos, occupation: response.occupation, location: response.location, birthDate: response.birthDate)
+                self.miniUser = .init(id: response.id, firstName: response.firstName, lastName: response.lastName, profilePhotos: response.profilePhotos, occupation: response.occupation, location: response.location, birthDate: response.birthDate, userRole: .init(rawValue: response.userRole.rawValue) ?? .NORMAL)
             }
         })
         .onChange(of: websocket.newNotification){ old, new in
-            print("triggered 1")
+            print("Triggered 1")
             if let not = new {
                 print("triggered 2")
                 viewModel.updateUser(not: not, user: $user)
@@ -414,6 +414,7 @@ struct UserProfileView: View {
         }
         .onAppear(){
             if Init {
+                print(miniUser.id)
                 if let user = userVm.currentUser, miniUser.id != user.id {
                     Task {
                         await fetchAll()
@@ -663,6 +664,20 @@ struct UserProfileView: View {
                     
                 } catch {
                     print("Error fetching user posts: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getBadges(userId: miniUser.id) {
+                        if response.count > 0 {
+                            DispatchQueue.main.async {
+                                viewModel.badges = response
+                            }
+                        }
+                    }
+                } catch {
+                    print("Error fetching user clubs: \(error)")
                 }
             }
             

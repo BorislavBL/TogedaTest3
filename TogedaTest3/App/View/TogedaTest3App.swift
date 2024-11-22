@@ -36,12 +36,11 @@ struct TogedaTest3App: App {
                 .onOpenURL { url in
                     print("HEEEEEEREEEEE",url)
                     if vm.initialSetupDone {
-//                        vm.triggerPendingURL()
                         let stripeHandled = StripeAPI.handleURLCallback(with: url)
                         if (!stripeHandled) {
                             urlHandler?.handleURL(url)
                             print("123")
-                            var URL = urlHandler?.transformURL(url: url)
+                            let URL = urlHandler?.transformURL(url: url)
                             if let url = URL, url.host == "resetUser" {
                                 vm.resetCurrentUser = true
                             }
@@ -57,7 +56,7 @@ struct TogedaTest3App: App {
                 .onChange(of: vm.initialSetupDone) {
                     if let url = vm.pendingURL, vm.initialSetupDone{
                         urlHandler?.handleURL(url)
-                        var URL = urlHandler?.transformURL(url: url)
+                        let URL = urlHandler?.transformURL(url: url)
                         if let url = URL, url.host == "resetUser" {
                             vm.resetCurrentUser = true
                         }
@@ -65,8 +64,11 @@ struct TogedaTest3App: App {
                     }
                 }
                 .onChange(of: appDelegate.deeplink) {
+                    print("Deep link activated here 1")
                     if let link = appDelegate.deeplink {
+                        print("Deep link activated here 2")
                         if vm.initialSetupDone {
+                            print("Deep link activated here 3")
                             urlHandler?.handleURL(link)
                             let URL = urlHandler?.transformURL(url: link)
                             if let url = URL, url.host == "resetUser" {

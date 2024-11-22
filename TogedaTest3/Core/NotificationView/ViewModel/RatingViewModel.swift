@@ -18,7 +18,14 @@ class RatingViewModel: ObservableObject {
     @Published var post: Components.Schemas.PostResponseDto?
     @Published var ratePostParticipants: [RateParticipant] = []
     
+    @Published var showUserLike = false
+    @Published var showUserReport = false
+    @Published var selectedExtendedUser: Components.Schemas.ExtendedMiniUser?
+    
     func resetAll() {
+        selectedExtendedUser = nil
+        showUserReport = false
+        showUserLike = false
         reviewAlertBody = nil
         post = nil
         ratePostParticipants = []

@@ -77,7 +77,11 @@ struct PostCellSkeleton: View {
                                         .fontWeight(.semibold)
                                         .font(.footnote)
                                     
-                                    AmbassadorSealMiniature()
+                                    if post.owner.userRole == .AMBASSADOR {
+                                        AmbassadorSealMiniature()
+                                    } else if post.owner.userRole == .PARTNER {
+                                        PartnerSealMiniature()
+                                    }
                                 }
                                 
 
@@ -118,10 +122,18 @@ struct PostCellSkeleton: View {
                 Button {
                     viewModel.clickedPost = post
                     if post.payment > 0, !isOwner, post.currentUserStatus == .NOT_PARTICIPATING, post.status == .NOT_STARTED {
-                        if let max = post.maximumPeople, max <= post.participantsCount{
-                            viewModel.showJoinRequest = true
-                        } else {
-                            viewModel.showPaymentView = true
+                        Task{
+                            if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                viewModel.localRefreshEventOnAction(post: response)
+                                
+                                if let max = response.maximumPeople, max <= response.participantsCount{
+                                    viewModel.showJoinRequest = true
+                                } else {
+                                    viewModel.showPaymentView = true
+                                }
+                            } else {
+                                viewModel.showPaymentView = true
+                            }
                         }
                     } else {
                         viewModel.showJoinRequest = true

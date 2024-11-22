@@ -133,7 +133,14 @@ struct InboxRowView: View {
                         .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
                 }
             case .GROUP:
-                if chatroom.previewMembers.count > 1 {
+                if let image = chatroom.image {
+                    KFImage(URL(string: image))
+                        .resizable()
+                        .scaledToFill()
+                        .background(.gray)
+                        .frame(width: size.dimension, height: size.dimension)
+                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                } else if chatroom.previewMembers.count > 1 {
                     ZStack(alignment:.top){
                         
                         KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
@@ -186,13 +193,27 @@ struct InboxRowView: View {
                         }
                     case .FRIENDS:
                         if chatroom.previewMembers.count > 0 {
-                            Text("\(chatroom.previewMembers[0].firstName) \(chatroom.previewMembers[0].lastName)")
+                            HStack(spacing: 5){
+                                Text("\(chatroom.previewMembers[0].firstName) \(chatroom.previewMembers[0].lastName)")
+                                    .lineLimit(1)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                
+                                if chatroom.previewMembers[0].userRole == .AMBASSADOR {
+                                    AmbassadorSealMini()
+                                } else if chatroom.previewMembers[0].userRole == .PARTNER {
+                                    PartnerSealMini()
+                                }
+                            }
+                        }
+                    case .GROUP:
+                        if let title = chatroom.title {
+                            Text("\(title)")
                                 .lineLimit(1)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                         }
-                    case .GROUP:
-                        if chatroom.previewMembers.count > 1 {
+                        else if chatroom.previewMembers.count > 1 {
                             Text("\(chatroom.previewMembers[0].firstName), \(chatroom.previewMembers[1].firstName)")
                                 .lineLimit(1)
                                 .font(.subheadline)
