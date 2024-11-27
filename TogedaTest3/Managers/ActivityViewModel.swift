@@ -47,7 +47,9 @@ class ActivityViewModel: ObservableObject {
                 self.feedInit = false
             }
         } else {
-            self.state = .noResults
+            DispatchQueue.main.async {
+                self.state = .noResults
+            }
         }
     }
     

@@ -62,6 +62,8 @@ struct TogedaTest3App: App {
                         }
                         vm.pendingURL = nil
                     }
+
+                    appDelegate.appSetupDone = vm.initialSetupDone
                 }
                 .onChange(of: appDelegate.deeplink) {
                     print("Deep link activated here 1")

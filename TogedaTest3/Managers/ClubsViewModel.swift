@@ -81,7 +81,10 @@ class ClubsViewModel: ObservableObject {
                 self.feedClubsInit = false
             }
         } else {
-            self.state = .noResults
+            DispatchQueue.main.async {
+                self.state = .noResults
+            }
+            
         }
     }
     

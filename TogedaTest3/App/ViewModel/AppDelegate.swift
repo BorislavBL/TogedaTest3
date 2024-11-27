@@ -13,6 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ObservableObject{
     
     @Published var urlHandler: URLHandler?
     @Published var deeplink: URL?
+    @Published var appSetupDone: Bool = false
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Configure AWS Cognito
@@ -55,11 +56,19 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         if let deepLink = response.notification.request.content.userInfo["link"] as? String {
             print("\(deepLink)")
             if let url = URL(string: deepLink) {
-//                Task{
-//                    urlHandler?.handleURL(_: url)
-//                }
-                DispatchQueue.main.async {
-                    self.deeplink = url
+                print("This one is also activated Also")
+
+                
+                if appSetupDone {
+                    print("Numbero 1")
+                    Task{
+                        urlHandler?.handleURL(_: url)
+                    }
+                } else {
+                    print("Numbero 2")
+                    DispatchQueue.main.async {
+                        self.deeplink = url
+                    }
                 }
                 
             }

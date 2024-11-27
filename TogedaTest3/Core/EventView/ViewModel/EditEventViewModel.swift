@@ -60,16 +60,7 @@ class EditEventViewModel: ObservableObject {
     @Published var isDate = true
     @Published var dateTimeSettings = 0 {
         didSet{
-            if dateTimeSettings == 0 {
-                editPost.fromDate = nil
-                editPost.toDate = nil
-            } else if dateTimeSettings == 1 {
-                editPost.fromDate = from
-                editPost.toDate = nil
-            } else {
-                editPost.fromDate = from
-                editPost.toDate = to
-            }
+            setDate()
         }
     }
     @Published var showTimeSettings: Bool = false
@@ -79,6 +70,19 @@ class EditEventViewModel: ObservableObject {
 
 // Photo
 extension EditEventViewModel {
+    func setDate() {
+        if dateTimeSettings == 0 {
+            editPost.fromDate = nil
+            editPost.toDate = nil
+        } else if dateTimeSettings == 1 {
+            editPost.fromDate = from
+            editPost.toDate = nil
+        } else {
+            editPost.fromDate = from
+            editPost.toDate = to
+        }
+    }
+    
     func fetchPostData(post: Components.Schemas.PostResponseDto) {
         editPost = post
         initialPost = post

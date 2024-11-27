@@ -151,7 +151,9 @@ class PostsViewModel: ObservableObject {
                 }
             }
         } else {
-            self.state = .noResults
+            DispatchQueue.main.async{
+                self.state = .noResults
+            }
         }
     }
     

@@ -150,7 +150,7 @@ struct InstagramOverlay: View {
                         }
                         
                         Button{
-                            UIPasteboard.general.string = createURLLink(postID: post.id, clubID: nil, userID: nil)
+//                            UIPasteboard.general.string = createURLLink(postID: post.id, clubID: nil, userID: nil)
                             
                             //isActive = false
                             
@@ -159,6 +159,7 @@ struct InstagramOverlay: View {
                                     shareToInstagram(backgroundImage: img, appID: "togeda.net")
                                 }
                             }
+                            
                             
                         } label:{
                             Text("Open Instagram")
@@ -197,8 +198,11 @@ struct InstagramOverlay: View {
         window.rootViewController?.present(snapshotContainer, animated: false, completion: nil)
         
         // Dismiss the SnapshotView after capturing the snapshot
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             snapshotContainer.dismiss(animated: false, completion: nil)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                UIPasteboard.general.string = createURLLink(postID: post.id, clubID: nil, userID: nil)
+            }
         }
     }
     

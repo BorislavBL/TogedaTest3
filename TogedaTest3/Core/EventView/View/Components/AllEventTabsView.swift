@@ -196,14 +196,32 @@ struct AllEventTabsView: View {
                     
                     VStack(alignment: .leading, spacing: 5) {
                         if let maxPeople = post.maximumPeople {
-                            Text("Participants \(formatBigNumbers(Int(eventVM.participantsCount)))/\(formatBigNumbers(Int(maxPeople)))")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                            HStack(spacing: 5){
+                                Text("Participants \(formatBigNumbers(Int(eventVM.participantsCount)))/\(formatBigNumbers(Int(maxPeople)))")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                if eventVM.othersCount > 0 {
+                                    Text("(\(formatBigNumbers(Int(eventVM.othersCount))) Waiting)")
+                                        .font(.footnote)
+                                        .foregroundColor(.gray)
+                                        .fontWeight(.bold)
+                                }
+                            }
                         } else {
-                            Text("Participants \(formatBigNumbers(Int(eventVM.participantsCount)))")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                            HStack(spacing: 5){
+                                Text("Participants \(formatBigNumbers(Int(eventVM.participantsCount)))")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                
+                                if eventVM.othersCount > 0 {
+                                    Text("(\(formatBigNumbers(Int(eventVM.othersCount))) Waiting)")
+                                        .font(.footnote)
+                                        .foregroundColor(.gray)
+                                        .fontWeight(.bold)
+                                }
+                            }
                         }
+                        
                         
                         
                         if eventVM.participantsList.count > 0 {

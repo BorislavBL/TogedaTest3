@@ -409,6 +409,7 @@ struct EditEventView: View {
                     withAnimation{
                         isLoading = true
                     }
+                    vm.setDate()
                     if vm.editPost != vm.initialPost {
                         vm.editPost.title = trimAndLimitWhitespace(vm.editPost.title)
                         if let description = vm.editPost.description{
@@ -506,8 +507,20 @@ struct EditEventView: View {
         }
     }
     
+    var changedTime: Bool {
+        if let from = vm.initialPost.fromDate {
+            if from != vm.from {
+                return true
+            } else if let to = vm.initialPost.toDate, to != vm.to {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
     var saveButtonCheck: Bool {
-        if vm.editPost.title.count >= 5, !vm.editPost.title.isEmpty, vm.editPost.location.name != "Unknown Location", (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || vm.editPost.images.count > 0), vm.selectedInterests.count > 0, (vm.editPost != vm.initialPost || photoPickerVM.imageIsSelected()) {
+        if vm.editPost.title.count >= 5, !vm.editPost.title.isEmpty, vm.editPost.location.name != "Unknown Location", (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || vm.editPost.images.count > 0), vm.selectedInterests.count > 0, (vm.editPost != vm.initialPost || photoPickerVM.imageIsSelected()) || changedTime{
             return true
         } else {
             return false

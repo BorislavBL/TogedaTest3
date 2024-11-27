@@ -37,15 +37,27 @@ struct UserProfileView: View {
     @State var showBlockSheet = false
     
     var isCurrentUser: Bool {
-        return userVm.currentUser?.id == miniUser.id
+        if let user = userVm.currentUser {
+            return user.id == miniUser.id
+        } else {
+            return false
+        }
     }
     
     var isFriend: Bool {
-        return user?.currentFriendshipStatus == .FRIENDS
+        if let user = self.user {
+            return user.currentFriendshipStatus == .FRIENDS
+        } else {
+            return false
+        }
     }
     
     var isBlocked: Bool {
-        return user?.currentFriendshipStatus == .BLOCKED_BY_YOU || user?.currentFriendshipStatus == .BLOCKED_YOU
+        if let user = self.user {
+            return user.currentFriendshipStatus == .BLOCKED_BY_YOU || user.currentFriendshipStatus == .BLOCKED_YOU
+        } else {
+            return false
+        }
     }
     
     var body: some View {
@@ -78,11 +90,12 @@ struct UserProfileView: View {
                                     .fontWeight(.bold)
                                     .lineLimit(2)
                                     .multilineTextAlignment(.center)
-                                
-                                if user?.userRole == .PARTNER {
-                                    PartnerSeal()
-                                } else if user?.userRole == .AMBASSADOR {
-                                    AmbassadorSeal()
+                                if let user = self.user {
+                                    if user.userRole == .PARTNER {
+                                        PartnerSeal()
+                                    } else if user.userRole == .AMBASSADOR {
+                                        AmbassadorSeal()
+                                    }
                                 }
                             }
                             
@@ -185,42 +198,49 @@ struct UserProfileView: View {
                         
                         if let currentUser = userVm.currentUser, miniUser.id != currentUser.id {
                             HStack(alignment:.center, spacing: 10) {
-                                if user?.currentFriendshipStatus == .FRIENDS{
-                                    Button {
-                                        showRemoveSheet = true
-                                    } label: {
-                                        Text("Friends")
-                                            .normalTagTextStyle()
-                                            .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                            .normalTagRectangleStyle()
-                                    }
-                                } else if user?.currentFriendshipStatus == .NOT_FRIENDS{
-                                    Button {
-                                        Task{
-                                            if let user = self.user, try await APIClient.shared.sendFriendRequest(sendToUserId: user.id) != nil {
-                                                self.user?.currentFriendshipStatus = .SENT_FRIEND_REQUEST
-                                            }
+                                if let user = self.user {
+                                    if user.currentFriendshipStatus == .FRIENDS{
+                                        Button {
+                                            showRemoveSheet = true
+                                        } label: {
+                                            Text("Friends")
+                                                .normalTagTextStyle()
+                                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                                .normalTagRectangleStyle()
                                         }
-                                    } label: {
-                                        Text("Add Friend")
-                                            .normalTagTextStyle()
-                                            .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                            .normalTagRectangleStyle()
-                                    }
-                                } else if user?.currentFriendshipStatus == .RECEIVED_FRIEND_REQUEST {
-                                    Button {
-                                        showRespondSheet = true
-                                    } label: {
-                                        Text("Respond")
-                                            .normalTagTextStyle()
-                                            .frame(width: UIScreen.main.bounds.width/2 - 60)
-                                            .normalTagRectangleStyle()
-                                    }
-                                } else if user?.currentFriendshipStatus == .SENT_FRIEND_REQUEST {
-                                    Button {
-                                        showCancelSheet = true
-                                    } label: {
-                                        Text("Cancel")
+                                    } else if user.currentFriendshipStatus == .NOT_FRIENDS{
+                                        Button {
+                                            Task{
+                                                if let user = self.user, try await APIClient.shared.sendFriendRequest(sendToUserId: user.id) != nil {
+                                                    self.user?.currentFriendshipStatus = .SENT_FRIEND_REQUEST
+                                                }
+                                            }
+                                        } label: {
+                                            Text("Add Friend")
+                                                .normalTagTextStyle()
+                                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                                .normalTagRectangleStyle()
+                                        }
+                                    } else if user.currentFriendshipStatus == .RECEIVED_FRIEND_REQUEST {
+                                        Button {
+                                            showRespondSheet = true
+                                        } label: {
+                                            Text("Respond")
+                                                .normalTagTextStyle()
+                                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                                .normalTagRectangleStyle()
+                                        }
+                                    } else if user.currentFriendshipStatus == .SENT_FRIEND_REQUEST {
+                                        Button {
+                                            showCancelSheet = true
+                                        } label: {
+                                            Text("Cancel")
+                                                .normalTagTextStyle()
+                                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                                .normalTagRectangleStyle()
+                                        }
+                                    } else {
+                                        Text("Loading...")
                                             .normalTagTextStyle()
                                             .frame(width: UIScreen.main.bounds.width/2 - 60)
                                             .normalTagRectangleStyle()
@@ -528,7 +548,7 @@ struct UserProfileView: View {
             }
             .padding(.bottom, 8)
             
-            if user?.currentFriendshipStatus == .BLOCKED_BY_YOU {
+            if let user = user, user.currentFriendshipStatus == .BLOCKED_BY_YOU {
                 Text("You have blocked this user. Go to settings and unblock them if you want to see more.")
                     .font(.footnote)
                     .bold()

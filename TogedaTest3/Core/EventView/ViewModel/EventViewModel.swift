@@ -38,6 +38,8 @@ class EventViewModel: ObservableObject {
     @Published var joinRequestParticipantsPage: Int32 = 0
     @Published var joinRequestParticipantsSize: Int32 = 15
     @Published var joinRequestLastPage = true
+    @Published var othersCount: Int64 = 0
+
     
     func fetchJoinRequestUserList(id: String) async throws{
         if let response = try await APIClient.shared.getEventParticipantsWaitingList(
@@ -49,6 +51,7 @@ class EventViewModel: ObservableObject {
                 self.joinRequestParticipantsList += response.data
                 self.joinRequestParticipantsPage += 1
                 self.joinRequestLastPage = response.lastPage
+                self.othersCount = response.listCount
             }
         }
     }
@@ -70,6 +73,8 @@ class EventViewModel: ObservableObject {
                 self.waitingList += response.data
                 self.waitingListPage += 1
                 self.waitingListLastPage = response.lastPage
+                self.othersCount = response.listCount
+
             }
         }
     }
@@ -93,6 +98,10 @@ class EventViewModel: ObservableObject {
             if let role = not.post.currentUserRole{
                 post.wrappedValue.currentUserRole = .init(rawValue: role.rawValue) ?? post.wrappedValue.currentUserRole
             }
+        } else if let not = not.alertBodyReceivedJoinRequest {
+            DispatchQueue.main.async {
+                self.othersCount += 1
+            }
         }
         
     }
@@ -110,6 +119,7 @@ class EventViewModel: ObservableObject {
         post.wrappedValue.currentUserRole = .init(rawValue: role) ?? post.wrappedValue.currentUserRole
         post.wrappedValue.participantsCount += 1
         self.participantsCount += 1
+        self.othersCount -= 1
         
     }
     

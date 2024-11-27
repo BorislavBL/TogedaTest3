@@ -333,7 +333,13 @@ struct ShareView: View {
                         .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
                 }
             case .GROUP:
-                if chatroom.previewMembers.count > 1 {
+                if let image = chatroom.image {
+                    KFImage(URL(string: image))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size.dimension, height: size.dimension)
+                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                } else if chatroom.previewMembers.count > 1 {
                     ZStack(alignment:.top){
                         
                         KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
@@ -391,7 +397,13 @@ struct ShareView: View {
                                 .fontWeight(.semibold)
                         }
                     case .GROUP:
-                        if chatroom.previewMembers.count > 1 {
+                        if let title = chatroom.title {
+                            Text("\(title)")
+                                .lineLimit(1)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                        else if chatroom.previewMembers.count > 1 {
                             Text("\(chatroom.previewMembers[0].firstName), \(chatroom.previewMembers[1].firstName)")
                                 .lineLimit(1)
                                 .font(.subheadline)

@@ -581,7 +581,7 @@ struct EventView: View {
                             Button {
                                 showJoinRequest = true
                             } label: {
-                                Text("End the Event")
+                                Text("Delete the Event")
                                     .fontWeight(.semibold)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 60)
@@ -822,6 +822,9 @@ struct EventView: View {
                             if let index = self.activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
                                 self.activityVM.activityFeed[index].post = response
                             }
+                            if let from = post.fromDate, from < Date() {
+                                post.status = .HAS_STARTED
+                            }
                         }
 
                     } else {
@@ -847,6 +850,39 @@ struct EventView: View {
                     print(error)
                 }
             }
+            
+            if post.askToJoin {
+                group.addTask {
+                    do {
+                        if let response = try await APIClient.shared.getEventParticipantsWaitingList(
+                            postId: post.id,
+                            page: 1,
+                            size: 1) {
+                            DispatchQueue.main.async {
+                                self.eventVM.othersCount = response.listCount
+                            }
+                        }
+                    } catch {
+                        print(error)
+                    }
+                }
+            } else {
+                group.addTask {
+                    do {
+                        if let response = try await APIClient.shared.getEventWaitlist(
+                            postId: post.id,
+                            page: 1,
+                            size: 1) {
+                            DispatchQueue.main.async {
+                                self.eventVM.othersCount = response.listCount
+                            }
+                        }
+                    } catch {
+                        print(error)
+                    }
+                }
+            }
+
             
             group.addTask {
                 do {
