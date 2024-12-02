@@ -65,7 +65,7 @@ struct EventView: View {
                     .tabViewStyle(PageTabViewStyle())
                     .frame(height: UIScreen.main.bounds.width * 1.5)
                     
-                    VStack(alignment: .leading){
+                    Group{
                         Text(post.title)
                             .font(.title)
                             .fontWeight(.bold)
@@ -105,6 +105,7 @@ struct EventView: View {
                             }
                         }
                         
+
                         AllEventTabsView(eventVM: eventVM, post: post, club: club, event: $event, store: $store)
                         
                         
@@ -217,7 +218,7 @@ struct EventView: View {
             }
             .background(Color("testColor"))
             .scrollIndicators(.hidden)
-            .ignoresSafeArea(.all, edges: .top)
+            .edgesIgnoringSafeArea(.top)
             
             VStack {
                 navbar()
@@ -267,7 +268,6 @@ struct EventView: View {
                 }
             }
         }
-        .swipeBack()
         .onAppear(){
             eventVM.participantsList = []
             eventVM.participantsPage = 0
@@ -282,7 +282,6 @@ struct EventView: View {
                 eventVM.updateEvent(not: not, post: $post)
             }
         }
-        .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showReportEvent, content: {
             ReportEventView(event: post, isActive: $showReportEvent)
         })
@@ -396,6 +395,13 @@ struct EventView: View {
                 }
             }
         }
+        .navigationBarHidden(true)
+        .navigationBarTitle("")
+        .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $isEditing) {
+            EditEventView(isActive: $isEditing, post: $post)
+        }
+        .swipeBack()
         
     }
     
@@ -765,9 +771,6 @@ struct EventView: View {
             
         }
         .background(.bar)
-        .navigationDestination(isPresented: $isEditing) {
-            EditEventView(isActive: $isEditing, post: $post)
-        }
     }
     
     @ViewBuilder

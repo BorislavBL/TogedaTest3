@@ -162,7 +162,7 @@ struct ChatView: View {
                         .ignoresSafeArea(.keyboard, edges: .all)                    //                    .padding(.top, 86)
                         .onChange(of: chatManager.messages) { oldValue, newValue in
                             if isInitialLoad {
-                                proxy.scrollTo("Bottom", anchor:.bottom)
+                                proxy.scrollTo(chatManager.messages.last?.id, anchor:.center)
                                 
                             }
                             if let messageId = lastMessageIdBeforeLoading {

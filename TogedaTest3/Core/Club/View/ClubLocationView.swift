@@ -10,6 +10,7 @@ import MapKit
 
 struct ClubLocationView: View {
     var club: Components.Schemas.ClubDto
+    @State var openMapSheet: Bool = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -24,7 +25,7 @@ struct ClubLocationView: View {
                     .lineLimit(1)
             }
             
-            MapSlot(name:  club.title, latitude: club.location.latitude, longitude: club.location.longitude)
+            MapSlot(name:  club.title, latitude: club.location.latitude, longitude: club.location.longitude, openGoogleMaps: $openMapSheet)
             
             
         }
@@ -33,6 +34,19 @@ struct ClubLocationView: View {
         .padding(.vertical)
         .background(.bar)
         .cornerRadius(10)
+        .confirmationDialog("Select Map", isPresented: $openMapSheet) {
+            Button("Open in Apple Maps"){
+                let url = URL(string: "maps://?saddr=&daddr=\(club.location.latitude),\(club.location.longitude)")
+                if UIApplication.shared.canOpenURL(url!) {
+                    UIApplication.shared.open(url!, options: [:], completionHandler: nil)
+                }
+            }
+            Button("Open in Google Maps"){
+                if isGoogleMapsInstalled() {
+                    openGoogleMaps(latitude: club.location.latitude, longitude: club.location.longitude)
+                }
+            }
+        }
     }
 }
 

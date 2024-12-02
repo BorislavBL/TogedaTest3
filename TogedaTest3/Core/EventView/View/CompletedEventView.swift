@@ -311,7 +311,7 @@ struct CompletedEventView: View {
                             .normalTagTextStyle()
                             .normalTagCapsuleStyle()
                         
-                        MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude)
+                        MapSlot(name:post.title, latitude: post.location.latitude, longitude: post.location.longitude, openGoogleMaps: .constant(false))
                         
                         
                         Text("Interests")

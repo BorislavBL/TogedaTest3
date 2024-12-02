@@ -219,6 +219,9 @@ struct ProfileView: View {
                 .padding(.horizontal)
             }
         }
+        .navigationBarHidden(true)
+        .navigationBarTitle("")
+        .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showSheet, content: {
             CreateSheetView(showSheet: $showSheet, showCreateEvent: $showCreateEvent, showCreateClub: $showCreateClub)
         })

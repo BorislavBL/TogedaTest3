@@ -24,6 +24,8 @@ struct HomeView: View {
                 .edgesIgnoringSafeArea(.vertical)
             
             ZStack(alignment: .top) {
+//                Test2View(showFilter: $showFilter, filterViewModel: filterViewModel, viewModel: viewModel)
+
                 if locationManager.showLocationServicesView {
                     AllowLocationView()
                         .ignoresSafeArea(.keyboard)

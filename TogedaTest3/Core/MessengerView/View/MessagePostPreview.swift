@@ -108,7 +108,15 @@ struct MessagePostPreview: View {
                         
                     }
                 }
-            } else if let post = post, post.blockedForCurrentUser || loadingCases == .noResults {
+            } else if let post = post, post.blockedForCurrentUser {
+                VStack(alignment: .center){
+                    Text("No such event")
+                        .font(.footnote)
+                        .fontWeight(.bold)
+                        .opacity(0.5)
+                }
+                .frame(size)
+            } else if loadingCases == .noResults{
                 VStack(alignment: .center){
                     Text("No such event")
                         .font(.footnote)
@@ -131,7 +139,10 @@ struct MessagePostPreview: View {
                         self.post = response
                         self.loadingCases = .loaded
                         self.Init = false
+                        print("here")
+
                     } else {
+                        print("no its here")
                         self.loadingCases = .noResults
                     }
                 }

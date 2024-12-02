@@ -6,63 +6,83 @@
 //
 
 import SwiftUI
-import MapKit
+import Kingfisher
 
 struct Test2View: View {
-    var userId = "53e4d8d2-b071-70bb-5d32-caf039f7adbc"
-    @StateObject var userVM = UserViewModel()
-    @State var user: Components.Schemas.UserInfoDto?
-    @StateObject var viewModel = ProfileViewModel()
-    @EnvironmentObject var websocket: WebSocketManager
-    @State var triggerCounter: Int = 0
-
+    @EnvironmentObject var postsViewModel: PostsViewModel
+    @State var isLoading: Bool = false
+    @State private var previousMinY: CGFloat = 0
+    @Binding var showFilter: Bool
+    @ObservedObject var filterViewModel: FilterViewModel
+    @EnvironmentObject var navManager: NavigationManager
+    @ObservedObject var viewModel: HomeViewModel
+    
     var body: some View {
-        VStack{
-            Text("\(user?.currentFriendshipStatus?.rawValue), \(triggerCounter)")
-                .onChange(of: websocket.newNotification){ old, new in
-                    print("Triggered 1")
-                    if let not = new {
-                        print("triggered 2")
-                        
-                        print("\(not)")
-                        
-                        if not.alertBodyFriendRequestAccepted != nil {
-                            print("Its here")
-                            user?.currentFriendshipStatus = .FRIENDS
-                        } else if not.alertBodyFriendRequestReceived != nil {
-                            print("or here here")
-                            user?.currentFriendshipStatus = .RECEIVED_FRIEND_REQUEST
-                        }
-                        
-//                        if triggerCounter == 0 {
-//                            user?.currentFriendshipStatus = .FRIENDS
-//                        } else if triggerCounter == 1 {
-//                            user?.currentFriendshipStatus = .NOT_FRIENDS
-//                        }
-                        triggerCounter += 1
-                    }
-                }
-                .onAppear(){
-                    Task{
-                        do {
-                            if let response = try await APIClient.shared.getUserInfo(userId: userId) {
-                                DispatchQueue.main.async {
-                                    self.user = response
-                                    
-                                }
+        List {
+            ForEach(Array(postsViewModel.feedPosts.enumerated()), id: \.element.id) { index, post in
+//                PostCell(post: post)
+//                    .id(post.id)
+//                    .onAppear(){
+//                        postsViewModel.feedScrollFetch(index: index)
+//                    }
+                    KFImage.url(URL(string: post.images[0])!)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxHeight: 400)
+                        .cornerRadius(10)
+                        .background(
+                            NavigationLink(value: SelectionPath.eventDetails(post)) {
+                                Rectangle()
+                                    .frame(height: 400)
                             }
+                        )
+                        .listRowSeparator(.hidden)
+            }
+            
+            Rectangle()
+                .frame(width: 0, height: 0)
+                .onAppear {
+                    if !postsViewModel.lastPage{
+                        isLoading = true
+                        Task{
+                            try await postsViewModel.fetchPosts()
+                            isLoading = false
                             
-                        } catch {
-                            print("Error fetching user posts: \(error)")
                         }
                     }
+                    
                 }
+            
+            
+            
         }
+        .scrollIndicators(.hidden)
+        .listStyle(.plain)
+        .refreshable {
+            Task{
+                try await refresh()
+                
+            }
+        }
+        
+        
+    }
+    
+    func refresh() async throws{
+        postsViewModel.state = .loading
+        postsViewModel.feedPosts = []
+        postsViewModel.page = 0
+        postsViewModel.lastPage = true
+        try await postsViewModel.fetchPosts()
     }
 }
 
 #Preview {
-    Test2View()
-        .environmentObject(WebSocketManager())
+    Test2View(showFilter: .constant(false), filterViewModel: FilterViewModel(), viewModel: HomeViewModel())
+        .environmentObject(LocationManager())
+        .environmentObject(PostsViewModel())
+        .environmentObject(ClubsViewModel())
+        .environmentObject(UserViewModel())
+        .environmentObject(NavigationManager())
 }
 

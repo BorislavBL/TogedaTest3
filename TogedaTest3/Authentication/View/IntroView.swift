@@ -135,6 +135,8 @@ struct IntroView: View {
                 .background(.bar)
                 .cornerRadius(10)
             }
+            .navigationBarHidden(true)
+            .navigationBarTitle("")
             .edgesIgnoringSafeArea(.top)
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
             .navigationDestination(isPresented: $showLogin) {

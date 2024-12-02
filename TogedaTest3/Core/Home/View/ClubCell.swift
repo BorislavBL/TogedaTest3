@@ -45,13 +45,20 @@ struct ClubCellSkeleton: View {
                         headerSpacer()
                             .opacity(0)
                         
-                        NavigationLink(value: SelectionPath.club(club)){
+//                        NavigationLink(value: SelectionPath.club(club)){
                             KFImage(URL(string: club.images[0]))
                                 .resizable()
                                 .scaledToFill()
-                                .frame(maxHeight: 400)
+                                .frame(height: 400)
                                 .cornerRadius(10)
-                        }
+                                .overlay(
+                                    NavigationLink(value: SelectionPath.club(club)) {
+                                        Rectangle()
+                                            .frame(height: 400)
+                                            .opacity(0)
+                                    }
+                                )
+//                        }
                     }
                     
                     header()
@@ -118,7 +125,7 @@ struct ClubCellSkeleton: View {
     @ViewBuilder
     func header() -> some View {
         HStack{
-            NavigationLink(value: SelectionPath.club(club)){
+            HStack{
                 if club.previewMembers.count > 1 {
                     ZStack(alignment:.top){
                         
@@ -186,6 +193,12 @@ struct ClubCellSkeleton: View {
                         
                     }
                     
+                }
+            }
+            .overlay {
+                NavigationLink(value: SelectionPath.club(club)){
+                    headerSpacer()
+                        .opacity(0)
                 }
             }
             

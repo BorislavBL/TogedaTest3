@@ -35,19 +35,41 @@ struct PostCellSkeleton: View {
                     headerSpacer()
                         .opacity(0)
                     
-                    NavigationLink(value: SelectionPath.eventDetails(post)) {
-                        KFImage(URL(string: post.images[0]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(maxHeight: 400)
-                            .cornerRadius(10)
-                    }
+//                    NavigationLink(value: SelectionPath.eventDetails(post)) {
+                    KFImage.url(URL(string: post.images[0])!)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 400)
+                        .cornerRadius(10)
+                        .overlay(
+                            NavigationLink(value: SelectionPath.eventDetails(post)) {
+                                Rectangle()
+                                    .frame(height: 400)
+                                    .opacity(0)
+                            }
+                        )
+//                    }
                 }
                 
                 //MARK: - Post Header
                 HStack(alignment: .center) {
-                    NavigationLink(value: SelectionPath.profile(post.owner)) {
+//                    NavigationLink(value: SelectionPath.profile(post.owner)) {
                         HStack(alignment: .center) {
+                            
+//                            AsyncImage(url: URL(string: post.owner.profilePhotos[0])) { image in
+//                                image
+//                                    .resizable()
+//                                    .scaledToFill()
+//                                    .frame(width: 50, height: 50)
+//                                    .background(.gray)
+//                                    .cornerRadius(15)
+//                            } placeholder: {
+//                                Color.gray
+//                                    .frame(width: 50, height: 50)
+//                                    .background(.gray)
+//                                    .cornerRadius(15)
+//                            }
+                            
                             KFImage(URL(string: post.owner.profilePhotos[0]))
                                 .resizable()
                                 .scaledToFill()
@@ -87,8 +109,14 @@ struct PostCellSkeleton: View {
 
                             }
                         }
+                        .overlay(
+                            NavigationLink(value: SelectionPath.profile(post.owner)) {
+                                headerSpacer()
+                                    .opacity(0)
+                            }
+                        )
                         
-                    }
+//                    }
                     
                     Spacer()
                     

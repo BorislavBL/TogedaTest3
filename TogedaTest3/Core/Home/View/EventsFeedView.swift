@@ -31,7 +31,7 @@ struct EventsFeedView: View {
                     if postsViewModel.state == .loaded {
                         ForEach(Array(postsViewModel.feedPosts.enumerated()), id: \.element.id) {index, post in
                             PostCell(post: post)
-                            //                                            .id(post.id)
+                                .id(post.id)
                                 .onAppear(){
                                     postsViewModel.feedScrollFetch(index: index)
                                 }

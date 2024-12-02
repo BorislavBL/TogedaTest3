@@ -124,6 +124,8 @@ struct ClubView: View {
             .edgesIgnoringSafeArea(.top)
             .frame(maxWidth: .infinity)
             .background(Color("testColor"))
+            .navigationBarHidden(true)
+            .navigationBarTitle("")
             .navigationBarBackButtonHidden(true)
             
             navbar()
