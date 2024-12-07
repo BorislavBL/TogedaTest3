@@ -270,12 +270,43 @@ struct ProfileView: View {
                     .navButton3()
             }
             
-            NavigationLink(value: SelectionPath.userSettings(isSupportNeeded: false)) {
+            Menu {
+                NavigationLink(value: SelectionPath.userSettings(isSupportNeeded: false)) {
+                    HStack{
+                        Image(systemName: "gear")
+                        Text("Settings")
+                    }
+                }
+                
+                Button {
+                    userVm.showInstaOverlay = true
+                } label: {
+                    HStack{
+                        Image("instagram")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                        
+                        Text("Insta Story")
+                    }
+                }
+                
+                if let user = userVm.currentUser {
+                    ShareLink(item: URL(string: createURLLink(postID: nil, clubID: nil, userID: user.id))!) {
+                        HStack{
+                            Image(systemName: "paperplane")
+                            
+                            Text("Share via")
+                        }
+                    }
+                }
+            } label: {
                 Image(systemName: "gear")
                     .imageScale(.large)
                     .foregroundColor(.accentColor)
                     .navButton3()
             }
+
         }
         .padding(.horizontal)
     }

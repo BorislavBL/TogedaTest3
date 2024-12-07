@@ -97,6 +97,18 @@ struct NotificationView: View {
             }
             .padding()
         }
+        .refreshable {
+            vm.notificationsList = []
+            vm.page = 0
+            vm.count = 0
+            vm.lastPage = true
+            vm.loadingState = .loading
+            Task{
+                try await vm.fetchInitialNotification(){ success in
+                    isLoading = false
+                }
+            }
+        }
         .onChange(of:ratingVM.openReviewSheet) { oldValue, newValue in
             if !newValue {
                 ratingVM.resetAll()

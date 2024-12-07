@@ -134,6 +134,7 @@ struct AboutTab: View {
                     .moreButtonFont(.system(.headline, design: .rounded).bold())
                     .trimMultipleNewlinesWhenTruncated(false)
                     .enableCollapse(true)
+                    .hasAnimation(false)
                     .padding(.bottom, 8)
                 
             }
@@ -159,7 +160,7 @@ struct AboutTab: View {
     }
     
     var isAboutInfo: Bool {
-        if let user = user, user.details.education != nil || user.details.workout != nil || user.details.personalityType != nil || user.details.instagram != nil {
+        if let user = user, user.details.education != nil || user.details.workout != nil || user.details.personalityType != nil || user.details.instagram != nil || badges?.count ?? 0 > 0 || user.userRole == .AMBASSADOR || user.userRole == .PARTNER {
             return true
         } else {
             return false

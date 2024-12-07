@@ -13,6 +13,7 @@ class UserViewModel: ObservableObject {
     @Published var friendsList: [Components.Schemas.GetFriendsDto] = []
     @Published var clubs: [Components.Schemas.ClubDto] = []
     @Published var posts: [Components.Schemas.PostResponseDto] = []
+    @Published var showInstaOverlay: Bool = false
     
     func addPost(post: Components.Schemas.PostResponseDto) {
         if !posts.contains(where: {$0.id == post.id}) {

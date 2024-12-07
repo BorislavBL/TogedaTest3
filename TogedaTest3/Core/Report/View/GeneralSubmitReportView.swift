@@ -50,6 +50,7 @@ struct GeneralSubmitReportView: View {
                             .moreButtonFont(.system(.headline, design: .rounded).bold())
                             .trimMultipleNewlinesWhenTruncated(false)
                             .enableCollapse(true)
+                            .hasAnimation(false)
                             .padding(.bottom, 8)
                     }
                     

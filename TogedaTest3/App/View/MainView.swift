@@ -31,6 +31,11 @@ struct MainView: View {
                     InstagramOverlay(isActive: $postsViewModel.showInstaOverlay, post: postsViewModel.clickedPost)
                 }
             }
+            .overlay {
+                if let user = userViewModel.currentUser, userViewModel.showInstaOverlay{
+                    InstagramProfileOverlay(isActive: $userViewModel.showInstaOverlay, user: user)
+                }
+            }
             .fullScreenCover(isPresented: $navigationManager.isPresentingEvent) {
                 CreateEventView()
             }

@@ -119,6 +119,7 @@ public struct ExpandableText: View {
     internal var expandAnimation: Animation = .default
     internal var collapseEnabled: Bool = false
     internal var trimMultipleNewlinesWhenTruncated: Bool = true
+    internal var hasAnimation: Bool = true
     
     /**
      Initializes a new `ExpandableText` instance with the specified text string, trimmed of any leading or trailing whitespace and newline characters.
@@ -157,13 +158,21 @@ public struct ExpandableText: View {
             .onTapGesture {
                 if (isExpanded && collapseEnabled) ||
                      shouldShowMoreButton {
-                    withAnimation(expandAnimation) { isExpanded.toggle() }
+                    if hasAnimation{
+                        withAnimation(expandAnimation) { isExpanded.toggle() }
+                    } else {
+                        isExpanded.toggle()
+                    }
                 }
             }
             .modifier(OverlayAdapter(alignment: .trailingLastTextBaseline, view: {
                 if shouldShowMoreButton {
                     Button {
-                        withAnimation(expandAnimation) { isExpanded.toggle() }
+                        if hasAnimation{
+                            withAnimation(expandAnimation) { isExpanded.toggle() }
+                        } else {
+                            isExpanded.toggle()
+                        }
                     } label: {
                         Text(moreButtonText)
                             .font(moreButtonFont ?? font)
@@ -291,6 +300,12 @@ public extension ExpandableText {
     func trimMultipleNewlinesWhenTruncated(_ value: Bool) -> Self {
         var copy = self
         copy.trimMultipleNewlinesWhenTruncated = value
+        return copy
+    }
+    
+    func hasAnimation(_ value: Bool) -> Self {
+        var copy = self
+        copy.hasAnimation = value
         return copy
     }
 }

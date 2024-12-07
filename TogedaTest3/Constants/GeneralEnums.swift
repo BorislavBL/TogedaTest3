@@ -67,6 +67,7 @@ enum LoadingPhases {
 enum CommodityColor {
     case gold
     case silver
+    case silverLight
     case platinum
     case bronze
     var colors: [Color] {
@@ -85,6 +86,14 @@ enum CommodityColor {
                                Color(hex: 0x8E8D8D),
                                Color(hex: 0xB3B6B5),
                                Color(hex: 0xA1A2A3),
+        ]
+            
+        case .silverLight: return [ Color(hex: 0x919191),
+                                    Color(hex: 0x91918e),
+                                    Color(hex: 0xc7cac9),
+                                    Color(hex: 0xa2a1a1),
+                                    Color(hex: 0xc7cac9),
+                                    Color(hex: 0xb5b6b7),
         ]
             
         case .platinum: return [ Color(hex: 0x000000),

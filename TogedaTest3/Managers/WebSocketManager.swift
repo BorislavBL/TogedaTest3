@@ -190,11 +190,13 @@ extension WebSocketManager {
             } else if destination.hasSuffix("/notifications") {
                 
                 if let message = message as? String, let jsonData = message.data(using: .utf8) {
-                    
+                    print("mmmmmmmmmmmmmmmmmmm -------------- \(message)")
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
                     
                     let notificationData = try decoder.decode(Components.Schemas.NotificationDto.self, from: jsonData)
+                    print("nnnnnnnnn - \(notificationData)")
+
                     DispatchQueue.main.async {
                         self.addNotification(newNotification: notificationData)
                         self.newNotification = notificationData

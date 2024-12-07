@@ -24,8 +24,10 @@
 		14132F342C08BEEE006DAD08 /* PostSkeleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14132F332C08BEEE006DAD08 /* PostSkeleton.swift */; };
 		141537CD2B629D1D005669EC /* EditEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141537CC2B629D1D005669EC /* EditEventView.swift */; };
 		141537CF2B629DC5005669EC /* EditEventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141537CE2B629DC5005669EC /* EditEventViewModel.swift */; };
+		14163D362D00B6BE00203B1C /* InstagramProfileOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14163D352D00B6BE00203B1C /* InstagramProfileOverlay.swift */; };
 		141668582AB71F5600AD74FB /* DateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141668572AB71F5600AD74FB /* DateView.swift */; };
 		1416685A2AB72DA800AD74FB /* DescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141668592AB72DA800AD74FB /* DescriptionView.swift */; };
+		141843EE2CFF828500DC0339 /* ProfileInstagramStoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141843ED2CFF828500DC0339 /* ProfileInstagramStoryView.swift */; };
 		1418C7742B6D1E730037BE5A /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 1418C7732B6D1E730037BE5A /* GoogleSignIn */; };
 		1418C7762B6D1E730037BE5A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1418C7752B6D1E730037BE5A /* GoogleSignInSwift */; };
 		1418C7782B6D1EF60037BE5A /* GoogleAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1418C7772B6D1EF60037BE5A /* GoogleAuthService.swift */; };
@@ -325,8 +327,10 @@
 		14132F332C08BEEE006DAD08 /* PostSkeleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostSkeleton.swift; sourceTree = "<group>"; };
 		141537CC2B629D1D005669EC /* EditEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventView.swift; sourceTree = "<group>"; };
 		141537CE2B629DC5005669EC /* EditEventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventViewModel.swift; sourceTree = "<group>"; };
+		14163D352D00B6BE00203B1C /* InstagramProfileOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramProfileOverlay.swift; sourceTree = "<group>"; };
 		141668572AB71F5600AD74FB /* DateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateView.swift; sourceTree = "<group>"; };
 		141668592AB72DA800AD74FB /* DescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionView.swift; sourceTree = "<group>"; };
+		141843ED2CFF828500DC0339 /* ProfileInstagramStoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileInstagramStoryView.swift; sourceTree = "<group>"; };
 		1418C7772B6D1EF60037BE5A /* GoogleAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAuthService.swift; sourceTree = "<group>"; };
 		1418C77C2B6D345C0037BE5A /* TestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewModel.swift; sourceTree = "<group>"; };
 		141B4A782C1C880800C493D0 /* ClubsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubsViewModel.swift; sourceTree = "<group>"; };
@@ -1567,6 +1571,8 @@
 				1423EF3B2C988DF200EE4E41 /* InstagramOverlay.swift */,
 				1423EF3D2C988FF200EE4E41 /* SnapShotView.swift */,
 				1454D4252B6147720050C762 /* ShareSheet.swift */,
+				141843ED2CFF828500DC0339 /* ProfileInstagramStoryView.swift */,
+				14163D352D00B6BE00203B1C /* InstagramProfileOverlay.swift */,
 			);
 			path = SharePost;
 			sourceTree = "<group>";
@@ -1832,6 +1838,7 @@
 				14390D752B309AB400D677FB /* RegistrationPhotosView.swift in Sources */,
 				1423EF3C2C988DF200EE4E41 /* InstagramOverlay.swift in Sources */,
 				14BBF9F62C232AB600D63E22 /* NotificationsManager.swift in Sources */,
+				14163D362D00B6BE00203B1C /* InstagramProfileOverlay.swift in Sources */,
 				1423EF3E2C988FF200EE4E41 /* SnapShotView.swift in Sources */,
 				14807A4B2AB4C01700716A17 /* EventView.swift in Sources */,
 				142263E42BE2649D002DB3CE /* ConfirmLocationMapView.swift in Sources */,
@@ -1846,6 +1853,7 @@
 				1454D42A2B6159B90050C762 /* NavButtonStyle.swift in Sources */,
 				14004AD12C5939F400DDE6AD /* UIBottomBar.swift in Sources */,
 				14BBF9FD2C2335BC00D63E22 /* ReportEventView.swift in Sources */,
+				141843EE2CFF828500DC0339 /* ProfileInstagramStoryView.swift in Sources */,
 				141DF36E2B0BB4E700CE94F5 /* AttributedText.swift in Sources */,
 				14E4F9852B8F86CB00D2A50C /* EditProfilePhoneCodeVerificationView.swift in Sources */,
 				1400BD0A2B45A3F7000EB8BC /* ClubMemoryView.swift in Sources */,

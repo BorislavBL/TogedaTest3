@@ -21,17 +21,26 @@ struct InstagramStoryView: View {
                     .cornerRadius(20)
                 
                 
-                LinearGradient(gradient: Gradient(colors: [.black.opacity(0), .black.opacity(0), .black]), startPoint: .top, endPoint: .bottom)
-                    .opacity(0.95)
+                LinearGradient(gradient: Gradient(colors: [.black.opacity(0), .black]), startPoint: .top, endPoint: .bottom)
+                    .opacity(0.70)
                     .frame(height: 600)
                 
                 VStack(spacing: 16){
+                    
+                    Image("togeda-white-logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 50, alignment: .center)
+                        .padding(.top, 50)
+                        
+                    Spacer()
                     
                     Text(post.title)
                         .font(.title2)
                         .foregroundStyle(.white)
                         .bold()
                         .multilineTextAlignment(.center)
+                    
                     HStack(){
                         Image(systemName: "calendar")
                             .font(.title3)

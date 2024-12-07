@@ -72,6 +72,16 @@ struct InboxView: View {
                     }
                 }
                 .scrollIndicators(.hidden)
+                .refreshable {
+                    Task{
+                        chatManager.allChatRooms = []
+                        chatManager.lastChatPage = true
+                        chatManager.chatPage = 0
+                        try await chatManager.getAllChats()
+                        isLoading = false
+                        
+                    }
+                }
                 .overlay{
                     if chatVM.isSearching {
                         ChatSearchView(chatVM: chatVM)
