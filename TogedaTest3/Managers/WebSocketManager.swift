@@ -190,7 +190,7 @@ extension WebSocketManager {
             } else if destination.hasSuffix("/notifications") {
                 
                 if let message = message as? String, let jsonData = message.data(using: .utf8) {
-                    print("mmmmmmmmmmmmmmmmmmm -------------- \(message)")
+                    print("mmmmmmmmmmmmmmmmmmm - \(message)")
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
                     
@@ -552,6 +552,11 @@ extension WebSocketManager {
         } else if newNotification.alertBodyFriendRequestAccepted != nil {
             notificationsList.removeAll { $0.alertBodyFriendRequestAccepted?.user.id == newNotification.alertBodyFriendRequestAccepted?.user.id }
             notificationsList.insert(newNotification, at: 0)
+        } else if newNotification.alertBodyUserAddedToParticipants != nil {
+            notificationsList.removeAll { $0.alertBodyFriendRequestAccepted?.user.id == newNotification.alertBodyFriendRequestAccepted?.user.id }
+            notificationsList.insert(newNotification, at: 0)
+        } else {
+            notificationsList.removeAll { $0.id == newNotification.id }
         }
     }
     

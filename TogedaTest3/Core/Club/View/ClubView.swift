@@ -146,6 +146,10 @@ struct ClubView: View {
                             vm.updateStatuses(miniUser: not.acceptedUser, miniClub: miniclub, club: $club)
                         }
                     }
+                } else if let not = not.alertBodyUserAddedToParticipants {
+                    if let miniclub = not.club, miniclub.id == club.id {
+                        vm.updateStatuses(miniUser: not.userAdded, miniClub: miniclub, club: $club)
+                    }
                 }
             }
         }

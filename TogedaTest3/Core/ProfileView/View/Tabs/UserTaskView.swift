@@ -52,6 +52,20 @@ struct UserTaskView: View {
                     
                 }
                 .multilineTextAlignment(.leading)
+            } else if let badge = badgeTask.badge, let description = badge.description{
+                VStack(alignment: .leading){
+                    Text("Description:")
+                        .font(.body)
+                        .fontWeight(.bold)
+                    
+                    Text(description)
+                        .foregroundStyle(.gray)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    
+                }
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity)
             }
             
             Text("\(badgeTask.counterName): (\(badgeTask.currentNumber)/\(badgeTask.completionNumber))")

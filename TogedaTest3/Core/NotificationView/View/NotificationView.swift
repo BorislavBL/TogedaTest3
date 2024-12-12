@@ -54,6 +54,19 @@ struct NotificationView: View {
                             EventHasStartedView(createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
                         } else if let not = notification.alertBodyFriendRequestAccepted {
                             AcceptedFriendRequestView(user: not, createDate: notification.createdDate)
+                        } else if let not = notification.alertBodyUserAddedToParticipants {
+                            switch not.forType {
+                            case .POST:
+                                if let post = not.post{
+                                    UserJoinsEventPage(post: post, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                                }
+                            case .CLUB:
+                                if let club = not.club{
+                                    UserJoinsClubPage(club: club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                                }
+                            case .none:
+                                EmptyView()
+                            }
                         }
                     }
                 } else if vm.loadingState == .noResults{

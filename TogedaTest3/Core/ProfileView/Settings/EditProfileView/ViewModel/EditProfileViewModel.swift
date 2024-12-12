@@ -107,13 +107,38 @@ extension EditProfileViewModel {
     }
     
     func convertToPathcUser(currentUser: Components.Schemas.UserInfoDto) -> Components.Schemas.PatchUserDto {
+        var bio: String? = nil
+        if let _bio = currentUser.details.education, !_bio.isEmpty {
+            bio = _bio
+        }
+        
+        var education: String? = nil
+        if let _education = currentUser.details.education, !_education.isEmpty {
+            education = _education
+        }
+        
+        var personalityType: String? = nil
+        if let _personalityType = currentUser.details.personalityType, !_personalityType.isEmpty {
+            personalityType = _personalityType
+        }
+        
+        var workout: String? = nil
+        if let _workout = currentUser.details.workout, !_workout.isEmpty {
+            workout = _workout
+        }
+        
+        var instagram: String? = nil
+        if let _instagram = currentUser.details.instagram, !_instagram.isEmpty {
+            instagram = _instagram
+        }
+        
         let userDetails = Components.Schemas.UserExtraDetailsDto(
-            bio: currentUser.details.bio,
-            education: currentUser.details.education,
-            personalityType: currentUser.details.personalityType,
-            height: currentUser.details.height, 
-            workout: currentUser.details.workout,
-            instagram: currentUser.details.instagram
+            bio: bio,
+            education: education,
+            personalityType: personalityType,
+            height: currentUser.details.height,
+            workout: workout,
+            instagram: instagram
         )
         
         let user = Components.Schemas.PatchUserDto(

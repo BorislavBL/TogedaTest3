@@ -252,6 +252,8 @@ let mockAlertBodyReviewEndedPost: Components.Schemas.AlertBodyReviewEndedPost = 
 
 let mockAlertBodyReceivedJoinRequest: Components.Schemas.AlertBodyReceivedJoinRequest = .init(post: MockMiniPost, club: nil, fromUser: MockMiniUser, forType: .POST, alertBodyTypeAsString: "Aleeee alee aleee aleee")
 
+let mockAlertBodyUserAddedToParticipants: Components.Schemas.AlertBodyUserAddedToParticipants = .init(post: MockMiniPost, club: nil, userAdded: MockMiniUser, forType: .POST, alertBodyTypeAsString: "Aleeee alee aleee aleee")
+
 let mockAlertBodyAcceptedJoinRequest: Components.Schemas.AlertBodyAcceptedJoinRequest = .init(post: MockMiniPost, club: nil, acceptedUser: MockMiniUser, forType: .POST, alertBodyTypeAsString: "Aleeee alee aleee aleee")
 let mockAlertBodyPostHasStartedRequest: Components.Schemas.AlertBodyPostHasStarted = .init(post: MockMiniPost, alertBodyTypeAsString: "Aaaaaaaaaaaa")
 

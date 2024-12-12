@@ -25,6 +25,8 @@
 		141537CD2B629D1D005669EC /* EditEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141537CC2B629D1D005669EC /* EditEventView.swift */; };
 		141537CF2B629DC5005669EC /* EditEventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141537CE2B629DC5005669EC /* EditEventViewModel.swift */; };
 		14163D362D00B6BE00203B1C /* InstagramProfileOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14163D352D00B6BE00203B1C /* InstagramProfileOverlay.swift */; };
+		14163D4F2D09F49100203B1C /* UserJoinsEventPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14163D4E2D09F49100203B1C /* UserJoinsEventPage.swift */; };
+		14163D532D09F9D400203B1C /* UserJoinsClubPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14163D522D09F9D400203B1C /* UserJoinsClubPage.swift */; };
 		141668582AB71F5600AD74FB /* DateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141668572AB71F5600AD74FB /* DateView.swift */; };
 		1416685A2AB72DA800AD74FB /* DescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141668592AB72DA800AD74FB /* DescriptionView.swift */; };
 		141843EE2CFF828500DC0339 /* ProfileInstagramStoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141843ED2CFF828500DC0339 /* ProfileInstagramStoryView.swift */; };
@@ -328,6 +330,8 @@
 		141537CC2B629D1D005669EC /* EditEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventView.swift; sourceTree = "<group>"; };
 		141537CE2B629DC5005669EC /* EditEventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventViewModel.swift; sourceTree = "<group>"; };
 		14163D352D00B6BE00203B1C /* InstagramProfileOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramProfileOverlay.swift; sourceTree = "<group>"; };
+		14163D4E2D09F49100203B1C /* UserJoinsEventPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJoinsEventPage.swift; sourceTree = "<group>"; };
+		14163D522D09F9D400203B1C /* UserJoinsClubPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJoinsClubPage.swift; sourceTree = "<group>"; };
 		141668572AB71F5600AD74FB /* DateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateView.swift; sourceTree = "<group>"; };
 		141668592AB72DA800AD74FB /* DescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionView.swift; sourceTree = "<group>"; };
 		141843ED2CFF828500DC0339 /* ProfileInstagramStoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileInstagramStoryView.swift; sourceTree = "<group>"; };
@@ -1507,6 +1511,7 @@
 			children = (
 				14F301992C132ECB00D98E14 /* Rating */,
 				14D7E43A2AF53E8000A76D09 /* NotificationView.swift */,
+				14163D522D09F9D400203B1C /* UserJoinsClubPage.swift */,
 				14D7E43E2AF9253500A76D09 /* FriendRequestView.swift */,
 				14ED46592C6B87EE006DEAED /* AcceptedFriendRequestView.swift */,
 				14D7E4402AF9256100A76D09 /* FriendRequestPage.swift */,
@@ -1517,6 +1522,7 @@
 				14D5EFE32B5EC52600561A8D /* EventRequestPage.swift */,
 				14D5EFE52B5ECADC00561A8D /* GroupRequestPage.swift */,
 				14853AF12C63D63E0004EB93 /* EventHasStartedView.swift */,
+				14163D4E2D09F49100203B1C /* UserJoinsEventPage.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1991,11 +1997,13 @@
 				141B4A882C1DBFEC00C493D0 /* JoinRequestClubView.swift in Sources */,
 				14F5B3F82C3C4F6200C714D1 /* LoadingScreenView.swift in Sources */,
 				144006AC2B8D1C2C0085D549 /* EditProfilePhoneNumberView.swift in Sources */,
+				14163D532D09F9D400203B1C /* UserJoinsClubPage.swift in Sources */,
 				145DBC5C2CE500D7005E1D92 /* ExpandableTextSimple.swift in Sources */,
 				143512032B2742D600004A16 /* TypeFilters.swift in Sources */,
 				145A6C792B2B3CD50015F7C6 /* CountryNumbersView.swift in Sources */,
 				14F5B3DF2C35A23800C714D1 /* ClubsFeedView.swift in Sources */,
 				14DCAC3A2B1764FD00104B10 /* NewChatViewModel.swift in Sources */,
+				14163D4F2D09F49100203B1C /* UserJoinsEventPage.swift in Sources */,
 				1454D4262B6147720050C762 /* ShareSheet.swift in Sources */,
 				1400BD042B4597D4000EB8BC /* ClubEventComponent.swift in Sources */,
 				14390D732B30988D00D677FB /* RegistrationOccupationView.swift in Sources */,

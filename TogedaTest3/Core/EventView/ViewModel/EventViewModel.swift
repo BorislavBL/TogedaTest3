@@ -102,6 +102,10 @@ class EventViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self.othersCount += 1
             }
+        } else if let not = not.alertBodyUserAddedToParticipants {
+            if let minipost = not.post, minipost.id == post.wrappedValue.id {
+                updateStatuses(miniUser: not.userAdded, miniPost: minipost, post: post)
+            }
         }
         
     }

@@ -38,7 +38,7 @@ struct AboutTab: View {
                     }
                     
                     if let user = user {
-                        if let education = user.details.education {
+                        if let education = user.details.education, !education.isEmpty {
                             aboutTag(img: Image(systemName: "graduationcap"), text: education)
                         }
                         if let height = user.details.height {
