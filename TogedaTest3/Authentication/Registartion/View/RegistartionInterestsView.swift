@@ -121,13 +121,31 @@ struct RegistartionInterestsView: View {
             Button{
                 isActive = true
             } label:{
-                Text("Next (\(vm.selectedInterests.count)/5)")
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color("blackAndWhite"))
-                    .foregroundColor(Color("testColor"))
-                    .cornerRadius(10)
-                    .fontWeight(.semibold)
+                if vm.selectedInterests.count < 1 {
+                    Text("Select at least (5)")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                        .fontWeight(.semibold)
+                } else if vm.selectedInterests.count < 5 {
+                    Text("Select at least (\(vm.selectedInterests.count)/5)")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                        .fontWeight(.semibold)
+                } else {
+                    Text("Next (\(vm.selectedInterests.count)/20)")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("blackAndWhite"))
+                        .foregroundColor(Color("testColor"))
+                        .cornerRadius(10)
+                        .fontWeight(.semibold)
+                }
             }
             .disableWithOpacity(vm.selectedInterests.count < 5 || vm.selectedInterests.count > 20)
             .onTapGesture {

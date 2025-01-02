@@ -39,6 +39,9 @@ enum ImageSize {
     case xMedium
     case medium
     case large
+    case xxLarge
+    case xLarge
+
     
     
     var dimension: CGFloat {
@@ -53,6 +56,10 @@ enum ImageSize {
             return 50
         case .medium:
             return 60
+        case .xxLarge:
+            return 80
+        case .xLarge:
+            return 100
         case .large:
             return 120
         }

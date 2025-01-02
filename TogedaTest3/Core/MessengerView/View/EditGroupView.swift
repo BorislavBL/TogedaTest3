@@ -1,16 +1,15 @@
 //
-//  NewGroupChatCreateView.swift
+//  EditGroupView.swift
 //  TogedaTest3
 //
-//  Created by Borislav Lorinkov on 29.11.23.
+//  Created by Borislav Lorinkov on 28.12.24.
 //
 
 import SwiftUI
+import Kingfisher
 
-struct NewGroupChatCreateView: View {
+struct EditGroupView: View {
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var newChatVM: NewChatViewModel
-    var friendsList: [Components.Schemas.GetFriendsDto]
     @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .user, mode: .normal)
     
     @EnvironmentObject var navManager: NavigationManager
@@ -21,10 +20,31 @@ struct NewGroupChatCreateView: View {
     @State var cropImage: UIImage? = nil
     @State var imageURL: String? = nil
     
+    @State var chatRoom: Components.Schemas.ChatRoomDto
+    
     var body: some View {
         ScrollView{
             VStack(spacing: 16){
-                if let image = cropImage {
+                if let image = imageURL {
+                    Menu {
+                        Button("Change") {
+                            photoPickerVM.showPhotosPicker = true
+                        }
+                        
+                        Button("Remove") {
+                            imageURL = nil
+                            
+                        }
+                    }label: {
+                        KFImage(URL(string: image))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 400)
+                            .frame(minWidth: 0)
+                            .cornerRadius(10)
+                    }
+                    
+                } else if let image = cropImage {
                     Button{
                         photoPickerVM.showPhotosPicker = true
                     } label: {
@@ -35,7 +55,6 @@ struct NewGroupChatCreateView: View {
                             .frame(minWidth: 0)
                             .cornerRadius(10)
                     }
-
                 } else {
                     Button{
                         photoPickerVM.showPhotosPicker = true
@@ -78,7 +97,7 @@ struct NewGroupChatCreateView: View {
                 .interactiveDismissDisabled()
             }
         }
-        .navigationTitle("New Group")
+        .navigationTitle("Edit Group")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .toolbar {
@@ -90,34 +109,36 @@ struct NewGroupChatCreateView: View {
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                if !title.isEmpty {
-                    Button("Create") {
-                        create()
+                if title != chatRoom.title || imageURL != chatRoom.image{
+                    Button("Done") {
+                        done()
                     }
                 } else {
-                    Text("Create")
+                    Text("Done")
                         .foregroundStyle(.gray)
                 }
             }
         }
         .swipeBack()
+        .onAppear() {
+            title = chatRoom.title ?? ""
+            imageURL = chatRoom.image
+        }
     }
     
-    func create() {
-        let ids: [String] = friendsList.map({ friend in
-            return friend.user.id
-        })
+    func done() {
         Task {
             if let _cropImage = cropImage {
                 imageURL = await photoPickerVM.uploadImage(uiImage: _cropImage)
             }
-            if let response = try await APIClient.shared.createGroupChat(image: imageURL, title: trimAndLimitWhitespace(title).isEmpty ? nil : trimAndLimitWhitespace(title), friendIds: ids) {
-                if let chatRoom = try await APIClient.shared.getChat(chatId: response) {
+            if let response = try await APIClient.shared.patchGroupChat(image: imageURL, title: title.isEmpty ? nil : trimAndLimitWhitespace(title), chatId: chatRoom.id) {
+                if let chatRoom = try await APIClient.shared.getChat(chatId: chatRoom.id) {
                     DispatchQueue.main.async {
-                        dismiss()
-                        dismiss()
-                        dismiss()
-                        navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
+                        if let index = chatManager.allChatRooms.firstIndex(where: {$0.id == chatRoom.id}) {
+                            chatManager.allChatRooms[index] = chatRoom
+                            navManager.selectionPath = []
+                        }
+                        
                     }
                 }
             }
@@ -127,8 +148,9 @@ struct NewGroupChatCreateView: View {
     }
 }
 
+
 #Preview {
-    NewGroupChatCreateView(newChatVM: NewChatViewModel(), friendsList: [])
+    EditGroupView(chatRoom: mockChatRoom)
         .environmentObject(NavigationManager())
         .environmentObject(UserViewModel())
         .environmentObject(WebSocketManager())

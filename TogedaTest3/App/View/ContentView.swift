@@ -23,6 +23,12 @@ struct ContentView: View {
                     .font(.title)
                     .bold()
                     .frame(height: UIScreen.main.bounds.height)
+//                
+//                Button("Logout"){
+//                    vm.logout()
+//                }
+//                .padding(100)
+//                .background(.green)
             case .authenticated:
                 MainView()
             case .unauthenticated:
@@ -36,6 +42,7 @@ struct ContentView: View {
                 UpdateAppView()
             }
             
+
             
 //            VStack{
 //                Button{

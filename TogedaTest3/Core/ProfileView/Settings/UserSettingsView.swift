@@ -11,12 +11,14 @@ import MessageUI
 struct UserSettingsView: View {
     var isSupportNeeded: Bool = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var mainVM: ContentViewModel
     @EnvironmentObject var userVm: UserViewModel
     @State var paidEventMessage = false
     @State var deleteSheet = false
     @State private var showMailView = false
     @State private var showAlert = false
+    @State private var deleteAccText = ""
     
     
     var body: some View {
@@ -121,11 +123,33 @@ struct UserSettingsView: View {
         }
         .sheet(isPresented: $deleteSheet, content: {
 
+            if let user = userVm.currentUser {
                 VStack(spacing: 30){
                     Text("Once you click 'Delete Account' your account will be permanently removed and cannot be recovered.")
                         .font(.headline)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
+                    VStack(spacing: 2){
+                        Text("Write '\(user.firstName) Delete' to confirm your request.")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                            .multilineTextAlignment(.leading)
+                            .foregroundStyle(.gray)
+                        
+                        TextField("", text: $deleteAccText)
+                            .placeholder(when: deleteAccText.isEmpty) {
+                                Text("\(user.firstName) Delete")
+                                    .foregroundColor(.secondary)
+                                    .bold()
+                            }
+                            .bold()
+                            .autocapitalization(.none)
+                            .keyboardType(.emailAddress)
+                            .padding(10)
+                            .frame(minWidth: 80, minHeight: 47)
+                            .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .padding(.top, 20)
+                    }
                     
                     if paidEventMessage{
                         WarningTextComponent(text: "You currently have one or more active paid events. Please complete them before proceeding.")
@@ -142,7 +166,7 @@ struct UserSettingsView: View {
                                     }
                                 }
                             }
-
+                            
                         }
                     } label:{
                         Text("Delete Account")
@@ -154,9 +178,14 @@ struct UserSettingsView: View {
                             .background(.red)
                             .cornerRadius(10)
                     }
+                    .disableWithOpacity(deleteAccText != "\(user.firstName) Delete")
                 }
                 .padding()
-                .presentationDetents([.height(250)])
+                .presentationDetents([.height(350)])
+                .onAppear(){
+                    deleteAccText = ""
+                }
+            }
             
         })
         .sheet(isPresented: $showMailView) {
@@ -186,6 +215,14 @@ struct UserSettingsView: View {
             Image(systemName: "chevron.left")
         })
         .swipeBack()
+    }
+    
+    var backgroundColor: Color {
+        if colorScheme == .dark {
+            return Color(.systemGray5)
+        } else {
+            return Color(.systemGray6)
+        }
     }
 }
 

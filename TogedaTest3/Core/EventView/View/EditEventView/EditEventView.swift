@@ -24,6 +24,8 @@ struct EditEventView: View {
     @State private var errorMessage: String?
     @State private var deleteError: Bool = false
     @EnvironmentObject var userVM: UserViewModel
+    @EnvironmentObject var chatManager: WebSocketManager
+
 
     
     var body: some View {
@@ -337,6 +339,9 @@ struct EditEventView: View {
                             activityVM.activityFeed.remove(at: index)
                         }
                     }
+                    if let chatRoomId = post.chatRoomId {
+                        chatManager.allChatRooms.removeAll(where: {$0.id == chatRoomId})
+                    }
                 }
                 DispatchQueue.main.async {
                     isActive = false
@@ -535,5 +540,6 @@ struct EditEventView: View {
         .environmentObject(PostsViewModel())
         .environmentObject(ActivityViewModel())
         .environmentObject(UserViewModel())
+        .environmentObject(WebSocketManager())
 
 }

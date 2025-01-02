@@ -117,6 +117,10 @@ struct RegistrationOccupationView: View {
         })
     }
     
+//    var ocupationLimit: Bool {
+//        if 
+//    }
+    
     var foregroundColor: Color {
         if colorScheme == .dark {
             return Color(.white)

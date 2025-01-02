@@ -82,7 +82,7 @@ class MapViewModel: ObservableObject{
         return false
     }
     
-    func fetchEvents(region: MKCoordinateRegion) {        
+    func fetchEvents(region: MKCoordinateRegion) {
         // Perform the API call asynchronously
         Task {
             defer {
@@ -199,7 +199,7 @@ class MapViewModel: ObservableObject{
 //                askToJoin: false
 //            )
 //            {
-//                
+//
 //                DispatchQueue.main.async { [weak self] in
 //                    self?.searchedPosts += response.data
 //                    self?.lastSearchedPage = response.lastPage
@@ -270,9 +270,30 @@ class MapViewModel: ObservableObject{
         }
     }
     
+//    func getCurrentAreaPosts(region: MKCoordinateRegion) async throws {
+//        print("serach for posts triggered")
+//
+//        if let response = try await APIClient.shared.getMapEvents(
+//            centerLatitude: region.center.latitude,
+//            centerLongitude: region.center.longitude,
+//            spanLatitudeDelta: region.span.latitudeDelta,
+//            spanLongitudeDelta: region.span.longitudeDelta,
+//            page: 0,
+//            size: 25
+//        ) {
+//
+//            await addAnnotations(posts: response.data)
+//
+//            DispatchQueue.main.async{
+//                self.mapPosts = response.data
+//            }
+//        }
+//        
+//    }
+    
     func getCurrentAreaPosts(region: MKCoordinateRegion) async throws {
-        print("serach for posts triggered")
-        
+        print("search for posts triggered")
+
         if let response = try await APIClient.shared.getMapEvents(
             centerLatitude: region.center.latitude,
             centerLongitude: region.center.longitude,
@@ -281,14 +302,20 @@ class MapViewModel: ObservableObject{
             page: 0,
             size: 25
         ) {
+            let newPosts = response.data
+            let existingIDs = Set(mapPosts.map { $0.id })
+
+            // Filter out posts that are already present
+            let uniquePosts = newPosts.filter { !existingIDs.contains($0.id) }
             
-            await addAnnotations(posts: response.data)
-            
-            DispatchQueue.main.async{
-                self.mapPosts = response.data
+            let updatedPosts = mapPosts + uniquePosts
+
+            DispatchQueue.main.async {
+                self.mapPosts.append(contentsOf: uniquePosts)
             }
+            
+            await addAnnotations(posts: updatedPosts)
         }
-        
     }
     
 }

@@ -15,13 +15,17 @@ struct ChatParticipantsView: View {
     @State var isLoading = false
     @State var showReportSheet = false
     @State var Init: Bool = true
-    var chatId: String
+    var chatRoom: Components.Schemas.ChatRoomDto
     
     @State var lastPage: Bool = true
     @State var page: Int32 = 0
     @State var pageSize: Int32 = 15
     @State var participants: [Components.Schemas.MiniUser] = []
     
+    @State private var showFriendsSheet: Bool = false
+
+    
+    @EnvironmentObject var chatManager: WebSocketManager
     var body: some View {
         ScrollView{
             LazyVStack(alignment:.leading){
@@ -34,13 +38,38 @@ struct ChatParticipantsView: View {
                                     .scaledToFill()
                                     .frame(width: size.dimension, height: size.dimension)
                                     .clipShape(Circle())
-                                
-                                Text("\(user.firstName) \(user.lastName)")
-                                    .fontWeight(.semibold)
+                                VStack(alignment: .leading){
+                                    Text("\(user.firstName) \(user.lastName)")
+                                        .fontWeight(.semibold)
+                                    if let owner = chatRoom.owner, owner.id == user.id {
+                                        Text("Owner")
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.gray)
+                                            .font(.footnote)
+                                    }
+                                }
                             }
                         }
                         
                         Spacer()
+                        
+                        if let owner = chatRoom.owner, owner.id == user.id {
+                            Menu{
+                                Button("Kick \(user.firstName)"){
+                                    Task{
+                                        if let request = try await APIClient.shared.kickGroupParticipant(userId: user.id, chatId: chatRoom.id){
+                                            if request {
+                                                participants.removeAll(where: {$0.id == user.id})
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "ellipsis")
+                                    .rotationEffect(.degrees(90))
+                            }
+                        }
                         
                     }
                     .padding(.vertical, 5)
@@ -57,7 +86,7 @@ struct ChatParticipantsView: View {
                             isLoading = true
                             
                             Task{
-                              if let response = try await APIClient.shared.getChatParticipants(chatId: chatId, page: page, size: pageSize) {
+                                if let response = try await APIClient.shared.getChatParticipants(chatId: chatRoom.id, page: page, size: pageSize) {
                                     self.participants += response.data
                                     self.lastPage = response.lastPage
                                     self.page += 1
@@ -69,6 +98,7 @@ struct ChatParticipantsView: View {
                     }
             }
             .padding(.horizontal)
+            .padding(.top)
             
         }
         .refreshable {
@@ -77,7 +107,7 @@ struct ChatParticipantsView: View {
             self.page = 0
             
             Task{
-                if let response = try await APIClient.shared.getChatParticipants(chatId: chatId, page: page, size: pageSize) {
+                if let response = try await APIClient.shared.getChatParticipants(chatId: chatRoom.id, page: page, size: pageSize) {
                     self.participants += response.data
                     self.lastPage = response.lastPage
                     self.page += 1
@@ -88,7 +118,7 @@ struct ChatParticipantsView: View {
             Task{
                 do{
                     if Init {
-                        if let response = try await APIClient.shared.getChatParticipants(chatId: chatId, page: page, size: pageSize) {
+                        if let response = try await APIClient.shared.getChatParticipants(chatId: chatRoom.id, page: page, size: pageSize) {
                             self.participants += response.data
                             self.lastPage = response.lastPage
                             self.page += 1
@@ -105,14 +135,32 @@ struct ChatParticipantsView: View {
         .navigationTitle("Participants")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading:Button(action: {dismiss()}) {
-            Image(systemName: "chevron.left")
-        })
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {dismiss()}) {
+                    Image(systemName: "chevron.left")
+                }
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: {
+                    showFriendsSheet = true
+                }) {
+                    Image(systemName: "plus")
+                }
+            }
+        }
         .swipeBack()
-
+        .sheet(isPresented: $showFriendsSheet) {
+            InviteFriendsToGroupSheet(chatId: chatRoom.id)
+                .presentationDetents([.fraction(0.8), .fraction(1)])
+                .presentationDragIndicator(.visible)
+        }
     }
+    
 }
 
 #Preview {
-    ChatParticipantsView(chatId: "")
+    ChatParticipantsView(chatRoom: mockChatRoom)
+        .environmentObject(WebSocketManager())
 }

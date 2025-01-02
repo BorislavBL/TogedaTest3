@@ -30,11 +30,11 @@ struct NewGroupChatView: View {
     
     var body: some View {
         ScrollView {
-            TextField("Write a name for the Chat. (Optional)", text: $title)
-                .frame(height: 44)
-                .padding(.leading)
-            //                    .background(Color(.systemGroupedBackground))
-                .background(Color(.tertiarySystemFill))
+//            TextField("Write a name for the Chat. (Optional)", text: $title)
+//                .frame(height: 44)
+//                .padding(.leading)
+//            //                    .background(Color(.systemGroupedBackground))
+//                .background(Color(.tertiarySystemFill))
             
             if selectedUsers.count > 0{
                 ScrollView{
@@ -137,8 +137,7 @@ struct NewGroupChatView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if selectedUsers.count > 1 {
                     Button{
-                        //                            showNewGroupChatCreateView = true
-                        create()
+                        showNewGroupChatCreateView = true
                     } label:{Text("Create")}
                 } else {
                     Text("Create")
@@ -146,29 +145,13 @@ struct NewGroupChatView: View {
                 }
             }
         }
-        //            .navigationDestination(isPresented: $showNewGroupChatCreateView) {
-        //                NewGroupChatCreateView(newChatVM: newChatVM)
-        //            }
+        .navigationDestination(isPresented: $showNewGroupChatCreateView) {
+            NewGroupChatCreateView(newChatVM: newChatVM, friendsList: selectedUsers)
+        }
         
     }
     
-    func create() {
-        let ids = friendsList.map({ friend in
-            return friend.user.id
-        })
-        Task {
-            if let response = try await APIClient.shared.createGroupChat(title: trimAndLimitWhitespace(title).isEmpty ? nil : trimAndLimitWhitespace(title), friendIds: .init(friendIds: ids)) {
-                if let chatRoom = try await APIClient.shared.getChat(chatId: response) {
-                    DispatchQueue.main.async {
-                        dismiss()
-                        dismiss()
-                        
-                        navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
-                    }
-                }
-            }
-        }
-    }
+
     
     func fetchList() async throws {
         if let currentUser = userVm.currentUser {

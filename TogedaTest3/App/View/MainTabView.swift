@@ -153,12 +153,16 @@ struct MainTabView: View {
                     ReviewProfileView(user: user)
                 case .paymentPage:
                     CreateStripeView()
-                case .chatParticipants(chatId: let chatId):
-                    ChatParticipantsView(chatId: chatId)
+                case .chatParticipants(chatroom: let chatroom):
+                    ChatParticipantsView(chatRoom: chatroom)
                 case .changePassword:
                     ChangePasswordView()
                 case .blockedUsers:
                     BlockedUsersView()
+                case .groupSettingsView(chatroom: let chatroom):
+                    GroupSettingsView(chatroom: chatroom)
+                case .editGroupChat(chatroom: let chatroom):
+                    EditGroupView(chatRoom: chatroom)
                 case .test:
                     TestView()
 

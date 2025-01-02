@@ -3115,8 +3115,70 @@ extension APIClient {
         return nil
     }
     
+    func leaveGroupChatRoom(chatId: String) async throws -> Bool? {
+        let response = try await client.leaveGroupChatRoom(.init(path: .init(chatId: chatId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
     func enterChat(chatId: String) async throws -> Bool? {
         let response = try await client.enterChatroom(.init(path: .init(chatId: chatId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func addFriendToChatRoomParticipants(chatId: String, userId: String) async throws -> Bool? {
+        let response = try await client.addFriendToChatRoomParticipants(.init(path: .init(chatId: chatId, userId: userId)))
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
@@ -3462,9 +3524,9 @@ extension APIClient {
         return nil
     }
     
-    func createGroupChat(title: String?, friendIds: Components.Schemas.FriendIdsDto) async throws -> String?{
+    func createGroupChat(image: String?, title: String?, friendIds: [String]) async throws -> String?{
 //        let response = try await client.createChatForGroup(.init(body: .json(friendIds)))
-        let response = try await client.createChatForGroup(.init(query:.init(title: title),body: .json(friendIds)))
+        let response = try await client.createChatForGroup(.init(body: .json(.init(friendIds: friendIds, image: image, title: title))))
         switch response {
         case .ok(let okResponse):
             switch okResponse.body{
@@ -3493,6 +3555,133 @@ extension APIClient {
         
         return nil
     }
+    
+    func kickGroupParticipant(userId: String, chatId: String) async throws -> Bool?{
+        let response = try await client.removeFromChatRoomParticipants(.init(path: .init(chatId: chatId, userId: userId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func muteChat(chatId: String) async throws -> Bool?{
+        let response = try await client.muteChatroom(path: .init(chatId: chatId))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func unmuteChat(chatId: String) async throws -> Bool?{
+        let response = try await client.unmuteChatroom(path: .init(chatId: chatId))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func patchGroupChat(image: String?, title: String?, chatId: String) async throws -> Bool?{
+//        let response = try await client.createChatForGroup(.init(body: .json(friendIds)))
+        let response = try await client.patchGroupChatRoom(.init(path: .init(chatId: chatId), body: .json(.init(title: title, image: image))))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    
 }
 
 //Report

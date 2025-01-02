@@ -52,6 +52,7 @@ extension Interest {
         .init(name: "Rugby", icon: "🏉", category: "sport"),
         .init(name: "Badmington", icon: "🏸", category: "sport"),
         .init(name: "Table tennis", icon: "🏓", category: "sport"),
+        .init(name: "Padel", icon: "🎾", category: "sport"),
         .init(name: "Skiing", icon: "⛷️", category: "sport"),
         .init(name: "Snowboarding", icon: "🏂", category: "sport"),
         .init(name: "Hiking", icon: "🏔️", category: "sport"),

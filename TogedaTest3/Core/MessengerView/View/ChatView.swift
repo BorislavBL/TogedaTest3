@@ -413,7 +413,7 @@ struct ChatView: View {
                 case .GROUP:
                     if chatRoom.previewMembers.count > 1 {
                         Button{
-                            navManager.selectionPath.append(.chatParticipants(chatId: chatRoom.id))
+                            navManager.selectionPath.append(.groupSettingsView(chatroom: chatRoom))
                         } label: {
                             HStack(alignment: .center){
                                 if let image = chatRoom.image {

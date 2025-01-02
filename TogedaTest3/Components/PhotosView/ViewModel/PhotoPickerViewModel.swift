@@ -145,7 +145,7 @@ class PhotoPickerViewModel: ObservableObject {
         return isSuccess
     }
     
-    private func uploadImageAsync(uiImage: UIImage, index: Int) async -> Bool {
+    func uploadImageAsync(uiImage: UIImage, index: Int) async -> Bool {
         let bucketName = s3BucketName.rawValue
         let UUID = NSUUID().uuidString
         //        guard let jpeg = compressImageIfNeeded(image: uiImage) else {
@@ -181,6 +181,34 @@ class PhotoPickerViewModel: ObservableObject {
             print("Upload failed with error: \(error)")
             
             return false
+        }
+    }
+    
+    func uploadImage(uiImage: UIImage) async -> String? {
+        let bucketName = s3BucketName.rawValue
+        let UUID = NSUUID().uuidString
+
+        guard let jpeg = uiImage.jpegData(compressionQuality: 0.9) else {
+                    print("Image compression failed.")
+                    return nil
+                }
+        
+        do {
+            if let response = try await APIClient.shared.generatePresignedPutUrl(bucketName: bucketName, keyName: UUID) {
+                try await ImageService().uploadImage(imageData: jpeg, urlString: response)
+                let imageUrl = "https://\(bucketName).s3.eu-central-1.amazonaws.com/\(UUID).jpeg"
+                                
+                return imageUrl
+            } else {
+                
+                
+                return nil
+            }
+
+        } catch {
+            print("Upload failed with error: \(error)")
+            
+            return nil
         }
     }
     

@@ -10,7 +10,7 @@ import SwiftUI
 struct RegistrationView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
-
+    
     @State private var displayError: Bool = false
     @State private var isActive: Bool = false
     @State private var goToLogin: Bool = false
@@ -21,14 +21,14 @@ struct RegistrationView: View {
     @State var password: String = ""
     @State var userId: String = ""
     @State var subToEmail: Bool = true
-
+    
     
     enum FocusedField: Hashable{
         case email, password1, password2
     }
-
+    
     @FocusState private var focus: FocusedField?
-
+    
     @State var confirmPassword: String = ""
     @State private var isPasswordVisible: Bool = false
     
@@ -36,132 +36,146 @@ struct RegistrationView: View {
     
     
     var body: some View {
-        VStack {
-            Text("Create an account")
-                .multilineTextAlignment(.center)
-                .font(.title).bold()
-                .padding(.top, 20)
-            
-            TextField("", text: $email)
-                .placeholder(when: email.isEmpty) {
-                    Text("Email")
-                        .foregroundColor(.secondary)
+        VStack{
+            ScrollView(){
+                VStack {
+                    Text("Create an account")
+                        .multilineTextAlignment(.center)
+                        .font(.title).bold()
+                        .padding(.top, 20)
+                    
+                    TextField("", text: $email)
+                        .placeholder(when: email.isEmpty) {
+                            Text("Email")
+                                .foregroundColor(.secondary)
+                                .bold()
+                        }
                         .bold()
-                }
-                .bold()
-                .focused($focus, equals: .email)
-                .autocapitalization(.none)
-                .keyboardType(.emailAddress)
-                .submitLabel(.next)
-                .onSubmit {
-                    if !isValidEmail(testStr: email) {
-                        displayError.toggle()
-                    } else{
-                        focus = .password1
+                        .focused($focus, equals: .email)
+                        .autocapitalization(.none)
+                        .keyboardType(.emailAddress)
+                        .submitLabel(.next)
+                        .onSubmit {
+                            if !isValidEmail(testStr: email) {
+                                displayError.toggle()
+                            } else{
+                                focus = .password1
+                            }
+                        }
+                        .padding(10)
+                        .frame(minWidth: 80, minHeight: 47)
+                        .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .padding(.top, 20)
+                    
+                    
+                    HStack{
+                        if isPasswordVisible{
+                            TextField("", text: $password)
+                        } else {
+                            SecureField("", text: $password)
+                                .textContentType(.newPassword)
+                        }
+                        
+                        Button{
+                            isPasswordVisible.toggle()
+                        } label:{
+                            Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
+                                .foregroundStyle(.gray)
+                        }
                     }
-                }
-                .padding(10)
-                .frame(minWidth: 80, minHeight: 47)
-                .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .padding(.top, 20)
-            
-            
-            HStack{
-                if isPasswordVisible{
-                    TextField("", text: $password)
-                } else {
-                    SecureField("", text: $password)
-                }
-                
-                Button{
-                    isPasswordVisible.toggle()
-                } label:{
-                    Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
-                        .foregroundStyle(.gray)
-                }
-            }
-            .placeholder(when: password.isEmpty) {
-                Text("Password")
-                    .foregroundColor(.secondary)
+                    .placeholder(when: password.isEmpty) {
+                        Text("Password")
+                            .foregroundColor(.secondary)
+                            .bold()
+                    }
+                    
                     .bold()
-            }
-            
-            .bold()
-            .autocapitalization(.none)
-            .focused($focus, equals: .password1)
-            .submitLabel(.next)
-            .onSubmit {
-                focus = .password2
-            }
-            .padding(10)
-            .frame(minWidth: 80, minHeight: 47)
-            .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            
-            HStack{
-                if isPasswordVisible{
-                    TextField("", text: $confirmPassword)
-                } else {
-                    SecureField("", text: $confirmPassword)
-                }
-                
-                Button{
-                    isPasswordVisible.toggle()
-                } label:{
-                    Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
-                        .foregroundStyle(.gray)
-                }
-            }
-            .placeholder(when: confirmPassword.isEmpty) {
-                Text("Confirm Password")
-                    .foregroundColor(.secondary)
+                    .autocapitalization(.none)
+                    .focused($focus, equals: .password1)
+                    .submitLabel(.next)
+                    .onSubmit {
+                        focus = .password2
+                    }
+                    .padding(10)
+                    .frame(minWidth: 80, minHeight: 47)
+                    .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    
+                    HStack{
+                        if isPasswordVisible{
+                            TextField("", text: $confirmPassword)
+                        } else {
+                            SecureField("", text: $confirmPassword)
+                                .textContentType(.newPassword)
+                        }
+                        
+                        Button{
+                            isPasswordVisible.toggle()
+                        } label:{
+                            Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                    .placeholder(when: confirmPassword.isEmpty) {
+                        Text("Confirm Password")
+                            .foregroundColor(.secondary)
+                            .bold()
+                    }
                     .bold()
-            }
-            .bold()
-            .focused($focus, equals: .password2)
-            .submitLabel(.done)
-            .onSubmit {
-                hideKeyboard()
-            }
-            .padding(10)
-            .frame(minWidth: 80, minHeight: 47)
-            .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .padding(.top, 2)
-            .padding(.bottom, 15)
-            
-            if !isValidEmail(testStr: email) && displayError {
-                WarningTextComponent(text: "Please enter a valid email.")
+                    .focused($focus, equals: .password2)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        hideKeyboard()
+                    }
+                    .padding(10)
+                    .frame(minWidth: 80, minHeight: 47)
+                    .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .padding(.top, 2)
                     .padding(.bottom, 15)
-            } else if displayError && confirmPassword != password {
-                WarningTextComponent(text: "The two passwords do not match.")
-            } else if let message = errorMessage, !message.isEmpty, displayError {
-                WarningTextComponent(text: message)
-            }
-            
-
-            HStack(alignment: .top, spacing: 16, content: {
-                Button{
-                    subToEmail.toggle()
-                } label: {
-                    Image(systemName: subToEmail ? "checkmark.square.fill" : "square")
-
+                    
+                    if !isValidEmail(testStr: email) && displayError {
+                        WarningTextComponent(text: "Please enter a valid email.")
+                            .ignoresSafeArea(.keyboard)
+                            .padding(.bottom, 15)
+                    } else if displayError && confirmPassword != password {
+                        WarningTextComponent(text: "The two passwords do not match.")
+                            .padding(.bottom, 15)
+                            .ignoresSafeArea(.keyboard)
+                    } else if let message = errorMessage, !message.isEmpty, displayError {
+                        WarningTextComponent(text: message)
+                            .padding(.bottom, 15)
+                            .ignoresSafeArea(.keyboard)
+                    }
+                    
+                    
+                    HStack(alignment: .top, spacing: 16, content: {
+                        Button{
+                            subToEmail.toggle()
+                        } label: {
+                            Image(systemName: subToEmail ? "checkmark.square.fill" : "square")
+                            
+                        }
+                        
+                        HStack(alignment: .top, spacing: 16, content: {
+                            Text("I agree to receive email updates from Togeda about events, products, apps, news, and other information included in our ")
+                                .foregroundStyle(.gray)
+                                .font(.footnote)
+                                .bold() +
+                            Text(directMarketingAgreement)
+                                .font(.footnote)
+                                .bold() +
+                            Text(".")
+                                .foregroundStyle(.gray)
+                                .font(.footnote)
+                                .bold()
+                        })
+                        .accentColor(.blue)
+                    })
+                    .multilineTextAlignment(.leading)
+                    .ignoresSafeArea(.keyboard)
                 }
-                
-                HStack(alignment: .top, spacing: 16, content: {
-                    Text("I agree to receive email updates from Togeda about events, products, apps, news, and other information included in our ")
-                        .foregroundStyle(.gray)
-                        .font(.footnote)
-                        .bold() +
-                    Text(directMarketingAgreement)
-                        .font(.footnote)
-                        .bold() +
-                    Text(".")
-                        .foregroundStyle(.gray)
-                        .font(.footnote)
-                        .bold()
-                })
-                .accentColor(.blue)
-            })
-            .multilineTextAlignment(.leading)
+                .padding()
+            }
+            .scrollIndicators(.hidden)
             
             Spacer()
             
@@ -183,7 +197,7 @@ struct RegistrationView: View {
                                     
                                 } else {
                                     self.errorMessage = errorMessage
- 
+                                    
                                 }
                                 self.isLoading = false
                                 
@@ -212,6 +226,7 @@ struct RegistrationView: View {
                         .fontWeight(.semibold)
                 }
             }
+            .padding([.horizontal, .bottom])
             .disableWithOpacity(!isValidEmail(testStr: email) || !samePassword || !validatePassword(password: password))
             .onTapGesture {
                 if !isValidEmail(testStr: email) || !samePassword || !validatePassword(password: password){
@@ -223,7 +238,6 @@ struct RegistrationView: View {
             
         }
         .animation(.easeInOut(duration: 0.6), value: focus)
-        .padding(.horizontal)
         .onAppear(){
             focus = .email
         }
@@ -232,7 +246,6 @@ struct RegistrationView: View {
                 KeyboardToolbarItems()
             }
         }
-        .padding(.vertical)
         .navigationDestination(isPresented: $isActive, destination: {
             RegistrationCodeView(email: $email, password: $password)
         })

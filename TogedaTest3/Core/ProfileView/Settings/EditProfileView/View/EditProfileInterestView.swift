@@ -46,7 +46,7 @@ struct EditProfileInterestView: View {
                         WarningTextComponent(text: "Select at least 5 interests.")
                             .padding(.bottom, 15)
                     } else if displayError && selectedInterests.count > 20 {
-                        WarningTextComponent(text: "you can not select more than 20 interests.")
+                        WarningTextComponent(text: "You can not select more than 20 interests.")
                             .padding(.bottom, 15)
                     }
                     

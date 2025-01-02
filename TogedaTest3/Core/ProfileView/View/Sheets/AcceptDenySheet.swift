@@ -49,6 +49,7 @@ struct AcceptDenySheet: View {
                     if try await APIClient.shared.respondToFriendRequest(toUserId: id, action:.ACCEPT) != nil {
                         self.user?.currentFriendshipStatus = .FRIENDS
                         showRespondSheet = false
+                        self.user?.friendsCount += 1
                     }
                 }
             } label: {

@@ -19,6 +19,8 @@ struct JoinRequestClubView: View {
     var refreshParticipants: () -> ()
     
     @State var loadingState: LoadingCases = .loaded
+    @EnvironmentObject var chatManager: WebSocketManager
+
  
     var body: some View {
         VStack(spacing: 30){
@@ -109,6 +111,10 @@ struct JoinRequestClubView: View {
                                         
                                         club = response
                                         refreshParticipants()
+                                        
+                                        if let chatRoomId = club.chatRoomId {
+                                            chatManager.allChatRooms.removeAll(where: {$0.id == chatRoomId})
+                                        }
                                         isActive = false
                                     }
                                 }
@@ -181,4 +187,6 @@ struct JoinRequestClubView: View {
         .environmentObject(ActivityViewModel())
         .environmentObject(UserViewModel())
         .environmentObject(NavigationManager())
+        .environmentObject(WebSocketManager())
+
 }

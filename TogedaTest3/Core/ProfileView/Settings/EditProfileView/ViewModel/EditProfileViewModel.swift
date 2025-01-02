@@ -108,7 +108,7 @@ extension EditProfileViewModel {
     
     func convertToPathcUser(currentUser: Components.Schemas.UserInfoDto) -> Components.Schemas.PatchUserDto {
         var bio: String? = nil
-        if let _bio = currentUser.details.education, !_bio.isEmpty {
+        if let _bio = currentUser.details.bio, !_bio.isEmpty {
             bio = _bio
         }
         

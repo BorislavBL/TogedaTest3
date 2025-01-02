@@ -151,7 +151,7 @@ let MockMiniPost: Components.Schemas.MiniPostDto = .init(
 let MockPost = Components.Schemas.PostResponseDto(
     id: "1234567890",
     title: "Hiking in Vitosha Mountain",
-    images: ["https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
+    images: ["https://togeda-post-photos.s3.eu-central-1.amazonaws.com/aksel-fristrup-2Ya5U8_Uqho-unsplash.jpg", "https://togeda-post-photos.s3.eu-central-1.amazonaws.com/70541218-CDC4-4296-81E8-E933C67AA4BF.jpeg", "https://togeda-profile-photos.s3.eu-central-1.amazonaws.com/037FD054-0912-4D99-990E-7BBFEBFF8065.jpeg"],
     description: "Hello friends wellcome to my event> Todays topic slavery.",
     maximumPeople: 10,
     location: Components.Schemas.BaseLocation.init(
@@ -261,7 +261,7 @@ let mockAlertBodyPostHasStartedRequest: Components.Schemas.AlertBodyPostHasStart
 
 let mockReceivedMessage: Components.Schemas.ReceivedChatMessageDto = .init(id: "", chatId: "", sender: MockMiniUser, content: "Hey how are you?", contentType: .NORMAL, createdAt: Date())
 
-let mockChatRoom: Components.Schemas.ChatRoomDto = .init(id: UUID().uuidString, _type: .FRIENDS, post: nil, club: nil, latestMessage: mockReceivedMessage, previewMembers: [MockMiniUser], read: true, latestMessageTimestamp: Date())
+let mockChatRoom: Components.Schemas.ChatRoomDto = .init(id: UUID().uuidString, _type: .GROUP, post: nil, club: nil, latestMessage: mockReceivedMessage, previewMembers: [MockMiniUser, MockMiniUser], isMuted: false, read: true, latestMessageTimestamp: Date())
 
 let mockAlertBodyFriendRequestAccepted: Components.Schemas.AlertBodyFriendRequestAccepted = .init(user: MockMiniUser, alertBodyTypeAsString: "X accepted ur friend request")
 

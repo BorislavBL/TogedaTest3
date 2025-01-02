@@ -60,6 +60,14 @@ struct UserProfileView: View {
         }
     }
     
+    var isDeleted: Bool {
+        if let user = self.user, user.isDeleted {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     var body: some View {
         ZStack(alignment: .top){
             ScrollView(showsIndicators: false){
@@ -67,7 +75,9 @@ struct UserProfileView: View {
                     
                     blockedView()
                     
-                } else {
+                } else if isDeleted {
+                    deletedView()
+                }else {
                     VStack(alignment: .center) {
                         TabView {
                             ForEach(miniUser.profilePhotos, id: \.self) { image in
@@ -565,6 +575,104 @@ struct UserProfileView: View {
         .cornerRadius(10)
     }
     
+    func deletedView() -> some View {
+        VStack{
+            VStack(alignment: .center){
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 250, height: 250)
+                    .foregroundStyle(.gray)
+            }
+            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.5)
+            .background(.white)
+            
+            VStack(spacing: 10) {
+                Text("Deleted User")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                WrappingHStack(horizontalSpacing: 5, verticalSpacing: 5){
+                    HStack(spacing: 5){
+                        Image(systemName: "suitcase")
+                        
+                        Text("Unknown")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.gray)
+                    
+                    
+                    HStack(spacing: 5){
+                        Image(systemName: "birthday.cake")
+                        
+                        Text("Unknown")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.gray)
+                    
+                }
+                
+                
+                
+                HStack(spacing: 5){
+                    Image(systemName: "mappin.circle")
+                    
+                    Text("Unknown")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.gray)
+                }
+                .foregroundColor(.gray)
+                
+                
+                
+            }.padding()
+            
+            HStack(alignment: .top, spacing: 0
+            ) {
+                UserStats(value: String(Int(0)), title: "Friends")
+                    .frame(width: 105)
+                
+                
+                Divider()
+                    .frame(height: 50)
+                
+                
+                UserStats(value: "\(0)", title: "Events")
+                    .frame(width: 105)
+                
+                Divider()
+                    .frame(height: 50)
+                
+                
+                VStack{
+                    UserStats(value: "\(0)", title: "Likes")
+                    Text("0 no shows")
+                        .font(.footnote)
+                        .foregroundStyle(.gray)
+                }
+                .frame(width: 105)
+                
+                
+                
+            }
+            .padding(.bottom, 8)
+            
+            Text("This User have been deleted.")
+                .font(.footnote)
+                .bold()
+                .foregroundStyle(.gray)
+                .padding()
+                .multilineTextAlignment(.center)
+        }
+        .padding(.bottom)
+        .frame(width: UIScreen.main.bounds.width)
+        .background(.bar)
+        .cornerRadius(10)
+    }
+    
     @ViewBuilder
     func navbar() -> some View {
         HStack(alignment: .center, spacing: 10) {
@@ -615,8 +723,8 @@ struct UserProfileView: View {
                     }
                     
                     if let currentUser = userVm.currentUser,
-                        currentUser.userRole == .ADMINISTRATOR,
-                        let user = user, user.userRole != .ADMINISTRATOR{
+                       currentUser.userRole == .ADMINISTRATOR,
+                       let user = user, user.userRole != .ADMINISTRATOR{
                         Menu {
                             Button{
                                 changeUserStatus(role: .PARTNER)

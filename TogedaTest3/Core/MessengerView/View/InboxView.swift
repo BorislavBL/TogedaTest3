@@ -16,6 +16,7 @@ struct InboxView: View {
     @State var navHeight: CGFloat = .zero
     @State var isLoading = false
     
+    
     var body: some View {
         VStack(spacing: 0){
             VStack{
@@ -42,36 +43,105 @@ struct InboxView: View {
             .background(.bar)
             
             if chatManager.allChatRooms.count > 0 {
-                ScrollView {
-                    LazyVStack {
-                        ForEach(chatManager.allChatRooms, id: \.id){ chatroom in
-                            NavigationLink(value: SelectionPath.userChat(chatroom: chatroom)){
-                                InboxRowView(chatroom: chatroom)
+                List {
+                    ForEach(chatManager.allChatRooms, id: \.id){ chatroom in
+                        InboxRowView(chatroom: chatroom)
+                            .listRowSeparator(.hidden)
+                            .overlay {
+                                NavigationLink(value: SelectionPath.userChat(chatroom: chatroom)){
+                                    Rectangle()
+                                        .foregroundStyle(.red)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                }
+                                .opacity(0)
                             }
-                            
-                        }
-                        .padding(.top)
-                        .padding(.horizontal)
-                        
-                        if isLoading {
-                            ProgressView() // Show spinner while loading
-                        }
-                        
-                        Rectangle()
-                            .frame(width: 0, height: 0)
-                            .onAppear {
-                                if !chatManager.lastChatPage{
-                                    isLoading = true
-                                    Task{
-                                        try await chatManager.getAllChats()
-                                        isLoading = false
-                                        
+                            .swipeActions(allowsFullSwipe: false) {
+                                if chatroom.isMuted {
+                                    Button {
+                                        Task{
+                                            if let request = try await APIClient.shared.unmuteChat(chatId: chatroom.id) {
+                                                if request {
+                                                    print("is muted")
+                                                    DispatchQueue.main.async{
+                                                        if let index = chatManager.allChatRooms.firstIndex(where: {$0.id == chatroom.id}) {
+                                                            print("1111")
+                                                            chatManager.allChatRooms[index].isMuted = false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } label: {
+                                        Label("Unmute", systemImage: "bell.fill")
+                                    }
+                                    .tint(.gray)
+
+                                } else {
+                                    Button {
+                                        Task{
+                                            if let request = try await APIClient.shared.muteChat(chatId: chatroom.id) {
+                                                if request {
+                                                    DispatchQueue.main.async{
+                                                        print("is muted")
+                                                        if let index = chatManager.allChatRooms.firstIndex(where: {$0.id == chatroom.id}) {
+                                                            print("1111")
+                                                            chatManager.allChatRooms[index].isMuted = true
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } label: {
+                                        Label("Mute", systemImage: "bell.slash.fill")
+                                    }
+                                    .tint(.indigo)
+                                }
+                                
+                                if chatroom._type == .GROUP {
+                                    Button(role: .destructive) {
+                                        Task{
+                                            if let response = try await APIClient.shared.leaveGroupChatRoom(chatId: chatroom.id) {
+                                                if response {
+                                                    chatManager.allChatRooms.removeAll(where: {$0.id == chatroom.id})
+                                                }
+                                            }
+                                        }
+                                    } label: {
+                                        Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
                                     }
                                 }
                             }
+                        
                     }
+                    .padding(.top)
+                    .listRowBackground(Color.clear)
+                    
+                    if isLoading {
+                        ProgressView()
+                            .listRowSeparator(.hidden)// Show spinner while loading
+                            .listRowBackground(Color.clear)
+
+                    }
+                    
+                    Rectangle()
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .frame(width: 0, height: 0)
+                        .onAppear {
+                            if !chatManager.lastChatPage{
+                                isLoading = true
+                                Task{
+                                    try await chatManager.getAllChats()
+                                    isLoading = false
+                                    
+                                }
+                            }
+                        }
+                    
                 }
+                .listStyle(PlainListStyle())
                 .scrollIndicators(.hidden)
+                .background(.bar)
                 .refreshable {
                     Task{
                         chatManager.allChatRooms = []
@@ -108,6 +178,7 @@ struct InboxView: View {
                 }
                 .padding(.all)
                 .frame(maxHeight: .infinity, alignment: .center)
+                .background(.bar)
             }
         }
         .fullScreenCover(isPresented: $showNewMessageView, content: {

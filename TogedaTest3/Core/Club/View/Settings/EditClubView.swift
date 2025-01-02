@@ -34,6 +34,8 @@ struct EditClubView: View {
     @State var deleteSheet: Bool = false
     
     @EnvironmentObject var navManager: NavigationManager
+    @EnvironmentObject var chatManager: WebSocketManager
+
     @State var isLoading = false
     
     @State private var errorMessage: String?
@@ -286,6 +288,9 @@ struct EditClubView: View {
                         isActive = false
                         navManager.selectionPath.removeLast(1)
                         userVM.removeClub(club: club)
+                        if let chatRoomId = club.chatRoomId {
+                            chatManager.allChatRooms.removeAll(where: {$0.id == chatRoomId})
+                        }
                     }
                     
                 }
@@ -436,5 +441,6 @@ struct EditClubView: View {
         .environmentObject(ActivityViewModel())
         .environmentObject(ClubsViewModel())
         .environmentObject(UserViewModel())
+        .environmentObject(WebSocketManager())
 
 }

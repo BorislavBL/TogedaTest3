@@ -11,6 +11,7 @@ import StripePaymentSheet
 struct JoinRequestView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var postsViewModel: PostsViewModel
+    @EnvironmentObject var chatManager: WebSocketManager
     @EnvironmentObject var activityVM: ActivityViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var locationManager: LocationManager
@@ -277,6 +278,9 @@ struct JoinRequestView: View {
                                                 post = response
                                                 refreshParticipants()
                                                 userViewModel.removePost(post: response)
+                                                if let chatRoomId = post.chatRoomId {
+                                                    chatManager.allChatRooms.removeAll(where: {$0.id == chatRoomId})
+                                                }
                                                 isActive = false
                                             }
                                         }
@@ -599,6 +603,8 @@ struct JoinRequestView: View {
         .environmentObject(NavigationManager())
         .environmentObject(ActivityViewModel())
         .environmentObject(LocationManager())
+        .environmentObject(WebSocketManager())
+
 
 }
 

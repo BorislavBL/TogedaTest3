@@ -332,7 +332,7 @@ struct MapView: View {
         if let userLocation = locationManager.location?.coordinate {
             let coordinatedRegion = MKCoordinateRegion(
                 center: userLocation,
-                span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+                span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
             )
             viewModel.cameraPosition = .region(coordinatedRegion)
             

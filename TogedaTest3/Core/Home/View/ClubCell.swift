@@ -45,11 +45,12 @@ struct ClubCellSkeleton: View {
                         headerSpacer()
                             .opacity(0)
                         
-//                        NavigationLink(value: SelectionPath.club(club)){
+                        GeometryReader { geometry in
                             KFImage(URL(string: club.images[0]))
                                 .resizable()
                                 .scaledToFill()
                                 .frame(height: 400)
+                                .frame(maxWidth: geometry.size.width)
                                 .cornerRadius(10)
                                 .overlay(
                                     NavigationLink(value: SelectionPath.club(club)) {
@@ -58,6 +59,13 @@ struct ClubCellSkeleton: View {
                                             .opacity(0)
                                     }
                                 )
+                               
+
+                        }
+                        .frame(height: 400)
+                        
+//                        NavigationLink(value: SelectionPath.club(club)){
+   
 //                        }
                     }
                     

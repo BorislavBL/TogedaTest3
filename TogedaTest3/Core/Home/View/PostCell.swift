@@ -36,20 +36,27 @@ struct PostCellSkeleton: View {
                         .opacity(0)
                     
 //                    NavigationLink(value: SelectionPath.eventDetails(post)) {
-                    KFImage.url(URL(string: post.images[0])!)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 400)
-                        .cornerRadius(10)
-                        .overlay(
-                            NavigationLink(value: SelectionPath.eventDetails(post)) {
-                                Rectangle()
-                                    .frame(height: 400)
-                                    .opacity(0)
-                            }
-                        )
+                    GeometryReader { geometry in
+                        KFImage.url(URL(string: post.images[0])!)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 400)
+                            .frame(maxWidth: geometry.size.width)
+                            .clipShape(
+                                RoundedRectangle(cornerSize: .init(width: 10, height: 10))
+                            )
+                            .overlay(
+                                NavigationLink(value: SelectionPath.eventDetails(post)) {
+                                    Rectangle()
+                                        .frame(height: 400)
+                                        .opacity(0)
+                                }
+                            )
+                    }
+                    .frame(height: 400)
 //                    }
                 }
+
                 
                 //MARK: - Post Header
                 HStack(alignment: .center) {
@@ -231,7 +238,6 @@ struct PostCellSkeleton: View {
             //MARK: - Tags
             PostTags(post: post)
         }
-        
     }
     
     

@@ -177,17 +177,24 @@ extension ContentViewModel {
     
     func userHasBasicInfoGet(accessToken: DecodedJWTBody) {
         Task{
-            if let hasBasicInfo = try await APIClient.shared.retryWithExponentialDelay(task:{ try await APIClient.shared.hasBasicInfo() }) {
-                DispatchQueue.main.async {
-                    if hasBasicInfo {
-                        self.authenticationState = .authenticated
-                        self.startTokenRefreshTimer(accessToken: accessToken)
-                    } else {
-                        self.authenticationState = .authenticatedNoInformation
-                        self.startTokenRefreshTimer(accessToken: accessToken)
-                    }                    
+            do {
+                if let hasBasicInfo = try await APIClient.shared.retryWithExponentialDelay(task:{ try await APIClient.shared.hasBasicInfo() }) {
+                    DispatchQueue.main.async {
+                        if hasBasicInfo {
+                            self.authenticationState = .authenticated
+                            self.startTokenRefreshTimer(accessToken: accessToken)
+                        } else {
+                            self.authenticationState = .authenticatedNoInformation
+                            self.startTokenRefreshTimer(accessToken: accessToken)
+                        }
+                    }
+                } else {
+                    AuthService.shared.clearSession()
+                    DispatchQueue.main.async {
+                        self.authenticationState = .unauthenticated
+                    }
                 }
-            } else {
+            } catch {
                 AuthService.shared.clearSession()
                 DispatchQueue.main.async {
                     self.authenticationState = .unauthenticated

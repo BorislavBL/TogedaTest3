@@ -30,104 +30,109 @@ struct LoginView: View {
     
     var body: some View {
         VStack {
-            Text("Sign In to Your Account")
-                .multilineTextAlignment(.center)
-                .font(.title).bold()
-                .padding(.top, 20)
-            
-            TextField("", text: $email)
-                .placeholder(when: email.isEmpty) {
-                    Text("Email")
-                        .foregroundColor(.secondary)
-                        .bold()
-                }
-                .bold()
-                .autocapitalization(.none)
-                .focused($focus, equals: .email)
-                .onSubmit {
-                    focus = .password
-                }
-                .keyboardType(.emailAddress)
-                .padding(10)
-                .frame(minWidth: 80, minHeight: 47)
-                .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .padding(.top, 20)
-            
-            if displayError && !isValidEmail(testStr: email) {
-                WarningTextComponent(text: "Please enter a valid email.")
-                    .padding(.bottom, 15)
-            }
-            
-            HStack{
-                if isPasswordVisible{
-                    TextField("", text: $password)
-                } else {
-                    SecureField("", text: $password)
-                }
-                
-                Button{
-                    isPasswordVisible.toggle()
-                } label:{
-                    Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
-                        .foregroundStyle(.gray)
-                }
-            }
-            .placeholder(when: password.isEmpty) {
-                Text("Password")
-                    .foregroundColor(.secondary)
-                    .bold()
-            }
-            .bold()
-            .focused($focus, equals: .password)
-            .keyboardType(.default)
-            .padding(10)
-            .frame(minWidth: 80, minHeight: 47)
-            .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .padding(.top, 2)
-            .padding(.bottom, 15)
-            
-            if displayError && (email.isEmpty || password.isEmpty) {
-                WarningTextComponent(text: "")
-                    .padding(.bottom, 15)
-            }
-            
-            else if displayError && unvalidPassword {
-                WarningTextComponent(text: "The password should be at least 6 characters long.")
-                    .padding(.bottom, 15)
-            }
-            
-            if let message = errorMessage {
-                WarningTextComponent(text: message)
-                    .padding(.bottom, 15)
-            }
-            
-//            Button{
-//                saveLogin.toggle()
-//            } label: {
-//                HStack(alignment: .center, spacing: 16, content: {
-//                    Image(systemName: saveLogin ? "checkmark.square.fill" : "square")
-//                    Text("Stay logged in")
-//                        .multilineTextAlignment(.leading)
-//                        .bold()
-//                    
-//                })
-//                .foregroundStyle(.gray)
-//                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
-//            }
-//            .padding(.bottom, 10)
-            
-            Button{
-                forgotPassword = true
-            } label: {
-                HStack(alignment: .center, spacing: 16, content: {
-                    Text("Forget Password?")
-                        .multilineTextAlignment(.leading)
-                        .font(.footnote)
-                        .bold()
+            ScrollView {
+                VStack {
+                    Text("Sign In to Your Account")
+                        .multilineTextAlignment(.center)
+                        .font(.title).bold()
+                        .padding(.top, 20)
                     
-                })
-                .foregroundStyle(.blue)
+                    TextField("", text: $email)
+                        .placeholder(when: email.isEmpty) {
+                            Text("Email")
+                                .foregroundColor(.secondary)
+                                .bold()
+                        }
+                        .bold()
+                        .autocapitalization(.none)
+                        .focused($focus, equals: .email)
+                        .onSubmit {
+                            focus = .password
+                        }
+                        .keyboardType(.emailAddress)
+                        .padding(10)
+                        .frame(minWidth: 80, minHeight: 47)
+                        .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .padding(.top, 20)
+                    
+                    if displayError && !isValidEmail(testStr: email) {
+                        WarningTextComponent(text: "Please enter a valid email.")
+                            .padding(.bottom, 15)
+                    }
+                    
+                    HStack{
+                        if isPasswordVisible{
+                            TextField("", text: $password)
+                        } else {
+                            SecureField("", text: $password)
+                        }
+                        
+                        Button{
+                            isPasswordVisible.toggle()
+                        } label:{
+                            Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                    .placeholder(when: password.isEmpty) {
+                        Text("Password")
+                            .foregroundColor(.secondary)
+                            .bold()
+                    }
+                    .bold()
+                    .focused($focus, equals: .password)
+                    .keyboardType(.default)
+                    .padding(10)
+                    .frame(minWidth: 80, minHeight: 47)
+                    .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .padding(.top, 2)
+                    .padding(.bottom, 15)
+                    
+                    if displayError && unvalidPassword {
+                        WarningTextComponent(text: "The password should be at least 6 characters long.")
+                            .padding(.bottom, 15)
+                    }
+                    
+                    if let message = errorMessage {
+                        WarningTextComponent(text: message)
+                            .padding(.bottom, 15)
+                    }
+                    
+                    //            Button{
+                    //                saveLogin.toggle()
+                    //            } label: {
+                    //                HStack(alignment: .center, spacing: 16, content: {
+                    //                    Image(systemName: saveLogin ? "checkmark.square.fill" : "square")
+                    //                    Text("Stay logged in")
+                    //                        .multilineTextAlignment(.leading)
+                    //                        .bold()
+                    //                    
+                    //                })
+                    //                .foregroundStyle(.gray)
+                    //                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+                    //            }
+                    //            .padding(.bottom, 10)
+                    
+                    Button{
+                        forgotPassword = true
+                    } label: {
+                        HStack(alignment: .center, spacing: 16, content: {
+                            Text("Forget Password?")
+                                .multilineTextAlignment(.leading)
+                                .font(.footnote)
+                                .bold()
+                            
+                        })
+                        .foregroundStyle(.blue)
+                    }
+                    
+                    
+                }
+                .padding()
+                
+               
             }
+            .scrollIndicators(.hidden)
             
             Spacer()
             
@@ -157,8 +162,9 @@ struct LoginView: View {
                                 
                             } else if message.lowercased().contains("incorrect username or password".lowercased()) {
                                 self.errorMessage = "Incorrect email or password"
-                            }
-                            else {
+                            } else if message.lowercased().hasPrefix("user is disabled") {
+                                self.errorMessage = "This user is blocked: contact us at info@togeda.net"
+                            } else {
                                 self.errorMessage = message
                             }
                         }
@@ -174,16 +180,16 @@ struct LoginView: View {
                     .cornerRadius(10)
                     .fontWeight(.semibold)
             }
+            .padding([.bottom, .horizontal])
             .disableWithOpacity(!isValidEmail(testStr: email) || unvalidPassword || email.isEmpty || password.isEmpty)
             .onTapGesture {
-                if !isValidEmail(testStr: email) || email.isEmpty || password.isEmpty {
+                if !isValidEmail(testStr: email) || email.isEmpty || unvalidPassword || password.isEmpty {
                     displayError.toggle()
                 }
             }
-            
+
         }
         .animation(.easeInOut(duration: 0.6), value: focus)
-        .padding(.horizontal)
         .toolbar{
             ToolbarItemGroup(placement: .keyboard) {
                 KeyboardToolbarItems()
@@ -192,7 +198,6 @@ struct LoginView: View {
         .onAppear(){
             focus = .email
         }
-        .padding(.vertical)
         .navigationDestination(isPresented: $isNotEmailConfirmed, destination: {
             RegistrationCodeView(email: $email, password: $password)
         })

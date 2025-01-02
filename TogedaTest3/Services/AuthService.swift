@@ -155,8 +155,11 @@ extension AuthService {
         case .badRequest(let error):
             switch error.body {
             case .json(let error):
+                print("error", error)
                 let errorMessage = errorHandler(error: error)
                 completion(nil, errorMessage)
+                print("errorMessage", errorMessage)
+
             }
         case .conflict(_):
             completion(nil, "Conflict")

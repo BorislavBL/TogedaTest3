@@ -102,7 +102,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             }
         }
         
-        print(token)
+        print("Token Print:", token)
     }
 
 

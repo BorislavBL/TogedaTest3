@@ -144,9 +144,11 @@ struct EventView: View {
                                     if isGoogleMapsInstalled() {
                                         eventVM.openMapSheet = true
                                     } else {
-                                        let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)")
-                                        if UIApplication.shared.canOpenURL(url!) {
-                                            UIApplication.shared.open(url!, options: [:], completionHandler: nil)
+                                        if let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)"),
+                                           UIApplication.shared.canOpenURL(url) {
+                                            DispatchQueue.main.async {
+                                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                                            }
                                         }
                                     }
                                 }, label: {
@@ -447,7 +449,7 @@ struct EventView: View {
                             .background(.bar)
                             .clipShape(Capsule())
                     }
-                } else {
+                } else if post.status != .HAS_ENDED {
                     Button{
                         Task{
                             if let chatRoomId = try await APIClient.shared.createChatForEvent(postId: post.id) {
