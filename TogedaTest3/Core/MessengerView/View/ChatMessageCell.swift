@@ -12,6 +12,8 @@ import Kingfisher
 struct ChatMessageCell: View {
     let message: Components.Schemas.ReceivedChatMessageDto
     var nextMessage: Components.Schemas.ReceivedChatMessageDto?
+    var prevMessage: Components.Schemas.ReceivedChatMessageDto?
+
     var currentUserId: String
     let size: ImageSize = .xxSmall
     var chatRoom: Components.Schemas.ChatRoomDto
@@ -21,10 +23,19 @@ struct ChatMessageCell: View {
     private var shouldShowChatPartnerImage: Bool {
         guard let next = nextMessage else { return true }
         if nextMessage == nil && !isMessageFromCurrentUser { return true }
-        if let date = Calendar.current.dateComponents([.minute], from: message.createdAt, to: next.createdAt).minute, date > 30 {
-            return true
-        }
+//        if let date = Calendar.current.dateComponents([.minute], from: message.createdAt, to: next.createdAt).minute, date > 30 {
+//            return true
+//        }
         return next.sender.id != message.sender.id
+    }
+    
+    private var shouldShowName: Bool {
+        guard let prev = prevMessage else { return true }
+        if prevMessage == nil && !isMessageFromCurrentUser { return true }
+//        if let date = Calendar.current.dateComponents([.minute], from: message.createdAt, to: next.createdAt).minute, date > 30 {
+//            return true
+//        }
+        return prev.sender.id != message.sender.id
     }
     
     var isMessageFromCurrentUser: Bool {
@@ -75,20 +86,24 @@ struct ChatMessageCell: View {
             else {
                 HStack(alignment: .bottom, spacing: 8){
                     if shouldShowChatPartnerImage{
-                        KFImage(URL(string: message.sender.profilePhotos[0]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: size.dimension, height: size.dimension)
-                            .clipShape(Circle())
+                        NavigationLink(value: SelectionPath.profile(message.sender)){
+                            KFImage(URL(string: message.sender.profilePhotos[0]))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: size.dimension, height: size.dimension)
+                                .clipShape(Circle())
+                        }
                     }
                     
                     switch message.contentType {
                     case .CLUB:
                         VStack(alignment: .leading){
-                            if chatRoom._type != .FRIENDS && shouldShowChatPartnerImage {
+                            if chatRoom._type != .FRIENDS && shouldShowName {
                                 Text("\(message.sender.firstName)")
                                     .font(.footnote)
                                     .foregroundStyle(.gray)
+                                    .padding(.top)
+                                    .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
                             }
                             MessageClubPreview(clubID: message.content)
                                 .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
@@ -96,10 +111,13 @@ struct ChatMessageCell: View {
                         }
                     case .IMAGE:
                         VStack(alignment: .leading) {
-                            if chatRoom._type != .FRIENDS && shouldShowChatPartnerImage {
+                            if chatRoom._type != .FRIENDS && shouldShowName {
                                 Text("\(message.sender.firstName)")
                                     .font(.footnote)
                                     .foregroundStyle(.gray)
+                                    .padding(.top)
+                                    .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
+
                             }
                             Button{
                                 vm.selectedImage = message.content
@@ -119,11 +137,15 @@ struct ChatMessageCell: View {
                         
                     case .NORMAL:
                         VStack(alignment: .leading) {
-                            if chatRoom._type != .FRIENDS && shouldShowChatPartnerImage {
+                            if chatRoom._type != .FRIENDS && shouldShowName {
                                 Text("\(message.sender.firstName)")
                                     .font(.footnote)
                                     .foregroundStyle(.gray)
+                                    .padding(.top)
+                                    .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
+
                             }
+                            
                             Text(LocalizedStringKey(message.content))
                                 .textSelection(.enabled)
                                 .font(.subheadline)
@@ -136,10 +158,13 @@ struct ChatMessageCell: View {
                         }
                     case .POST:
                         VStack(alignment: .leading) {
-                            if chatRoom._type != .FRIENDS && shouldShowChatPartnerImage {
+                            if chatRoom._type != .FRIENDS && shouldShowName {
                                 Text("\(message.sender.firstName)")
                                     .font(.footnote)
                                     .foregroundStyle(.gray)
+                                    .padding(.top)
+                                    .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
+
                             }
                             MessagePostPreview(postID: message.content)
                                 .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)

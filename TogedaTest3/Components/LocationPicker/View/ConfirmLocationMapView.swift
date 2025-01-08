@@ -59,6 +59,8 @@ struct ConfirmLocationMapView: View {
             initialPlace = returnedPlace
         }
         .navigationTitle("Select Location")
+        .navigationBarTitleDisplayMode(.inline)
+
     }
     
     /// Finds Name for Current Location Coordinates

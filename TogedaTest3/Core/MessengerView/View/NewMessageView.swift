@@ -21,7 +21,7 @@ struct NewMessageView: View {
     @EnvironmentObject var userVm: UserViewModel
     @EnvironmentObject var chatManager: WebSocketManager
     
-    @State var isLoading = false
+    @State var isLoading: LoadingCases = .noResults
     
     @State var Init: Bool = true
     @State var friendsList: [Components.Schemas.GetFriendsDto] = []
@@ -91,7 +91,7 @@ struct NewMessageView: View {
                         .padding(.leading)
                     }
                     
-                    if isLoading{
+                    if isLoading == .loading{
                         ProgressView()
                     }
                     
@@ -99,21 +99,22 @@ struct NewMessageView: View {
                         .frame(width: 0, height: 0)
                         .onAppear {
                             if !lastPage, let currentUser = userVm.currentUser {
-                                isLoading = true
-                                
-                                Task{
-                                    if let response = try await APIClient.shared.getFriendList(userId: currentUser.id, page: page, size: pageSize){
+                                if isLoading == .loaded {
+                                    isLoading = .loading
+                                    Task{
+                                        if let response = try await APIClient.shared.getFriendList(userId: currentUser.id, page: page, size: pageSize){
+                                            
+                                            let newResponse = response.data
+                                            let existingResponseIDs = Set(self.friendsList.suffix(30).map { $0.user.id })
+                                            let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.user.id) }
+                                            
+                                            friendsList += uniqueNewResponse
+                                            page += 1
+                                            lastPage = response.lastPage
+                                            isLoading = .loaded
+                                        }
                                         
-                                        let newResponse = response.data
-                                        let existingResponseIDs = Set(self.friendsList.suffix(30).map { $0.user.id })
-                                        let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.user.id) }
-                                        
-                                        friendsList += uniqueNewResponse
-                                        page += 1
-                                        lastPage = response.lastPage
                                     }
-                                    isLoading = false
-                                    
                                 }
                             }
                         }
@@ -163,6 +164,7 @@ struct NewMessageView: View {
                                 friendsList = response.data
                                 page += 1
                                 lastPage = response.lastPage
+                                isLoading = .loaded
                             }
                             Init = false
                         }

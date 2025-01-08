@@ -138,8 +138,8 @@ struct AllInOneFilterView: View {
                                         lat: filterVM.returnedPlace.latitude,
                                         long: filterVM.returnedPlace.longitude,
                                         distance: filterVM.sliderValue,
-                                        from: filterVM.selectedTimeFilter.from,
-                                        to: filterVM.selectedTimeFilter.to,
+                                        from: filterVM.selectedTimeFilter.name == "Custom" ? filterVM.from : filterVM.selectedTimeFilter.from,
+                                        to: filterVM.selectedTimeFilter.name == "Custom" ? filterVM.to : filterVM.selectedTimeFilter.to,
                                         categories: filterVM.selectedCategories.count > 0 ? filterVM.selectedCategories.map({ Category in
                                             Category.name.lowercased()
                                         }) : nil

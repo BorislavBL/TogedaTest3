@@ -11,8 +11,9 @@ import SwiftStomp
 class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var allChatRooms: [Components.Schemas.ChatRoomDto] = []
     @Published var chatPage: Int32 = 0
-    @Published var chatSize: Int32 = 15
+    @Published var chatSize: Int32 = 30
     @Published var lastChatPage = true
+    @Published var isLoadingChats: LoadingCases = .noResults
     
 //    struct ReceivedChatMessageExtension: Hashable {
 //        var message: Components.Schemas.ReceivedChatMessageDto
@@ -43,7 +44,7 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var notificationsList: [Components.Schemas.NotificationDto] = []
     @Published var newNotification: Components.Schemas.NotificationDto?
     @Published var page: Int32 = 0
-    @Published var size: Int32 = 15
+    @Published var size: Int32 = 30
     @Published var count: Int64 = 0
     @Published var lastPage: Bool = true
     @Published var isConnected = false
@@ -403,7 +404,7 @@ extension WebSocketManager {
         }
     }
     
-    
+
     func getAllChats() async throws {
         if let response = try await APIClient.shared.allChats(page: chatPage, size: chatSize) {
             
@@ -415,6 +416,7 @@ extension WebSocketManager {
                 self.allChatRooms += uniqueNewResponse
                 self.lastChatPage = response.lastPage
                 self.chatPage += 1
+                self.isLoadingChats = .loaded
             }
         }
         

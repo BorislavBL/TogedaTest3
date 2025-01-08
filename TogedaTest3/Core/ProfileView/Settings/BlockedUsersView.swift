@@ -66,31 +66,21 @@ struct BlockedUsersView: View {
                         .padding(.vertical, 5)
                     }
                     
-                    if isLoading{
-                        ProgressView()
-                    }
-                    
-                    Rectangle()
-                        .frame(width: 0, height: 0)
-                        .onAppear {
-                            if !lastPage {
-                                isLoading = true
+                    ListLoadingButton(isLoading: $isLoading, isLastPage: lastPage) {
+                        Task{
+                            defer{isLoading = false}
+                            if let response = try await APIClient.shared.blockedUsers(page: blockedUsersPage, size: blockedUsersSize){
+                                let newResponse = response.data
+                                let existingResponseIDs = Set(self.blockedUsersList.suffix(30).map { $0.id })
+                                let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
                                 
-                                Task{
-                                    if let response = try await APIClient.shared.blockedUsers(page: blockedUsersPage, size: blockedUsersSize){
-                                        let newResponse = response.data
-                                        let existingResponseIDs = Set(self.blockedUsersList.suffix(30).map { $0.id })
-                                        let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
-                                        
-                                        blockedUsersList += uniqueNewResponse
-                                        blockedUsersPage += 1
-                                        lastPage = response.lastPage
-                                    }
-                                    isLoading = false
-                                    
-                                }
+                                blockedUsersList += uniqueNewResponse
+                                blockedUsersPage += 1
+                                lastPage = response.lastPage
                             }
                         }
+                    }
+
                 } else if loadingState == .noResults {
                     VStack(spacing: 15){
                         Text("😥")

@@ -10,6 +10,8 @@ import Kingfisher
 
 struct InboxView: View {
     @EnvironmentObject var chatManager: WebSocketManager
+    @EnvironmentObject var userVM: UserViewModel
+
     @StateObject var chatVM = ChatViewModel()
     @State private var showNewMessageView = false
     
@@ -98,16 +100,20 @@ struct InboxView: View {
                                 }
                                 
                                 if chatroom._type == .GROUP {
-                                    Button(role: .destructive) {
-                                        Task{
-                                            if let response = try await APIClient.shared.leaveGroupChatRoom(chatId: chatroom.id) {
-                                                if response {
-                                                    chatManager.allChatRooms.removeAll(where: {$0.id == chatroom.id})
+                                    if let owner = chatroom.owner, let c_user = userVM.currentUser, owner.id == c_user.id {
+                                        
+                                    } else {
+                                        Button(role: .destructive) {
+                                            Task{
+                                                if let response = try await APIClient.shared.leaveGroupChatRoom(chatId: chatroom.id) {
+                                                    if response {
+                                                        chatManager.allChatRooms.removeAll(where: {$0.id == chatroom.id})
+                                                    }
                                                 }
                                             }
+                                        } label: {
+                                            Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
                                         }
-                                    } label: {
-                                        Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
                                     }
                                 }
                             }
@@ -116,10 +122,11 @@ struct InboxView: View {
                     .padding(.top)
                     .listRowBackground(Color.clear)
                     
-                    if isLoading {
+                    if chatManager.isLoadingChats == .loading {
                         ProgressView()
                             .listRowSeparator(.hidden)// Show spinner while loading
                             .listRowBackground(Color.clear)
+                            .frame(maxWidth: .infinity, alignment: .center)
 
                     }
                     
@@ -129,11 +136,11 @@ struct InboxView: View {
                         .frame(width: 0, height: 0)
                         .onAppear {
                             if !chatManager.lastChatPage{
-                                isLoading = true
-                                Task{
-                                    try await chatManager.getAllChats()
-                                    isLoading = false
-                                    
+                                if chatManager.isLoadingChats == .loaded {
+                                    chatManager.isLoadingChats = .loading
+                                    Task{
+                                        try await chatManager.getAllChats()
+                                    }
                                 }
                             }
                         }
@@ -147,8 +154,9 @@ struct InboxView: View {
                         chatManager.allChatRooms = []
                         chatManager.lastChatPage = true
                         chatManager.chatPage = 0
+                        chatManager.isLoadingChats = .noResults
                         try await chatManager.getAllChats()
-                        isLoading = false
+                        
                         
                     }
                 }
@@ -370,4 +378,6 @@ struct InboxRowView: View {
     InboxView(chatVM: ChatViewModel())
         .environmentObject(PostsViewModel())
         .environmentObject(WebSocketManager())
+        .environmentObject(UserViewModel())
+
 }

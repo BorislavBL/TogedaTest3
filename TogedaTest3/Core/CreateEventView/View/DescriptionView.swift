@@ -44,6 +44,7 @@ struct DescriptionView: View {
         .swipeBack()
         .navigationTitle("Description")
         .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(leading:Button(action: {
 //            if !containsLink(text: description){
                 dismiss()

@@ -90,6 +90,7 @@ struct GroupAccessibilityView: View {
         .swipeBack()
         .navigationTitle("Accessibility")
         .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)

@@ -27,7 +27,7 @@ struct ForgottenPasswordView: View {
             Text("Please enter your email and a code will be send to you!")
                 .multilineTextAlignment(.center)
                 .font(.title).bold()
-                .padding(.top, 20)
+                .padding(.top)
             
             TextField("", text: $email)
                 .placeholder(when: email.isEmpty) {

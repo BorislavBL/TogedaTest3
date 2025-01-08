@@ -66,7 +66,7 @@ struct HomeView: View {
                             }
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                    .ignoresSafeArea()
+                    .edgesIgnoringSafeArea([.top, .bottom])
                     .overlay{
                         if viewModel.showCancelButton {
                             SearchView(viewModel: viewModel)
@@ -130,6 +130,7 @@ struct HomeView: View {
         .sheet(isPresented: $filterViewModel.showAllFilter, content: {
             AllInOneFilterView(filterVM: filterViewModel)
         })
+   
         
         
     }

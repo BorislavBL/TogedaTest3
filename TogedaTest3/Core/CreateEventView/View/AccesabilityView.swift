@@ -100,6 +100,7 @@ struct AccessibilityView: View {
         .swipeBack()
         .navigationTitle("Accessibility")
         .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)
@@ -122,7 +123,7 @@ struct AccessibilityEventType: View {
     
     @State var clubs: [Components.Schemas.ClubDto] = []
     @State var page: Int32 = 0
-    @State var pageSize: Int32 = 10
+    @State var pageSize: Int32 = 15
     @State var lastPage = true
     @State var isLoading = false
     
@@ -184,34 +185,22 @@ struct AccessibilityEventType: View {
                         }
                     }
                     
-                    if isLoading {
-                        ProgressView()
-                    }
-                    
-                    Rectangle()
-                        .frame(width: 0, height: 0)
-                        .onAppear {
-                            if !lastPage{
-                                isLoading = true
-                                Task{
-                                    if let response = try await APIClient.shared.getClubsWithCreatePostPermission(page: page, size: pageSize) {
-                                        
-                                        let newResponse = response.data
-                                        let existingResponseIDs = Set(self.clubs.suffix(30).map { $0.id })
-                                        let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
-                                        
-                                        clubs += uniqueNewResponse
-                                        lastPage = response.lastPage
-                                        
-                                        page += 1
-                                        isLoading = false
-                                    }
-                                }
+                    ListLoadingButton(isLoading: $isLoading, isLastPage: lastPage) {
+                        Task{
+                            defer{isLoading = false}
+                            if let response = try await APIClient.shared.getClubsWithCreatePostPermission(page: page, size: pageSize) {
                                 
+                                let newResponse = response.data
+                                let existingResponseIDs = Set(self.clubs.suffix(30).map { $0.id })
+                                let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
                                 
+                                clubs += uniqueNewResponse
+                                lastPage = response.lastPage
                                 
+                                page += 1
                             }
                         }
+                    }
                     
                     Divider()
                     

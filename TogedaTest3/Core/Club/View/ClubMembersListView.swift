@@ -14,8 +14,8 @@ struct ClubMembersListView: View {
     let size: ImageSize = .medium
     @StateObject var groupVM = ClubViewModel()
     
-    @State var isLoading = false
-    
+    @State var isLoading: Bool = false
+
     var club: Components.Schemas.ClubDto
     @State var showUserOptions = false
     @State var selectedExtendedUser: Components.Schemas.ExtendedMiniUserForClub?
@@ -66,29 +66,45 @@ struct ClubMembersListView: View {
 
                     
                     Spacer()
-                    
-                        if club.currentUserStatus == .PARTICIPATING && club.currentUserRole == .ADMIN {
-                            Menu {
-                                if let cuser = userVM.currentUser, club.owner.id == cuser.id{
-                                    if user._type == .MEMBER  {
-                                        Button("Make an Admin") {
-                                            Task{
-                                                if try await APIClient.shared.addAdminToClub(clubId: club.id, userId: user.user.id) {
-                                                    showUserOptions = false
-                                                    
-                                                    if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == user.user.id }) {
-                                                        groupVM.clubMembers[index]._type = .ADMIN
+                        if let c_user = userVM.currentUser, user.user.id != c_user.id {
+                            if club.currentUserStatus == .PARTICIPATING && club.currentUserRole == .ADMIN {
+                                Menu {
+                                    if let cuser = userVM.currentUser, club.owner.id == cuser.id{
+                                        if user._type == .MEMBER  {
+                                            Button("Make an Admin") {
+                                                Task{
+                                                    if try await APIClient.shared.addAdminToClub(clubId: club.id, userId: user.user.id) {
+                                                        showUserOptions = false
+                                                        
+                                                        if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == user.user.id }) {
+                                                            groupVM.clubMembers[index]._type = .ADMIN
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } else if user._type == .ADMIN {
+                                            Button("Remove as an Admin") {
+                                                Task{
+                                                    if try await APIClient.shared.removeAdminRoleForClub(clubId: club.id, userId: user.user.id) {
+                                                        
+                                                        if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == user.user.id }) {
+                                                            groupVM.clubMembers[index]._type = .MEMBER
+                                                        }
+                                                        
+                                                        showUserOptions = false
                                                     }
                                                 }
                                             }
                                         }
-                                    } else if user._type == .ADMIN {
-                                        Button("Remove as an Admin") {
+                                    }
+                                    
+                                    if club.currentUserRole == .ADMIN && user._type != .ADMIN {
+                                        Button("Remove") {
                                             Task{
-                                                if try await APIClient.shared.removeAdminRoleForClub(clubId: club.id, userId: user.user.id) {
+                                                if try await APIClient.shared.removeClubMemeber(clubId: club.id, userId: user.user.id) {
                                                     
                                                     if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == user.user.id }) {
-                                                        groupVM.clubMembers[index]._type = .MEMBER
+                                                        groupVM.clubMembers.remove(at: index)
                                                     }
                                                     
                                                     showUserOptions = false
@@ -96,50 +112,25 @@ struct ClubMembersListView: View {
                                             }
                                         }
                                     }
+                                    
+                                    
+                                } label:{
+                                    Image(systemName: "ellipsis")
+                                        .rotationEffect(.degrees(90))
+                                        .padding()
                                 }
-                                
-                                if club.currentUserRole == .ADMIN && user._type != .ADMIN {
-                                    Button("Remove") {
-                                        Task{
-                                            if try await APIClient.shared.removeClubMemeber(clubId: club.id, userId: user.user.id) {
-                                                
-                                                if let index = groupVM.clubMembers.firstIndex(where: { $0.user.id == user.user.id }) {
-                                                    groupVM.clubMembers.remove(at: index)
-                                                }
-                                                
-                                                showUserOptions = false
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                
-                            } label:{
-                                Image(systemName: "ellipsis")
-                                    .rotationEffect(.degrees(90))
                             }
                         }
                     }
                     .padding(.vertical, 5)
                 }
                 
-                if isLoading{
-                    ProgressView()
-                }
-                
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
-                        if !groupVM.membersLastPage {
-                            isLoading = true
-                            
-                            Task{
-                                try await groupVM.fetchClubMembers(clubId: club.id)
-                                isLoading = false
-                                
-                            }
-                        }
+                ListLoadingButton(isLoading: $isLoading, isLastPage: groupVM.membersLastPage) {
+                    Task{
+                        defer{isLoading = false}
+                        try await groupVM.fetchClubMembers(clubId: club.id)
                     }
+                }
             }
             .padding(.horizontal)
             

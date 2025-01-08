@@ -108,23 +108,12 @@ struct RateParticipantsView: View {
                         }
                     }
                     
-                    if isLoading{
-                        ProgressView()
-                    }
-                    
-                    Rectangle()
-                        .frame(width: 0, height: 0)
-                        .onAppear {
-                            if !eventVM.listLastPage {
-                                isLoading = true
-                                
-                                Task{
-                                    try await eventVM.fetchUserList(id: post.id)
-                                    isLoading = false
-                                    
-                                }
-                            }
+                    ListLoadingButton(isLoading: $isLoading, isLastPage: eventVM.listLastPage) {
+                        Task{
+                            try await eventVM.fetchUserList(id: post.id)
+                            isLoading = false
                         }
+                    }
                 }
                 .padding(.horizontal)
                 

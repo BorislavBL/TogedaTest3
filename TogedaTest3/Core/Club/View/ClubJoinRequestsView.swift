@@ -41,25 +41,13 @@ struct ClubJoinRequestsView: View {
                     })
                 }
                 
-                
-                
-                if isLoading{
-                    ProgressView()
+                ListLoadingButton(isLoading: $isLoading, isLastPage: groupVM.joinRequestLastPage) {
+                    Task{
+                        defer{isLoading = false}
+                        try await groupVM.fetchClubJoinRequests(clubId: club.id)
+                    }
                 }
                 
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
-                        if !groupVM.joinRequestLastPage {
-                            isLoading = true
-                            
-                            Task{
-                                try await groupVM.fetchClubJoinRequests(clubId: club.id)
-                                isLoading = false
-                                
-                            }
-                        }
-                    }
             }
         }
         .refreshable{

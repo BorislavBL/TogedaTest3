@@ -191,6 +191,7 @@
 		148B81A82B4C6A12009801BC /* ClubCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148B81A72B4C6A12009801BC /* ClubCell.swift */; };
 		148B81AA2B4D9726009801BC /* ClubCellTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148B81A92B4D9726009801BC /* ClubCellTags.swift */; };
 		148B81AC2B4DB55E009801BC /* CreateSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148B81AB2B4DB55E009801BC /* CreateSheetView.swift */; };
+		148B93F22D2DB75D00900228 /* ListLoadingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148B93F12D2DB75D00900228 /* ListLoadingButton.swift */; };
 		148F66932C21B5D20080F4FD /* Stripe in Frameworks */ = {isa = PBXBuildFile; productRef = 148F66922C21B5D20080F4FD /* Stripe */; };
 		148F66952C21B5D20080F4FD /* StripeApplePay in Frameworks */ = {isa = PBXBuildFile; productRef = 148F66942C21B5D20080F4FD /* StripeApplePay */; };
 		148F66972C21B5D20080F4FD /* StripeCardScan in Frameworks */ = {isa = PBXBuildFile; productRef = 148F66962C21B5D20080F4FD /* StripeCardScan */; };
@@ -487,6 +488,7 @@
 		148B81A72B4C6A12009801BC /* ClubCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubCell.swift; sourceTree = "<group>"; };
 		148B81A92B4D9726009801BC /* ClubCellTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubCellTags.swift; sourceTree = "<group>"; };
 		148B81AB2B4DB55E009801BC /* CreateSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSheetView.swift; sourceTree = "<group>"; };
+		148B93F12D2DB75D00900228 /* ListLoadingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListLoadingButton.swift; sourceTree = "<group>"; };
 		148F66AC2C21E7E90080F4FD /* CreateStripeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateStripeView.swift; sourceTree = "<group>"; };
 		14973BBC2B3DC40D0067D1A8 /* TransparentBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransparentBlurView.swift; sourceTree = "<group>"; };
 		14973BC32B3E10CF0067D1A8 /* CreateClubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateClubView.swift; sourceTree = "<group>"; };
@@ -1301,6 +1303,7 @@
 				145DBC5B2CE500D7005E1D92 /* ExpandableTextSimple.swift */,
 				145DBC662CEB8DBC005E1D92 /* PageIsNotAvailableView.swift */,
 				145DBC692CEB9617005E1D92 /* HiddenPageView.swift */,
+				148B93F12D2DB75D00900228 /* ListLoadingButton.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1814,6 +1817,7 @@
 				1445A20D2AFE88C20057613B /* Message.swift in Sources */,
 				1400BD082B459DC6000EB8BC /* ClubLocationView.swift in Sources */,
 				14BFB44E2AF2781F00500190 /* MemoriesTab.swift in Sources */,
+				148B93F22D2DB75D00900228 /* ListLoadingButton.swift in Sources */,
 				142263C32BE001DE002DB3CE /* InterestsMoreLess.swift in Sources */,
 				14BBFA0A2C2350C100D63E22 /* ReportUserView.swift in Sources */,
 				14F10B902B1E568A00298737 /* SystemNotificationView.swift in Sources */,
@@ -2171,7 +2175,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TogedaTest3/TogedaTest3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"TogedaTest3/Preview Content\"";
 				DEVELOPMENT_TEAM = BYX7QJL256;
@@ -2200,7 +2204,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
-				MARKETING_VERSION = 1.0.13;
+				MARKETING_VERSION = 1.0.14;
 				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -2219,7 +2223,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TogedaTest3/TogedaTest3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"TogedaTest3/Preview Content\"";
 				DEVELOPMENT_TEAM = BYX7QJL256;
@@ -2248,7 +2252,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
-				MARKETING_VERSION = 1.0.13;
+				MARKETING_VERSION = 1.0.14;
 				PRODUCT_BUNDLE_IDENTIFIER = net.togeda.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;

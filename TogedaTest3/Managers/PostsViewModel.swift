@@ -30,6 +30,7 @@ class PostsViewModel: ObservableObject {
     @Published var feedPostsInit: Bool = true
     
     @Published var state: LoadingCases = .loading
+    @Published var indexLoadingState: LoadingCases = .noResults
     
     @Published var page: Int32 = 0
     @Published var size: Int32 = 15
@@ -116,6 +117,7 @@ class PostsViewModel: ObservableObject {
     func fetchPosts() async throws {
         //        print("Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance), date: \(from), \(to)")
         DispatchQueue.main.async{
+            self.indexLoadingState = .loading
             if self.state == .noResults {
                 self.state = .loading
             }
@@ -149,19 +151,20 @@ class PostsViewModel: ObservableObject {
                 } else {
                     self.state = .noResults
                 }
+                self.indexLoadingState = .loaded
             }
         } else {
             DispatchQueue.main.async{
                 self.state = .noResults
+                self.indexLoadingState = .loaded
             }
         }
     }
     
     func feedScrollFetch(index: Int) {
         if !lastPage {
-            if index == feedPosts.count - 7 {
+            if index == feedPosts.count - 7 && indexLoadingState == .loaded {
                 Task{
-                    print("Fetch Scroll")
                     try await self.fetchPosts()
                 }
             }

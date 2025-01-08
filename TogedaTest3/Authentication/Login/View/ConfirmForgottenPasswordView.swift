@@ -124,10 +124,11 @@ struct ConfirmForgottenPasswordView: View {
                 .padding(10)
                 .frame(minWidth: 80, minHeight: 47)
                 .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .padding(.bottom)
             
             if displayError && confirmPassword != password {
                 WarningTextComponent(text: "The two passwords do not match.")
-            } else if let message = errorMessage, !message.isEmpty {
+            } else if let message = errorMessage, !message.isEmpty && displayError {
                 WarningTextComponent(text: message)
             } else if displayError && code.isEmpty {
                 WarningTextComponent(text: "Please enter the code you received on your email.")
@@ -170,11 +171,13 @@ struct ConfirmForgottenPasswordView: View {
                         .fontWeight(.semibold)
                 }
             }
-            .disableWithOpacity(!samePassword || code.isEmpty)
+            .disableWithOpacity(!samePassword || code.isEmpty || !validatePassword(password: password) || whiteSpaces)
             .onTapGesture {
-                if !samePassword || code.isEmpty{
+                if !isValidEmail(testStr: email) || !samePassword || !validatePassword(password: password) || whiteSpaces || code.isEmpty{
                     displayError.toggle()
                 }
+                
+                validatePassword(password: password)
             }
             
         }
@@ -207,6 +210,14 @@ struct ConfirmForgottenPasswordView: View {
         }
     }
     
+    var whiteSpaces: Bool {
+        if password.rangeOfCharacter(from: .whitespaces) != nil {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     var backgroundColor: Color {
         if colorScheme == .dark {
             return Color(.systemGray5)
@@ -219,6 +230,29 @@ struct ConfirmForgottenPasswordView: View {
         if confirmPassword == password && !password.isEmpty{
             return true
         } else {
+            return false
+        }
+    }
+    
+    func validatePassword(password: String) -> Bool{
+        let lengthRequirement = password.count >= 8
+        let uppercaseRequirement = password.range(of: "[A-Z]", options: .regularExpression) != nil
+        let lowercaseRequirement = password.range(of: "[a-z]", options: .regularExpression) != nil
+        let numberRequirement = password.range(of: "[0-9]", options: .regularExpression) != nil
+        let specialCharacterRequirement = password.range(of: "[\\^\\$\\*\\.\\{\\}\\(\\)\\?\\[\\]\\-!@#%&/,><':;\\|_~`+=]", options: .regularExpression) != nil
+        
+        if lengthRequirement && uppercaseRequirement && lowercaseRequirement && numberRequirement && specialCharacterRequirement {
+            DispatchQueue.main.async{
+                self.errorMessage = ""
+            }
+            return true
+        } else {
+            DispatchQueue.main.async{
+                self.errorMessage = """
+            Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character [^$*.{}()?-!@#%&/,><':;|_~`+=].
+            """
+            }
+            
             return false
         }
     }

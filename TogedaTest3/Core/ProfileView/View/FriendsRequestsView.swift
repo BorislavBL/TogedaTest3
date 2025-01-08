@@ -44,33 +44,21 @@ struct FriendsRequestsView: View {
                     })
                 }
                 
-                
-                
-                if isLoading{
-                    ProgressView()
-                }
-                
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
-                        if !lastPage {
-                            isLoading = true
+                ListLoadingButton(isLoading: $isLoading, isLastPage: lastPage) {
+                    Task{
+                        defer{isLoading = false}
+                        if let response = try await APIClient.shared.getFriendRequests(page: friendsRequestPage, size: friendsRequestSize){
+                            let newResponse = response.data
+                            let existingResponseIDs = Set(self.friendsRequestList.suffix(30).map { $0.id })
+                            let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
                             
-                            Task{
-                                if let response = try await APIClient.shared.getFriendRequests(page: friendsRequestPage, size: friendsRequestSize){
-                                    let newResponse = response.data
-                                    let existingResponseIDs = Set(self.friendsRequestList.suffix(30).map { $0.id })
-                                    let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
-                                    
-                                    friendsRequestList += uniqueNewResponse
-                                    friendsRequestPage += 1
-                                    lastPage = response.lastPage
-                                }
-                                isLoading = false
-                                
-                            }
+                            friendsRequestList += uniqueNewResponse
+                            friendsRequestPage += 1
+                            lastPage = response.lastPage
                         }
                     }
+                }
+
             }
         }
         .refreshable {

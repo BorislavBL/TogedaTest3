@@ -53,7 +53,7 @@ struct LoginView: View {
                         .padding(10)
                         .frame(minWidth: 80, minHeight: 47)
                         .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        .padding(.top, 20)
+                        .padding(.top)
                     
                     if displayError && !isValidEmail(testStr: email) {
                         WarningTextComponent(text: "Please enter a valid email.")

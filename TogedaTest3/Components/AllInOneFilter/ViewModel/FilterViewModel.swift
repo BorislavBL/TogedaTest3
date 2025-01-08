@@ -38,7 +38,7 @@ class FilterViewModel: ObservableObject {
             selectedTimeFrame = timeToString()
         }
     }
-    @Published var to = Date().addingTimeInterval(60 * 15) {
+    @Published var to = Date() {
         didSet{
             selectedTimeFrame = timeToString()
         }

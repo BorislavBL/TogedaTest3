@@ -124,11 +124,10 @@ struct ClubsFeedView: View {
                         .frame(width: 0, height: 0)
                         .onAppear {
                             if !clubsVM.lastPage {
-                                isLoading = true
-                                Task{
-                                    try await clubsVM.fetchClubs()
-                                    isLoading = false
-                                    
+                                if clubsVM.indexLoadingState == .loaded{
+                                    Task{
+                                        try await clubsVM.fetchClubs()
+                                    }
                                 }
                             }
                             

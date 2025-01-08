@@ -48,6 +48,10 @@ struct EditProfileView: View {
                     
 //                    EditProfilePhotosView(editProfileVM: editProfileVM)
                     PhotosGridView(images: $editProfileVM.editUser.profilePhotos, vm: photoPickerVM)
+                    
+                    if noPhotos {
+                        WarningTextComponent(text: "You must have at least one photo.")
+                    }
                 }
                 
                 VStack(alignment: .leading, spacing: 10){
@@ -429,6 +433,7 @@ struct EditProfileView: View {
         })
         .scrollIndicators(.hidden)
         .navigationTitle("Edit Profile")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $showGenderView, destination: {
             EditProfileGenderView(gender: $editProfileVM.editUser.gender, showGender: $editProfileVM.editUser.visibleGender)
@@ -578,8 +583,16 @@ struct EditProfileView: View {
     
     var saveButtonCheck: Bool {
         if editProfileVM.editUser.occupation.count >= 3 && editProfileVM.editUser.lastName.count >= 3 && editProfileVM.editUser.firstName.count >= 3 && editProfileVM.editUser.interests.count >= 5 &&
-            validHeight && (editProfileVM.editUser != editProfileVM.initialUser || photoPickerVM.imageIsSelected())
+            validHeight && (editProfileVM.editUser != editProfileVM.initialUser || photoPickerVM.imageIsSelected()), (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || editProfileVM.editUser.profilePhotos.count > 0)
         {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    var noPhotos: Bool {
+        if editProfileVM.editUser.profilePhotos.count == 0 && photoPickerVM.selectedImages.allSatisfy({ $0 == nil }) && showError{
             return true
         } else {
             return false

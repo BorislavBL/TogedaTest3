@@ -187,6 +187,7 @@ struct CategoryView: View {
                 .clipShape(Circle())
         })
         .navigationTitle("Interests")
+        .navigationBarTitleDisplayMode(.inline)
     }
     
 }

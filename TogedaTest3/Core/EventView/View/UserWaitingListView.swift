@@ -62,23 +62,13 @@ struct UserWaitingListView: View {
                     .padding(.vertical, 5)
                 }
                 
-                if isLoading{
-                    ProgressView()
-                }
-                
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
-                        if !eventVM.waitingListLastPage {
-                            isLoading = true
-                            
-                            Task{
-                                try await eventVM.fetchWaitingList(id: post.id)
-                                isLoading = false
-                                
-                            }
-                        }
+                ListLoadingButton(isLoading: $isLoading, isLastPage: eventVM.waitingListLastPage) {
+                    Task{
+                        defer{isLoading = false}
+                        try await eventVM.fetchWaitingList(id: post.id)
                     }
+                }
+
             }
             .padding(.horizontal)
             

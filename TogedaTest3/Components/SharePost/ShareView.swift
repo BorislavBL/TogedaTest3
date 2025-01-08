@@ -22,8 +22,8 @@ class ShareViewModel: ObservableObject {
     @Published var chatRoomsList: [Components.Schemas.ChatRoomDto] = []
     @Published var lastPage: Bool = true
     @Published var page: Int32 = 0
-    @Published var listSize: Int32 = 15
-    @Published var isLoading = false
+    @Published var listSize: Int32 = 30
+    @Published var isLoading: LoadingCases = .noResults
     @Published var loadingState: LoadingCases = .loading
     
     init() {
@@ -72,6 +72,7 @@ class ShareViewModel: ObservableObject {
                 if response.lastPage && self.chatRoomsList.count == 0{
                     self.loadingState = .noResults
                 }
+                self.isLoading == .loaded
             }
         } else {
             DispatchQueue.main.async {
@@ -136,7 +137,7 @@ struct ShareView: View {
                                             Text("Copy link")
                                                 .fontWeight(.bold)
                                             
-                                            Text("Share with ypur friends!")
+                                            Text("Share with your friends!")
                                                 .font(.footnote)
                                                 .foregroundStyle(.gray)
                                                 .multilineTextAlignment(.leading)
@@ -210,11 +211,11 @@ struct ShareView: View {
                                 .frame(width: 0, height: 0)
                                 .onAppear {
                                     if !vm.lastPage && !vm.searchText.isEmpty{
-                                        vm.isLoading = true
-                                        Task{
-                                            try await vm.fetchList()
-                                            vm.isLoading = false
-                                            
+                                        if vm.isLoading == .loaded {
+                                            vm.isLoading = .loading
+                                            Task{
+                                                try await vm.fetchList()
+                                            }
                                         }
                                     }
                                     

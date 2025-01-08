@@ -13,8 +13,6 @@ struct SearchView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     let size: ImageSize = .medium
     
-    @State var isLoading = false
-    
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 15){
@@ -107,7 +105,7 @@ struct SearchView: View {
                     }
                 }
                 
-                if isLoading {
+                if viewModel.isLoading == .loading {
                     ProgressView() // Show spinner while loading
                 }
                 
@@ -115,22 +113,24 @@ struct SearchView: View {
                     .frame(width: 0, height: 0)
                     .onAppear {
                         if !viewModel.lastSearchedPage{
-                           isLoading = true
-                            Task{
-                                if viewModel.selectedFilter == .events {
-                                    Task{
-                                        try await viewModel.searchPosts()
+                            if viewModel.isLoading == .loaded {
+                                viewModel.isLoading = .loading
+                                Task{
+                                    if viewModel.selectedFilter == .events {
+                                        Task{
+                                            try await viewModel.searchPosts()
+                                        }
+                                    } else if viewModel.selectedFilter == .users {
+                                        Task{
+                                            try await viewModel.searchUsers()
+                                        }
+                                    } else if viewModel.selectedFilter == .clubs {
+                                        Task{
+                                            try await viewModel.searchClubs()
+                                        }
                                     }
-                                } else if viewModel.selectedFilter == .users {
-                                    Task{
-                                        try await viewModel.searchUsers()
-                                    }
-                                } else if viewModel.selectedFilter == .clubs {
-                                    Task{
-                                        try await viewModel.searchClubs()
-                                    }
+                                    
                                 }
-                                isLoading = false
        
                             }
                         }
@@ -147,7 +147,7 @@ struct SearchView: View {
         }
         .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: UIScreen.main.bounds.height)
         .background(.bar)
-        .ignoresSafeArea(.keyboard)
+//        .ignoresSafeArea(.keyboard)
     }
 }
 

@@ -12,7 +12,7 @@ class ClubViewModel: ObservableObject {
     @Published var clubMembers: [Components.Schemas.ExtendedMiniUserForClub] = []
     @Published var membersPage: Int32 = 0
     @Published var membersCount: Int64 = 0
-    @Published var membersSize: Int32 = 15
+    @Published var membersSize: Int32 = 30
     @Published var membersLastPage: Bool = true
     
     @Published var images = ["event_1", "event_2", "event_3", "event_4"]
@@ -73,7 +73,7 @@ class ClubViewModel: ObservableObject {
     @Published var joinRequestParticipantsList: [Components.Schemas.MiniUser] = []
     @Published var joinRequestParticipantsPage: Int32 = 0
     @Published var joinRequestParticipantsCount: Int64 = 0
-    @Published var joinRequestParticipantsSize: Int32 = 15
+    @Published var joinRequestParticipantsSize: Int32 = 30
     @Published var joinRequestLastPage = true
     
     func fetchClubJoinRequests(clubId: String) async throws {

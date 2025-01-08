@@ -345,11 +345,6 @@ struct EventView: View {
             .presentationDetents([.height(190)])
                 
         })
-        .sheet(isPresented: $showSharePostSheet) {
-            ShareView(post: post)
-                .presentationDetents([.fraction(0.8), .fraction(1)])
-                .presentationDragIndicator(.visible)
-        }
         .sheet(isPresented: $eventVM.showAddEvent) {
             EventEditViewController(event: $event, eventStore: store)
         }
@@ -681,8 +676,7 @@ struct EventView: View {
                                     .cornerRadius(10)
                             }
                         }
-                    }
-                    else if post.status == .NOT_STARTED {
+                    } else if post.status == .NOT_STARTED {
                         if post.currentUserStatus == .PARTICIPATING {
                             Button {
                                 showJoinRequest = true
@@ -780,7 +774,7 @@ struct EventView: View {
     func shareAndSave() -> some View {
         Button {
             postsVM.clickedPost = post
-            showSharePostSheet = true
+            postsVM.showSharePostSheet = true
         } label: {
             Image(systemName:"paperplane")
                 .resizable()
@@ -828,8 +822,10 @@ struct EventView: View {
                             if let index = self.activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
                                 self.activityVM.activityFeed[index].post = response
                             }
-                            if let from = post.fromDate, from < Date() {
-                                post.status = .HAS_STARTED
+                            if post.status == .NOT_STARTED {
+                                if let from = post.fromDate, from < Date() {
+                                    post.status = .HAS_STARTED
+                                }
                             }
                         }
 

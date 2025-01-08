@@ -82,7 +82,7 @@ struct ChatView: View {
                                             }
                                             
                                             ChatMessageCell(message: message,
-                                                            nextMessage: nextMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
+                                                            nextMessage: nextMessage(forIndex: index), prevMessage: prevMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
                                             
                                         }
                                         .id(message.id)
@@ -162,8 +162,8 @@ struct ChatView: View {
                         .ignoresSafeArea(.keyboard, edges: .all)                    //                    .padding(.top, 86)
                         .onChange(of: chatManager.messages) { oldValue, newValue in
                             if isInitialLoad {
-                                proxy.scrollTo(chatManager.messages.last?.id, anchor:.center)
-                                
+//                                proxy.scrollTo(chatManager.messages.last?.id, anchor:.top)
+                                proxy.scrollTo("Bottom", anchor:.bottom)
                             }
                             if let messageId = lastMessageIdBeforeLoading {
                                 proxy.scrollTo(messageId, anchor:.top)
@@ -209,8 +209,7 @@ struct ChatView: View {
                                 }
                             } else {
                                 polishedKeyboardHeight = 0
-                                recPadding = inputHeight > 0 ? inputHeight : 60
-                                //                            recPadding = 60
+                                recPadding = keyboardHeight > 0 ? inputHeight : 60
                             }
                         }
                         .overlay(alignment:.bottomTrailing){
@@ -227,7 +226,7 @@ struct ChatView: View {
                                         .background(.bar)
                                         .clipShape(Circle())
                                 }
-                                .padding(.bottom, inputHeight > 0 ? inputHeight + 40 : 70)
+                                .padding(.bottom, keyboardHeight > 0 ? inputHeight + 40 : 70)
                             }
                         }
                     }
@@ -235,6 +234,7 @@ struct ChatView: View {
                     ProgressView()
                 }
             }
+
             
             VStack{
                 Spacer()
@@ -314,7 +314,6 @@ struct ChatView: View {
             if viewModel.isImageView, let image = viewModel.selectedImage{
                 ImageViewer(isActive: $viewModel.isImageView, image: image)
             }
-            
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             onActive()
@@ -379,6 +378,8 @@ struct ChatView: View {
                                     .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
                                 
                                 Text("\(club.title)")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
                             }
                         }
                     }
@@ -582,6 +583,13 @@ struct ChatView: View {
     func nextMessage(forIndex index: Int) -> Components.Schemas.ReceivedChatMessageDto? {
         if index > 0 {
             return index != chatManager.messages.count - 1 ? chatManager.messages[index + 1] : nil
+        }
+        return nil
+    }
+    
+    func prevMessage(forIndex index: Int) -> Components.Schemas.ReceivedChatMessageDto? {
+        if index > 0 && index <= chatManager.messages.count - 1 {
+            return chatManager.messages[index - 1]
         }
         return nil
     }

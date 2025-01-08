@@ -116,7 +116,7 @@ extension AuthService {
         case .badRequest(let error):
             switch error.body {
             case .json(let error):
-                let errorMessage = errorHandler(error: error)
+                let errorMessage = sanitizeMessage(errorHandler(error: error))
                 completion(nil, errorMessage)
             }
         case .conflict(_):
@@ -131,7 +131,7 @@ extension AuthService {
             switch error.body {
             case .json(let error):
                 print(error)
-                let errorMessage = errorHandler(error: error)
+                let errorMessage = sanitizeMessage(errorHandler(error: error))
                 completion(nil, errorMessage)
             }
         }
@@ -371,6 +371,17 @@ extension AuthService {
             message = msg
         }
         return message.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    func sanitizeMessage(_ message: String) -> String {
+        let pattern = #"\(Service:.*\)"# // Match everything from "(Service:" to the closing ")"
+        
+        if let regex = try? NSRegularExpression(pattern: pattern) {
+            let range = NSRange(location: 0, length: message.utf16.count)
+            let sanitizedMessage = regex.stringByReplacingMatches(in: message, options: [], range: range, withTemplate: "")
+            return sanitizedMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return message
     }
 }
 

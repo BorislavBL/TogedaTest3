@@ -28,7 +28,7 @@ struct FriendRequestView: View {
                             .font(.footnote)
                             .fontWeight(.semibold)
                         
-                        Text("\(user.sender.firstName) sends you a Friend Request. ")
+                        Text("\(user.sender.firstName) sent you a Friend Request. ")
                             .font(.footnote) +
                         
                         Text(formatDateForNotifications(from: createDate))

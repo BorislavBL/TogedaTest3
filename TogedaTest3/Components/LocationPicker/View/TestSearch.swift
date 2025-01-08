@@ -81,6 +81,7 @@ struct TestSearch: View {
         }
         .navigationTitle("Location")
         .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)

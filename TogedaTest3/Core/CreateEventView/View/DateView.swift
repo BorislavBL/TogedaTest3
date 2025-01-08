@@ -96,8 +96,11 @@ struct DateView: View {
                 .background(Color("main-secondary-color"))
                 .clipShape(Circle())
         }
-            .navigationTitle("Date")
+            
         )
+        .navigationTitle("Date")
+        .navigationBarTitleDisplayMode(.inline)
+
     }
 }
 

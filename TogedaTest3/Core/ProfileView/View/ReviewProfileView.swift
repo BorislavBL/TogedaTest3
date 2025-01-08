@@ -173,55 +173,55 @@ struct ReviewProfileView: View {
                     }
                 }
                 
-                if isLoading {
-                    ProgressView()
-                }
-                
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
                         switch selectedRating {
                         case .likes:
-                            Task{
-                                if !likesLastPage{
-                                    if let response = try await APIClient.shared.getUserLikesList(userId: user.id, page: likesPage, size: likesSize) {
-                                        let newResponse = response.data
-                                        let existingResponseIDs = Set(self.likesList.suffix(30).map { $0.id })
-                                        let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
-                                        
-                                        
-                                        likesList += uniqueNewResponse
-                                        likesPage += 1
-                                        likesLastPage = response.lastPage
-                                        likesCount = response.listCount
-                                        
-                                        likesInit = false
+                            ListLoadingButton(isLoading: $isLoading, isLastPage: likesLastPage) {
+                                Task{
+                                    defer{isLoading = false}
+                                    if !likesLastPage{
+                                        if let response = try await APIClient.shared.getUserLikesList(userId: user.id, page: likesPage, size: likesSize) {
+                                            let newResponse = response.data
+                                            let existingResponseIDs = Set(self.likesList.suffix(30).map { $0.id })
+                                            let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                                            
+                                            
+                                            likesList += uniqueNewResponse
+                                            likesPage += 1
+                                            likesLastPage = response.lastPage
+                                            likesCount = response.listCount
+                                            
+                                            likesInit = false
+                                        }
                                     }
                                 }
                             }
                         case .rating:
-                            Task{
-                                if  !ratingLastPage{
-                                    if let response = try await APIClient.shared.getRatingForProfile(userId: user.id, page: ratingPage, size: ratingSize) {
-                                        let newResponse = response.data
-                                        let existingResponseIDs = Set(self.ratingList.suffix(30).map { $0.id })
-                                        let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
-                                        
-                                        
-                                        ratingList += uniqueNewResponse
-                                        ratingPage += 1
-                                        ratingLastPage = response.lastPage
-                                        ratingCount = response.listCount
+                            ListLoadingButton(isLoading: $isLoading, isLastPage: ratingLastPage) {
+                                Task{
+                                    defer{isLoading = false}
+                                    if  !ratingLastPage{
+                                        if let response = try await APIClient.shared.getRatingForProfile(userId: user.id, page: ratingPage, size: ratingSize) {
+                                            let newResponse = response.data
+                                            let existingResponseIDs = Set(self.ratingList.suffix(30).map { $0.id })
+                                            let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                                            
+                                            
+                                            ratingList += uniqueNewResponse
+                                            ratingPage += 1
+                                            ratingLastPage = response.lastPage
+                                            ratingCount = response.listCount
+                                        }
                                     }
                                 }
                             }
                         }
                         
-                    }
+                    
                 
             }
             .padding()
             .onChange(of: selectedRating){
+                isLoading = false
                 if selectedRating == .rating{
                     if ratingInit{
                         Task{

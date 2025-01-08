@@ -13,9 +13,10 @@ class ActivityViewModel: ObservableObject {
     @Published var feedIsLoading: Bool = false
     @Published var feedInit: Bool = true
     @Published var page: Int32 = 0
-    @Published var size: Int32 = 15
+    @Published var size: Int32 = 30
     
     @Published var state: LoadingCases = .loading
+    @Published var indexLoadingState: LoadingCases = .noResults
     
     func fetchFeed() async throws {
         DispatchQueue.main.async {
@@ -45,10 +46,23 @@ class ActivityViewModel: ObservableObject {
                     self.state = .noResults
                 }
                 self.feedInit = false
+                self.indexLoadingState = .loaded
             }
         } else {
             DispatchQueue.main.async {
                 self.state = .noResults
+                self.indexLoadingState = .loaded
+            }
+        }
+    }
+    
+    func feedScrollFetch(index: Int) {
+        if !lastPage {
+            if index == activityFeed.count - 7 && indexLoadingState == .loaded{
+                print("=====++++======")
+                Task{
+                    try await self.fetchFeed()
+                }
             }
         }
     }

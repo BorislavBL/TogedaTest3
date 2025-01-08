@@ -11,8 +11,6 @@ import Kingfisher
 struct ChatSearchView: View {
     let size: ImageSize = .medium
     @ObservedObject var chatVM: ChatViewModel
-    @State var isLoading = false
-    
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 15){
@@ -133,7 +131,7 @@ struct ChatSearchView: View {
                     }
                 }
                 
-                if isLoading {
+                if chatVM.isLoading == .loading {
                     ProgressView() // Show spinner while loading
                 }
                 
@@ -141,10 +139,11 @@ struct ChatSearchView: View {
                     .frame(width: 0, height: 0)
                     .onAppear {
                         if !chatVM.chatroomsLastPage{
-                           isLoading = true
-                            Task{
-                                try await chatVM.searchChatrooms()
-                                isLoading = false
+                            if chatVM.isLoading == .loaded {
+                                chatVM.isLoading = .loading
+                                Task{
+                                    try await chatVM.searchChatrooms()
+                                }
                             }
                         }
                     }

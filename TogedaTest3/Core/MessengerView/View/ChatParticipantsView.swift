@@ -19,13 +19,15 @@ struct ChatParticipantsView: View {
     
     @State var lastPage: Bool = true
     @State var page: Int32 = 0
-    @State var pageSize: Int32 = 15
+    @State var pageSize: Int32 = 30
     @State var participants: [Components.Schemas.MiniUser] = []
     
     @State private var showFriendsSheet: Bool = false
 
     
     @EnvironmentObject var chatManager: WebSocketManager
+    @EnvironmentObject var userVM: UserViewModel
+
     var body: some View {
         ScrollView{
             LazyVStack(alignment:.leading){
@@ -53,7 +55,7 @@ struct ChatParticipantsView: View {
                         
                         Spacer()
                         
-                        if let owner = chatRoom.owner, owner.id == user.id {
+                        if let owner = chatRoom.owner, let c_user = userVM.currentUser, owner.id == c_user.id {
                             Menu{
                                 Button("Kick \(user.firstName)"){
                                     Task{
@@ -75,27 +77,16 @@ struct ChatParticipantsView: View {
                     .padding(.vertical, 5)
                 }
                 
-                if isLoading{
-                    ProgressView()
-                }
-                
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
-                        if !lastPage {
-                            isLoading = true
-                            
-                            Task{
-                                if let response = try await APIClient.shared.getChatParticipants(chatId: chatRoom.id, page: page, size: pageSize) {
-                                    self.participants += response.data
-                                    self.lastPage = response.lastPage
-                                    self.page += 1
-                                }
-                                isLoading = false
-                                
-                            }
+                ListLoadingButton(isLoading: $isLoading, isLastPage: lastPage) {
+                    Task{
+                        defer{isLoading = false}
+                        if let response = try await APIClient.shared.getChatParticipants(chatId: chatRoom.id, page: page, size: pageSize) {
+                            self.participants += response.data
+                            self.lastPage = response.lastPage
+                            self.page += 1
                         }
                     }
+                }
             }
             .padding(.horizontal)
             .padding(.top)
@@ -163,4 +154,6 @@ struct ChatParticipantsView: View {
 #Preview {
     ChatParticipantsView(chatRoom: mockChatRoom)
         .environmentObject(WebSocketManager())
+        .environmentObject(UserViewModel())
+
 }

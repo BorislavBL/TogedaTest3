@@ -26,7 +26,7 @@ struct NewGroupChatView: View {
     @State var lastPage: Bool = true
     @State var page: Int32 = 0
     @State var listSize: Int32 = 15
-    @State var isLoading = false
+    @State var isLoading: LoadingCases = .noResults
     
     var body: some View {
         ScrollView {
@@ -98,7 +98,7 @@ struct NewGroupChatView: View {
                     .padding(.leading)
                 }
                 
-                if isLoading{
+                if isLoading == .loading{
                     ProgressView()
                 }
                 
@@ -106,11 +106,12 @@ struct NewGroupChatView: View {
                     .frame(width: 0, height: 0)
                     .onAppear {
                         if !lastPage{
-                            isLoading = true
-                            Task{
-                                try await fetchList()
-                                isLoading = false
+                            if isLoading == .loaded {
+                                isLoading = .loading
                                 
+                                Task{
+                                    try await fetchList()
+                                }
                             }
                         }
                         
@@ -164,6 +165,7 @@ struct NewGroupChatView: View {
                 friendsList += uniqueNewResponse
                 page += 1
                 lastPage = response.lastPage
+                isLoading = .loaded
             }
         }
     }

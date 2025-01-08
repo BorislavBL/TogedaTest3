@@ -16,10 +16,12 @@ class ClubsViewModel: ObservableObject {
     @Published var clubsFeedIsLoading = false
     @Published var feedClubsInit: Bool = true
     @Published var state: LoadingCases = .loading
+    @Published var indexLoadingState: LoadingCases = .noResults
+
 
     
     @Published var page: Int32 = 0
-    @Published var size: Int32 = 15
+    @Published var size: Int32 = 30
     
     @Published var sortBy: Operations.getAllClubs.Input.Query.sortByPayload = .LOCATION
     @Published var lat: Double = 43
@@ -55,6 +57,7 @@ class ClubsViewModel: ObservableObject {
     func fetchClubs() async throws {
         //        print("club Page: \(page), Seize: \(size), Cord: \(lat), \(long), Distance: \(distance)")
         DispatchQueue.main.async {
+            self.indexLoadingState = .loading
             if self.state == .noResults {
                 self.state = .loading
             }
@@ -79,10 +82,12 @@ class ClubsViewModel: ObservableObject {
                     self.state = .noResults
                 }
                 self.feedClubsInit = false
+                self.indexLoadingState = .loaded
             }
         } else {
             DispatchQueue.main.async {
                 self.state = .noResults
+                self.indexLoadingState = .loaded
             }
             
         }
@@ -133,7 +138,7 @@ class ClubsViewModel: ObservableObject {
     
     func feedScrollFetch(index: Int) {
         if !lastPage {
-            if index == feedClubs.count - 7 {
+            if index == feedClubs.count - 7 && indexLoadingState == .loaded{
                 Task{
                     try await self.fetchClubs()
                 }

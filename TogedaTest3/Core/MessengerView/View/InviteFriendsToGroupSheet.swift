@@ -19,7 +19,7 @@ struct InviteFriendsToGroupSheet: View {
     @State var lastPage: Bool = true
     @State var page: Int32 = 0
     @State var listSize: Int32 = 15
-    @State var isLoading = false
+    @State var isLoading: LoadingCases = .noResults
     @State var loadingState: LoadingCases = .loading
     @Environment(\.dismiss) var dismiss
     let size: ImageSize = .small
@@ -68,11 +68,11 @@ struct InviteFriendsToGroupSheet: View {
                                 .frame(width: 0, height: 0)
                                 .onAppear {
                                     if !lastPage{
-                                        isLoading = true
-                                        Task{
-                                            try await fetchList()
-                                            isLoading = false
-                                            
+                                        if isLoading == .loaded{
+                                            isLoading = .loading
+                                            Task{
+                                                try await fetchList()
+                                            }
                                         }
                                     }
                                     
@@ -189,7 +189,7 @@ struct InviteFriendsToGroupSheet: View {
                     if response.lastPage && self.friends.count == 0{
                         self.loadingState = .noResults
                     }
-                    
+                    isLoading = .loaded
                     print("unique 1:", uniqueUsers)
                     print("unique 2:", newResponse.count)
 

@@ -11,7 +11,7 @@ struct NotificationView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var vm: WebSocketManager
     @EnvironmentObject var navManager: NavigationManager
-    @State var isLoading = false
+    @State var isLoading: LoadingCases = .noResults
     @StateObject var ratingVM = RatingViewModel()
     
     var body: some View {
@@ -90,7 +90,8 @@ struct NotificationView: View {
 //                AddedMemoryView()
 //                SystemNotificationView()
                 
-                if isLoading {
+                
+                if isLoading == .loading {
                     ProgressView() // Show spinner while loading
                 }
                 
@@ -98,10 +99,12 @@ struct NotificationView: View {
                     .frame(width: 0, height: 0)
                     .onAppear {
                         if !vm.lastPage{
-                            isLoading = true
-                            Task{
-                                try await vm.fetchInitialNotification(){ success in
-                                    isLoading = false
+                            if isLoading == .loaded{
+                                isLoading = .loading
+                                Task{
+                                    try await vm.fetchInitialNotification(){ success in
+                                        isLoading = .loaded
+                                    }
                                 }
                             }
                         }
@@ -116,9 +119,10 @@ struct NotificationView: View {
             vm.count = 0
             vm.lastPage = true
             vm.loadingState = .loading
+            isLoading = .noResults
             Task{
                 try await vm.fetchInitialNotification(){ success in
-                    isLoading = false
+                    isLoading = .loaded
                 }
             }
         }

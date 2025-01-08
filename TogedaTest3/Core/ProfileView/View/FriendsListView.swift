@@ -20,15 +20,15 @@ struct FriendsListView: View {
     @State var friendsList: [Components.Schemas.GetFriendsDto] = []
     @State var lastPage = true
     @State var page: Int32 = 0
-    @State var pageSize: Int32 = 15
+    @State var pageSize: Int32 = 30
     
     @State var friendsRequestList: [Components.Schemas.MiniUser] = []
     @State var friendsRequestPage: Int32 = 0
-    @State var friendsRequestSize: Int32 = 15
+    @State var friendsRequestSize: Int32 = 30
     @State var loadingState: LoadingCases = .loading
 
     var isCurrentUser: Bool {
-        if let user = userVm.currentUser, user.id == user.id {
+        if let user = userVm.currentUser, user.id == self.user.id {
             return true
         } else {
             return false
@@ -38,7 +38,7 @@ struct FriendsListView: View {
     var body: some View {
         ScrollView{
             LazyVStack(alignment:.leading){
-                if let user = userVm.currentUser, user.id == user.id, friendsRequestList.count > 0 {
+                if let user = userVm.currentUser, user.id == self.user.id, friendsRequestList.count > 0 {
                     NavigationLink(value: SelectionPath.userFriendRequestsList){
                         UserRequestTab(users: friendsRequestList)
                     }
@@ -93,31 +93,22 @@ struct FriendsListView: View {
                         .padding(.vertical, 5)
                     }
                     
-                    if isLoading{
-                        ProgressView()
-                    }
                     
-                    Rectangle()
-                        .frame(width: 0, height: 0)
-                        .onAppear {
-                            if !lastPage {
-                                isLoading = true
+                    ListLoadingButton(isLoading: $isLoading, isLastPage: lastPage) {
+                        Task{
+                            defer{isLoading = false}
+                            if let response = try await APIClient.shared.getFriendList(userId: user.id, page: page, size: pageSize){
+                                let newResponse = response.data
+                                let existingResponseIDs = Set(self.friendsList.suffix(30).map { $0.user.id })
+                                let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.user.id) }
                                 
-                                Task{
-                                    if let response = try await APIClient.shared.getFriendList(userId: user.id, page: page, size: pageSize){
-                                        let newResponse = response.data
-                                        let existingResponseIDs = Set(self.friendsList.suffix(30).map { $0.user.id })
-                                        let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.user.id) }
-                                        
-                                        friendsList += uniqueNewResponse
-                                        page += 1
-                                        lastPage = response.lastPage
-                                    }
-                                    isLoading = false
-                                    
-                                }
+                                friendsList += uniqueNewResponse
+                                page += 1
+                                lastPage = response.lastPage
                             }
                         }
+                    }
+
                 } else if loadingState == .noResults {
                     VStack(spacing: 15){
                         Text("🤝")

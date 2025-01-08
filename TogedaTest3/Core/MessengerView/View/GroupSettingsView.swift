@@ -106,7 +106,7 @@ struct GroupSettingsView: View {
                             VStack(spacing: 12){
                                 Image(systemName: "bell")
                                     .font(.title2)
-                                Text("Mute")
+                                Text("Unmute")
                                     .font(.footnote)
                             }
                         }
@@ -129,7 +129,7 @@ struct GroupSettingsView: View {
                             VStack(spacing: 12){
                                 Image(systemName: "bell.slash")
                                     .font(.title2)
-                                Text("Unmute")
+                                Text("Mute")
                                     .font(.footnote)
                             }
                         }

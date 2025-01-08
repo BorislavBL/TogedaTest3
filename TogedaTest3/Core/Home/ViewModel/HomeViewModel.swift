@@ -40,6 +40,7 @@ enum LoadingCases: Hashable {
 class HomeViewModel: ObservableObject {
     @Published var showSearch: Bool = false
     @Published var showCancelButton: Bool = false
+    @Published var isLoading: LoadingCases = .noResults
     
     @Published var selectedFilter: SearchCases = .events {
         didSet{
@@ -76,7 +77,7 @@ class HomeViewModel: ObservableObject {
     func searchPosts() async throws{
         Task{
             if let response = try await APIClient.shared.searchEvent(
-                searchText: searchText,
+                searchText:trimAndLimitWhitespace(searchText),
                 page: searchedPage,
                 size: searchSize, 
                 askToJoin: nil
@@ -87,23 +88,28 @@ class HomeViewModel: ObservableObject {
                     self?.searchedPosts += response.data
                     self?.lastSearchedPage = response.lastPage
                     self?.searchedPage += 1
+                    self?.isLoading = .loaded
                 }
             }
         }
     }
     
     func searchUsers() async throws{
+        print("\(searchText)")
         Task{
             if let response = try await APIClient.shared.searchUsers(
-                searchText: searchText,
+                searchText: trimAndLimitWhitespace(searchText),
                 page: searchedPage,
                 size: searchSize)
             {
-                
                 DispatchQueue.main.async { [weak self] in
                     self?.searchedUsers += response.data
                     self?.lastSearchedPage = response.lastPage
                     self?.searchedPage += 1
+                    self?.isLoading = .loaded
+
+                    print("Number: \(self?.searchedPage)")
+                    print("lastPage:", response.lastPage)
                 }
             }
         }
@@ -112,7 +118,7 @@ class HomeViewModel: ObservableObject {
     func searchClubs() async throws{
         Task{
             if let response = try await APIClient.shared.searchClubs(
-                searchText: searchText,
+                searchText: trimAndLimitWhitespace(searchText),
                 page: searchedPage,
                 size: searchSize)
             {
@@ -121,6 +127,8 @@ class HomeViewModel: ObservableObject {
                     self?.searchedClubs += response.data
                     self?.lastSearchedPage = response.lastPage
                     self?.searchedPage += 1
+                    self?.isLoading = .loaded
+
                 }
             }
         }
@@ -165,6 +173,8 @@ class HomeViewModel: ObservableObject {
         self.searchedClubs = []
         self.searchedPage = 0
         self.lastSearchedPage = true
+        self.isLoading = .noResults
+
     }
     
     func stopSearch() {

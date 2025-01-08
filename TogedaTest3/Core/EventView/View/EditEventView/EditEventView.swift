@@ -359,6 +359,7 @@ struct EditEventView: View {
         }
         .scrollIndicators(.hidden)
         .navigationTitle("Edit Event")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

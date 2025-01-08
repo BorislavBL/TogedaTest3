@@ -42,6 +42,9 @@ struct CustomSearchBar: View {
                 .focused($keyIsFocused)
                 .autocorrectionDisabled(true)
                 .foregroundColor(.primary)
+                .onSubmit {
+                    print("down")
+                }
                 
                 // Clear button
                 if !searchText.isEmpty {

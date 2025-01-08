@@ -43,23 +43,12 @@ struct UserJoinRequestsView: View {
                 
                 
                 
-                if isLoading{
-                    ProgressView()
-                }
-                
-                Rectangle()
-                    .frame(width: 0, height: 0)
-                    .onAppear {
-                        if !eventVM.joinRequestLastPage {
-                            isLoading = true
-                            
-                            Task{
-                                try await eventVM.fetchJoinRequestUserList(id: post.id)
-                                isLoading = false
-                                
-                            }
-                        }
+                ListLoadingButton(isLoading: $isLoading, isLastPage: eventVM.joinRequestLastPage) {
+                    Task{
+                        defer{isLoading = false}
+                        try await eventVM.fetchJoinRequestUserList(id: post.id)
                     }
+                }
             }
         }
         .refreshable {

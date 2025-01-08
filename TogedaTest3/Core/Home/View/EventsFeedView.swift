@@ -119,11 +119,10 @@ struct EventsFeedView: View {
                         .frame(width: 0, height: 0)
                         .onAppear {
                             if !postsViewModel.lastPage{
-                                isLoading = true
-                                Task{
-                                    try await postsViewModel.fetchPosts()
-                                    isLoading = false
-                                    
+                                if postsViewModel.indexLoadingState == .loaded{
+                                    Task{
+                                        try await postsViewModel.fetchPosts()
+                                    }
                                 }
                             }
                             

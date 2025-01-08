@@ -36,6 +36,24 @@ struct PostCellSkeleton: View {
                         .opacity(0)
                     
 //                    NavigationLink(value: SelectionPath.eventDetails(post)) {
+//                        
+//                        AsyncImage(url: URL(string: post.images[0])) { image in
+//                            image
+//                                .resizable()
+//                                .scaledToFill()
+//                                .frame(maxHeight: 400)
+//                                .clipShape(
+//                                    RoundedRectangle(cornerSize: .init(width: 10, height: 10))
+//                                )
+//                        } placeholder: {
+//                            Color.gray
+//                                .frame(height: 400)
+//                                .clipShape(
+//                                    RoundedRectangle(cornerSize: .init(width: 10, height: 10))
+//                                )
+//                        }
+//                    }
+                    
                     GeometryReader { geometry in
                         KFImage.url(URL(string: post.images[0])!)
                             .resizable()
@@ -54,7 +72,7 @@ struct PostCellSkeleton: View {
                             )
                     }
                     .frame(height: 400)
-//                    }
+                    
                 }
 
                 
@@ -63,19 +81,7 @@ struct PostCellSkeleton: View {
 //                    NavigationLink(value: SelectionPath.profile(post.owner)) {
                         HStack(alignment: .center) {
                             
-//                            AsyncImage(url: URL(string: post.owner.profilePhotos[0])) { image in
-//                                image
-//                                    .resizable()
-//                                    .scaledToFill()
-//                                    .frame(width: 50, height: 50)
-//                                    .background(.gray)
-//                                    .cornerRadius(15)
-//                            } placeholder: {
-//                                Color.gray
-//                                    .frame(width: 50, height: 50)
-//                                    .background(.gray)
-//                                    .cornerRadius(15)
-//                            }
+
                             
                             KFImage(URL(string: post.owner.profilePhotos[0]))
                                 .resizable()

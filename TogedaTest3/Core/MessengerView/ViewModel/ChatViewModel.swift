@@ -16,7 +16,9 @@ class ChatViewModel: ObservableObject {
     @Published var messages: [Components.Schemas.ReceivedChatMessageDto] = []
     @Published var lastPage: Bool = true
     @Published var page: Int32 = 0
-    @Published var size: Int32 = 15
+    @Published var size: Int32 = 30
+    @Published var isLoading: LoadingCases = .noResults
+
     
     @Published var messageImage: UIImage?
     
@@ -26,7 +28,7 @@ class ChatViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var isSearching: Bool = false
     @Published var chatrooms: [Components.Schemas.ChatRoomDto] = []
-    @Published var chatroomsPageSize: Int32 = 15
+    @Published var chatroomsPageSize: Int32 = 30
     @Published var chatroomsPage: Int32 = 0
     @Published var chatroomsLastPage: Bool = true
     
@@ -68,6 +70,7 @@ class ChatViewModel: ObservableObject {
                 self.chatrooms += response.data
                 self.page += 1
                 self.chatroomsLastPage = response.lastPage
+                self.isLoading = .loaded
             }
 
         }

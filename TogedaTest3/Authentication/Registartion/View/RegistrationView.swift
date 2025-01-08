@@ -42,7 +42,7 @@ struct RegistrationView: View {
                     Text("Create an account")
                         .multilineTextAlignment(.center)
                         .font(.title).bold()
-                        .padding(.top, 20)
+                        .padding(.top)
                     
                     TextField("", text: $email)
                         .placeholder(when: email.isEmpty) {
@@ -140,12 +140,14 @@ struct RegistrationView: View {
                         WarningTextComponent(text: "The two passwords do not match.")
                             .padding(.bottom, 15)
                             .ignoresSafeArea(.keyboard)
-                    } else if let message = errorMessage, !message.isEmpty, displayError {
-                        WarningTextComponent(text: message)
+                    } else if whiteSpaces {
+                        WarningTextComponent(text: "The password should not contain any spaces.")
                             .padding(.bottom, 15)
                             .ignoresSafeArea(.keyboard)
                     }
                     
+                    PasswordCondition(password: password, showError: displayError)
+                        .padding(.bottom, 15)
                     
                     HStack(alignment: .top, spacing: 16, content: {
                         Button{
@@ -176,6 +178,7 @@ struct RegistrationView: View {
                 .padding()
             }
             .scrollIndicators(.hidden)
+            .frame(minHeight: UIScreen().bounds.height)
             
             Spacer()
             
@@ -227,9 +230,9 @@ struct RegistrationView: View {
                 }
             }
             .padding([.horizontal, .bottom])
-            .disableWithOpacity(!isValidEmail(testStr: email) || !samePassword || !validatePassword(password: password))
+            .disableWithOpacity(!isValidEmail(testStr: email) || !samePassword || !validatePassword(password: password) || whiteSpaces)
             .onTapGesture {
-                if !isValidEmail(testStr: email) || !samePassword || !validatePassword(password: password){
+                if !isValidEmail(testStr: email) || !samePassword || !validatePassword(password: password) || whiteSpaces{
                     displayError.toggle()
                 }
                 
@@ -286,12 +289,20 @@ struct RegistrationView: View {
         }
     }
     
+    var whiteSpaces: Bool {
+        if password.rangeOfCharacter(from: .whitespaces) != nil {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     func validatePassword(password: String) -> Bool{
         let lengthRequirement = password.count >= 8
         let uppercaseRequirement = password.range(of: "[A-Z]", options: .regularExpression) != nil
         let lowercaseRequirement = password.range(of: "[a-z]", options: .regularExpression) != nil
         let numberRequirement = password.range(of: "[0-9]", options: .regularExpression) != nil
-        let specialCharacterRequirement = password.range(of: "[!@#$&*]", options: .regularExpression) != nil
+        let specialCharacterRequirement = password.range(of: "[\\^\\$\\*\\.\\{\\}\\(\\)\\?\\[\\]\\-!@#%&/,><':;\\|_~`+=]", options: .regularExpression) != nil
         
         if lengthRequirement && uppercaseRequirement && lowercaseRequirement && numberRequirement && specialCharacterRequirement {
             DispatchQueue.main.async{
@@ -301,12 +312,106 @@ struct RegistrationView: View {
         } else {
             DispatchQueue.main.async{
                 self.errorMessage = """
-            Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.
+            Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character [^$*.{}()?-!@#%&/,><':;|_~`+=].
             """
             }
             
             return false
         }
+    }
+    
+}
+
+struct PasswordCondition: View {
+    var password: String
+    var showError: Bool
+    var body: some View {
+        HStack{
+            VStack(alignment: .leading){
+                if password.count >= 8 {
+                    HStack{
+                        Image(systemName: "checkmark.circle")
+                        Text("8 or more characters")
+                    }
+                    .foregroundStyle(.green)
+                    
+                } else {
+                    HStack{
+                        Image(systemName: showError ? "x.circle" : "checkmark.circle")
+                            .opacity(0.5)
+                        Text("8 or more characters")
+                    }
+                    .foregroundStyle(showError ? .red : .gray)
+                }
+                
+                if password.range(of: "[A-Z]", options: .regularExpression) != nil && password.range(of: "[a-z]", options: .regularExpression) != nil {
+                    HStack{
+                        Image(systemName: "checkmark.circle")
+                        Text("Upper and lowercase letters")
+                    }
+                    .foregroundStyle(.green)
+                    
+                } else {
+                    HStack{
+                        Image(systemName: showError ? "x.circle" : "checkmark.circle")
+                            .opacity(0.5)
+                        Text("Upper and lowercase letters")
+                    }
+                    .foregroundStyle(showError ? .red : .gray)
+                }
+                
+                if password.range(of: "[0-9]", options: .regularExpression) != nil {
+                    HStack{
+                        Image(systemName: "checkmark.circle")
+                        Text("At least one number")
+                    }
+                    .foregroundStyle(.green)
+                } else {
+                    HStack{
+                        Image(systemName: showError ? "x.circle" : "checkmark.circle")
+                            .opacity(0.5)
+                        
+                        Text("At least one number")
+                    }
+                    .foregroundStyle(showError ? .red : .gray)
+                }
+                
+                if password.range(of: "[\\^\\$\\*\\.\\{\\}\\(\\)\\?\\[\\]\\-!@#%&/,><':;\\|_~`+=]", options: .regularExpression) != nil {
+                    VStack(alignment: .leading){
+                        HStack{
+                            Image(systemName: "checkmark.circle")
+                            Text("At least one special character")
+                        }
+                        HStack{
+                            Image(systemName: "checkmark.circle")
+                                .opacity(0)
+                            Text("[^$*.{}()?-!@#%&/,><':;|_~`+=]")
+                        }
+                    }
+                    .foregroundStyle(.green)
+                } else {
+                    VStack(alignment: .leading){
+                        HStack{
+                            Image(systemName: showError ? "x.circle" : "checkmark.circle")
+                                .opacity(0.5)
+                            Text("At least one special character")
+                                
+                        }
+                        HStack{
+                            Image(systemName: "checkmark.circle")
+                                .opacity(0)
+                            Text("[^$*.{}()?-!@#%&/,><':;|_~`+=]")
+                        }
+                    }
+                    .foregroundStyle(showError ? .red : .gray)
+                }
+            }
+            .font(.callout)
+            .fontWeight(.semibold)
+            
+            Spacer()
+        }
+        
     }
 }
 

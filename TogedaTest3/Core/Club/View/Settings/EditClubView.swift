@@ -229,6 +229,7 @@ struct EditClubView: View {
         }
         .scrollIndicators(.hidden)
         .navigationTitle("Edit Club")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $deleteSheet, content: {
             onDeleteSheet()

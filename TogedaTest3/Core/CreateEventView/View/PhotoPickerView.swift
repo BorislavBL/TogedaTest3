@@ -61,6 +61,7 @@ struct PhotoPickerView: View {
 //        }
         .navigationTitle("Photos")
         .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(leading:Button(action: {dismiss()}) {
             Image(systemName: "chevron.left")
                 .imageScale(.medium)

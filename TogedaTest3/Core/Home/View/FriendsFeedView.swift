@@ -28,8 +28,14 @@ struct FriendsFeedView: View {
                         ForEach(Array(activityVM.activityFeed.enumerated()), id: \.element.id) {index, activity in
                             if let post = activity.post {
                                 ActivityPostCell(post: post, activity: activity)
+                                    .onAppear(){
+                                        activityVM.feedScrollFetch(index: index)
+                                    }
                             } else if let club = activity.club {
                                 ClubCellActivity(club: club, activity: activity)
+                                    .onAppear(){
+                                        activityVM.feedScrollFetch(index: index)
+                                    }
                             }
                         }
                         
@@ -126,11 +132,10 @@ struct FriendsFeedView: View {
                         .frame(width: 0, height: 0)
                         .onAppear {
                             if !activityVM.lastPage {
-                                isLoading = true
-                                Task{
-                                    try await activityVM.fetchFeed()
-                                    isLoading = false
-                                    
+                                if activityVM.indexLoadingState == .loaded{
+                                    Task{
+                                        try await activityVM.fetchFeed()
+                                    }
                                 }
                             }
                             
