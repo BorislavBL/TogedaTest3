@@ -48,20 +48,8 @@ class UserViewModel: ObservableObject {
 //        }
     }
     
-    func retryFetchUser() {
-        Task {
-            while true {
-                do {
-                    try await fetchCurrentUser()
-                    print("End user fetch")
-                    break // Exit loop if fetchPosts succeeds
-                } catch {
-                    // Handle the error if needed
-                    print("Error fetching data: \(error)")
-                    try await Task.sleep(nanoseconds: 20_000_000_000)
-                }
-            }
-        }
+    func retryFetchUser() async throws{
+        currentUser = try await APIClient.shared.retryWithExponentialDelay(task:{ try await APIClient.shared.getCurrentUserInfo()})
     }
     
     func fetchCurrentUser() async throws{

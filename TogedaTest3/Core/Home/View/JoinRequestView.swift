@@ -203,7 +203,7 @@ struct JoinRequestView: View {
                             
                             
                             Button {
-                                if let location = locationManager.location{
+                                if let location = getUserLocationCords(){
                                     let distance = calculateDistance(lat1: location.coordinate.latitude, lon1: location.coordinate.longitude, lat2: post.location.latitude, lon2: post.location.longitude)
                                     self.distance = Int(distance.rounded())
                                     if distance * 1000 <= 50 {

@@ -8,6 +8,7 @@
 import SwiftUI
 import WrappingHStack
 import Kingfisher
+import MapKit
 
 struct PostCell: View {
     var post: Components.Schemas.PostResponseDto

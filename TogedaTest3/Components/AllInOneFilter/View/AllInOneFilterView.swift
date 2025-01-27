@@ -35,13 +35,14 @@ struct AllInOneFilterView: View {
                                     TimeFilterView(vm: filterVM)
                                 }
                                 
-                                VStack(alignment: .leading, spacing: 16){
-                                    Text("Sort")
-                                        .font(.body)
-                                        .bold()
-                                    
-                                    StandartFilterView(selectedFilter: $filterVM.selectedSortFilter, filterOptions: filterVM.sortFilterOptions, image: Image(systemName: "list.bullet"))
-                                }
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 16){
+                                Text("Sort")
+                                    .font(.body)
+                                    .bold()
+                                
+                                SortFilterView(selectedFilter: $filterVM.selectedSortFilter, filterOptions: filterVM.sortFilterOptions, image: Image(systemName: "list.bullet"))
                             }
                             
                             VStack(alignment: .leading, spacing: 16){
@@ -134,7 +135,7 @@ struct AllInOneFilterView: View {
                                 switch filterVM.selectedType {
                                 case .events:
                                     try await postsVM.applyFilter(
-                                        sort: filterVM.selectedSortFilter == "Location" ? .LOCATION : .CREATED_AT,
+                                        sort: filterVM.selectedSortFilter.toPostFilterType,
                                         lat: filterVM.returnedPlace.latitude,
                                         long: filterVM.returnedPlace.longitude,
                                         distance: filterVM.sliderValue,
@@ -146,7 +147,7 @@ struct AllInOneFilterView: View {
                                     )
                                 case .clubs:
                                     try await clubsVM.applyFilter(
-                                        sort: filterVM.selectedSortFilter == "Location" ? .LOCATION : .CREATED_AT,
+                                        sort: filterVM.selectedSortFilter .toClubFilterType,
                                         lat: filterVM.returnedPlace.latitude,
                                         long: filterVM.returnedPlace.longitude,
                                         distance: filterVM.sliderValue,
@@ -190,7 +191,7 @@ struct AllInOneFilterView: View {
             
         case .events:
             
-            if clubsVM.long != filterVM.returnedPlace.longitude || clubsVM.lat != filterVM.returnedPlace.latitude {
+            if clubsVM.long != filterVM.returnedPlace.longitude || clubsVM.lat != filterVM.returnedPlace.latitude || (clubsVM.sortBy != filterVM.selectedSortFilter.toClubFilterType){
                 filterVM.updateClubs = true
             }
             
@@ -198,7 +199,7 @@ struct AllInOneFilterView: View {
 //            clubsVM.long = filterVM.returnedPlace.longitude
         case .clubs:
             
-            if postsVM.long != filterVM.returnedPlace.longitude || postsVM.lat != filterVM.returnedPlace.latitude {
+            if postsVM.long != filterVM.returnedPlace.longitude || postsVM.lat != filterVM.returnedPlace.latitude || (postsVM.sortBy != filterVM.selectedSortFilter.toPostFilterType){
                 filterVM.updateEvents = true
             }
             
@@ -384,6 +385,50 @@ struct LocationPickerFilterView: View {
                     isCurrentLocation = true
                 }
             }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading )
+        .padding(16)
+        .background(Color(.tertiarySystemFill))
+        .cornerRadius(10.0)
+        .frame(maxHeight: .infinity, alignment: .top )
+    }
+}
+
+struct SortFilterView: View {
+    @Binding var selectedFilter: SortType
+    var filterOptions: [SortType]
+    var image: Image
+    @State var showOptions: Bool = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Button{
+                showOptions.toggle()
+            } label: {
+                HStack{
+                    image
+                    Text(selectedFilter.toString)
+                        .fontWeight(.semibold)
+                    
+                    Spacer()
+                    
+                    Image(systemName: showOptions ? "chevron.up" : "chevron.down")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            if showOptions{
+                ForEach(filterOptions, id: \.self){option in
+                    Button{
+                        selectedFilter = option
+                        showOptions = false
+                    } label:{
+                        Text(option.toString)
+                            .fontWeight(.semibold)
+                    }
+                }
+            }
+            
         }
         .frame(maxWidth: .infinity, alignment: .leading )
         .padding(16)

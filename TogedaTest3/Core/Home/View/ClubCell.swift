@@ -20,9 +20,6 @@ struct ClubCell: View {
             .padding(.horizontal, 8)
 
     }
-
-    
-
 }
 
 
@@ -280,6 +277,8 @@ struct ClubCellSkeleton: View {
                         .fontWeight(.semibold)
                         .font(.footnote)
                 }
+                
+                Spacer()
                 
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))

@@ -95,6 +95,7 @@ struct MainView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
                 print("opened once again")
+                print(Date().timeIntervalSince(setDateOnLeave))
                 
                 Task{
                     try await fetchOnDidBecomeActive()
@@ -171,6 +172,35 @@ struct MainView: View {
                 }
             }
             
+            
+            
+            if Date().timeIntervalSince(setDateOnLeave) > 10 * 60 {
+                if let location = locationManager.getUserLocationCords() {
+                    postsViewModel.lat = location.coordinate.latitude
+                    postsViewModel.long = location.coordinate.longitude
+                    postsViewModel.state = .loading
+                    
+                    clubsViewModel.lat = location.coordinate.latitude
+                    clubsViewModel.long = location.coordinate.longitude
+                    clubsViewModel.state = .loading
+                    group.addTask {
+                        do {
+                            try await postsViewModel.fetchPosts()
+                        } catch {
+                            print(error)
+                        }
+                    }
+                    group.addTask {
+                        do {
+                            try await clubsViewModel.fetchClubs()
+                        } catch {
+                            print(error)
+                        }
+                    }
+                    
+                }
+            }
+            
             // Wait for both tasks to complete
             await group.waitForAll()
             DispatchQueue.main.async {
@@ -186,7 +216,7 @@ struct MainView: View {
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
                 do {
-                    try await userViewModel.fetchCurrentUser()
+                    try await userViewModel.retryFetchUser()
                 } catch {
                     // Handle the error if needed
                     print("Error fetching data: \(error)")

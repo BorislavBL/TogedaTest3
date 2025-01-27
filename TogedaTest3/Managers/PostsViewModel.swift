@@ -34,7 +34,7 @@ class PostsViewModel: ObservableObject {
     
     @Published var page: Int32 = 0
     @Published var size: Int32 = 15
-    @Published var sortBy: Operations.getAllPosts.Input.Query.sortByPayload = .LOCATION
+    @Published var sortBy: Operations.getAllPosts.Input.Query.sortByPayload = .CREATED_AT
     @Published var lat: Double = 43
     @Published var long: Double = 39
     @Published var distance: Int = 3000000
@@ -122,17 +122,17 @@ class PostsViewModel: ObservableObject {
                 self.state = .loading
             }
         }
-        if let response = try await APIClient.shared.getAllEvents(
-            page: page,
-            size: size,
-            sortBy: sortBy,
-            long: long,
-            lat: lat,
-            distance: Int32(distance),
-            from: from,
-            to: to,
-            categories: categories
-        ) {
+        if let response = try await APIClient.shared.retryWithExponentialDelay(task:{ try await APIClient.shared.getAllEvents(
+            page: self.page,
+            size: self.size,
+            sortBy: self.sortBy,
+            long: self.long,
+            lat: self.lat,
+            distance: Int32(self.distance),
+            from: self.from,
+            to: self.to,
+            categories: self.categories
+        )}) {
             
             DispatchQueue.main.async{
                 

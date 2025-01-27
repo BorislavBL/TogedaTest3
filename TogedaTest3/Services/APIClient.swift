@@ -2011,7 +2011,7 @@ extension APIClient {
         return nil
     }
     
-    func giveRatingToParticipant(postId: String, userId: String, ratingBody:Components.Schemas.ParticipationRatingDto) async throws -> Bool? {
+    func giveRatingToParticipant(postId: String, userId: String, ratingBody: Components.Schemas.ParticipationRatingDto) async throws -> Bool? {
         
         let response = try await client.ratePostParticipant(.init(path: .init(postId: postId, userId: userId), body: .json(ratingBody)))
         
@@ -3302,6 +3302,99 @@ extension APIClient {
         return nil
     }
     
+    func likeDislikeMessage(messageId: String) async throws -> Bool? {
+        let response = try await client.likeMessage(.init(path: .init(messageId: messageId)))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func likeMembers(messageId: String,pageNumber: Int32, pageSize: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
+        let response = try await client.getMessageLikes(path: .init(messageId: messageId), query: .init(pageNumber: pageNumber, pageSize: pageSize))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
+    func unsendMessage(messageId: String) async throws -> Bool? {
+        let response = try await client.unsendMsg(path: .init(messageId: messageId))
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse.success
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+    
     func allChats(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoChatRoomDto? {
         let response = try await client.findChatRoomsForUser(.init(query: .init(pageNumber: page, pageSize: size)))
         switch response {
@@ -3720,4 +3813,38 @@ extension APIClient {
     }
 }
 
+// Admin
 
+extension APIClient {
+    func dumpClubDate(clubId: String) async throws -> Components.Schemas.ClubDto? {
+        let response = try await client.pushBackClubOnFeed(.init(path: .init(clubId: clubId)))
+        
+        switch response {
+        case .ok(let okResponse):
+            switch okResponse.body{
+            case .json(let returnResponse):
+                return returnResponse
+            }
+        case .undocumented(statusCode: let statusCode, _):
+            print("The status code from chat:", statusCode)
+        case .unauthorized(_):
+            print("Unauthorized")
+        case .forbidden(_):
+            print("Forbidden")
+        case .badRequest(_):
+            print("Bad Request")
+        case .conflict(_):
+            print("Conflict")
+        case .tooManyRequests(_):
+            print("To many Requests for createChatForFriends")
+        case .requestTimeout(_):
+            print("Requested timeout")
+        case .notFound(_):
+            print("Not found")
+        case .internalServerError(_):
+            print("Internal server error")
+        }
+        
+        return nil
+    }
+}

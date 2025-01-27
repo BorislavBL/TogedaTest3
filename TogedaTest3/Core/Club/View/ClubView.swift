@@ -31,9 +31,10 @@ struct ClubView: View {
     
     @State var showReport = false
     @State var deleteSheet: Bool = false
+    @State var isShowDumpItAlert = false
     
     @State var Init = true
-
+    
     var body: some View {
         ZStack(alignment: .top){
             ScrollView(){
@@ -45,7 +46,7 @@ struct ClubView: View {
                         ClubEventsView(club: club, groupVM: vm)
                     }
                     ClubLocationView(club: club)
-//                    ClubMemoryView(groupVM: vm, showImagesViewer: $showImagesViewer)
+                    //                    ClubMemoryView(groupVM: vm, showImagesViewer: $showImagesViewer)
                 }
             }
             .refreshable {
@@ -64,7 +65,7 @@ struct ClubView: View {
                     
                     vm.clubMembers = []
                     vm.membersPage = 0
-
+                    
                     vm.clubEvents = []
                     vm.clubEventsPage = 0
                     
@@ -90,7 +91,7 @@ struct ClubView: View {
                 }
             }
             .navigationDestination(isPresented: $isEditing) {
-               EditClubView(isActive: $isEditing, club: $club)
+                EditClubView(isActive: $isEditing, club: $club)
             }
             .fullScreenCover(isPresented: $showImagesViewer, content: {
                 ImagesViewer(images: vm.images, selectedImage: $vm.selectedImage)
@@ -103,7 +104,7 @@ struct ClubView: View {
             .sheet(isPresented: $showLeaveSheet, content: {
                 onLeaveSheet()
                     .presentationDetents([.height(190)])
-                    
+                
             })
             .sheet(isPresented: $showReport, content: {
                 ReportClubView(club: club, isActive: $showReport)
@@ -111,14 +112,14 @@ struct ClubView: View {
             .sheet(isPresented: $showCancelSheet, content: {
                 onCancelSheet()
                     .presentationDetents([.height(190)])
-                    
+                
             })
             .fullScreenCover(isPresented: $showCreateEvent, content: {
                 CreateEventView(fromClub: club)
             })
             .sheet(isPresented: $deleteSheet, content: {
                 onDeleteSheet()
-                    
+                
             })
             .scrollIndicators(.hidden)
             .edgesIgnoringSafeArea(.top)
@@ -153,6 +154,22 @@ struct ClubView: View {
                 }
             }
         }
+        .alert("Dump It", isPresented: $isShowDumpItAlert) {
+            if userVM.currentUser?.userRole == .ADMINISTRATOR {
+                Button("Yes") {
+                    Task{
+                        if let response = try await APIClient.shared.dumpClubDate(clubId: club.id) {
+                            club = response
+                        }
+                    }
+                }
+            }
+            Button("Cancel") {
+                isShowDumpItAlert = false
+            }
+        } message: {
+            Text("Are you sure you want to change club's date?")
+        }
     }
     
     func onDeleteSheet() -> some View {
@@ -174,7 +191,7 @@ struct ClubView: View {
                     }
                     
                 }
-
+                
             } label:{
                 Text("Delete")
                     .font(.headline)
@@ -254,7 +271,7 @@ struct ClubView: View {
                 }
                 
                 if let user = userVM.currentUser, club.owner.id == user.id {
-//                    NavigationLink(value: SelectionPath.editClubView(club)) {
+                    //                    NavigationLink(value: SelectionPath.editClubView(club)) {
                     if let chatRoomID = club.chatRoomId {
                         Button{
                             Task{
@@ -315,40 +332,50 @@ struct ClubView: View {
                             .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
                     }
                 }
-            } else {
-                Menu{
-                    ShareLink(item: URL(string: createURLLink(postID: nil, clubID: club.id, userID: nil))!) {
-                        Text("Share via")
-                    }
-                    
-                    if isOwner {
-
-                    } else {
-                        Button("Report") {
-                            showReport = true
-                        }
-                        
-                        if userVM.currentUser?.userRole == .ADMINISTRATOR {
-                            Button(role: .destructive){
-                                deleteSheet = true
-                            } label:{
-                                HStack(spacing: 20){
-                                    Image(systemName: "trash")
-                                    Text("Delete")
-                                }
-                                .foregroundStyle(.red)
-                            }
-                        }
-                    }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .rotationEffect(.degrees(90))
-                        .frame(width: 35, height: 35)
-                        .background(.bar)
-                        .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+            }
+            Menu{
+                ShareLink(item: URL(string: createURLLink(postID: nil, clubID: club.id, userID: nil))!) {
+                    Text("Share via")
                 }
                 
+                if isOwner {
+                    
+                } else {
+                    Button("Report") {
+                        showReport = true
+                    }
+                    
+                    if userVM.currentUser?.userRole == .ADMINISTRATOR {
+                        Button(role: .destructive){
+                            deleteSheet = true
+                        } label:{
+                            HStack(spacing: 20){
+                                Image(systemName: "trash")
+                                Text("Delete")
+                            }
+                            .foregroundStyle(.red)
+                        }
+                        
+                        Button(role: .destructive){
+                            isShowDumpItAlert = true
+                        } label:{
+                            HStack(spacing: 20){
+                                Image(systemName: "arrow.down")
+                                Text("Dump it")
+                            }
+                            .foregroundStyle(.red)
+                        }
+                    }
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 35, height: 35)
+                    .background(.bar)
+                    .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
             }
+            
+            
         }
         .padding(.horizontal)
         
@@ -383,7 +410,7 @@ struct ClubView: View {
                         showLeaveSheet = false
                     }
                 }
-
+                
             } label:{
                 Text("Leave")
                     .font(.headline)
@@ -421,7 +448,7 @@ struct ClubView: View {
                         showCancelSheet = false
                     }
                 }
-
+                
             } label:{
                 Text("Cancel")
                     .font(.headline)

@@ -190,6 +190,7 @@ struct ClubsFeedView: View {
             Task{
                 await withCheckedContinuation { continuation in
                     DispatchQueue.main.async{
+                        clubsVM.sortBy = filterViewModel.selectedSortFilter.toClubFilterType
                         clubsVM.long = filterViewModel.returnedPlace.longitude
                         clubsVM.lat = filterViewModel.returnedPlace.latitude
                         continuation.resume()
@@ -200,7 +201,7 @@ struct ClubsFeedView: View {
                 filterViewModel.updateClubs = false
             }
         } label:{
-            Text("Update Location")
+            Text("Apply Changes")
                 .foregroundColor(Color("selectedTextColor"))
                 .font(.footnote)
                 .fontWeight(.bold)
@@ -208,6 +209,7 @@ struct ClubsFeedView: View {
                 .padding(.vertical, 8)
                 .background{Capsule().fill(Color("SelectedFilter"))}
         }
+        .padding(.bottom, 20)
     }
     
     func refresh() async throws{

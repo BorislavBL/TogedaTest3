@@ -22,8 +22,6 @@ class ProfileViewModel: ObservableObject {
     @Published var badgeSupply: Components.Schemas.BadgeSupplyDto = .init(superUserBadgesLeft: 0, earlyAdopterBadgesLeft: 0)
     @Published var postsAreUpdating = true
     @Published var clubsAreUpdating = true
-
-
     
     func getUserClubs(userId: String) async throws {
         if let response = try await APIClient.shared.getUserClubs(userId: userId, page: 0, size: 15) {
@@ -76,6 +74,7 @@ class ProfileViewModel: ObservableObject {
                 do {
                     if let response = try await APIClient.shared.getUserNoShows(userId: userId) {
                         DispatchQueue.main.async{
+                            print("no-shows: ", response)
                             self.noShows = response
                         }
                     }

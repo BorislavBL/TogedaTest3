@@ -11,58 +11,57 @@ struct DescriptionView: View {
     @Binding var description: String
     @Environment(\.dismiss) private var dismiss
     @State private var showWarning = false
-    
+    @FocusState private var isFocused: Bool
+
     var placeholder: String
-    
+    let characterLimit = 5000
+
     var body: some View {
-        ScrollView{
+        ScrollView {
             LazyVStack(alignment: .leading) {
-//                
-//                
-//                Text("Description")
-//                    .font(.title3)
-//                    .fontWeight(.bold)
-//                    .padding(.horizontal)
-//                
-//                if showWarning {
-//                    HStack(spacing: 5){
-//                        Image(systemName: "exclamationmark.circle")
-//                            .foregroundStyle(.red)
-//                        Text("Description should not contain any links.")
-//                            .foregroundStyle(.red)
-//                    }
-//                    .padding(.vertical, 8)
-//                    .padding(.horizontal)
-//                }
-                
-                TextField(placeholder, text: $description, axis: .vertical)
-                    .lineLimit(20, reservesSpace: true)
-                    .padding(.horizontal)
+                ZStack(alignment: .topLeading) {
+                    if description.isEmpty {
+                        Text(placeholder)
+                            .foregroundColor(.gray)
+                    }
+
+                    TextField("", text: $description, axis: .vertical)
+                        .focused($isFocused)
+                        .onChange(of: description) { newValue in
+                            if newValue.count > characterLimit {
+                                description = String(newValue.prefix(characterLimit))
+                            }
+                        }
+                }
+                .padding(.horizontal)
             }
             .padding(.vertical)
         }
+        .scrollDismissesKeyboard(.interactively)
         .swipeBack()
+        .onAppear {
+            isFocused = true
+        }
         .navigationTitle("Description")
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(leading:Button(action: {
-//            if !containsLink(text: description){
+        .navigationBarItems(
+            leading: Button(action: {
                 dismiss()
-//            } else {
-//                showWarning = true
-//            }
-        }) {
-            Image(systemName: "chevron.left")
-                .imageScale(.medium)
-                .padding(.all, 8)
-                .background(Color("main-secondary-color"))
-                .clipShape(Circle())
-        }
+            }) {
+                Image(systemName: "chevron.left")
+                    .imageScale(.medium)
+                    .padding(.all, 8)
+                    .background(Color("main-secondary-color"))
+                    .clipShape(Circle())
+            },
+            trailing: Text("\(description.count)/\(characterLimit)")
+                .foregroundColor(description.count > characterLimit ? .red : .gray)
+                .font(.footnote)
         )
-        
     }
-
 }
+
 
 struct DescriptionView_Previews: PreviewProvider {
     static var previews: some View {

@@ -16,12 +16,12 @@ struct EditProfileBioView: View {
                 .fontWeight(.semibold)
                 .lineLimit(5, reservesSpace: true)
                 .onChange(of: text) { oldValue, newValue in
-                    if text.count > 500 {
-                        text = String(text.prefix(500))
+                    if text.count > 5000 {
+                        text = String(text.prefix(5000))
                     }
                 }
             
-            Text("\(500 - text.count)")
+            Text("\(5000 - text.count)")
                 .fontWeight(.semibold)
                 .foregroundStyle(.gray)
         }

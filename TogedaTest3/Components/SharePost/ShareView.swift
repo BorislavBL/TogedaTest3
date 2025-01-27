@@ -93,6 +93,7 @@ struct ShareView: View {
     let size: ImageSize = .small
     var post: Components.Schemas.PostResponseDto?
     var club: Components.Schemas.ClubDto?
+    @State private var isLoading = false
     
     var body: some View {
         NavigationStack{
@@ -242,39 +243,55 @@ struct ShareView: View {
                 
                 if vm.selectedChatRooms.count > 0 {
                     VStack{
-                        Button{
-                            Task{
-                                if let post = post {
-                                    let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: vm.selectedChatRooms.map { chatroom in
-                                        return chatroom.id
-                                    })
-                                    if let response = try await APIClient.shared.shareEvent(postId: post.id, chatRoomIds: chatRoomsIDs) {
-                                        print("\(response)")
-                                        dismiss()
+                        if !isLoading {
+                            Button{
+                                isLoading = true
+                                Task{
+                                    defer {
+                                        isLoading = false
                                     }
+                                    if let post = post {
+                                        let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: vm.selectedChatRooms.map { chatroom in
+                                            return chatroom.id
+                                        })
+                                        if let response = try await APIClient.shared.shareEvent(postId: post.id, chatRoomIds: chatRoomsIDs) {
+                                            print("\(response)")
+                                            dismiss()
+                                        }
+                                    }
+                                    
+                                    else if let club = club {
+                                        let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: vm.selectedChatRooms.map { chatroom in
+                                            return chatroom.id
+                                        })
+                                        if let response = try await APIClient.shared.shareClub(clubId: club.id, chatRoomIds: chatRoomsIDs) {
+                                            print("\(response)")
+                                            dismiss()
+                                        }
+                                    }
+                                    
                                 }
+                            } label: {
+                                Text("Send")
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .fontWeight(.semibold)
                                 
-                                else if let club = club {
-                                    let chatRoomsIDs: Components.Schemas.ChatRoomIdsDto = Components.Schemas.ChatRoomIdsDto.init(chatRoomIds: vm.selectedChatRooms.map { chatroom in
-                                        return chatroom.id
-                                    })
-                                    if let response = try await APIClient.shared.shareClub(clubId: club.id, chatRoomIds: chatRoomsIDs) {
-                                        print("\(response)")
-                                        dismiss()
-                                    }
-                                }
                             }
-                        } label: {
-                            Text("Send")
+                            .cornerRadius(10)
+                            .padding(.top)
+                        } else {
+                            Text("Loading ...")
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
                                 .background(Color("blackAndWhite"))
                                 .foregroundColor(Color("testColor"))
                                 .fontWeight(.semibold)
-                            
+                                .cornerRadius(10)
+                                .padding(.top)
                         }
-                        .cornerRadius(10)
-                        .padding(.top)
                     }
                     .padding(.horizontal)
                 }

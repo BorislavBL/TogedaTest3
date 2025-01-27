@@ -171,8 +171,8 @@ struct UserProfileView: View {
                                         UserStats(value: "\(formatBigNumbers(Int(viewModel.likesCount)))", title: "Likes")
                                         Text("\(viewModel.noShows) no shows")
                                             .font(.footnote)
-                                            .foregroundStyle(viewModel.noShows == 0 ? .gray :
-                                                                (viewModel.noShows >= 5  && viewModel.noShows < 10) ? .yellow : .red)
+                                            .foregroundStyle(viewModel.noShows < 5 ? .gray :
+                                                                (viewModel.noShows >= 5 && viewModel.noShows < 10) ? .yellow : .red)
                                     }
                                     .frame(width: 105)
                                 }
@@ -266,9 +266,9 @@ struct UserProfileView: View {
                                     Button {
                                         Task{
                                             if let _user = user, let chatroomID = _user.chatRoomId, let chatRoom = try await APIClient.shared.getChat(chatId: chatroomID) {
-                                                navManager.selectionPath = []
-                                                navManager.screen = .message
-                                                //                                            websocket.selectedUser = _user
+//                                                navManager.selectionPath = []
+//                                                navManager.screen = .message
+//                                                websocket.selectedUser = _user
                                                 navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
                                             }
                                         }
@@ -832,6 +832,18 @@ struct UserProfileView: View {
                     if let response = try await APIClient.shared.getUserLikesList(userId: miniUser.id, page: 0, size: 1) {
                         DispatchQueue.main.async {
                             viewModel.likesCount = response.listCount
+                        }
+                    }
+                } catch {
+                    print("Error fetching user ликес: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    if let response = try await APIClient.shared.getUserNoShows(userId: miniUser.id) {
+                        DispatchQueue.main.async {
+                            viewModel.noShows = response
                         }
                     }
                 } catch {

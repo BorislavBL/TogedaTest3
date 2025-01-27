@@ -114,8 +114,8 @@ struct ProfileView: View {
                                     UserStats(value: "\(formatBigNumbers(Int(viewModel.likesCount)))", title: "Likes")
                                     Text("\(viewModel.noShows) no shows")
                                         .font(.footnote)
-                                        .foregroundStyle(viewModel.noShows == 0 ? .gray :
-                                                            (viewModel.noShows >= 5  && viewModel.noShows < 10) ? .yellow : .red)
+                                        .foregroundStyle(viewModel.noShows < 5 ? .gray :
+                                                            (viewModel.noShows >= 5 && viewModel.noShows < 10) ? .yellow : .red)
                                 }
                                 .frame(width: 105)
                             }

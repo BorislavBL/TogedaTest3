@@ -15,6 +15,7 @@ struct AllEventTabsView: View {
     var club: Components.Schemas.ClubDto?
     @Binding var event: EKEvent?
     @Binding var store: EKEventStore
+    @Binding var locationStatus: CLAuthorizationStatus
     
     var body: some View {
         VStack(alignment: .leading){
@@ -168,26 +169,6 @@ struct AllEventTabsView: View {
                 .normalTagRectangleStyle()
             }
             
-            if post.needsLocationalConfirmation {
-                HStack(alignment: .center, spacing: 10) {
-                    Image(systemName: "location.fill.viewfinder")
-                        .imageScale(.large)
-                    
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Confirm Location")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        
-                        Text("You will have to confirm your attendace once you reach the destination via the app. Failing to do so may result in being marked as a no-show.")
-                            .multilineTextAlignment(.leading)
-                            .font(.footnote)
-                            .foregroundColor(.gray)
-                            .fontWeight(.bold)
-                    }
-                }
-                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                .normalTagRectangleStyle()
-            }
             
             NavigationLink(value: SelectionPath.usersList(post: post)){
                 HStack(alignment: .center, spacing: 10) {
@@ -252,7 +233,7 @@ struct AllEventTabsView: View {
                                         .frame(width: 40, height: 40)
                                         .overlay(
                                             ZStack(alignment:.center){
-                                                Text("+\(formatBigNumbers(Int(eventVM.participantsList.count - 3)))")
+                                                Text("+\(formatBigNumbers(Int(eventVM.participantsList.count - 4)))")
                                                     .font(.caption2)
                                                     .fontWeight(.semibold)
                                                     .foregroundColor(.white)
@@ -270,6 +251,56 @@ struct AllEventTabsView: View {
                 }
                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 .normalTagRectangleStyle()
+            }
+            
+            if post.needsLocationalConfirmation {
+                if locationStatus == .authorizedAlways || locationStatus == .authorizedWhenInUse {
+                    HStack(alignment: .center, spacing: 10) {
+                        Image(systemName: "location.fill.viewfinder")
+                            .imageScale(.large)
+                        
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("Confirm Location")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            
+                            Text("You will have to confirm your attendance once you reach the destination via the app. Failing to do so may result in being marked as a no-show.")
+                                .multilineTextAlignment(.leading)
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .fontWeight(.bold)
+                        }
+                    }
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                    .normalTagRectangleStyle()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.orange.opacity(0.7), lineWidth: 2) // Yellow stroke with width 2
+                    )
+                } else {
+                    HStack(alignment: .center, spacing: 10) {
+                        Image(systemName: "location.fill.viewfinder")
+                            .imageScale(.large)
+                        
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("Confirm Location")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            
+                            Text("Please enable your location to confirm your attendance upon reaching the destination via the app. Failure to confirm may result in being marked as a no-show.")
+                                .multilineTextAlignment(.leading)
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                                .fontWeight(.bold)
+                        }
+                    }
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                    .normalTagRectangleStyle()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.red.opacity(0.7), lineWidth: 2) // Yellow stroke with width 2
+                    )
+                }
             }
             
             HStack(alignment: .center, spacing: 10) {
@@ -352,5 +383,5 @@ struct AllEventTabsView: View {
 }
 
 #Preview {
-    AllEventTabsView(eventVM: EventViewModel(), post: MockPost, club: MockClub, event: .constant(nil), store: .constant(EKEventStore()))
+    AllEventTabsView(eventVM: EventViewModel(), post: MockPost, club: MockClub, event: .constant(nil), store: .constant(EKEventStore()), locationStatus: .constant(.authorizedWhenInUse))
 }

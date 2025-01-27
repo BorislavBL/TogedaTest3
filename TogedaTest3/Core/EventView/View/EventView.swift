@@ -106,7 +106,7 @@ struct EventView: View {
                         }
                         
 
-                        AllEventTabsView(eventVM: eventVM, post: post, club: club, event: $event, store: $store)
+                        AllEventTabsView(eventVM: eventVM, post: post, club: club, event: $event, store: $store, locationStatus: $locationManager.authorizationStatus)
                         
                         
                         if let description = post.description {
@@ -277,6 +277,11 @@ struct EventView: View {
             Task{
                 await fetchAllOnAppear()
             }
+            reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)){ string in
+                print("\(string)")
+                
+            }
+//            locationCityAndCountry(post.location)
         }
         .onChange(of: chatVM.newNotification){ old, new in
             print("triggered 1")
@@ -630,8 +635,9 @@ struct EventView: View {
                         
                         if post.currentUserStatus == .PARTICIPATING && post.needsLocationalConfirmation && post.currentUserArrivalStatus != .ARRIVED {
                             Button {
-                                locationManager.requestCurrentLocation()
-                                if let location = locationManager.location{
+//                                locationManager.requestCurrentLocation()
+//                                if let location = locationManager.location{
+                                if let location = getUserLocationCords(){
                                     let distance = calculateDistance(lat1: location.coordinate.latitude, lon1: location.coordinate.longitude, lat2: post.location.latitude, lon2: post.location.longitude)
                                     eventVM.distance = Int(distance.rounded())
                                     if distance * 1000 <= 50 {
@@ -653,7 +659,7 @@ struct EventView: View {
                                         })
                                     }
                                 }
-                                locationManager.stopLocation()
+//                                locationManager.stopLocation()
                             } label: {
                                 Text("Confirm Arrival")
                                     .fontWeight(.semibold)

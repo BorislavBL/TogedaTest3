@@ -86,6 +86,22 @@ class LocationManager: NSObject, ObservableObject {
         }
     }
     
+    func getUserLocationCords() -> CLLocation? {
+        let locationManager = CLLocationManager()
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+        
+        if let userLocation = locationManager.location {
+            DispatchQueue.main.async{
+                self.location = userLocation
+            }
+            return userLocation
+        }
+        locationManager.stopUpdatingLocation()
+        return nil
+
+    }
+    
 }
 
 extension LocationManager: CLLocationManagerDelegate{

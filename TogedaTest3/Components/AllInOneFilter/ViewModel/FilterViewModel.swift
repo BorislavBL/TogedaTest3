@@ -24,6 +24,38 @@ enum FeedType {
     }
 }
 
+enum SortType {
+    case created_at
+    case location
+    
+    var toString: String {
+        switch self {
+        case .created_at:
+            return "Newest"
+        case .location:
+            return "Location"
+        }
+    }
+    
+    var toPostFilterType: Operations.getAllPosts.Input.Query.sortByPayload {
+        switch self {
+        case .created_at:
+            return .CREATED_AT
+        case .location:
+            return .LOCATION
+        }
+    }
+    
+    var toClubFilterType: Operations.getAllClubs.Input.Query.sortByPayload {
+        switch self {
+        case .created_at:
+            return .CREATED_AT
+        case .location:
+            return .LOCATION
+        }
+    }
+}
+
 class FilterViewModel: ObservableObject {
     @Published var showAllFilter: Bool = false
     @Published var searchText: String = ""
@@ -45,8 +77,8 @@ class FilterViewModel: ObservableObject {
     }
     @Published var selectedTimeFrame = "Custom Time"
     
-    @Published var selectedSortFilter: String = "Location"
-    var sortFilterOptions: [String] = ["Location", "Newest"]
+    @Published var selectedSortFilter: SortType = .created_at
+    var sortFilterOptions: [SortType] = [.created_at, .location]
     
     @Published var noDistanceLimit: Bool = true {
         didSet{
@@ -75,7 +107,7 @@ class FilterViewModel: ObservableObject {
         self.selectedTimeFilter = .timeFilterOptions[0]
         self.noDistanceLimit = true
         self.sliderValue = 300
-        self.selectedSortFilter = "Location"
+        self.selectedSortFilter = .created_at
         self.selectedCategories = []
     }
     

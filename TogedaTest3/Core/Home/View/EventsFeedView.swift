@@ -183,6 +183,7 @@ struct EventsFeedView: View {
             Task{
                 await withCheckedContinuation { continuation in
                     DispatchQueue.main.async{
+                        postsViewModel.sortBy = filterViewModel.selectedSortFilter.toPostFilterType
                         postsViewModel.long = filterViewModel.returnedPlace.longitude
                         postsViewModel.lat = filterViewModel.returnedPlace.latitude
                         continuation.resume()
@@ -193,7 +194,7 @@ struct EventsFeedView: View {
                 filterViewModel.updateEvents = false
             }
         } label:{
-            Text("Update Location")
+            Text("Apply Changes")
                 .foregroundColor(Color("selectedTextColor"))
                 .font(.footnote)
                 .fontWeight(.bold)
@@ -201,6 +202,7 @@ struct EventsFeedView: View {
                 .padding(.vertical, 8)
                 .background{Capsule().fill(Color("SelectedFilter"))}
         }
+        .padding(.bottom, 20)
     }
     
     func refresh() async throws{

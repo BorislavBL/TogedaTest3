@@ -53,11 +53,15 @@ struct GroupComponent: View {
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("light-gray"))
+                                .multilineTextAlignment(.leading)
+
                         } else {
                             Text(club.accessibility.rawValue.capitalized)
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("light-gray"))
+                                .multilineTextAlignment(.leading)
+
                         }
                     }
                     
@@ -70,6 +74,8 @@ struct GroupComponent: View {
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(Color("light-gray"))
+                            .multilineTextAlignment(.leading)
+
                     }
                     
                 }
@@ -89,6 +95,8 @@ struct GroupComponent: View {
                         .multilineTextAlignment(.leading)
                     
                 }
+                .multilineTextAlignment(.leading)
+
             }
             
             .padding(.horizontal, 12)

@@ -18,6 +18,14 @@ class ChatViewModel: ObservableObject {
     @Published var page: Int32 = 0
     @Published var size: Int32 = 30
     @Published var isLoading: LoadingCases = .noResults
+    
+    @Published var showLikes: Bool = false
+    @Published var likesMessageId: String?
+    @Published var likesMembers: [Components.Schemas.MiniUser] = []
+    @Published var lastPageUsers: Bool = true
+    @Published var pageMembers: Int32 = 0
+    @Published var sizeMembers: Int32 = 30
+    @Published var isLoadingMembers: Bool = false
 
     
     @Published var messageImage: UIImage?
@@ -31,6 +39,7 @@ class ChatViewModel: ObservableObject {
     @Published var chatroomsPageSize: Int32 = 30
     @Published var chatroomsPage: Int32 = 0
     @Published var chatroomsLastPage: Bool = true
+
     
     var cancellable: AnyCancellable?
     
@@ -152,6 +161,26 @@ class ChatViewModel: ObservableObject {
             print("Upload failed with error: \(error)")
             
             return nil
+        }
+    }
+    
+    func resetMembers() {
+        self.likesMessageId = nil
+        self.likesMembers = []
+        self.pageMembers = 0
+        self.lastPageUsers = true
+        self.isLoading = .noResults
+    }
+    
+    func getMessageLikesMembers() async throws{
+        if let id = likesMessageId {
+            if let response = try await APIClient.shared.likeMembers(messageId: id, pageNumber: pageMembers, pageSize: sizeMembers) {
+                DispatchQueue.main.async{
+                    self.likesMembers += response.data
+                    self.pageMembers += 1
+                    self.lastPageUsers = response.lastPage
+                }
+            }
         }
     }
     

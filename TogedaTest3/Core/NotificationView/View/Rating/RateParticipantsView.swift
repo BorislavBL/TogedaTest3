@@ -126,11 +126,15 @@ struct RateParticipantsView: View {
                         if post.currentUserRole == .NORMAL {
                             // Step 1: Submit all likes
                             await vm.submitAllLikes()
-
+                            print("here1")
                             // Step 2: Remove rating notifications after all likes are submitted
                             do {
                                 if try await APIClient.shared.giveRatingToEvent(postId: post.id, ratingBody: rating) != nil {
+                                    print("here2")
+
                                     if let removed = try await APIClient.shared.removeRatingNotifications(postId: post.id), removed {
+                                        print("here3")
+
                                         DispatchQueue.main.async {
                                             wsManager.notificationsList.removeAll { not in
                                                 return not.alertBodyReviewEndedPost?.post.id == post.id

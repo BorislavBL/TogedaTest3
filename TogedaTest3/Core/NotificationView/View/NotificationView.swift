@@ -11,7 +11,6 @@ struct NotificationView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var vm: WebSocketManager
     @EnvironmentObject var navManager: NavigationManager
-    @State var isLoading: LoadingCases = .noResults
     @StateObject var ratingVM = RatingViewModel()
     
     var body: some View {
@@ -68,6 +67,9 @@ struct NotificationView: View {
                                 EmptyView()
                             }
                         }
+                        else if let not = notification.alertBodyPostWasCreatedInClub {
+                            ClubEventView(post: not.post, club: not.club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                       }
                     }
                 } else if vm.loadingState == .noResults{
                     VStack(spacing: 15){
@@ -91,7 +93,7 @@ struct NotificationView: View {
 //                SystemNotificationView()
                 
                 
-                if isLoading == .loading {
+                if vm.isLoadingRect == .loading {
                     ProgressView() // Show spinner while loading
                 }
                 
@@ -99,11 +101,12 @@ struct NotificationView: View {
                     .frame(width: 0, height: 0)
                     .onAppear {
                         if !vm.lastPage{
-                            if isLoading == .loaded{
-                                isLoading = .loading
+                            
+                            if vm.isLoadingRect == .loaded{
+                                vm.isLoadingRect = .loading
+                                print("trigged here1")
                                 Task{
                                     try await vm.fetchInitialNotification(){ success in
-                                        isLoading = .loaded
                                     }
                                 }
                             }
@@ -119,10 +122,10 @@ struct NotificationView: View {
             vm.count = 0
             vm.lastPage = true
             vm.loadingState = .loading
-            isLoading = .noResults
+            vm.isLoadingRect = .noResults
             Task{
                 try await vm.fetchInitialNotification(){ success in
-                    isLoading = .loaded
+                    vm.isLoadingRect = .loaded
                 }
             }
         }

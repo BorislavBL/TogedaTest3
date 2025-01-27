@@ -35,7 +35,7 @@ struct RegistartionInterestsView: View {
             ScrollView{
                 LazyVStack(alignment: .center, spacing: 20) {
                     if !cancelSearch {
-                        Text("What are your interested about?")
+                        Text("What are you interested about?")
                             .multilineTextAlignment(.center)
                             .font(.title).bold()
                             .padding(.top, 20)

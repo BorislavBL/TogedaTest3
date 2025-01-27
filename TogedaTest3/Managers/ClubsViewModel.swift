@@ -23,7 +23,7 @@ class ClubsViewModel: ObservableObject {
     @Published var page: Int32 = 0
     @Published var size: Int32 = 30
     
-    @Published var sortBy: Operations.getAllClubs.Input.Query.sortByPayload = .LOCATION
+    @Published var sortBy: Operations.getAllClubs.Input.Query.sortByPayload = .CREATED_AT
     @Published var lat: Double = 43
     @Published var long: Double = 39
     @Published var distance: Int = 3000000

@@ -55,7 +55,7 @@ struct ChatParticipantsView: View {
                         
                         Spacer()
                         
-                        if let owner = chatRoom.owner, let c_user = userVM.currentUser, owner.id == c_user.id {
+                        if let owner = chatRoom.owner, let c_user = userVM.currentUser, owner.id == c_user.id, user.id != c_user.id {
                             Menu{
                                 Button("Kick \(user.firstName)"){
                                     Task{

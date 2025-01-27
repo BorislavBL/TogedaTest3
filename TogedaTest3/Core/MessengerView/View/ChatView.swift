@@ -38,6 +38,14 @@ struct ChatView: View {
     @State private var lastMessageIdBeforeLoading: String?
     @State private var refresh: RefreshCases = .done
     @State private var otherUser: Components.Schemas.UserInfoDto?
+    let size: ImageSize = .medium
+    
+    var isAdmin: Bool {
+        if let user = userVm.currentUser, let owner = chatRoom.owner {
+            return user.id == owner.id
+        }
+        return false
+    }
     
     var body: some View {
         ZStack(alignment: .top){
@@ -82,8 +90,9 @@ struct ChatView: View {
                                             }
                                             
                                             ChatMessageCell(message: message,
-                                                            nextMessage: nextMessage(forIndex: index), prevMessage: prevMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, vm: viewModel)
+                                                            nextMessage: nextMessage(forIndex: index), prevMessage: prevMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, isAdmin: isAdmin, vm: viewModel)
                                             
+    
                                         }
                                         .id(message.id)
                                         
@@ -333,6 +342,7 @@ struct ChatView: View {
         .navigationBarBackButtonHidden(true)
         .swipeBack()
         .onAppear(){
+
             if Init{
                 onInit()
             }
@@ -347,6 +357,70 @@ struct ChatView: View {
             }
         }
         .keyboardHeight($keyboardHeight)
+        .sheet(isPresented: $viewModel.showLikes) {
+            ScrollView{
+                LazyVStack{
+                    ForEach(viewModel.likesMembers, id: \.id){ member in
+                        Button{
+                            if let user = userVm.currentUser, member.id == user.id{
+                                Task {
+                                    if let id = viewModel.likesMessageId, let reponse = try await APIClient.shared.likeDislikeMessage(messageId: id) {
+                                        viewModel.likesMembers.removeAll(where: {$0.id == user.id})
+                                        if viewModel.likesMembers.count <= 0{
+                                            viewModel.showLikes = false
+                                        }
+                                    }
+                                }
+
+                            } else {
+                                viewModel.showLikes = false
+                                navManager.selectionPath.append(.profile(member))
+                            }
+                        } label: {
+                            HStack{
+                                KFImage(URL(string: member.profilePhotos[0]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: size.dimension, height: size.dimension)
+                                    .clipShape(Circle())
+                                
+                                Text("\(member.firstName) \(member.lastName)")
+                                    .fontWeight(.semibold)
+                                if member.userRole == .AMBASSADOR {
+                                    AmbassadorSealMini()
+                                } else if member.userRole == .PARTNER {
+                                    PartnerSealMini()
+                                }
+                                
+                                Spacer()
+                                
+                                Text("❤️")
+                                
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                    
+                    ListLoadingButton(isLoading: $viewModel.isLoadingMembers, isLastPage: viewModel.lastPageUsers) {
+                        Task{
+                            defer{viewModel.isLoadingMembers = false}
+                            try await viewModel.getMessageLikesMembers()
+                        }
+                    }
+                }
+            }
+            .padding(.vertical)
+            .presentationDetents([.fraction(0.5), .fraction(1)])
+            .presentationDragIndicator(.visible)
+            .onAppear{
+                Task{
+                    try await viewModel.getMessageLikesMembers()
+                }
+            }
+            .onDisappear(){
+                viewModel.resetMembers()
+            }
+        }
         
         
     }

@@ -19,8 +19,7 @@ struct ClubLocationView: View {
                     .font(.body)
                     .fontWeight(.bold)
                 
-//                Text(locationAddress(club.location))
-                Text(club.location.name)
+                Text(locationAddress(club.location))
                     .foregroundStyle(.gray)
                     .lineLimit(1)
             }

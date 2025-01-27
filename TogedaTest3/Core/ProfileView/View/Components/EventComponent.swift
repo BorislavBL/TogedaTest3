@@ -63,6 +63,8 @@ struct EventComponent: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(post.status == .HAS_ENDED ? .red : Color("light-gray"))
                         }
+                        .multilineTextAlignment(.leading)
+
                     } else if post.status == .HAS_ENDED {
                         HStack{
                             Image(systemName: "calendar")
@@ -73,6 +75,8 @@ struct EventComponent: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(.red)
                         }
+                        .multilineTextAlignment(.leading)
+
                     }
                     HStack{
                         Image(systemName: "person.2.fill")
@@ -84,11 +88,15 @@ struct EventComponent: View {
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("light-gray"))
+                                .multilineTextAlignment(.leading)
+
                         } else {
                             Text("\(formatBigNumbers(Int(post.participantsCount)))")
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color("light-gray"))
+                                .multilineTextAlignment(.leading)
+
                         }
                     }
                 }
@@ -105,6 +113,8 @@ struct EventComponent: View {
                             .foregroundColor(Color("light-gray"))
                             .multilineTextAlignment(.leading)
                     }
+                    .multilineTextAlignment(.leading)
+
                     
                 
             }

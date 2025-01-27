@@ -68,6 +68,23 @@ func reverseGeocode(coordinate: CLLocationCoordinate2D, completion: @escaping (S
     }
 }
 
+func reverseGeocodePlace(coordinate: CLLocationCoordinate2D, completion: @escaping (Place?) -> Void) {
+    let geocoder = CLGeocoder()
+    let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+
+    geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+        if let error = error {
+            print("Error reverse geocoding: \(error.localizedDescription)")
+            completion(nil)
+        } else if let firstPlacemark = placemarks?.first {
+            completion(Place(mapItem: mapItem(from: firstPlacemark)))
+        } else {
+            print("else")
+            completion(nil)
+        }
+    }
+}
+
 func isLocationInsideVisibleRegion(latitude: Double, longitude: Double, region: MKCoordinateRegion) -> Bool {
     let minLatitude = region.center.latitude - (region.span.latitudeDelta / 2.0)
     let maxLatitude = region.center.latitude + (region.span.latitudeDelta / 2.0)
@@ -148,4 +165,17 @@ func calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double) -
     
     // Return the calculated distance
     return distance
+}
+
+func getUserLocationCords() -> CLLocation? {
+    let locationManager = CLLocationManager()
+    locationManager.requestWhenInUseAuthorization()
+    locationManager.startUpdatingLocation()
+    
+    if let userLocation = locationManager.location {
+        return userLocation
+    }
+    locationManager.stopUpdatingLocation()
+    return nil
+
 }

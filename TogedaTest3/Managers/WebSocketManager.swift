@@ -15,18 +15,18 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var lastChatPage = true
     @Published var isLoadingChats: LoadingCases = .noResults
     
-//    struct ReceivedChatMessageExtension: Hashable {
-//        var message: Components.Schemas.ReceivedChatMessageDto
-//        var post: Components.Schemas.PostResponseDto?
-//        var club: Components.Schemas.ClubDto?
-//    }
-//    
-//    func receivedChatMessageConverter(
-//        _ message: Components.Schemas.ReceivedChatMessageDto,
-//        post: Components.Schemas.PostResponseDto? = nil,
-//        club: Components.Schemas.ClubDto? = nil) -> ReceivedChatMessageExtension{
-//        return .init(message: message, post: post, club: club)
-//    }
+    //    struct ReceivedChatMessageExtension: Hashable {
+    //        var message: Components.Schemas.ReceivedChatMessageDto
+    //        var post: Components.Schemas.PostResponseDto?
+    //        var club: Components.Schemas.ClubDto?
+    //    }
+    //
+    //    func receivedChatMessageConverter(
+    //        _ message: Components.Schemas.ReceivedChatMessageDto,
+    //        post: Components.Schemas.PostResponseDto? = nil,
+    //        club: Components.Schemas.ClubDto? = nil) -> ReceivedChatMessageExtension{
+    //        return .init(message: message, post: post, club: club)
+    //    }
     
     @Published var messages: [Components.Schemas.ReceivedChatMessageDto] = []
     @Published var lastMessagesPage: Bool = true
@@ -49,6 +49,7 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var lastPage: Bool = true
     @Published var isConnected = false
     @Published var loadingState: LoadingCases = .loading
+    @Published var isLoadingRect: LoadingCases = .noResults
     
     init(){
         websocketInit()
@@ -57,15 +58,24 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     struct ChatUpdates: Codable, Hashable {
         var chatRoomId: String
     }
+    
+    struct ChatLikes: Codable, Hashable {
+        var id: String?
+        var likeCount: Int32?
+    }
+    
+    struct Unsent: Codable, Hashable {
+        var id: String?
+    }
 }
 
 extension WebSocketManager {
     
     func reconnectWithNewToken() {
         if let token = AuthService.shared.getAccessToken() {
-//            if isConnected {
-                self.disconnect() // Disconnect current connection
-//            }
+            //            if isConnected {
+            self.disconnect() // Disconnect current connection
+            //            }
             let url = URL(string: "wss://api.togeda.net/ws")!
             self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization": "Bearer \(token)"]) // Reinitialize with new token
             self.swiftStomp.delegate = self // Reset delegate
@@ -101,10 +111,12 @@ extension WebSocketManager {
     func disconnect() {
         print("Disconnected websocket")
         if let id = self.currentUserId{
-            print("Suffer from success")
             swiftStomp.unsubscribe(from: "/user/\(id)/queue/messages")
             swiftStomp.unsubscribe(from: "/user/\(id)/queue/notifications")
             swiftStomp.unsubscribe(from: "/user/\(id)/queue/updates")
+            swiftStomp.unsubscribe(from: "/user/\(id)/queue/message/likes")
+            swiftStomp.unsubscribe(from: "/user/\(id)/queue/message/unsent")
+            
         }
         self.swiftStomp.disableAutoPing()
         self.swiftStomp.disconnect()
@@ -116,9 +128,15 @@ extension WebSocketManager {
                 print(id)
                 swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/messages")
                 swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/notifications")
+                swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/updates")
+                swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/message/likes")
+                swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/message/unsent")
+
                 swiftStomp.subscribe(to: "/user/\(id)/queue/messages", mode: .clientIndividual)
                 swiftStomp.subscribe(to: "/user/\(id)/queue/notifications", mode: .clientIndividual)
                 swiftStomp.subscribe(to: "/user/\(id)/queue/updates", mode: .clientIndividual)
+                swiftStomp.subscribe(to: "/user/\(id)/queue/message/likes", mode: .clientIndividual)
+                swiftStomp.subscribe(to: "/user/\(id)/queue/message/unsent", mode: .clientIndividual)
 
             }
         }
@@ -151,6 +169,9 @@ extension WebSocketManager {
                 swiftStomp.subscribe(to: "/user/\(id)/queue/messages", mode: .clientIndividual)
                 swiftStomp.subscribe(to: "/user/\(id)/queue/notifications", mode: .clientIndividual)
                 swiftStomp.subscribe(to: "/user/\(id)/queue/updates", mode: .clientIndividual)
+                swiftStomp.subscribe(to: "/user/\(id)/queue/message/likes", mode: .clientIndividual)
+                swiftStomp.subscribe(to: "/user/\(id)/queue/message/unsent", mode: .clientIndividual)
+
             }
             
         }
@@ -190,28 +211,51 @@ extension WebSocketManager {
                 }
             } else if destination.hasSuffix("/notifications") {
                 
+                
                 if let message = message as? String, let jsonData = message.data(using: .utf8) {
-                    print("mmmmmmmmmmmmmmmmmmm - \(message)")
+                    print("not: ", message)
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
                     
                     let notificationData = try decoder.decode(Components.Schemas.NotificationDto.self, from: jsonData)
-                    print("nnnnnnnnn - \(notificationData)")
-
+                    
                     DispatchQueue.main.async {
+                        print("not: ", notificationData)
                         self.addNotification(newNotification: notificationData)
                         self.newNotification = notificationData
                     }
                 }
+            } else if destination.hasSuffix("/message/likes") {
+                if let message = message as? String, let jsonData = message.data(using: .utf8) {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+                    
+                    let data = try decoder.decode(ChatLikes.self, from: jsonData)
+                    DispatchQueue.main.async {
+                        if let index = self.messages.firstIndex(where: {$0.id == data.id}) {
+                            self.messages[index].likeCount = data.likeCount
+                        }
+                    }
+                }
+            } else if destination.hasSuffix("/message/unsent") {
+                if let message = message as? String, let jsonData = message.data(using: .utf8) {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+                    
+                    let data = try decoder.decode(Unsent.self, from: jsonData)
+                    DispatchQueue.main.async {
+                        if let index = self.messages.firstIndex(where: {$0.id == data.id}) {
+                            self.messages[index].isUnsent = true
+                        }
+                    }
+                }
             } else if destination.hasSuffix("/updates") {
                 if let message = message as? String, let jsonData = message.data(using: .utf8) {
-                    print("MMMMMESSAGE", message)
                     
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
                     
                     let data = try decoder.decode(ChatUpdates.self, from: jsonData)
-                    print(data.chatRoomId)
                     DispatchQueue.main.async {
                         self.allChatRooms.removeAll(where: {$0.id == data.chatRoomId})
                     }
@@ -376,11 +420,11 @@ extension WebSocketManager {
     func limitConsecutiveReturns(in text: String) -> String {
         // First, handle trailing newlines without text (remove them)
         let trimmedText = text.replacingOccurrences(of: "\n+$", with: "", options: .regularExpression)
-
+        
         // Then, limit consecutive newlines to 3 if they exist inside the text
         let regexPattern = "\n{4,}"  // Matches 4 or more consecutive newlines
         let modifiedText = trimmedText.replacingOccurrences(of: regexPattern, with: "\n\n\n", options: .regularExpression)
-
+        
         return modifiedText
     }
     
@@ -404,7 +448,7 @@ extension WebSocketManager {
         }
     }
     
-
+    
     func getAllChats() async throws {
         if let response = try await APIClient.shared.allChats(page: chatPage, size: chatSize) {
             
@@ -432,7 +476,6 @@ extension WebSocketManager {
     }
     
     func getMessages(chatId: String) async throws {
-        print("chatId: \(chatId), page: \(messagesPage), size: \(messagesSize)")
         if let response = try await APIClient.shared.chatMessages(chatId: chatId, page: messagesPage, size: messagesSize) {
             DispatchQueue.main.async{
                 let newResponse = response.data
@@ -456,7 +499,7 @@ extension WebSocketManager {
                     // Update the chat room's last message and timestamp
                     
                     self.allChatRooms[index].read = true
-
+                    
                 }
             }
         }
@@ -482,15 +525,18 @@ extension WebSocketManager {
                     self.count = response.listCount
                     self.lastPage = response.lastPage
                     self.loadingState = .loaded
+                    self.isLoadingRect = .loaded
                     completion(true)
                     
                     if response.lastPage && self.notificationsList.count == 0{
                         self.loadingState = .noResults
+                        self.isLoadingRect = .noResults
                     }
                 }
             } else {
                 DispatchQueue.main.async {
                     self.loadingState = .noResults
+                    self.isLoadingRect = .loaded
                 }
             }
         } catch {
@@ -557,6 +603,9 @@ extension WebSocketManager {
         } else if newNotification.alertBodyUserAddedToParticipants != nil {
             notificationsList.removeAll { $0.alertBodyFriendRequestAccepted?.user.id == newNotification.alertBodyFriendRequestAccepted?.user.id }
             notificationsList.insert(newNotification, at: 0)
+        }  else if newNotification.alertBodyPostWasCreatedInClub != nil {
+            notificationsList.removeAll { $0.alertBodyPostWasCreatedInClub == newNotification.alertBodyPostWasCreatedInClub}
+            notificationsList.insert(newNotification, at: 0)
         } else {
             notificationsList.removeAll { $0.id == newNotification.id }
         }
@@ -568,9 +617,6 @@ extension WebSocketManager {
         // Remove the notification with the same ID from the first 'range' elements
         DispatchQueue.main.async {
             self.notificationsList.removeAll(where: {$0.id == notification.id})
-        
-
-            print("triggered nottt")
             self.notificationsList.insert(notification, at: 0)
         }
     }

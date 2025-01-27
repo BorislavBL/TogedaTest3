@@ -67,17 +67,26 @@ struct PostTags: View {
                 .normalTagCapsuleStyle()
             }
             
-            if post.needsLocationalConfirmation {
-                HStack(spacing: 3) {
-                    Image(systemName: "location.fill.viewfinder")
-                    
-                    Text("Confirm Location")
+            HStack(spacing: 3) {
+                Image(systemName: "person.2")
+                if let maxPeople = post.maximumPeople {
+                    Text("\(formatBigNumbers(Int(post.participantsCount)))/\(formatBigNumbers(Int(maxPeople)))")
                         .normalTagTextStyle()
-
+                } else {
+                    Text("\(formatBigNumbers(Int(post.participantsCount)))")
+                        .normalTagTextStyle()
                 }
-                .normalTagCapsuleStyle()
             }
+            .normalTagCapsuleStyle()
             
+            
+            HStack(spacing: 3) {
+                Image(systemName: "location")
+                Text(truncatedText(locationCityAndCountry(post.location), maxLength: 25))
+                    .normalTagTextStyle()
+            }
+            .normalTagCapsuleStyle()
+       
             HStack(spacing: 3) {
                 Image(systemName: "globe.europe.africa.fill")
                 if post.askToJoin {
@@ -90,27 +99,17 @@ struct PostTags: View {
             }
             .normalTagCapsuleStyle()
             
-            HStack(spacing: 3) {
-                Image(systemName: "location")
-                Text(truncatedText(locationCityAndCountry(post.location), maxLength: 25))
-                    .normalTagTextStyle()
-            }
-            .normalTagCapsuleStyle()
-       
-            
-            
-            
-            HStack(spacing: 3) {
-                Image(systemName: "person.2")
-                if let maxPeople = post.maximumPeople {
-                    Text("\(formatBigNumbers(Int(post.participantsCount)))/\(formatBigNumbers(Int(maxPeople)))")
+            if post.needsLocationalConfirmation {
+                HStack(spacing: 3) {
+                    Image(systemName: "location.fill.viewfinder")
+                    
+                    Text("Confirm Location")
                         .normalTagTextStyle()
-                } else {
-                    Text("\(formatBigNumbers(Int(post.participantsCount)))")
-                        .normalTagTextStyle()
+
                 }
+                .normalTagCapsuleStyle()
             }
-            .normalTagCapsuleStyle()
+
             
         }
     }

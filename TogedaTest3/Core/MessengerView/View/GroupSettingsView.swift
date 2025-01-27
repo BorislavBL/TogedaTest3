@@ -220,6 +220,7 @@ struct GroupSettingsView: View {
             }
             .padding()
         }
+        .swipeBack()
         .onAppear(){
             if let cuser = userVM.currentUser, let owner = chatroom.owner, cuser.id == owner.id {
                 Task{

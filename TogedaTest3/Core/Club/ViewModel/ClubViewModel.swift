@@ -31,7 +31,7 @@ class ClubViewModel: ObservableObject {
             DispatchQueue.main.async { [self] in
                 
                 let newResponse = response.data
-                let existingResponseIDs = Set(self.clubMembers.suffix(30).map { $0.user.id })
+                let existingResponseIDs = Set(self.clubMembers.suffix(Int(membersSize) + 10).map { $0.user.id })
                 let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.user.id) }
                 
                 self.clubMembers += uniqueNewResponse
