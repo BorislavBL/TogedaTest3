@@ -31,3 +31,22 @@ struct TogedaLinks {
     let appstore: String = "https://apps.apple.com/us/app/togeda-friends-activities/id6737203832"
 }
 
+enum APIEnvironment {
+    case production
+    case test
+}
+
+struct TogedaMainLinks {
+    static let environment: APIEnvironment = .test // Change this to .test to switch environments
+
+    private static let productionBaseURL = "https://api.togeda.net"
+    private static let testBaseURL = "http://test-env-11.eba-mjv4k9hc.eu-central-1.elasticbeanstalk.com"
+
+    static var baseURL: String {
+        return environment == .production ? productionBaseURL : testBaseURL
+    }
+
+    static var websocketURL: String {
+        return environment == .production ? "wss://api.togeda.net/ws" : "ws://test-env-11.eba-mjv4k9hc.eu-central-1.elasticbeanstalk.com/ws"
+    }
+}

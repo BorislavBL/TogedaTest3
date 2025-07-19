@@ -15,61 +15,81 @@ struct NotificationView: View {
     
     var body: some View {
         ScrollView(showsIndicators: false){
-            LazyVStack(spacing: 16){
+            LazyVStack(spacing: 0){
                 if vm.notificationsList.count > 0 {
                     ForEach(vm.notificationsList, id: \.id) { notification in
                         // Handle different cases of alertBody
-                        if let not = notification.alertBodyAcceptedJoinRequest{
-                            switch not.forType {
-                            case .CLUB:
-                                if let club = not.club{
-                                    GroupAcceptanceView(club: club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                        HStack(alignment: .center){
+                            if let not = notification.alertBodyAcceptedJoinRequest{
+                                switch not.forType {
+                                case .CLUB:
+                                    if let club = not.club{
+                                        GroupAcceptanceView(club: club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                                    }
+                                case .POST:
+                                    if let post = not.post{
+                                        EventAcceptance(post: post, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                                    }
+                                case .none:
+                                    EmptyView()
                                 }
-                            case .POST:
-                                if let post = not.post{
-                                    EventAcceptance(post: post, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                            } else if let not = notification.alertBodyReceivedJoinRequest{
+                                switch not.forType {
+                                case .POST:
+                                    if let post = not.post{
+                                        EventRequestPage(post: post, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                                    }
+                                case .CLUB:
+                                    if let club = not.club{
+                                        GroupRequestPage(club: club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                                    }
+                                case .none:
+                                    EmptyView()
                                 }
-                            case .none:
-                                EmptyView()
+                            } else if let not = notification.alertBodyFriendRequestReceived{
+                                FriendRequestView(user: not, createDate: notification.createdDate)
+                            } else if let not = notification.alertBodyReviewEndedPost {
+                                ParticipantsEventReview(alertBody: not, createDate: notification.createdDate, ratingVM: ratingVM)
+                            } else if let not = notification.alertBodyPostHasStarted {
+                                EventHasStartedView(createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                            } else if let not = notification.alertBodyFriendRequestAccepted {
+                                AcceptedFriendRequestView(user: not, createDate: notification.createdDate)
+                            } else if let not = notification.alertBodyUserAddedToParticipants {
+                                switch not.forType {
+                                case .POST:
+                                    if let post = not.post{
+                                        UserJoinsEventPage(post: post, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                                    }
+                                case .CLUB:
+                                    if let club = not.club{
+                                        UserJoinsClubPage(club: club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
+                                    }
+                                case .none:
+                                    EmptyView()
+                                }
                             }
-                        } else if let not = notification.alertBodyReceivedJoinRequest{
-                            switch not.forType {
-                            case .POST:
-                                if let post = not.post{
-                                    EventRequestPage(post: post, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
-                                }
-                            case .CLUB:
-                                if let club = not.club{
-                                    GroupRequestPage(club: club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
-                                }
-                            case .none:
-                                EmptyView()
+                            else if let not = notification.alertBodyPostWasCreatedInClub {
+                                ClubEventView(post: not.post, club: not.club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
                             }
-                        } else if let not = notification.alertBodyFriendRequestReceived{
-                            FriendRequestView(user: not, createDate: notification.createdDate)
-                        } else if let not = notification.alertBodyReviewEndedPost {
-                            ParticipantsEventReview(alertBody: not, createDate: notification.createdDate, ratingVM: ratingVM)
-                        } else if let not = notification.alertBodyPostHasStarted {
-                            EventHasStartedView(createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
-                        } else if let not = notification.alertBodyFriendRequestAccepted {
-                            AcceptedFriendRequestView(user: not, createDate: notification.createdDate)
-                        } else if let not = notification.alertBodyUserAddedToParticipants {
-                            switch not.forType {
-                            case .POST:
-                                if let post = not.post{
-                                    UserJoinsEventPage(post: post, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
-                                }
-                            case .CLUB:
-                                if let club = not.club{
-                                    UserJoinsClubPage(club: club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
-                                }
-                            case .none:
-                                EmptyView()
+                            
+                            if let read = notification.isRead, !read{
+                                Circle()
+                                    .fill(Color(.systemBlue))
+                                    .frame(width: 10, height: 10, alignment: .leading)
+                                    .padding(.leading)
+
+                            } else if notification.isRead == nil {
+                                Circle()
+                                    .fill(Color(.systemBlue))
+                                    .frame(width: 10, height: 10, alignment: .leading)
+                                    .padding(.leading)
                             }
+                            
                         }
-                        else if let not = notification.alertBodyPostWasCreatedInClub {
-                            ClubEventView(post: not.post, club: not.club, createDate: notification.createdDate, alertBody: not, selectionPath: $navManager.selectionPath)
-                       }
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                        .background(notification.isRead ?? false ? Color(.black).opacity(0) : Color(.systemBlue).opacity(0.2))
+                          
                     }
                 } else if vm.loadingState == .noResults{
                     VStack(spacing: 15){
@@ -114,7 +134,7 @@ struct NotificationView: View {
                     }
                 
             }
-            .padding()
+            .padding(.vertical)
         }
         .refreshable {
             vm.notificationsList = []
@@ -201,7 +221,16 @@ struct NotificationView: View {
         .navigationBarTitleDisplayMode(.inline)
         .listStyle(.insetGrouped)
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading:Button(action: {dismiss()}) {
+        .navigationBarItems(leading:Button(action: {
+            
+            if vm.notificationsList.count > 0 {
+                for index in vm.notificationsList.indices {
+                    vm.notificationsList[index].isRead = nil
+                }
+            }
+            
+            dismiss()
+        }) {
             Image(systemName: "chevron.left")
                 .navButton3()
         }
@@ -211,6 +240,19 @@ struct NotificationView: View {
             if navManager.activateReviewSheet {
                 ratingVM.openReviewSheet = true
                 navManager.activateReviewSheet = false
+            }
+            
+            Task {
+                if let request = try await APIClient.shared.readAllNotifications(){
+                    vm.unreadNotificationsCount = 0
+                }
+            }
+        }
+        .onDisappear() {
+            if vm.notificationsList.count > 0 {
+                for index in vm.notificationsList.indices {
+                    vm.notificationsList[index].isRead = true
+                }
             }
         }
         

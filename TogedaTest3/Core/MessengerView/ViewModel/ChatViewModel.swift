@@ -10,6 +10,12 @@ import PhotosUI
 import SwiftUI
 import Combine
 
+enum ChatState {
+    case editing
+    case reply
+    case normal
+}
+
 class ChatViewModel: ObservableObject {
     @Published var showChat = false
     @Published var selectedUser: Components.Schemas.MiniUser?
@@ -32,6 +38,8 @@ class ChatViewModel: ObservableObject {
     
     @Published var selectedImage: String?
     @Published var isImageView: Bool = false
+    @Published var isSendingImage: Bool = false
+    @Published var openPhotoPicker: Bool = false
     
     @Published var searchText: String = ""
     @Published var isSearching: Bool = false
@@ -39,6 +47,26 @@ class ChatViewModel: ObservableObject {
     @Published var chatroomsPageSize: Int32 = 30
     @Published var chatroomsPage: Int32 = 0
     @Published var chatroomsLastPage: Bool = true
+    
+    @Published var isEditing: Bool = false {
+        didSet{
+            if !isEditing {
+                editMessage = nil
+//                messageText = ""
+            }
+        }
+    }
+    
+    @Published var chatState: ChatState = .normal
+    
+    @Published var editMessage: Components.Schemas.ReceivedChatMessageDto?
+    @Published var messageText = ""
+    @Published var isChatActive: Bool = false
+    
+    @Published var replyToMessage: Components.Schemas.ReceivedChatMessageDto?
+    @Published var replyImage: String?
+
+    @Published var recPadding: CGFloat = 60
 
     
     var cancellable: AnyCancellable?
@@ -183,6 +211,7 @@ class ChatViewModel: ObservableObject {
             }
         }
     }
+    
     
 }
 

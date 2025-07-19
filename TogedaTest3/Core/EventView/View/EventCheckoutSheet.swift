@@ -41,7 +41,7 @@ struct EventCheckoutSheet: View {
                         Text("Price: ")
                         Spacer()
                         if post.payment > 0 {
-                            Text("€ \(post.payment, specifier: "%.2f")")
+                            Text("\(post.currency?.symbol ?? "€") \(post.payment, specifier: "%.2f")")
                         } else {
                             Text("Free")
                         }
@@ -64,7 +64,7 @@ struct EventCheckoutSheet: View {
                         
                         Spacer()
                         
-                        Text("€ \(fee.postPrice, specifier: "%.2f")")
+                        Text("\(post.currency?.symbol ?? "€")  \(fee.postPrice, specifier: "%.2f")")
 
                     }
                     
@@ -73,7 +73,7 @@ struct EventCheckoutSheet: View {
                         
                         Spacer()
                         
-                        Text("€ \((fee.stripeFee + fee.togedaFee), specifier: "%.2f")")
+                        Text("\(post.currency?.symbol ?? "€")  \((fee.stripeFee + fee.togedaFee), specifier: "%.2f")")
 
                     }
                     
@@ -84,7 +84,7 @@ struct EventCheckoutSheet: View {
                         
                         Spacer()
                         
-                        Text("€ \((fee.totalPrice), specifier: "%.2f")")
+                        Text("\(post.currency?.symbol ?? "€")  \((fee.totalPrice), specifier: "%.2f")")
 
                     }
                     .fontWeight(.bold)

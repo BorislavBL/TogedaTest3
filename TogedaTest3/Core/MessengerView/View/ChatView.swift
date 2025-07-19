@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import PhotosUI
 
 enum RefreshCases {
     case loaded
@@ -15,7 +16,6 @@ enum RefreshCases {
 }
 
 struct ChatView: View {
-    @State private var messageText = ""
     @State private var isInitialLoad = true
     @State private var Init = true
     @StateObject var viewModel = ChatViewModel()
@@ -25,11 +25,9 @@ struct ChatView: View {
     @EnvironmentObject var chatManager: WebSocketManager
     @EnvironmentObject var userVm: UserViewModel
     @EnvironmentObject var navManager: NavigationManager
-    @State var isChatActive: Bool = false
     @State var atBottom: Bool = false
     @State var activateArrow: Bool = false
     //    @StateObject private var keyboard = KeyboardResponder()
-    @State var recPadding: CGFloat = 60
     @State var setDateOnLeave = Date()
     @State private var keyboardHeight: CGFloat = 0
     @State private var polishedKeyboardHeight: CGFloat = 0
@@ -40,9 +38,22 @@ struct ChatView: View {
     @State private var otherUser: Components.Schemas.UserInfoDto?
     let size: ImageSize = .medium
     
+    @State private var dragOffsetX: CGFloat = 0
+    
+    @Environment(\.managedObjectContext) private var context
+    @StateObject private var draftManager = DraftManager.shared
+    
+    @State var eventGroup: Components.Schemas.PostResponseDto?
+    @State var clubGroup: Components.Schemas.ClubDto?
+
+    
     var isAdmin: Bool {
         if let user = userVm.currentUser, let owner = chatRoom.owner {
             return user.id == owner.id
+        } else if let post = eventGroup {
+            return post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST
+        } else if let club = clubGroup {
+            return club.currentUserRole == .ADMIN
         }
         return false
     }
@@ -51,6 +62,38 @@ struct ChatView: View {
         ZStack(alignment: .top){
             VStack(spacing: 0) {
                 navbar()
+                if chatManager.showSatatusDisconnectedError {
+                    switch chatManager.swiftStomp.connectionStatus {
+                    case .connecting:
+                        Text("Connecting...")
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(.yellow)
+                    case .socketConnected:
+                        Text("Connecting...")
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(.yellow)
+                    case .fullyConnected:
+                        Text("Connected")
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(.green)
+                    case .socketDisconnected:
+                        Button{
+                            chatManager.reconnectWithNewToken()
+                        } label: {
+                            Label("Tap to Reconnect", systemImage: "arrow.clockwise")
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .background(.red)
+                        }
+                    }
+                }
                 if !Init {
                     ScrollViewReader{ proxy in
                         ScrollView{
@@ -89,8 +132,40 @@ struct ChatView: View {
                                                 
                                             }
                                             
-                                            ChatMessageCell(message: message,
-                                                            nextMessage: nextMessage(forIndex: index), prevMessage: prevMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, isAdmin: isAdmin, vm: viewModel)
+                                            ZStack(alignment: .bottomTrailing) {
+                                                HStack{
+                                                    Image(systemName: "arrow.right")
+                                                        .font(.footnote)
+                                                        .foregroundColor(.gray)
+                                                    
+                                                    Text(separateDateAndTime(from: message.createdAt).time)
+                                                        .font(.footnote)
+                                                        .foregroundColor(.gray)
+                                                        .padding(.trailing, 16)
+                                                       
+                                                }
+                                                .opacity(dragOffsetX < -10 ? 1 : 0)
+                                                .padding(.bottom, 5)
+                                                
+                                                ChatMessageCell(message: message,
+                                                                nextMessage: nextMessage(forIndex: index), prevMessage: prevMessage(forIndex: index), currentUserId: currentUser.id, chatRoom: chatRoom, isAdmin: isAdmin, vm: viewModel)
+                                                .offset(x: dragOffsetX)
+                                            }
+                                            
+                                            if chatManager.messages.last?.sender.id == currentUser.id && index + 1 == chatManager.messages.count && chatManager.messages[index].status == .SENT{
+                                                Text("Sent")
+                                                    .font(.footnote)
+                                                    .foregroundStyle(.gray)
+                                                    .frame(maxWidth:.infinity, alignment: .trailing)
+                                                    .padding(.horizontal)
+                                            }
+                                            else if chatManager.messages.last?.sender.id == currentUser.id && chatManager.messages[index].status == .SENDING{
+                                                Text("Sending")
+                                                    .font(.footnote)
+                                                    .foregroundStyle(.gray)
+                                                    .frame(maxWidth:.infinity, alignment: .trailing)
+                                                    .padding(.horizontal)
+                                            }
                                             
     
                                         }
@@ -98,16 +173,10 @@ struct ChatView: View {
                                         
                                     }
                                     
-                                    if chatManager.messages.last?.sender.id == currentUser.id {
-                                        Text("Sent")
-                                            .font(.footnote)
-                                            .foregroundStyle(.gray)
-                                            .frame(maxWidth:.infinity, alignment: .trailing)
-                                            .padding(.horizontal)
-                                    }
+
                                     
                                     Color.clear
-                                        .frame(height: recPadding)
+                                        .frame(height: viewModel.recPadding)
                                         .id("Bottom")
                                         .onAppear(){
                                             print("Appeared >")
@@ -126,7 +195,7 @@ struct ChatView: View {
                                     // Detect if we are at the bottom by comparing scroll position and content size
                                     DispatchQueue.main.async {
                                         let minY = geo.frame(in: .global).minY
-                                        let threshold = 250.0
+                                        let threshold = 150.0
                                         if minY >= threshold && self.refresh == .done && !shouldNotScrollToBottom && !isInitialLoad{
                                             self.refresh = .loading
                                             if chatManager.messages.count > 0 {
@@ -168,7 +237,22 @@ struct ChatView: View {
                         .scrollDismissesKeyboard(.interactively)
 //                        .defaultScrollAnchor(.bottom)
                         .scrollIndicators(.hidden)
-                        .ignoresSafeArea(.keyboard, edges: .all)                    //                    .padding(.top, 86)
+                        .ignoresSafeArea(.keyboard, edges: .all)
+                        //                    .padding(.top, 86)
+//                        .offset(x: dragOffsetX)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    // Only allow left drag
+                                    if value.translation.width < 0 && value.translation.width > -80 {
+                                        dragOffsetX = value.translation.width
+                                    }
+                                }
+                                .onEnded { value in
+                                    dragOffsetX = 0 // snap back
+                                }
+                        )
+                        .animation(.easeOut(duration: 0.25), value: dragOffsetX)
                         .onChange(of: chatManager.messages) { oldValue, newValue in
                             if isInitialLoad {
 //                                proxy.scrollTo(chatManager.messages.last?.id, anchor:.top)
@@ -202,14 +286,14 @@ struct ChatView: View {
                                     let max = max(oldValue, newValue)
                                     if min > max - 100 {
                                         polishedKeyboardHeight = min
-                                        recPadding = min + inputHeight
+                                        viewModel.recPadding = min + inputHeight
                                     } else {
                                         polishedKeyboardHeight = max
-                                        recPadding = max + inputHeight
+                                        viewModel.recPadding = max + inputHeight
                                     }
                                 } else {
                                     polishedKeyboardHeight = newValue
-                                    recPadding = newValue + inputHeight
+                                    viewModel.recPadding = newValue + inputHeight
                                 }
                                 if atBottom {
                                     withAnimation() {
@@ -218,10 +302,10 @@ struct ChatView: View {
                                 }
                             } else {
                                 polishedKeyboardHeight = 0
-                                recPadding = keyboardHeight > 0 ? inputHeight : 60
+                                viewModel.recPadding = keyboardHeight > 0 ? inputHeight : 60
                             }
                         }
-                        .overlay(alignment:.bottomTrailing){
+                        .overlay(alignment: .bottomTrailing){
                             if activateArrow {
                                 Button{
                                     withAnimation() {
@@ -263,34 +347,65 @@ struct ChatView: View {
                     
                     
                 } else {
-                    MessageInputView(messageText: $messageText, isChatActive: $isChatActive, viewModel: viewModel) {
-                        if let currentUser = userVm.currentUser {
-                            if let uiImage = viewModel.messageImage {
-                                Task {
-                                    if let imageURL = await viewModel.uploadImageAsync(uiImage: uiImage) {
-                                        chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: imageURL, type: .IMAGE)
-                                        messageText = ""
-                                        viewModel.messageImage = nil
+                    MessageInputView(viewModel: viewModel) {
+                        if let editMessage = viewModel.editMessage, viewModel.chatState == .editing {
+                            chatManager.editMessage(messageId: editMessage.id, newMessage: viewModel.messageText)
+                            viewModel.chatState = .normal
+                            draftManager.deleteDraft(chatId: chatRoom.id)
+                        } else {
+                            if let currentUser = userVm.miniCurrentUser {
+                                if let uiImage = viewModel.messageImage, !viewModel.isSendingImage{
+                                    viewModel.isSendingImage = true
+                                    Task {
+                                        if let imageURL = await viewModel.uploadImageAsync(uiImage: uiImage) {
+                                            chatManager.sendMessage(sender: currentUser, chatId: chatRoom.id, content: imageURL, type: .IMAGE, replyToMessage: viewModel.replyToMessage)
+                                            viewModel.messageText = ""
+                                            viewModel.messageImage = nil
+                                            viewModel.replyImage = nil
+                                            viewModel.replyToMessage = nil
+
+                                        }
+                                        viewModel.isSendingImage = false
                                     }
                                 }
+                                else if !viewModel.messageText.isEmpty {
+                                    chatManager.sendMessage(sender: currentUser, chatId: chatRoom.id, content: viewModel.messageText, type: .NORMAL, replyToMessage: viewModel.replyToMessage)
+                                    draftManager.deleteDraft(chatId: chatRoom.id)
+                                    
+                                    viewModel.messageText = ""
+                                    viewModel.replyImage = nil
+                                    viewModel.replyToMessage = nil
+                                    
+                                }
+                                
+                                self.currentUsersMessage = true
                             }
-                            else if !messageText.isEmpty {
-                                chatManager.sendMessage(senderId: currentUser.id, chatId: chatRoom.id, content: messageText , type: .NORMAL)
-                                messageText = ""
-                            }
-                            
-                            self.currentUsersMessage = true
                         }
                     }
                     .padding(.top, 8)
                     .background(.bar)
                     .background(GeometryReader { geometry in
                         Color.clear
-                            .onChange(of: messageText) {
+                            .onChange(of: viewModel.messageText) {
+                                print("Text Message triggered by reply")
+                                if viewModel.chatState != .editing {
+                                    draftManager.saveDraft(chatId: chatRoom.id, text: viewModel.messageText)
+                                }
                                 // Adjust height based on TextEditor's content
                                 self.inputHeight = max(30, geometry.size.height - 30) // minimum height of 40
                                 if keyboardHeight > 0 {
-                                    recPadding = polishedKeyboardHeight + inputHeight
+                                    viewModel.recPadding = polishedKeyboardHeight + inputHeight
+                                }
+                            }
+                            .onChange(of: viewModel.chatState) {
+                                if viewModel.chatState != .editing {
+                                    self.inputHeight = max(30, geometry.size.height - 30) // minimum height of 40
+                                    if keyboardHeight > 0 {
+                                        viewModel.recPadding = polishedKeyboardHeight + inputHeight
+                                    }
+//                                    withAnimation() {
+//                                        proxy.scrollTo("Bottom", anchor:.bottom)
+//                                    }
                                 }
                             }
                     })
@@ -342,10 +457,25 @@ struct ChatView: View {
         .navigationBarBackButtonHidden(true)
         .swipeBack()
         .onAppear(){
-
-            if Init{
-                onInit()
+            if let draft = draftManager.getDraft(chatId: chatRoom.id) {
+                viewModel.messageText = draft
             }
+            
+            if Init || navManager.resetMessage {
+                onInit()
+                navManager.resetMessage = false
+            } else {
+                Task {
+                    do {
+                        try await chatManager.setChatAsEntered(chatId: chatRoom.id)
+                    } catch {
+                        print(error)
+                    }
+                }
+            }
+            
+            // tracks the activity of the chatroom for the message badgge icon
+            chatManager.inCurrentChatroom = chatRoom
         }
         .onDisappear(){
             Task {
@@ -355,6 +485,9 @@ struct ChatView: View {
                     print(error)
                 }
             }
+            
+            // tracks the activity of the chatroom for the message badgge icon
+            chatManager.inCurrentChatroom = nil
         }
         .keyboardHeight($keyboardHeight)
         .sheet(isPresented: $viewModel.showLikes) {
@@ -366,7 +499,7 @@ struct ChatView: View {
                                 Task {
                                     if let id = viewModel.likesMessageId, let reponse = try await APIClient.shared.likeDislikeMessage(messageId: id) {
                                         viewModel.likesMembers.removeAll(where: {$0.id == user.id})
-                                        if viewModel.likesMembers.count <= 0{
+                                        if viewModel.likesMembers.count <= 0 {
                                             viewModel.showLikes = false
                                         }
                                     }
@@ -421,6 +554,8 @@ struct ChatView: View {
                 viewModel.resetMembers()
             }
         }
+        .photosPicker(isPresented: $viewModel.openPhotoPicker, selection: $viewModel.selectedItem, matching: .images)
+
         
         
     }
@@ -439,7 +574,9 @@ struct ChatView: View {
                     if let club = chatRoom.club{
                         Button{
                             Task{
-                                if let _club = try await APIClient.shared.getClub(clubID: club.id){
+                                if let _club = clubGroup {
+                                    navManager.selectionPath.append(.club(_club))
+                                } else if let _club = try await APIClient.shared.getClub(clubID: club.id){
                                     navManager.selectionPath.append(.club(_club))
                                 }
                             }
@@ -454,6 +591,7 @@ struct ChatView: View {
                                 Text("\(club.title)")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
+                                    .lineLimit(1)
                             }
                         }
                     }
@@ -474,6 +612,7 @@ struct ChatView: View {
                                         Text("\(chatRoom.previewMembers[0].firstName) \(chatRoom.previewMembers[0].lastName)")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
+                                            .lineLimit(1)
                                         
                                         if chatRoom.previewMembers[0].userRole == .AMBASSADOR {
                                             AmbassadorSealMini()
@@ -530,19 +669,56 @@ struct ChatView: View {
                                     Text("\(title)")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
+                                        .lineLimit(1)
+
                                 } else if chatRoom.previewMembers.count > 1 {
                                     Text("\(chatRoom.previewMembers[0].firstName), \(chatRoom.previewMembers[1].firstName) Group")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
+                                        .lineLimit(1)
+
                                 }
                             }
                         }
+                    } else if chatRoom.previewMembers.count > 0{
+                        Button{
+                            navManager.selectionPath.append(.groupSettingsView(chatroom: chatRoom))
+                        } label: {
+                            HStack(alignment: .center){
+                                
+                                KFImage(URL(string: chatRoom.previewMembers[0].profilePhotos[0]))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 30, height: 30)
+                                    .clipShape(Circle())
+                                
+                                if let title = chatRoom.title {
+                                    Text("\(title)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .lineLimit(1)
+
+                                } else {
+                                    Text("\(chatRoom.previewMembers[0].firstName)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .lineLimit(1)
+                                }
+                            }
+                        }
+                    } else {
+                        Text("Something went wrong")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .lineLimit(1)
                     }
                 case .POST:
                     if let post = chatRoom.post{
                         Button{
                             Task{
-                                if let _post = try await APIClient.shared.getEvent(postId: post.id){
+                                if let _post = eventGroup {
+                                    navManager.selectionPath.append(.eventDetails(_post))
+                                } else if let _post = try await APIClient.shared.getEvent(postId: post.id){
                                     navManager.selectionPath.append(.eventDetails(_post))
                                 }
                             }
@@ -558,6 +734,8 @@ struct ChatView: View {
                                     Text("\(post.title)")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
+                                        .lineLimit(1)
+
                                 }
                             }
                         }
@@ -604,7 +782,20 @@ struct ChatView: View {
                         }
                     }
                     
-                    if chatRoom._type == .FRIENDS {
+                    switch chatRoom._type {
+                    case .CLUB:
+                        group.addTask {
+                            do{
+                                if let club = chatRoom.club, let result = try await APIClient.shared.getClub(clubID: club.id) {
+                                    DispatchQueue.main.async{
+                                        clubGroup = result
+                                    }
+                                }
+                            } catch {
+                                print(error)
+                            }
+                        }
+                    case .FRIENDS:
                         group.addTask {
                             do{
                                 if let result = try await APIClient.shared.getUserInfo(userId: chatRoom.previewMembers[0].id) {
@@ -616,6 +807,21 @@ struct ChatView: View {
                                 print(error)
                             }
                         }
+                    case .GROUP:
+                        break
+                    case .POST:
+                        group.addTask {
+                            do{
+                                if let post = chatRoom.post, let result = try await APIClient.shared.getEvent(postId: post.id) {
+                                    DispatchQueue.main.async{
+                                        eventGroup = result
+                                    }
+                                }
+                            } catch {
+                                print(error)
+                            }
+                        }
+                        
                     }
                 }
             }
@@ -628,8 +834,6 @@ struct ChatView: View {
                 group.addTask {
                     do {
                         if let date = await chatManager.messages.last?.createdAt, let response = try await APIClient.shared.updateChatMessages(chatId: chatRoom.id, lastTimestamp: chatManager.messages.count > 0 ? date : setDateOnLeave) {
-                            print("Messages triggered")
-                            print("response", response.data)
                             DispatchQueue.main.async {
                                 chatManager.chatMessagesCheck(messages: response.data, chatId: chatRoom.id)
                             }

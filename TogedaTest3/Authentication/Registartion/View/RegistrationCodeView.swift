@@ -27,7 +27,8 @@ struct RegistrationCodeView: View {
         VStack {
             Text("Please enter the verification code you have received on your email.")
                 .multilineTextAlignment(.center)
-                .font(.title).bold()
+                .font(.title)
+                .bold()
                 .padding(.top, 20)
             
             TextField("", text: $code)
@@ -51,7 +52,7 @@ struct RegistrationCodeView: View {
                 .padding(.bottom, 15)
             
             if displayError {
-                WarningTextComponent(text: "Please enter the code. If you haven't received it chlick on the resend button.")
+                WarningTextComponent(text: "Please enter the code. If you haven't received it click on the resend button.")
                     .padding(.bottom, 15)
             }
             
@@ -127,7 +128,7 @@ struct RegistrationCodeView: View {
             }
             .disableWithOpacity(code.count < 6)
             .onTapGesture {
-                if code.count < 4 {
+                if code.count < 6 {
                     displayError.toggle()
                 }
             }

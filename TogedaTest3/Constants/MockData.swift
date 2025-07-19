@@ -260,7 +260,7 @@ let mockAlertBodyPostHasStartedRequest: Components.Schemas.AlertBodyPostHasStart
 
 //let mockMessage: Components.Schemas.ChatMessage = .init(id: "", chatId: "", sender: MockBaseUser, content: "Hey how are you?", contentType: .NORMAL, createdAt: Date())
 
-let mockReceivedMessage: Components.Schemas.ReceivedChatMessageDto = .init(id: "", chatId: "", sender: MockMiniUser, content: "Hey how are you?", contentType: .NORMAL, createdAt: Date())
+let mockReceivedMessage: Components.Schemas.ReceivedChatMessageDto = .init(id: "", chatId: "", sender: MockMiniUser, content: "Hey how are you?", contentType: .NORMAL, createdAt: Date(), status: .SENT)
 
 let mockChatRoom: Components.Schemas.ChatRoomDto = .init(id: UUID().uuidString, _type: .GROUP, post: nil, club: nil, latestMessage: mockReceivedMessage, previewMembers: [MockMiniUser, MockMiniUser], isMuted: false, read: true, latestMessageTimestamp: Date())
 
@@ -279,3 +279,59 @@ let mockActivityDto: Components.Schemas.ActivityDto = .init(id: 123, user: MockM
 var mockBadge: Components.Schemas.Badge = .init(id: 1234, title: "Early Adopter", description: "1dfsghjkgfdsasd fghjgfdfghjgfdfghjfdghjgfdg hjgfdghjfdsfghjfdsfghjfdsfghfdsfghfdsfg hfdssfghjfdssfghfdsfghdssfgdsfghdfghfdsfghfdgh", image: "🏅")
 
 var mockBadgeTask: Components.Schemas.BadgeTask = .init(id: 1234567, title: "Early Adopter", counterName: "Friends list", completionNumber: 10, currentNumber: 1, description:  "1dfsghjkgfdsasd fghjgfdfghjgfdfghjfdghjgfdg hjgfdghjfdsfghjfdsfghjfdsfghfdsfghfdsfg hfdssfghjfdssfghfdsfghdssfgdsfghdfghfdsfghfdgh")
+
+
+let MockPostGorila = Components.Schemas.PostResponseDto(
+    id: "1234567890",
+    title: "100 vs 1 в Зоологическата",
+    images: ["https://togeda-post-photos.s3.eu-central-1.amazonaws.com/ChatGPT+Image+2.05.2025+%D0%B3.%2C+18_49_04.png"],
+    description: "Hello friends wellcome to my event> Todays topic slavery.",
+    maximumPeople: 100,
+    location: Components.Schemas.BaseLocation.init(
+        name: "Зоопарк, София",
+        address:"Something",
+        city: "Зоопарк",
+        country: "София",
+        latitude: 42.6977,
+        longitude: 23.3219
+    ),
+    toDate: nil,
+    fromDate: Date().addingTimeInterval(390600),
+    createdAt: Date(),
+    interests: [
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport"),
+        .init(name: "Workingout", icon: "💪", category: "sport")
+    ],
+    owner: .init(
+        id: "1234567890",
+        firstName: "Harambe",
+        lastName: "Ivanov",
+        profilePhotos: ["https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=3552&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+        occupation: "Apple Picker",
+        location:  Components.Schemas.BaseLocation.init(
+            name: "Sofia, Bulgaria",
+            address:"Something",
+            city: "Sofia",
+            country: "Bulgaria",
+            latitude: 42.6977,
+            longitude: 23.3219
+        ),
+        birthDate: "2000-07-11",
+        userRole: .NORMAL
+    ),
+    payment: 0,
+    currentUserStatus: .NOT_PARTICIPATING,
+    accessibility: .PUBLIC,
+    askToJoin: false,
+    needsLocationalConfirmation: false,
+    rating: nil,
+    clubId: nil,
+    participantsCount: 55,
+    status: .NOT_STARTED,
+    savedByCurrentUser: true,
+    blockedForCurrentUser: false
+)

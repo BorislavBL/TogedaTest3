@@ -24,7 +24,7 @@ struct CreateClubView: View {
     
     let placeholder = "Provide a brief overview of your club. What is the main focus or interest? Describe the typical activities, meetings, or events you organize. Highlight any unique aspects or notable achievements."
     
-    @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .club, mode: .normal)
+    @StateObject var photoPickerVM = PhotoPickerViewModel(s3BucketName: .club, mode: .edit)
     @State var isLoading = false
     @State private var errorMessage: String?
     @EnvironmentObject var userVM: UserViewModel
@@ -354,8 +354,7 @@ struct CreateClubView: View {
     
     func createClub() async throws {
         do{
-            if await photoPickerVM.saveImages() {
-                createGroupVM.publishedPhotosURLs = photoPickerVM.publishedPhotosURLs
+            if await photoPickerVM.imageCheckAndMerge(images: $createGroupVM.publishedPhotosURLs){
                 let createClub = createGroupVM.createClub()
                 
                 try await APIClient.shared.createClub(data: createClub) { response, error in
@@ -371,8 +370,9 @@ struct CreateClubView: View {
                         Task{
                             if let club = try await APIClient.shared.getClub(clubID: responseID) {
                                 DispatchQueue.main.async{
-                                    
-                                    self.clubVM.feedClubs.insert(club, at: 0)
+                                    if club.accessibility != .PRIVATE{
+                                        self.clubVM.feedClubs.insert(club, at: 0)
+                                    }
                                     self.userVM.addClub(club: club)
                                     
                                     withAnimation{

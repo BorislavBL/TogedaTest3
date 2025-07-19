@@ -25,6 +25,8 @@ class CreateEventViewModel: ObservableObject {
             }
         }
     }
+    @Published var selectedCurrency: Components.Schemas.Currency = .init(name: "Lev", symbol: "лв", code: "BGN")
+    @Published var allCurrencies: [Components.Schemas.Currency] = []
     
     //Location View
     @Published var location: Components.Schemas.BaseLocation?
@@ -132,11 +134,12 @@ class CreateEventViewModel: ObservableObject {
             location: location!,
             interests: interests,
             payment: price != nil ? price! : 0,
+            currencyCode: "EUR",
             accessibility: .init(rawValue: selectedVisability.uppercased())!,
             askToJoin: askToJoin,
             inClubID: clubId,
             fromDate: fromDate,
-            toDate: toDate, 
+            toDate: toDate,
             needsLocationalConfirmation: (price ?? 0 > 0) ? false : needsLocationalConfirmation
         )
     }

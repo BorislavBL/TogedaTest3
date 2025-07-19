@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 class EventViewModel: ObservableObject {
     @Published var openCalendarSheet: Bool = false
@@ -18,6 +19,95 @@ class EventViewModel: ObservableObject {
     @Published var participantsSize: Int32 = 15
     @Published var participantsCount: Int64 = 0
     @Published var listLastPage = true
+    
+    @Published var searchText: String = ""
+    @Published var cancellable: AnyCancellable?
+    @Published var searchPage: Int32 = 0
+    @Published var lastSearchedPage = true
+    @Published var isSearchLoading = false
+    @Published var searchedParticipantsList: [Components.Schemas.ExtendedMiniUser] = []
+    @Published var showCancelButton: Bool = false
+    
+    func changeUserStatus(postId: String, userId: String, status: Components.Schemas.ExtendedMiniUser.locationStatusPayload) async throws {
+        if let response = try await APIClient.shared.updateParticipantsArrivalStatus(postId: postId, userId: userId, status: .init(rawValue: status.rawValue) ?? .NONE) {
+            if response {
+                DispatchQueue.main.async {
+                    self.changeLocalStatus(userId: userId, status: status)
+                }
+
+            }
+        }
+    }
+    
+    func changeLocalStatus(userId: String, status: Components.Schemas.ExtendedMiniUser.locationStatusPayload) {
+        if let index = participantsList.firstIndex(where: {$0.user.id == userId}) {
+            self.participantsList[index].locationStatus = status
+        }
+        
+        if let index = searchedParticipantsList.firstIndex(where: {$0.user.id == userId}) {
+            self.searchedParticipantsList[index].locationStatus = status
+        }
+    }
+    
+    func startSearch(postId: String) {
+        cancellable = $searchText
+            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .sink(receiveValue: { value in
+                if !value.isEmpty {
+                    print("Searching...")
+                    Task{
+                        await withCheckedContinuation { continuation in
+                            DispatchQueue.main.async{
+                                self.searchPage = 0
+                                self.lastSearchedPage = true
+                                self.isSearchLoading = false
+                                self.searchedParticipantsList = []
+                                continuation.resume()
+                            }
+                        }
+                        
+                        try await self.searchUsers(postId: postId)
+                    }
+                } else {
+                    print("Not Searching...")
+                    self.toDefault()
+                }
+            })
+    }
+    
+    func toDefault() {
+        DispatchQueue.main.async{
+            self.searchText = ""
+        }
+        self.toDefaultValues()
+
+    }
+    
+    func toDefaultValues() {
+        DispatchQueue.main.async{
+            self.searchPage = 0
+            self.lastSearchedPage = true
+            self.isSearchLoading = false
+            self.searchedParticipantsList = []
+        }
+    }
+    
+    func stopSearch() {
+        cancellable = nil
+        toDefault()
+    }
+    
+    func searchUsers(postId: String) async throws {
+        if let response = try await APIClient.shared.searchPostParticipants(postId: postId, text: searchText, page: searchPage, size: participantsSize) {
+            
+            DispatchQueue.main.async {
+                self.searchedParticipantsList += response.data
+                self.searchPage += 1
+                self.lastSearchedPage = response.lastPage
+            }
+        }
+    }
     
     func fetchUserList(id: String) async throws{
         if let response = try await APIClient.shared.getEventParticipants(

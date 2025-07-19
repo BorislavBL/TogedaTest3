@@ -16,7 +16,7 @@ struct RegistrationLocationView: View {
     @State private var isActive: Bool = false
     
     @ObservedObject var vm: RegistrationViewModel
-    @StateObject var locationVM = LocationPickerViewModel(searchType: .cityAndCountry)
+    @StateObject var locationVM = LocationPickerViewModel(searchType: .cityWithCountry)
     @ObservedObject var photoVM: PhotoPickerViewModel
 
     var body: some View {
@@ -30,7 +30,7 @@ struct RegistrationLocationView: View {
                     HStack {
                         Image(systemName: "magnifyingglass")
                         
-                        TextField("Search", text: $locationVM.searchText)
+                        TextField("Search for City", text: $locationVM.searchText)
                             .foregroundColor(.primary)
                             .autocorrectionDisabled()
                             .focused($keyIsFocused)
@@ -77,6 +77,12 @@ struct RegistrationLocationView: View {
             .padding(16)
             .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             .cornerRadius(10.0)
+            
+            Text("Please enter both a city and a country (e.g. \"London, United Kingdom\").")
+                .multilineTextAlignment(.leading)
+                .bold()
+                .foregroundStyle(.gray)
+                .padding(.vertical, 8)
             
             if displayError && vm.returnedPlace.name == "Unknown Location" && locationVM.searchText.isEmpty {
                 WarningTextComponent(text: "Plese enter a location before you proceed.")

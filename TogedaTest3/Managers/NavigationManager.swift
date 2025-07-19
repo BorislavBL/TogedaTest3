@@ -68,6 +68,8 @@ class NavigationManager: ObservableObject {
     
     @Published var activateReviewSheet = false
     
+    @Published var resetMessage: Bool = false
+    
     func change(to screen: Screen) {
         self.screen = screen
     }

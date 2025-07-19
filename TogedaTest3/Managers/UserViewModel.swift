@@ -9,7 +9,16 @@ import SwiftUI
 
 @MainActor
 class UserViewModel: ObservableObject {
-    @Published var currentUser: Components.Schemas.UserInfoDto?
+    @Published var currentUser: Components.Schemas.UserInfoDto? {
+        didSet {
+            if let user = currentUser {
+                miniCurrentUser = UserToMiniUser(user: user)
+            } else {
+                miniCurrentUser = nil
+            }
+        }
+    }
+    @Published var miniCurrentUser: Components.Schemas.MiniUser?
     @Published var friendsList: [Components.Schemas.GetFriendsDto] = []
     @Published var clubs: [Components.Schemas.ClubDto] = []
     @Published var posts: [Components.Schemas.PostResponseDto] = []

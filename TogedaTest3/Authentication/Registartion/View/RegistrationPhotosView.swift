@@ -38,9 +38,8 @@ struct RegistrationPhotosView: View {
             Button{
                 Task{
                     isLoading = true
-                    if await photoVM.saveImages() {
-                        vm.profilePhotos = photoVM.publishedPhotosURLs
-                    isActive = true
+                    if await photoVM.imageCheckAndMerge(images: $vm.profilePhotos){
+                        isActive = true
                     }
                     isLoading = false
                 }

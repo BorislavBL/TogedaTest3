@@ -14,6 +14,7 @@ import Combine
 enum SearchType {
     case all
     case cityAndCountry
+    case cityWithCountry
 }
 
 @MainActor
@@ -44,6 +45,8 @@ class LocationPickerViewModel: ObservableObject {
                         self?.searchAll(text: value)
                     case .cityAndCountry:
                         self?.searchCityAndCountry1(text: value)
+                    case .cityWithCountry:
+                        self?.searchCityWithCountry(value)
                     case .none:
                         self?.places = []
                     }
@@ -126,6 +129,60 @@ class LocationPickerViewModel: ObservableObject {
             }.map(Place.init)
         }
     }
+    
+    func searchCityWithCountry(_ text: String) {
+        var request = MKLocalSearch.Request()
+        
+        // Add comma if user types "London UK" instead of "London, UK"
+        let normalizedQuery = normalizeQuery(text)
+        request.naturalLanguageQuery = normalizedQuery
+        request.resultTypes = [.address]
+
+        MKLocalSearch(request: request).start { [weak self] response, error in
+            guard let self = self else { return }
+
+            guard let response = response else {
+                print("⚠️ MKLocalSearch error:", error?.localizedDescription ?? "Unknown")
+                self.places = []
+                return
+            }
+
+            self.places = response.mapItems.compactMap { item -> Place? in
+                let pm = item.placemark
+
+                // Accept locality or administrativeArea as a fallback
+                let city = pm.locality ?? pm.administrativeArea
+                guard let cityName = city,
+                      let country = pm.country else { return nil }
+
+                // Drop if street-level info is present
+                if pm.thoroughfare != nil || pm.subThoroughfare != nil || pm.postalCode != nil {
+                    return nil
+                }
+
+                var cleaned = item
+                cleaned.name = "\(cityName), \(country)"
+                
+                print(Place(mapItem: cleaned))
+                return Place(mapItem: cleaned)
+            }
+        }
+    }
+
+    /// Adds a comma between city and country if user forgot it
+    private func normalizeQuery(_ input: String) -> String {
+        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        // If there's no comma but a space, assume it's city country
+        if trimmed.contains(" ") && !trimmed.contains(",") {
+            let parts = trimmed.split(separator: " ", maxSplits: 1).map(String.init)
+            if parts.count == 2 {
+                return "\(parts[0]), \(parts[1])"
+            }
+        }
+        return trimmed
+    }
+
+
     
 //    func searchFilter(text: String){
 //        let searchRequest = MKLocalSearch.Request()

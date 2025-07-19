@@ -18,6 +18,11 @@ struct InboxView: View {
     @State var navHeight: CGFloat = .zero
     @State var isLoading = false
     
+    @State private var openLeavePost = false
+    @State private var openLeaveClub = false
+    @State private var selectedChatroom: Components.Schemas.ChatRoomDto?
+
+    
     
     var body: some View {
         VStack(spacing: 0){
@@ -44,7 +49,7 @@ struct InboxView: View {
             }
             .background(.bar)
             
-            if chatManager.allChatRooms.count > 0 {
+            if chatManager.inboxChatsState == .loaded {
                 List {
                     ForEach(chatManager.allChatRooms, id: \.id){ chatroom in
                         InboxRowView(chatroom: chatroom)
@@ -115,7 +120,35 @@ struct InboxView: View {
                                             Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
                                         }
                                     }
+                                } else if chatroom._type == .CLUB || (chatroom._type == .POST && chatroom.post?.status != .HAS_ENDED){
+                                    Button(role: .destructive) {
+                                        if chatroom._type == .CLUB {
+                                            selectedChatroom = chatroom
+                                            openLeaveClub = true
+                                        } else if chatroom._type == .POST {
+                                            selectedChatroom = chatroom
+                                            openLeavePost = true
+                                        }
+                                    } label: {
+                                        Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
+                                    }
                                 }
+                                else if chatroom._type == .POST && chatroom.post?.status == .HAS_ENDED {
+                                    Button(role: .destructive) {
+                                        Task{
+                                            if let response = try await APIClient.shared.leaveGroupChatRoom(chatId: chatroom.id){
+                                                
+                                                if response {
+                                                    chatManager.allChatRooms.removeAll(where: {$0.id == chatroom.id})
+                                                }
+                                            }
+                                        }
+                                    } label: {
+                                        Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
+                                    }
+                                }
+                                
+
                             }
                         
                     }
@@ -171,7 +204,7 @@ struct InboxView: View {
                             }
                     }
                 }
-            } else {
+            } else if chatManager.inboxChatsState == .noResults {
                 VStack(spacing: 15){
                     Text("🫵")
                         .font(.custom("image", fixedSize: 120))
@@ -187,7 +220,45 @@ struct InboxView: View {
                 .padding(.all)
                 .frame(maxHeight: .infinity, alignment: .center)
                 .background(.bar)
+            } else if chatManager.inboxChatsState == .loading {
+                InboxSkeleton()
             }
+        }
+        .alert("Leave Club", isPresented: $openLeaveClub) {
+                Button("Yes") {
+                Task{
+                    if let chatroom = selectedChatroom, let club = chatroom.club, let response = try await APIClient.shared.leaveClub(clubId: club.id){
+                        
+                        if response {
+                            chatManager.allChatRooms.removeAll(where: {$0.id == chatroom.id})
+                        }
+                    }
+                }
+            }
+            
+            Button("Cancel") {
+                openLeaveClub = false
+            }
+        } message: {
+            Text("Are you sure you want to leave this club?")
+        }
+        .alert("Leave Event", isPresented: $openLeavePost) {
+                Button("Yes") {
+                Task{
+                    if let chatroom = selectedChatroom, let post = chatroom.post, let response = try await APIClient.shared.leaveEvent(postId: post.id){
+                        
+                        if response {
+                            chatManager.allChatRooms.removeAll(where: {$0.id == chatroom.id})
+                        }
+                    }
+                }
+            }
+            
+            Button("Cancel") {
+                openLeavePost = false
+            }
+        } message: {
+            Text("Are you sure you want to leave this event?")
         }
         .fullScreenCover(isPresented: $showNewMessageView, content: {
             NewMessageView(chatVM: chatVM)
@@ -258,6 +329,16 @@ struct InboxRowView: View {
                         
                     }
                     .padding([.trailing, .bottom], size.dimension/3)
+                } else if chatroom.previewMembers.count > 1 {
+                    KFImage(URL(string: chatroom.previewMembers[0].profilePhotos[0]))
+                        .resizable()
+                        .scaledToFill()
+                        .background(.gray)
+                        .frame(width: size.dimension, height: size.dimension)
+                } else {
+                    Circle()
+                        .foregroundStyle(.gray)
+                        .frame(width: size.dimension, height: size.dimension)
                 }
             case .POST:
                 if let post = chatroom.post {
@@ -307,6 +388,16 @@ struct InboxRowView: View {
                                 .lineLimit(1)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
+                        } else if chatroom.previewMembers.count > 0 {
+                            Text("\(chatroom.previewMembers[0].firstName)")
+                                .lineLimit(1)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        } else {
+                            Text("Something Went Wrong")
+                                .lineLimit(1)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
                         }
                     case .POST:
                         if let post = chatroom.post {
@@ -329,28 +420,35 @@ struct InboxRowView: View {
                 
                 HStack(alignment: .top){
                     if let message = chatroom.latestMessage {
-                        switch message.contentType {
-                        case .CLUB:
-                            Text("Sent Club")
+                        if let unsent = message.isUnsent, unsent{
+                            Text("Unsent")
                                 .font(.footnote)
                                 .foregroundColor(.gray)
                                 .lineLimit(2)
-                        case .IMAGE:
-                            Text("Sent Image")
-                                .font(.footnote)
-                                .foregroundColor(.gray)
-                                .lineLimit(2)
-                        case .POST:
-                            Text("Sent Post")
-                                .font(.footnote)
-                                .foregroundColor(.gray)
-                                .lineLimit(2)
-                        case .NORMAL:
-                            Text(message.content)
-                                .font(.footnote)
-                                .foregroundColor(.gray)
-                                .lineLimit(2)
-                                .multilineTextAlignment(.leading)
+                        } else {
+                            switch message.contentType {
+                            case .CLUB:
+                                Text("Sent Club")
+                                    .font(.footnote)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(2)
+                            case .IMAGE:
+                                Text("Sent Image")
+                                    .font(.footnote)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(2)
+                            case .POST:
+                                Text("Sent Post")
+                                    .font(.footnote)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(2)
+                            case .NORMAL:
+                                Text(message.content)
+                                    .font(.footnote)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.leading)
+                            }
                         }
                         
                     } else {
@@ -360,12 +458,20 @@ struct InboxRowView: View {
                             .lineLimit(2)
                     }
                     
-                    if !chatroom.read{
-                        Spacer(minLength: 10)
+                    Spacer(minLength: 10)
+                    
+                    HStack(alignment: .center){
+                        if chatroom.isMuted {
+                            Image(systemName: "bell.slash")
+                                .font(.body)
+                                .foregroundColor(.gray)
+                        }
                         
-                        Circle()
-                            .fill(Color(.systemBlue))
-                            .frame(width: 12, height: 12, alignment: .leading)
+                        if !chatroom.read{
+                            Circle()
+                                .fill(Color(.systemBlue))
+                                .frame(width: 10, height: 10, alignment: .leading)
+                        }
                     }
                     
                 }
@@ -373,6 +479,7 @@ struct InboxRowView: View {
         }
     }
 }
+
 
 #Preview {
     InboxView(chatVM: ChatViewModel())

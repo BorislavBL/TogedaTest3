@@ -188,3 +188,29 @@ func trimAndLimitWhitespace(_ text: String) -> String {
 //    
 //    return formattedText
 //}
+
+/// Returns `true` when `text`
+///   • contains **only** emoji grapheme clusters, and
+///   • has **fewer than 10** of them.
+/// The check is Unicode-aware, so complex emojis like “👩🏻‍💻” count as one.
+func isEmojiOnly(_ text: String) -> Bool {
+    // Get rid of leading/trailing white-space & newlines.
+    let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return false }
+
+    var clusterCount = 0
+
+    for char in trimmed {               // Iterates over full grapheme clusters.
+        // A cluster qualifies as an emoji if *any* scalar inside it wants
+        // emoji presentation (covers plain & variant-selector cases).
+        let isEmoji = char.unicodeScalars.contains {
+            $0.properties.isEmojiPresentation || $0.properties.isEmoji
+        }
+        if !isEmoji { return false }    // Found a non-emoji → fail fast.
+
+        clusterCount += 1
+        if clusterCount >= 13 { return false } // Too many → bail out early.
+    }
+
+    return true                         // All clusters were emoji and < 10 total.
+}

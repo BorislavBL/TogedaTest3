@@ -14,6 +14,8 @@ struct MainTabView: View {
     @EnvironmentObject var postsViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var clubsViewModel: ClubsViewModel
+    @EnvironmentObject var websocketManager: WebSocketManager
+
     
     @StateObject var chatVM = ChatViewModel()
     
@@ -46,6 +48,8 @@ struct MainTabView: View {
                         .tabItem {
                             Image(systemName: "message")
                         }
+                        .badge(websocketManager.unreadMessagesCount > 0 ? websocketManager.unreadMessagesCount : 0)
+                    
                     ProfileView()
                         .tag(Screen.profile)
                         .tabItem {
@@ -184,5 +188,7 @@ struct MainTabView_Previews: PreviewProvider {
             .environmentObject(ContentViewModel())
             .environmentObject(NavigationManager())
             .environmentObject(LocationManager())
+            .environmentObject(WebSocketManager())
+
     }
 }

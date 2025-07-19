@@ -22,6 +22,7 @@ struct AllUserEventsView: View {
     
     @State var bookmarkedView: Bool = false
     @State var Init: Bool = true
+    @EnvironmentObject var userVM: UserViewModel
     
     var body: some View {
         ScrollView{
@@ -90,9 +91,11 @@ struct AllUserEventsView: View {
                 }
             }
             
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink(value: SelectionPath.bookmarkedEvents(userID: userID)){
-                    Image(systemName: "bookmark.fill")
+            if let cuser = userVM.currentUser, cuser.id == userID {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(value: SelectionPath.bookmarkedEvents(userID: userID)){
+                        Image(systemName: "bookmark.fill")
+                    }
                 }
             }
         }
@@ -128,4 +131,5 @@ struct AllUserEventsView: View {
 
 #Preview {
     AllUserEventsView(userID: "", posts: [MockPost])
+        .environmentObject(UserViewModel())
 }

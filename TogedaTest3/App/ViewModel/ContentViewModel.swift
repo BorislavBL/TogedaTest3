@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-enum AuthenticationState {
+indirect enum AuthenticationState {
     case checking
     case authenticatedNoInformation
     case authenticated
@@ -24,6 +24,7 @@ class ContentViewModel: ObservableObject {
     @Published var pendingURL: URL?
     @Published var sessionCount = 0
     @Published var initialSetupDone = false
+    @Published var internalServerError = false
     
     init(){
         Task{
@@ -44,6 +45,9 @@ class ContentViewModel: ObservableObject {
     
     func logout(){
         Task{
+            if let deviceTokenIsDeleted = try await APIClient.shared.removeDiviceToken() {
+                print("token is deleted")
+            }
             AuthService.shared.clearSession()
             await validateTokensAndCheckState()
         }
@@ -109,16 +113,6 @@ extension ContentViewModel {
         tokenCheckTimer = nil
     }
     
-    func miniValidation() -> Bool {
-        if let _ = KeychainManager.shared.retrieve(itemForAccount: userKeys.refreshToken.toString, service: userKeys.service.toString), let accessToken = KeychainManager.shared.getToken(item: userKeys.accessToken.toString, service: userKeys.service.toString),
-           !isTokenExpired(accessToken), authenticationState == .authenticated {
-//            self.triggerPendingURL()
-            return true
-        } else {
-            return false
-        }
-    }
-    
 //    func triggerPendingURL() {
 //        if let url = pendingURL, UIApplication.shared.canOpenURL(url) {
 //            DispatchQueue.main.async {
@@ -140,12 +134,14 @@ extension ContentViewModel {
 //    }
     
     func validateTokensAndCheckState() async {
-        guard let _ = KeychainManager.shared.retrieve(itemForAccount: userKeys.refreshToken.toString, service: userKeys.service.toString) else {
+        guard let token = KeychainManager.shared.retrieve(itemForAccount: userKeys.refreshToken.toString, service: userKeys.service.toString) else {
             DispatchQueue.main.async {
                 self.authenticationState = .unauthenticated
             }
             return
         }
+        
+        print("token:", token)
         
         if let accessToken = KeychainManager.shared.getToken(item: userKeys.accessToken.toString, service: userKeys.service.toString),
            !isTokenExpired(accessToken) {
@@ -178,7 +174,8 @@ extension ContentViewModel {
     func userHasBasicInfoGet(accessToken: DecodedJWTBody) {
         Task{
             do {
-                if let hasBasicInfo = try await APIClient.shared.retryWithExponentialDelay(task:{ try await APIClient.shared.hasBasicInfo() }) {
+//                if let hasBasicInfo = try await APIClient.shared.retryWithExponentialDelay(task:{ try await APIClient.shared.hasBasicInfo() }) {
+                if let hasBasicInfo = try await APIClient.shared.hasBasicInfo2(){
                     DispatchQueue.main.async {
                         if hasBasicInfo {
                             self.authenticationState = .authenticated
@@ -189,12 +186,20 @@ extension ContentViewModel {
                         }
                     }
                 } else {
+                    print("diuhasiduhasiud-------")
                     AuthService.shared.clearSession()
                     DispatchQueue.main.async {
                         self.authenticationState = .unauthenticated
                     }
                 }
+            } catch APIClientError.internalServerError {
+                print("bbbbbbb")
+                DispatchQueue.main.async {
+                    self.internalServerError = true
+                }
+
             } catch {
+                print("aaaaaaaaaaaa")
                 AuthService.shared.clearSession()
                 DispatchQueue.main.async {
                     self.authenticationState = .unauthenticated
@@ -202,8 +207,6 @@ extension ContentViewModel {
             }
         }
     }
-    
-
     
     private func refreshToken() async {
         do {
@@ -213,7 +216,8 @@ extension ContentViewModel {
                     DispatchQueue.main.async {
                         self.authenticationState = .authenticated
                         self.startTokenRefreshTimer(accessToken: newAccessToken)
-                        
+                        //keep in mind that sessionCount handels the websocket conncetion upon user becoming active again
+                        self.sessionCount += 1
                         print("Trigger 4")
 //                        if let url = self.pendingURL, UIApplication.shared.canOpenURL(url) {
 //                            DispatchQueue.main.async {
@@ -237,10 +241,6 @@ extension ContentViewModel {
     }
     
     private func startTokenRefreshTimer(accessToken: DecodedJWTBody) {
-        //keep in mind that sessionCount handels the websocket conncetion upon user becoming active again
-        DispatchQueue.main.async {
-            self.sessionCount += 1
-        }
 
         tokenCheckTimer?.invalidate()
         let timeUntilExpiration = calculateTimeUntilExpiration(accessToken)

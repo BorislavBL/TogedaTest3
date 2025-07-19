@@ -15,6 +15,7 @@ struct TogedaTest3App: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State var showToken: Bool = true
     @StateObject var navigationManager = NavigationManager()
+    let persistenceController = PersistenceController.shared
     var urlHandler: URLHandler?
     
     init() {
@@ -30,8 +31,10 @@ struct TogedaTest3App: App {
                 .environmentObject(vm)
                 .environmentObject(navigationManager)
                 .environmentObject(networkManager)
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .onAppear(){
                     APIClient.shared.setViewModel(vm)
+                    DraftManager.shared.cleanOldDrafts()
                 }
                 .onOpenURL { url in
                     print("HEEEEEEREEEEE",url)

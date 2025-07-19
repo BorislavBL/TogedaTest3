@@ -514,7 +514,9 @@ struct EditProfileView: View {
                                    withAnimation{
                                        self.isLoading = false
                                    }
-                                   navManager.selectionPath.removeLast(2)
+                                   if navManager.selectionPath.count >= 2 {
+                                       navManager.selectionPath.removeLast(2)
+                                   }
                                }
                            } else if let error = error {
                                DispatchQueue.main.async {
@@ -531,7 +533,9 @@ struct EditProfileView: View {
                             isLoading = false
                         }
                         print("No changes")
-                        navManager.selectionPath.removeLast(2)
+                        if navManager.selectionPath.count >= 2{
+                            navManager.selectionPath.removeLast(2)
+                        }
                     }
                 } else {
                     print("No images")

@@ -15,100 +15,102 @@ struct AccessibilityView: View {
     @Binding var selectedClub: Components.Schemas.ClubDto?
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20){
-            VStack(alignment: .leading){
-                Button{
-                    selectedVisability = "PUBLIC"
-                } label:{
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 20){
+                VStack(alignment: .leading){
+                    Button{
+                        selectedVisability = "PUBLIC"
+                    } label:{
+                        HStack {
+                            if selectedVisability == "PUBLIC" {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .imageScale(.large)
+                                    .foregroundStyle(.blue)
+                            } else {
+                                Image(systemName: "circle")
+                                    .imageScale(.large)
+                                    .foregroundStyle(.gray)
+                            }
+                            Text("Public").tag("PUBLIC")
+                        }
+                    }
+                    
                     HStack {
-                        if selectedVisability == "PUBLIC" {
-                            Image(systemName: "checkmark.circle.fill")
-                                .imageScale(.large)
-                                .foregroundStyle(.blue)
-                        } else {
-                            Image(systemName: "circle")
-                                .imageScale(.large)
-                                .foregroundStyle(.gray)
-                        }
-                        Text("Public").tag("PUBLIC")
-                    }
-                }
-                
-                HStack {
                         Image(systemName: "circle")
                             .imageScale(.large)
                             .foregroundStyle(.gray.opacity(0))
-                    
-                    Text("Everyone will be able see your event.")
-                        .font(.callout)
-                        .foregroundColor(.gray)
-                }
-            }
-            
-            VStack(alignment: .leading){
-                
-                Button{
-                    selectedVisability = "PRIVATE"
-                } label:{
-                    HStack{
-                        if selectedVisability == "PRIVATE"{
-                            Image(systemName: "checkmark.circle.fill")
-                                .imageScale(.large)
-                                .foregroundStyle(.blue)
-                        } else {
-                            Image(systemName: "circle")
-                                .imageScale(.large)
-                                .foregroundStyle(.gray)
-                        }
-                        Text("Private").tag("PRIVATE")
+                        
+                        Text("Everyone will be able see your event.")
+                            .font(.callout)
+                            .foregroundColor(.gray)
                     }
                 }
                 
-                HStack {
+                VStack(alignment: .leading){
+                    
+                    Button{
+                        selectedVisability = "PRIVATE"
+                    } label:{
+                        HStack{
+                            if selectedVisability == "PRIVATE"{
+                                Image(systemName: "checkmark.circle.fill")
+                                    .imageScale(.large)
+                                    .foregroundStyle(.blue)
+                            } else {
+                                Image(systemName: "circle")
+                                    .imageScale(.large)
+                                    .foregroundStyle(.gray)
+                            }
+                            Text("Private").tag("PRIVATE")
+                        }
+                    }
+                    
+                    HStack {
                         Image(systemName: "circle")
                             .imageScale(.large)
                             .foregroundStyle(.gray.opacity(0))
+                        
+                        Text("Your event won't be visible for everyone. In this case you will either have to invite them or attach the event to a club so that only club members could see it.")
+                            .font(.callout)
+                            .foregroundColor(.gray)
+                    }
+                }
+                
+                VStack(alignment: .leading){
+                    Toggle(isOn: $askToJoin) {
+                        Text("Ask for permission")
+                            .fontWeight(.semibold)
+                    }
                     
-                    Text("Your event won't be visible for everyone. In this case you will either have to invite them or attach the event to a club so that only club members could see it.")
+                    Text("Each user will have to be approved by you in order to join.")
                         .font(.callout)
                         .foregroundColor(.gray)
                 }
-            }
-
-            VStack(alignment: .leading){
-                Toggle(isOn: $askToJoin) {
-                    Text("Ask for permission")
+                
+                VStack(alignment: .leading){
+                    Text("Is this a personal or club event?")
                         .fontWeight(.semibold)
+                    
+                    AccessibilityEventType(selectedClub: $selectedClub)
                 }
                 
-                Text("Each user will have to be approved by you in order to join.")
-                    .font(.callout)
-                    .foregroundColor(.gray)
-            }
-            
-            VStack(alignment: .leading){
-                Text("Is this a personal or club event?")
-                    .fontWeight(.semibold)
                 
-                AccessibilityEventType(selectedClub: $selectedClub)
             }
-        
-            
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .swipeBack()
-        .navigationTitle("Accessibility")
-        .navigationBarBackButtonHidden(true)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(leading:Button(action: {dismiss()}) {
-            Image(systemName: "chevron.left")
-                .imageScale(.medium)
-                .padding(.all, 8)
-                .background(Color("main-secondary-color"))
-                .clipShape(Circle())
-        }
-        )
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .swipeBack()
+            .navigationTitle("Accessibility")
+            .navigationBarBackButtonHidden(true)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading:Button(action: {dismiss()}) {
+                Image(systemName: "chevron.left")
+                    .imageScale(.medium)
+                    .padding(.all, 8)
+                    .background(Color("main-secondary-color"))
+                    .clipShape(Circle())
+            }
+            )
+        }.scrollIndicators(.hidden)
         
         
     }

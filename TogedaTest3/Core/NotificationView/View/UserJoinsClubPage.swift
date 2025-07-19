@@ -16,43 +16,43 @@ struct UserJoinsClubPage: View {
     @Binding var selectionPath: [SelectionPath]
     
     var body: some View {
-            VStack {
-//                NavigationLink(value: SelectionPath.club(club)){
-                Button{
-                    Task{
-                        if let response = try await APIClient.shared.getClub(clubID: club.id){
-                            selectionPath.append(.club(response))
-                        }
+        HStack {
+            //                NavigationLink(value: SelectionPath.club(club)){
+            NavigationLink(value: SelectionPath.profile(alertBody.userAdded)) {
+                KFImage(URL(string:alertBody.userAdded.profilePhotos[0]))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size.dimension, height: size.dimension)
+                    .clipShape(Circle())
+            }
+            
+            Button{
+                Task{
+                    if let response = try await APIClient.shared.getClub(clubID: club.id){
+                        selectionPath.append(.club(response))
                     }
-                } label:{
-                    HStack(alignment:.top){
-                        KFImage(URL(string:alertBody.userAdded.profilePhotos[0]))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: size.dimension, height: size.dimension)
-                            .clipShape(Circle())
-                    }
+                }
+            } label:{
+                VStack(alignment: .leading, spacing: 5){
+                    Text("\(alertBody.userAdded.firstName) \(alertBody.userAdded.lastName)")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
                     
-                    VStack(alignment: .leading, spacing: 5){
-                        Text("\(alertBody.userAdded.firstName) \(alertBody.userAdded.lastName)")
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                        
-                        Text("Joined your club: \(club.title)")
-                            .font(.footnote) +
-                        
-                        Text(" \(formatDateForNotifications(from: createDate))")
-                            .foregroundStyle(.gray)
-                            .font(.footnote)
-                        
-                        
-                    }
-                    .multilineTextAlignment(.leading)
-                    Spacer(minLength: 0)
+                    Text("Joined your club: \(club.title)")
+                        .font(.footnote) +
+                    
+                    Text(" \(formatDateForNotifications(from: createDate))")
+                        .foregroundStyle(.gray)
+                        .font(.footnote)
+                    
                     
                 }
+                .multilineTextAlignment(.leading)
+                Spacer(minLength: 0)
                 
             }
+            
+        }
     }
 }
 

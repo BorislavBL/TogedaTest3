@@ -15,7 +15,7 @@ struct MessageClubPreview: View {
     var size: CGSize = .init(width: 180, height: 300)
     @State var Init: Bool = true
     @State var loadingCases: LoadingCases = .loading
-    
+
     var body: some View {
         VStack(alignment: .leading){
             if let club = club, loadingCases == .loaded {

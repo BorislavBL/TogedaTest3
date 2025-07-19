@@ -17,7 +17,10 @@ struct RegistrationFullNameView: View {
     @Environment(\.dismiss) var dismiss
     @State private var displayError: Bool = false
     @State private var isActive: Bool = false
-    @StateObject var photoVM = PhotoPickerViewModel(s3BucketName: .user, mode: .normal)
+    @StateObject var photoVM = PhotoPickerViewModel(s3BucketName: .user, mode: .edit)
+    @EnvironmentObject var mainVM: ContentViewModel
+    @State var logoutAlert = false
+
     
     var body: some View {
         NavigationStack{
@@ -111,12 +114,25 @@ struct RegistrationFullNameView: View {
             .navigationDestination(isPresented: $isActive, destination: {
                 RegistartionAgeView(vm: vm, photoVM: photoVM)
             })
-//            .navigationBarItems(leading:Button(action: {dismiss()}) {
-//                Image(systemName: "chevron.left")
-//                    .frame(width: 35, height: 35)
-//                    .background(Color(.tertiarySystemFill))
-//                    .clipShape(Circle())
-//            })
+            .navigationBarItems(leading:Button(action: {
+                logoutAlert = true}) {
+                Image(systemName: "chevron.left")
+                    .frame(width: 35, height: 35)
+                    .background(Color(.tertiarySystemFill))
+                    .clipShape(Circle())
+            })
+            .alert("Log Out", isPresented: $logoutAlert) {
+                Button("Yes") {
+                    mainVM.logout()
+                }
+                
+                Button("No") {
+                    logoutAlert = true
+                }
+            } message: {
+                Text("Are you sure you want logout?")
+            }
+
         }
     }
     

@@ -62,3 +62,43 @@ import SwiftUI
 
 //https://stackoverflow.com/questions/59921239/hide-navigation-bar-without-losing-swipe-back-gesture-in-swiftui
 
+extension UINavigationController: UIGestureRecognizerDelegate {
+    override open func viewDidLoad() {
+        super.viewDidLoad()
+        
+        if #available(iOS 18.0, *) {
+            interactivePopGestureRecognizer?.delegate = self
+        }
+    }
+    
+    // Allows swipe back gesture after hiding standard navigation bar with .navigationBarHidden(true).
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if #available(iOS 18.0, *) {
+            if topViewController?.presentedViewController != nil {
+                return false // A sheet is currently presented
+            }
+            return viewControllers.count > 1
+        }
+        
+        return true // Default behavior for iOS 17 and below
+    }
+    
+    // Allows interactivePopGestureRecognizer to work simultaneously with other gestures.
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if #available(iOS 18.0, *) {
+            return viewControllers.count > 1
+        }
+        
+        return false // Default behavior for iOS 17 and below
+    }
+    
+    // Blocks other gestures when interactivePopGestureRecognizer begins.
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if #available(iOS 18.0, *) {
+            return viewControllers.count > 1
+        }
+        
+        return false // Default behavior for iOS 17 and below
+    }
+}
+

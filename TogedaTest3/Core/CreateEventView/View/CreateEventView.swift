@@ -37,7 +37,6 @@ struct CreateEventView: View {
     
     @State private var isStripeOnboardingDone: Bool = false
     let paidActivitiesAgreement = try! AttributedString(markdown: "[Paid Activity Agreement](\(TogedaLinks().paidActivitiesAgreement))")
-
     
     var body: some View {
         NavigationStack() {
@@ -347,6 +346,7 @@ struct CreateEventView: View {
                                 Text(participant > 0 ? "\(participant)" : "No Limit")
                                     .foregroundColor(.gray)
                                     .lineLimit(1)
+                                
                             } else {
                                 Text("No Limit")
                                     .foregroundColor(.gray)
@@ -366,14 +366,23 @@ struct CreateEventView: View {
                             Spacer()
                             
                             TextField("Max", value: $ceVM.participants, format:.number)
-                                .foregroundColor(.gray)
-                                .frame(width: 70)
-                                .textFieldStyle(.roundedBorder)
+                                .foregroundColor(.primary.opacity(0.8))
+                                .padding(8)
+                                .frame(width: 80)
+                                .background(Color(.tertiarySystemFill))
+                                .cornerRadius(10)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.primary.opacity(0.5), lineWidth: 0.3)
+                                )
                                 .keyboardType(.numberPad)
                                 .onChange(of: ceVM.participants) { old, new in
                                     if let number = ceVM.participants {
                                         if number > 1000000 {
                                             ceVM.participants = old
+                                        }
+                                        if new == 1 {
+                                            hideKeyboard()
                                         }
                                     }
                                 }
@@ -384,6 +393,10 @@ struct CreateEventView: View {
                     }
                 }
                 .createEventTabStyle()
+                
+                if ceVM.participants == 1 {
+                    WarningTextComponent(text: "You count as a participant, so the minimum number is 2.")
+                }
                 
                 if let user = userVM.currentUser {
                     VStack(alignment: .leading, spacing: 20){
@@ -396,15 +409,16 @@ struct CreateEventView: View {
                                     .imageScale(.large)
                                 
                                 
-                                Text("Price")
+                                Text("Ticket Price")
                                 
                                 Spacer()
                                 
                                 if let price = ceVM.price{
                                     
-                                    Text(price > 0.0 ? "€ \(price, specifier: "%.2f")" : "Free")
+                                    Text(price > 0.0 ? "\(ceVM.selectedCurrency.symbol) \(price, specifier: "%.2f")" : "Free")
                                         .foregroundColor(.gray)
                                         .lineLimit(1)
+                                    
                                 } else {
                                     Text("Free")
                                         .foregroundColor(.gray)
@@ -421,34 +435,81 @@ struct CreateEventView: View {
                         
                         if ceVM.showPricing {
                             if user.stripeAccountId != nil{
-                                if isStripeOnboardingDone {
-                                    HStack(alignment: .center, spacing: 10) {
-                                        Text("Write a Price")
+                                if !isStripeOnboardingDone {
+                                    VStack(alignment: .leading, spacing: 10){
+                                        HStack(alignment: .center, spacing: 10) {
+                                            Text("Price")
+                                            
+                                            Spacer()
+                                            
+                                            TextField("0.00", value: $ceVM.price, format: .number)
+                                                .foregroundColor(.primary.opacity(0.8))
+                                                .padding(8)
+                                                .frame(width: 80)
+                                                .background(Color(.tertiarySystemFill))
+                                                .cornerRadius(10)
+//                                                .overlay(
+//                                                    RoundedRectangle(cornerRadius: 10)
+//                                                        .stroke(Color.primary.opacity(0.3), lineWidth: 0.5)
+//                                                )
+                                            //                                        .textFieldStyle(.roundedBorder)
+                                                .keyboardType(.decimalPad) // Changed to decimalPad to allow decimal numbers
+                                                .onChange(of: ceVM.price) { old, new in
+                                                    if let number = new, number >= 2000 {
+                                                        ceVM.price = old
+                                                    }
+                                                }
+                                        }
                                         
-                                        Spacer()
-                                        
-                                        TextField("€ 0.00", value: $ceVM.price, format: .number)
-                                            .foregroundColor(.gray)
-                                            .frame(width: 70)
-                                            .textFieldStyle(.roundedBorder)
-                                            .keyboardType(.decimalPad) // Changed to decimalPad to allow decimal numbers
-                                            .onChange(of: ceVM.price) { old, new in
-                                                if let number = new, number >= 2000 {
-                                                    ceVM.price = old
+                                        HStack(alignment: .center, spacing: 10) {
+                                            Text("Currency")
+                                            
+                                            Spacer()
+                                            
+                                            Picker("Currency",selection: $ceVM.selectedCurrency) {
+                                                ForEach(ceVM.allCurrencies, id: \.self) { currency in
+                                                    Text(currency.name).tag(currency.code)
                                                 }
                                             }
+                                            .tint(.primary.opacity(0.8))
+                                            .labelsHidden()
+                                            .frame(width: 80)
+                                            .background(Color(.tertiarySystemFill))
+                                            .cornerRadius(10)
+//                                            .overlay(
+//                                                RoundedRectangle(cornerRadius: 10)
+//                                                    .stroke(Color.primary.opacity(0.5), lineWidth: 0.3)
+//                                            )
+                                        }
+                                        
+                                        
+                                        HStack{
+                                            Text("The maximum price you can charge per participant is €2000. For higher amounts, please contact us at info@togeda.net. \nBy making Paid event you agree with our ")
+                                                .foregroundStyle(.gray) +
+                                            Text(paidActivitiesAgreement) +
+                                            Text(" for more details.")
+                                                .foregroundStyle(.gray)
+                                        }
+                                        .accentColor(.blue)
+                                        .font(.footnote)
+                                        .multilineTextAlignment(.leading)
                                     }
-                                    
-                                    HStack{
-                                        Text("The maximum price you can charge per participant is €2000. For higher amounts, please contact us at info@togeda.net. \nBy making Paid event you agree with our ")
-                                            .foregroundStyle(.gray) +
-                                        Text(paidActivitiesAgreement) +
-                                        Text(" for more details.")
-                                            .foregroundStyle(.gray)
+                                    .onAppear(){
+                                        Task{
+                                            if let response = try await APIClient.shared.currenciesList(
+                                                page: 0,
+                                                size: 50
+                                            ){
+                                                print(response.data)
+                                                ceVM.allCurrencies = response.data
+                                                ceVM.selectedCurrency = response.data
+                                                    .first(
+                                                        where: { $0.code == ceVM.selectedCurrency.code
+                                                        }) ?? ceVM.selectedCurrency
+
+                                            }
+                                        }
                                     }
-                                    .accentColor(.blue)
-                                    .font(.footnote)
-                                    .multilineTextAlignment(.leading)
                                     
                                 } else {
                                     VStack(alignment: .center){
@@ -459,9 +520,8 @@ struct CreateEventView: View {
                                             .padding(.bottom)
                                         
                                         Button{
-                                            if let url = URL(string: "https://dashboard.stripe.com/dashboard") {
-                                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                                            }
+                                            dismiss()
+                                            navManager.selectionPath.append(.paymentPage)
                                         } label: {
                                             Text("Go to Stripe")
                                                 .foregroundStyle(Color("base"))
@@ -475,8 +535,8 @@ struct CreateEventView: View {
                                     .frame(maxWidth: .infinity, alignment: .center)
                                 }
                                 
-
-
+                                
+                                
                             } else {
                                 VStack(alignment: .center){
                                     Text("To create a paid event frist create a Stripe account!")
@@ -486,16 +546,16 @@ struct CreateEventView: View {
                                         .padding(.bottom)
                                     
                                     Button{
-//                                        Task{
-//                                            if let accountId = try await APIClient.shared.createStripeAccount() {
-//                                                print(accountId)
-//                                                if let link = try await APIClient.shared.getStripeOnBoardingLink(accountId: accountId) {
-//                                                    print(link)
-//                                                    openURL(URL(string: link)!)
-//                                                    dismiss()
-//                                                }
-//                                            }
-//                                        }
+                                        //                                        Task{
+                                        //                                            if let accountId = try await APIClient.shared.createStripeAccount() {
+                                        //                                                print(accountId)
+                                        //                                                if let link = try await APIClient.shared.getStripeOnBoardingLink(accountId: accountId) {
+                                        //                                                    print(link)
+                                        //                                                    openURL(URL(string: link)!)
+                                        //                                                    dismiss()
+                                        //                                                }
+                                        //                                            }
+                                        //                                        }
                                         dismiss()
                                         navManager.selectionPath.append(.paymentPage)
                                         
@@ -661,7 +721,9 @@ struct CreateEventView: View {
                         Task{
                             if let post = try await APIClient.shared.getEvent(postId: responseID){
                                 DispatchQueue.main.async{
-                                    postVM.feedPosts.insert(post, at: 0)
+                                    if post.accessibility != .PRIVATE{
+                                        postVM.feedPosts.insert(post, at: 0)
+                                    }
                                     userVM.addPost(post: post)
                                     withAnimation{
                                         self.isLoading = false
@@ -787,7 +849,15 @@ struct CreateEventView: View {
     var allRequirenments: Bool {
         if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.location != nil, (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || ceVM.postPhotosURls.count > 0),
            ceVM.selectedInterests.count > 0 && !ceVM.selectedVisability.isEmpty && ceVM.from > Date() {
-            return true
+            if let participants = ceVM.participants {
+                if participants > 1 {
+                    return true
+                } else {
+                    return false
+                }
+            } else {
+                return true
+            }
         } else {
             return false
         }

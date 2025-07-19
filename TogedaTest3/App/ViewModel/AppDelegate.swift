@@ -16,23 +16,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ObservableObject{
     @Published var appSetupDone: Bool = false
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Configure AWS Cognito
-//        let configuration = AWSServiceConfiguration(region: .EUCentral1, credentialsProvider: nil)
-//        let poolConfiguration = AWSCognitoIdentityUserPoolConfiguration(clientId: "",
-//                                                                        clientSecret: "", poolId: "")
-//        AWSCognitoIdentityUserPool.register(with: configuration, userPoolConfiguration: poolConfiguration, forKey: "")
-//
-//        AWSServiceManager.default().defaultServiceConfiguration = configuration
-        
-//        requestNotificationPermissions(application: application)
-        
         UNUserNotificationCenter.current().delegate = self
         
         return true
     }
-    
-
-    
 
 }
 
@@ -53,6 +40,30 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         print("This one is also activated")
+        
+        // ── 1.  Pull the thread ID that iOS derived from   "aps.thread-id"
+        let thread = response.notification.request.content.threadIdentifier
+        if !thread.isEmpty {
+
+            // ── 2.  Ask Notification Centre which banners are still showing
+            let idsToRemove: [String] = await withCheckedContinuation { cont in
+                center.getDeliveredNotifications { notes in
+                    let ids = notes
+                        .filter { $0.request.content.threadIdentifier == thread }
+                        .map   { $0.request.identifier }
+                    cont.resume(returning: ids)
+                }
+            }
+
+            // ── 3.  Scrub them from the pull-down and from the lock-screen
+            center.removeDeliveredNotifications(withIdentifiers: idsToRemove)
+
+            // (optional) if you ever schedule *local* pushes for the
+            // same chat, kill those too so they won’t pop up later
+            center.removePendingNotificationRequests(withIdentifiers: idsToRemove)
+        }
+        
+        
         if let deepLink = response.notification.request.content.userInfo["link"] as? String {
             print("\(deepLink)")
             if let url = URL(string: deepLink) {
@@ -83,6 +94,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
       let token = deviceToken.reduce("") { $0 + String(format: "%02x", $1) }
+        print("The token has changed: \(token)")
         APIClient.shared.notificationToken = token
 //        if NotificationsManager.shared.authorizationStatus != .denied && NotificationsManager.shared.initialAuthorizationStatus == .notDetermined {
 //            Task{
@@ -101,8 +113,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                 try await APIClient.shared.addDiviceToken()
             }
         }
-        
-        print("Token Print:", token)
     }
 
 

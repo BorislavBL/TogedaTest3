@@ -77,7 +77,7 @@ struct UserProfileView: View {
                     
                 } else if isDeleted {
                     deletedView()
-                }else {
+                } else {
                     VStack(alignment: .center) {
                         TabView {
                             ForEach(miniUser.profilePhotos, id: \.self) { image in
@@ -119,9 +119,11 @@ struct UserProfileView: View {
                                 }
                                 .foregroundColor(.gray)
                                 
+                                
                                 if let age = calculateAge(from: miniUser.birthDate){
                                     HStack(spacing: 5){
                                         Image(systemName: "birthday.cake")
+
                                         
                                         Text("\(age)y")
                                             .font(.footnote)
@@ -266,9 +268,11 @@ struct UserProfileView: View {
                                     Button {
                                         Task{
                                             if let _user = user, let chatroomID = _user.chatRoomId, let chatRoom = try await APIClient.shared.getChat(chatId: chatroomID) {
-//                                                navManager.selectionPath = []
-//                                                navManager.screen = .message
-//                                                websocket.selectedUser = _user
+                                                navManager.resetMessage = true
+
+                                                navManager.screen = .message
+                                                navManager.selectionPath = []
+                                                
                                                 navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatRoom))
                                             }
                                         }
@@ -445,6 +449,7 @@ struct UserProfileView: View {
             }
         }
         .onAppear(){
+            print(miniUser.birthDate)
             if Init {
                 print(miniUser.id)
                 if let user = userVm.currentUser, miniUser.id != user.id {
@@ -660,7 +665,7 @@ struct UserProfileView: View {
             }
             .padding(.bottom, 8)
             
-            Text("This User have been deleted.")
+            Text("This User has been deleted.")
                 .font(.footnote)
                 .bold()
                 .foregroundStyle(.gray)

@@ -16,8 +16,12 @@ struct SwipeBackModifier: ViewModifier {
             .gesture(
                 DragGesture()
                     .updating($dragOffset) { (value, state, transaction) in
-                        if value.translation.width > 100 {
-                            dismiss()
+                        if #available(iOS 18.0, *) {
+                            // Do nothing (iOS 18+ should use UINavigationController behavior instead)
+                        } else {
+                            if value.translation.width > 100 {
+                                dismiss()
+                            }
                         }
                     }
             )

@@ -109,8 +109,12 @@ class URLHandler {
             Task {
                 if let response = try await APIClient.shared.getChat(chatId: id) {
                     DispatchQueue.main.async{
+                        self.navigationManager.resetMessage = true
+
                         self.navigationManager.screen = .message
-                        self.navigationManager.selectionPath = [.userChat(chatroom: response)]
+                        self.navigationManager.selectionPath = []
+                        
+                        self.navigationManager.selectionPath.append(SelectionPath.userChat(chatroom: response))
                     }
                 }
             }

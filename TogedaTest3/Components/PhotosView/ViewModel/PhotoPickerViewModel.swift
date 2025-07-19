@@ -127,6 +127,9 @@ class PhotoPickerViewModel: ObservableObject {
         var isSuccess = true
         publishedPhotosURLs = []
         publishedPhotosURLs = selectedImages.compactMap { $0 != nil ? "" : nil }
+        print("Main:", publishedPhotosURLs)
+        print("Secondary:", selectedImages)
+
         
         await withTaskGroup(of: Bool.self) { group in
             for (index, image) in selectedImages.enumerated() {
@@ -165,6 +168,8 @@ class PhotoPickerViewModel: ObservableObject {
                 
                 switch mode {
                 case .normal:
+                    print("Main2:", publishedPhotosURLs)
+                    print("index:", index)
                     publishedPhotosURLs[index] = imageUrl
                 case .edit:
                     editPublishedPhotosURLs[index] = imageUrl

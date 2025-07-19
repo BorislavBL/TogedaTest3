@@ -12,6 +12,7 @@ struct CustomNavBar: View {
     @ObservedObject var filterVM: FilterViewModel
     @EnvironmentObject var postViewModel: PostsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var websocketManager: WebSocketManager
     @ObservedObject var homeViewModel: HomeViewModel
     @Binding var showLocationServicesView: Bool
     
@@ -26,40 +27,73 @@ struct CustomNavBar: View {
                     
                     Spacer(minLength: 0)
                     
-                    Group{
                     
-                        if !showLocationServicesView {
-                            Button{
-                                withAnimation{
-                                    filterVM.showAllFilter = true
-                                }
-                            } label:{
-                                Image(systemName: "slider.horizontal.3")
-                                
-                            }
-                        }
-                        
+                    if !showLocationServicesView {
                         Button{
                             withAnimation{
-                                homeViewModel.showCancelButton = true
+                                filterVM.showAllFilter = true
                             }
                         } label:{
-                            Image(systemName: "magnifyingglass")
+                            Image(systemName: "slider.horizontal.3")
+                            
                         }
-                        
-                        
-                        NavigationLink(value: SelectionPath.notification) {
-                            Image(systemName: "bell")
+                        .navButton1()
+                    }
+                    
+                    Button{
+                        withAnimation{
+                            homeViewModel.showCancelButton = true
                         }
-                        
+                    } label:{
+                        Image(systemName: "magnifyingglass")
                     }
                     .navButton1()
+                    
+                    ZStack(alignment: .topTrailing) {
+                        NavigationLink(value: SelectionPath.notification) {
+                            Image(systemName: "bell")
+                                .font(.custom("icon", size: 18))  // make the bell a bit bigger if you like
+                        }
+                        .navButton1()
+                        
+                        if websocketManager.unreadNotificationsCount > 0 && websocketManager.unreadNotificationsCount <= 99{
+                            
+                            if websocketManager.unreadNotificationsCount > 9 {
+                                Text("\(websocketManager.unreadNotificationsCount)")
+                                    .font(.caption2)
+                                    .foregroundColor(.white)
+                                    .padding(5)
+                                    .background(Color.red)
+                                    .clipShape(Capsule())
+                                    .offset(x: 10, y: -10)
+                            } else {
+                                Text("\(websocketManager.unreadNotificationsCount)")
+                                    .font(.caption2)
+                                    .foregroundColor(.white)
+                                    .padding(5)
+                                    .background(Color.red)
+                                    .clipShape(Circle())
+                                    .offset(x: 10, y: -10)
+                            }
+
+                        } else if websocketManager.unreadNotificationsCount > 99{
+                            Text("+99")
+                                .font(.caption2)
+                                .foregroundColor(.white)
+                                .padding(5)
+                                .background(Color.red)
+                                .clipShape(Capsule())
+                                .offset(x: 10, y: -10)
+                        }
+                    }
+                    
+                    
                     
                 }
                 .padding(.horizontal)
                 
                 if showFilter && !showLocationServicesView {
-//                    Filters(viewModel: viewModel)
+                    //                    Filters(viewModel: viewModel)
                     TypeFilters(filterVM: filterVM)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
@@ -73,7 +107,7 @@ struct CustomNavBar: View {
                 .padding(.top, 8)
                 .padding(.horizontal)
             }
-
+            
             Divider()
         }
         .background(.bar)
@@ -89,5 +123,6 @@ struct CustomNavBar_Previews: PreviewProvider {
         CustomNavBar(showFilter: $showFilterPreview, filterVM: FilterViewModel(), homeViewModel: HomeViewModel(), showLocationServicesView: .constant(false))
             .environmentObject(PostsViewModel())
             .environmentObject(UserViewModel())
+            .environmentObject(WebSocketManager())
     }
 }

@@ -203,10 +203,22 @@ struct GroupSettingsView: View {
                             .frame(width: 25, height: 25)
                         VStack(alignment: .leading){
                             Text("Participants")
-                            Text("\(chatroom.previewMembers[0].firstName), \(chatroom.previewMembers[1].firstName)")
-                                .lineLimit(1)
-                                .font(.footnote)
-                                .foregroundStyle(.gray)
+                            if chatroom.previewMembers.count > 1 {
+                                Text("\(chatroom.previewMembers[0].firstName), \(chatroom.previewMembers[1].firstName)")
+                                    .lineLimit(1)
+                                    .font(.footnote)
+                                    .foregroundStyle(.gray)
+                            } else if chatroom.previewMembers.count > 0 {
+                                Text("\(chatroom.previewMembers[0].firstName)")
+                                    .lineLimit(1)
+                                    .font(.footnote)
+                                    .foregroundStyle(.gray)
+                            } else {
+                                Text("Something went wrong...")
+                                    .lineLimit(1)
+                                    .font(.footnote)
+                                    .foregroundStyle(.gray)
+                            }
                         }
                         
                         Spacer()

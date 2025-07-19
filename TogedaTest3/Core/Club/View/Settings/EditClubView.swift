@@ -287,7 +287,9 @@ struct EditClubView: View {
                     }
                     DispatchQueue.main.async {
                         isActive = false
-                        navManager.selectionPath.removeLast(1)
+                        if navManager.selectionPath.count >= 1{
+                            navManager.selectionPath.removeLast(1)
+                        }
                         userVM.removeClub(club: club)
                         if let chatRoomId = club.chatRoomId {
                             chatManager.allChatRooms.removeAll(where: {$0.id == chatRoomId})

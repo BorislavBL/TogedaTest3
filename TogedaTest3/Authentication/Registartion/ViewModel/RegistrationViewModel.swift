@@ -33,7 +33,7 @@ class RegistrationViewModel: ObservableObject {
             }),
             phoneNumber: phoneNumber,
             location: .init(
-                name: returnedPlace.addressCountry,
+                name: returnedPlace.name,
                 address: returnedPlace.street,
                 city: returnedPlace.city,
                 state: returnedPlace.state,

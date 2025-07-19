@@ -31,7 +31,9 @@ struct ClubView: View {
     
     @State var showReport = false
     @State var deleteSheet: Bool = false
-    @State var isShowDumpItAlert = false
+    @State var isShowChangeDateAlert = false
+    @State var newDate: Date = Date()
+    
     
     @State var Init = true
     
@@ -74,6 +76,8 @@ struct ClubView: View {
                 }
             }
             .onAppear(){
+                print("Date: \(club.createdAt)")
+                newDate = club.createdAt
                 Task{
                     if Init {
                         vm.clubEvents = []
@@ -154,18 +158,18 @@ struct ClubView: View {
                 }
             }
         }
-        .alert("Dump It", isPresented: $isShowDumpItAlert) {
+        .alert("Change Date", isPresented: $isShowChangeDateAlert) {
             if userVM.currentUser?.userRole == .ADMINISTRATOR {
                 Button("Yes") {
                     Task{
-                        if let response = try await APIClient.shared.dumpClubDate(clubId: club.id) {
+                        if let response = try await APIClient.shared.changeClubDate(clubId: club.id, newDate: newDate) {
                             club = response
                         }
                     }
                 }
             }
             Button("Cancel") {
-                isShowDumpItAlert = false
+                isShowChangeDateAlert = false
             }
         } message: {
             Text("Are you sure you want to change club's date?")
@@ -186,7 +190,9 @@ struct ClubView: View {
                         activityVM.activityFeed.remove(at: index)
                     }
                     DispatchQueue.main.async {
-                        navManager.selectionPath.removeLast(1)
+                        if navManager.selectionPath.count >= 1{
+                            navManager.selectionPath.removeLast(1)
+                        }
                         userVM.removeClub(club: club)
                     }
                     
@@ -270,59 +276,63 @@ struct ClubView: View {
                     }
                 }
                 
-                if let user = userVM.currentUser, club.owner.id == user.id {
-                    //                    NavigationLink(value: SelectionPath.editClubView(club)) {
-                    if let chatRoomID = club.chatRoomId {
-                        Button{
-                            Task{
-                                print("\(chatRoomID)")
-                                do {
-                                    if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomID) {
-                                        print("\(chatroom)")
-                                        DispatchQueue.main.async {
-                                            self.navManager.screen = .message
-                                            self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
-                                        }
-                                    } else {
-                                        print("nil")
+                
+                //                    NavigationLink(value: SelectionPath.editClubView(club)) {
+                if let chatRoomID = club.chatRoomId {
+                    Button{
+                        Task{
+                            print("\(chatRoomID)")
+                            do {
+                                if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomID) {
+                                    print("\(chatroom)")
+                                    DispatchQueue.main.async {
+                                        navManager.resetMessage = true
+
+                                        navManager.screen = .message
+                                        navManager.selectionPath = []
+                                        
+                                        navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatroom))
                                     }
-                                } catch {
-                                    print(error)
+                                } else {
+                                    print("nil")
                                 }
+                            } catch {
+                                print(error)
                             }
-                        } label:{
-                            Text("Go To Chat")
-                                .font(.footnote)
-                                .bold()
-                                .frame(height: 35)
-                                .padding(.horizontal)
-                                .background(.bar)
-                                .clipShape(Capsule())
                         }
-                    } else {
-                        Button{
-                            Task{
-                                if let chatRoomId = try await APIClient.shared.createChatForClub(clubId: club.id) {
-                                    if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomId) {
-                                        print("\(chatroom)")
-                                        DispatchQueue.main.async {
-                                            self.navManager.screen = .message
-                                            self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
-                                        }
-                                    }
-                                }
-                            }
-                        } label:{
-                            Text("Create Chat")
-                                .font(.footnote)
-                                .bold()
-                                .frame(height: 35)
-                                .padding(.horizontal)
-                                .background(.bar)
-                                .clipShape(Capsule())
-                        }
+                    } label:{
+                        Text("Go To Chat")
+                            .font(.footnote)
+                            .bold()
+                            .frame(height: 35)
+                            .padding(.horizontal)
+                            .background(.bar)
+                            .clipShape(Capsule())
                     }
-                    
+                } else {
+                    Button{
+                        Task{
+                            if let chatRoomId = try await APIClient.shared.createChatForClub(clubId: club.id) {
+                                if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomId) {
+                                    print("\(chatroom)")
+                                    DispatchQueue.main.async {
+                                        self.navManager.screen = .message
+                                        self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
+                                    }
+                                }
+                            }
+                        }
+                    } label:{
+                        Text("Create Chat")
+                            .font(.footnote)
+                            .bold()
+                            .frame(height: 35)
+                            .padding(.horizontal)
+                            .background(.bar)
+                            .clipShape(Capsule())
+                    }
+                }
+                if let user = userVM.currentUser, club.owner.id == user.id {
                     Button{
                         isEditing = true
                     } label:{
@@ -345,7 +355,125 @@ struct ClubView: View {
                         showReport = true
                     }
                     
+                    
                     if userVM.currentUser?.userRole == .ADMINISTRATOR {
+                        Menu {
+                            Button(){
+                                newDate = Date()
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("Now")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(){
+                                newDate = Calendar.current.date(byAdding: .year, value: 1, to: club.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("1 Year Up")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(){
+                                newDate = Calendar.current.date(byAdding: .month, value: 1, to: club.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("1 Month Up")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(){
+                                newDate = Calendar.current.date(byAdding: .day, value: 7, to: club.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("1 Week Up")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            
+                            Button{
+                                newDate = Calendar.current.date(byAdding: .day, value: 1, to: club.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("1 Day Up")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(role: .destructive){
+                                newDate = Calendar.current.date(byAdding: .day, value: -1, to: club.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.down")
+                                    Text("1 Day Down")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(role: .destructive){
+                                newDate = Calendar.current.date(byAdding: .day, value: -7, to: club.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.down")
+                                    Text("1 Week Down")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(role: .destructive){
+                                newDate = Calendar.current.date(byAdding: .month, value: -1, to: club.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.down")
+                                    Text("1 Month Down")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(role: .destructive){
+                                newDate = Calendar.current.date(byAdding: .year, value: -1, to: club.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.down")
+                                    Text("1 Year Down")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                        } label: {
+                            HStack(spacing: 20){
+                                Image(systemName: "calendar")
+                                Text("Change Date")
+                            }
+                            .foregroundStyle(.red)
+                        }
+                        
                         Button(role: .destructive){
                             deleteSheet = true
                         } label:{
@@ -356,15 +484,6 @@ struct ClubView: View {
                             .foregroundStyle(.red)
                         }
                         
-                        Button(role: .destructive){
-                            isShowDumpItAlert = true
-                        } label:{
-                            HStack(spacing: 20){
-                                Image(systemName: "arrow.down")
-                                Text("Dump it")
-                            }
-                            .foregroundStyle(.red)
-                        }
                     }
                 }
             } label: {

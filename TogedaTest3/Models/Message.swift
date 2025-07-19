@@ -15,10 +15,12 @@
 //}
 //
 struct ChatMessages: Codable {
+    let id: String?
     let senderId: String
     let chatId: String
     let content: String
     let contentType: String
+    var replyToMessageId: String?
 }
 
 //enum ContentType {

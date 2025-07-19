@@ -22,7 +22,7 @@ struct PostTags: View {
                     Text("Free")
                         .normalTagTextStyle()
                 } else {
-                    Text("€\(String(format:"%.2f", post.payment))")
+                    Text("\(post.currency?.symbol ?? "€")\(String(format:"%.2f", post.payment))")
                         .normalTagTextStyle()
                 }
             }

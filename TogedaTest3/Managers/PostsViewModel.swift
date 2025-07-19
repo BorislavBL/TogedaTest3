@@ -122,42 +122,46 @@ class PostsViewModel: ObservableObject {
                 self.state = .loading
             }
         }
-        if let response = try await APIClient.shared.retryWithExponentialDelay(task:{ try await APIClient.shared.getAllEvents(
-            page: self.page,
-            size: self.size,
-            sortBy: self.sortBy,
-            long: self.long,
-            lat: self.lat,
-            distance: Int32(self.distance),
-            from: self.from,
-            to: self.to,
-            categories: self.categories
-        )}) {
-            
-            DispatchQueue.main.async{
+        do {
+            if let response = try await APIClient.shared.retryWithExponentialDelay(task:{ try await APIClient.shared.getAllEvents(
+                page: self.page,
+                size: self.size,
+                sortBy: self.sortBy,
+                long: self.long,
+                lat: self.lat,
+                distance: Int32(self.distance),
+                from: self.from,
+                to: self.to,
+                categories: self.categories
+            )}) {
                 
-                let newPosts = response.data
-                let existingPostIDs = Set(self.feedPosts.suffix(30).map { $0.id })
-                let uniqueNewPosts = newPosts.filter { !existingPostIDs.contains($0.id) }
-                
-                self.feedPosts += uniqueNewPosts
-                self.lastPage = response.lastPage
-                
-                self.page += 1
-                
-                self.feedPostsInit = false
-                if response.listCount > 0 {
-                    self.state = .loaded
-                } else {
-                    self.state = .noResults
+                DispatchQueue.main.async{
+                    
+                    let newPosts = response.data
+                    let existingPostIDs = Set(self.feedPosts.suffix(30).map { $0.id })
+                    let uniqueNewPosts = newPosts.filter { !existingPostIDs.contains($0.id) }
+                    
+                    self.feedPosts += uniqueNewPosts
+                    self.lastPage = response.lastPage
+                    
+                    self.page += 1
+                    
+                    self.feedPostsInit = false
+                    if response.listCount > 0 {
+                        self.state = .loaded
+                    } else {
+                        self.state = .noResults
+                    }
+                    self.indexLoadingState = .loaded
                 }
-                self.indexLoadingState = .loaded
+            } else {
+                DispatchQueue.main.async{
+                    self.state = .noResults
+                    self.indexLoadingState = .loaded
+                }
             }
-        } else {
-            DispatchQueue.main.async{
-                self.state = .noResults
-                self.indexLoadingState = .loaded
-            }
+        } catch {
+            print(error)
         }
     }
     

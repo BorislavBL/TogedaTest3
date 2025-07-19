@@ -10,11 +10,20 @@ import SwiftStomp
 
 class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var allChatRooms: [Components.Schemas.ChatRoomDto] = []
+//    {
+//        didSet {
+//            self.unreadMessagesCount = allChatRooms.filter { !$0.read }.count
+//        }
+//    }
+    @Published private var previousAllChatRooms: [Components.Schemas.ChatRoomDto] = []
+    @Published var inboxChatsState: LoadingCases = .loading
     @Published var chatPage: Int32 = 0
     @Published var chatSize: Int32 = 30
     @Published var lastChatPage = true
     @Published var isLoadingChats: LoadingCases = .noResults
-    
+    @Published var unreadMessagesCount = 0
+    @Published var inCurrentChatroom: Components.Schemas.ChatRoomDto?
+        
     //    struct ReceivedChatMessageExtension: Hashable {
     //        var message: Components.Schemas.ReceivedChatMessageDto
     //        var post: Components.Schemas.PostResponseDto?
@@ -34,12 +43,18 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var messagesSize: Int32 = 30
     @Published var chatRoomId: String?
     
+    @Published private var retryCount = 0
+    @Published private var maxRetryAttempts = 5
+    @Published private var initialRetryDelay: TimeInterval = 2.0
+    
     @Published var swiftStomp: SwiftStomp!
     @Published var currentUserId: String? {
         didSet {
             connectToCurrentUser(oldValue: oldValue)
         }
     }
+    @Published var isReconnecting = false
+    @Published var showSatatusDisconnectedError: Bool = false
     
     @Published var notificationsList: [Components.Schemas.NotificationDto] = []
     @Published var newNotification: Components.Schemas.NotificationDto?
@@ -50,8 +65,11 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var isConnected = false
     @Published var loadingState: LoadingCases = .loading
     @Published var isLoadingRect: LoadingCases = .noResults
+    @Published var unreadNotificationsCount: Int = 0
+
     
     init(){
+        print("The websokcet init is triggered <------------------>")
         websocketInit()
     }
     
@@ -67,16 +85,30 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     struct Unsent: Codable, Hashable {
         var id: String?
     }
+    
+    struct Edited: Codable, Hashable {
+        var id: String?
+        var content: String?
+    }
+    
 }
 
 extension WebSocketManager {
     
     func reconnectWithNewToken() {
+        guard !isReconnecting else {
+            print("Reconnection already in progress, skipping.")
+            return
+        }
+        DispatchQueue.main.async {
+            self.isReconnecting = true
+        }
+        print("-------------------Reconect with new Token------------------")
         if let token = AuthService.shared.getAccessToken() {
             //            if isConnected {
             self.disconnect() // Disconnect current connection
             //            }
-            let url = URL(string: "wss://api.togeda.net/ws")!
+            let url = URL(string: TogedaMainLinks.websocketURL)!
             self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization": "Bearer \(token)"]) // Reinitialize with new token
             self.swiftStomp.delegate = self // Reset delegate
             self.swiftStomp.autoReconnect = true // Auto reconnect on error or cancel
@@ -86,16 +118,20 @@ extension WebSocketManager {
         }
     }
     
-    func websocketInit() {
+    private func websocketInit() {
         if let token = AuthService.shared.getAccessToken() {
-            let url = URL(string: "wss://api.togeda.net/ws")! // Ensure using 'wss' or 'ws' schema
+            print("-------------------Websocket Init------------------")
+            let url = URL(string: TogedaMainLinks.websocketURL)! // Ensure using 'wss' or 'ws' schema
+            //            self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization" : "Bearer \(retryCount >= 2 ? token : "haaa")"]) //< Create instance
             self.swiftStomp = SwiftStomp(host: url, headers: ["Authorization" : "Bearer \(token)"]) //< Create instance
             self.swiftStomp.delegate = self //< Set delegate
             self.swiftStomp.autoReconnect = true //< Auto reconnect on error or cancel
             self.swiftStomp.enableLogging = false
             
             self.swiftStomp.connect()
-            self.isConnected = true
+            DispatchQueue.main.async {
+                self.isConnected = true
+            }
         }
     }
     
@@ -108,14 +144,45 @@ extension WebSocketManager {
         self.connect()
     }
     
+    
+    func reconnectWithExponentialBackoff() {
+        guard retryCount < maxRetryAttempts else {
+            print("Max reconnection attempts reached. Stopping retries.")
+            return
+        }
+        
+        let delay = initialRetryDelay * pow(2.0, Double(retryCount))
+        print("Attempting to reconnect in \(delay) seconds...")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            guard let self = self else { return }
+            self.retryCount += 1
+            self.websocketInit()
+        }
+    }
+    
+    func subscribeToAllConnections(id: String) {
+        swiftStomp.subscribe(to: "/user/\(id)/queue/messages", mode: .clientIndividual)
+        swiftStomp.subscribe(to: "/user/\(id)/queue/notifications", mode: .clientIndividual)
+        swiftStomp.subscribe(to: "/user/\(id)/queue/updates", mode: .clientIndividual)
+        swiftStomp.subscribe(to: "/user/\(id)/queue/message/likes", mode: .clientIndividual)
+        swiftStomp.subscribe(to: "/user/\(id)/queue/message/unsent", mode: .clientIndividual)
+        swiftStomp.subscribe(to: "/user/\(id)/queue/message/edited", mode: .clientIndividual)
+    }
+    
+    func unsubscribeToAllConnections(id: String) {
+        swiftStomp.unsubscribe(from: "/user/\(id)/queue/messages")
+        swiftStomp.unsubscribe(from: "/user/\(id)/queue/notifications")
+        swiftStomp.unsubscribe(from: "/user/\(id)/queue/updates")
+        swiftStomp.unsubscribe(from: "/user/\(id)/queue/message/likes")
+        swiftStomp.unsubscribe(from: "/user/\(id)/queue/message/unsent")
+        swiftStomp.unsubscribe(from: "/user/\(id)/queue/message/edited")
+    }
+    
     func disconnect() {
         print("Disconnected websocket")
         if let id = self.currentUserId{
-            swiftStomp.unsubscribe(from: "/user/\(id)/queue/messages")
-            swiftStomp.unsubscribe(from: "/user/\(id)/queue/notifications")
-            swiftStomp.unsubscribe(from: "/user/\(id)/queue/updates")
-            swiftStomp.unsubscribe(from: "/user/\(id)/queue/message/likes")
-            swiftStomp.unsubscribe(from: "/user/\(id)/queue/message/unsent")
+            unsubscribeToAllConnections(id: id)
             
         }
         self.swiftStomp.disableAutoPing()
@@ -126,18 +193,11 @@ extension WebSocketManager {
         if self.swiftStomp.connectionStatus == .fullyConnected {
             if let id = self.currentUserId{
                 print(id)
-                swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/messages")
-                swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/notifications")
-                swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/updates")
-                swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/message/likes")
-                swiftStomp.unsubscribe(from: "/user/\(oldValue ?? id)/queue/message/unsent")
-
-                swiftStomp.subscribe(to: "/user/\(id)/queue/messages", mode: .clientIndividual)
-                swiftStomp.subscribe(to: "/user/\(id)/queue/notifications", mode: .clientIndividual)
-                swiftStomp.subscribe(to: "/user/\(id)/queue/updates", mode: .clientIndividual)
-                swiftStomp.subscribe(to: "/user/\(id)/queue/message/likes", mode: .clientIndividual)
-                swiftStomp.subscribe(to: "/user/\(id)/queue/message/unsent", mode: .clientIndividual)
-
+                unsubscribeToAllConnections(id: oldValue ?? id)
+                
+                subscribeToAllConnections(id: id)
+                
+                
             }
         }
     }
@@ -149,6 +209,10 @@ extension WebSocketManager {
         case .socketConnected:
             print("Scoket is connected but STOMP as sub-protocol is not connected yet.")
         case .fullyConnected:
+            DispatchQueue.main.async {
+                self.showSatatusDisconnectedError = false
+
+            }
             print("Both socket and STOMP is connected. Ready for messaging...")
         case .socketDisconnected:
             print("Socket is disconnected")
@@ -162,16 +226,18 @@ extension WebSocketManager {
         case .toStomp:
             self.swiftStomp.enableAutoPing(pingInterval: 10)
             print("Connected to STOMP")
+            DispatchQueue.main.async {
+                self.retryCount = 0
+                self.isReconnecting = false // Reset the flag
+                withAnimation() {
+                    self.showSatatusDisconnectedError = false
+                }
+            }
             
             connectionStatus()
             
             if let id = self.currentUserId{
-                swiftStomp.subscribe(to: "/user/\(id)/queue/messages", mode: .clientIndividual)
-                swiftStomp.subscribe(to: "/user/\(id)/queue/notifications", mode: .clientIndividual)
-                swiftStomp.subscribe(to: "/user/\(id)/queue/updates", mode: .clientIndividual)
-                swiftStomp.subscribe(to: "/user/\(id)/queue/message/likes", mode: .clientIndividual)
-                swiftStomp.subscribe(to: "/user/\(id)/queue/message/unsent", mode: .clientIndividual)
-
+                subscribeToAllConnections(id: id)
             }
             
         }
@@ -182,6 +248,11 @@ extension WebSocketManager {
             print("Socket disconnected. Disconnect completed")
         } else if disconnectType == .fromStomp {
             print("Client disconnected from STOMP but socket is still connected!")
+            DispatchQueue.main.async {
+                self.isConnected = false
+                self.showSatatusDisconnectedError = true
+
+            }
         }
     }
     
@@ -192,18 +263,25 @@ extension WebSocketManager {
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
                     
+                    print("JsonData:", message)
                     let messageData = try decoder.decode(Components.Schemas.ReceivedChatMessageDto.self, from: jsonData)
                     chatRoomCheckWithMessage(messageData: messageData)
                     
                     if let chatRoomId, messageData.chatId == chatRoomId {
                         DispatchQueue.main.async {
-                            if let message = self.messages.last {
-                                if message.id != messageData.id{
-                                    self.messages.append(messageData)
-                                }
-                            } else {
-                                self.messages.append(messageData)
-                            }
+                            //                            if let message = self.messages.last {
+                            //                                if message.id != messageData.id{
+                            //                                    self.messages.append(messageData)
+                            //                                }
+                            //                            } else {
+                            //                                self.messages.append(messageData)
+                            //                            }
+                            
+                            self.messages.removeAll(where: {$0.id == messageData.id})
+                            self.messages.append(messageData)
+                            
+//                            print(messageData.status?.rawValue)
+                            
                         }
                     }
                 } else {
@@ -213,16 +291,15 @@ extension WebSocketManager {
                 
                 
                 if let message = message as? String, let jsonData = message.data(using: .utf8) {
-                    print("not: ", message)
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
                     
                     let notificationData = try decoder.decode(Components.Schemas.NotificationDto.self, from: jsonData)
                     
                     DispatchQueue.main.async {
-                        print("not: ", notificationData)
                         self.addNotification(newNotification: notificationData)
                         self.newNotification = notificationData
+                        self.unreadNotificationsCount += 1
                     }
                 }
             } else if destination.hasSuffix("/message/likes") {
@@ -260,18 +337,30 @@ extension WebSocketManager {
                         self.allChatRooms.removeAll(where: {$0.id == data.chatRoomId})
                     }
                 }
+            } else if destination.hasSuffix("message/edited") {
+                if let message = message as? String, let jsonData = message.data(using: .utf8) {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+                    let data = try decoder.decode(Edited.self, from: jsonData)
+                    DispatchQueue.main.async {
+                        if let index = self.messages.firstIndex(where: {$0.id == data.id}), let text = data.content {
+                            self.messages[index].content = text
+                            self.messages[index].isEdited = true
+                        }
+                    }
+                }
             }
         } catch {
             print("Message error:", error)
         }
         
-        if let message = message as? String {
-            print("Message with id `\(messageId)` received at destination `\(destination)`:\n\(message)")
-            
-        } else if let message = message as? Data {
-            print("Data message with id `\(messageId)` and binary length `\(message.count)` received at destination `\(destination)`")
-        }
-        
+        //        if let message = message as? String {
+        //            print("Message with id `\(messageId)` received at destination `\(destination)`:\n\(message)")
+        //
+        //        } else if let message = message as? Data {
+        //            print("Data message with id `\(messageId)` and binary length `\(message.count)` received at destination `\(destination)`")
+        //        }
+        //
         
     }
     
@@ -287,18 +376,41 @@ extension WebSocketManager {
         } else {
             print("Unknown error occurred!")
         }
+        
+        print("STOMP error occurred! [\(briefDescription)] : \(String(describing: fullDescription))")
+        
+        DispatchQueue.main.async {
+            self.isReconnecting = false // Reset the flag on error
+            if swiftStomp.connectionStatus == .socketDisconnected {
+                self.showSatatusDisconnectedError = true
+            }
+        }
     }
     
     func onSocketEvent(eventName: String, description: String) {
         print("Socket event occurred: \(eventName) => \(description)")
     }
     
-    func sendMessage(senderId: String, chatId: String, content: String, type: Components.Schemas.ReceivedChatMessageDto.contentTypePayload) {
+    func sendMessage(sender: Components.Schemas.MiniUser, chatId: String, content: String, type: Components.Schemas.ReceivedChatMessageDto.contentTypePayload, replyToMessage: Components.Schemas.ReceivedChatMessageDto?) {
         let modifiedContent = limitConsecutiveReturns(in: content)
-        let chatMessage = ChatMessages(senderId: senderId, chatId: chatId, content: modifiedContent, contentType: type.rawValue)
+        let id = UUID().uuidString.lowercased()
+        var chatMessage = ChatMessages(id: id, senderId: sender.id, chatId: chatId, content: modifiedContent, contentType: type.rawValue)
+        var sendingMessage = Components.Schemas.ReceivedChatMessageDto(id: id, chatId: chatId, sender: sender, content: content, contentType: type, createdAt: Date(), status: .SENDING)
+        
+        if let reply = replyToMessage {
+            let replyTo = Components.Schemas.ReplyToMessage(id: reply.id, sender: sender, contentType: .init(rawValue: reply.contentType.rawValue) ?? .NORMAL, content: reply.content, isUnsent: reply.isUnsent)
+            chatMessage.replyToMessageId = reply.id
+            sendingMessage.replyTo = replyTo
+        }
+        
+        DispatchQueue.main.async{
+            self.messages.append(sendingMessage)
+        }
+        
         do {
             let jsonData = try JSONEncoder().encode(chatMessage)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print(jsonString)
                 swiftStomp.send(body: jsonString, to: "/app/chat", headers: ["content-type":"application/json"])
             }
         } catch {
@@ -308,10 +420,26 @@ extension WebSocketManager {
 }
 
 extension WebSocketManager {
+    func calculateUnreadMessagesCount(prevChatroom: [Components.Schemas.ChatRoomDto]) {
+        let oldUnreadCount = prevChatroom.filter { !$0.read }.count
+        let newUnreadCount = allChatRooms.filter { !$0.read }.count
+        
+        let diff = newUnreadCount - oldUnreadCount
+        self.unreadMessagesCount += diff
+
+        // Optional: If you want to guarantee it doesn't go negative
+        if unreadMessagesCount < 0 {
+            unreadMessagesCount = 0
+        }
+    }
+    
     func chatRoomCheckWithMessage(messageData: Components.Schemas.ReceivedChatMessageDto) {
         DispatchQueue.main.async {
+            let prevChatroom = self.allChatRooms
+            
             if let index = self.allChatRooms.firstIndex(where: { $0.id == messageData.chatId }) {
                 // Update the chat room's last message and timestamp
+
                 
                 var chatRoom = self.allChatRooms[index]
                 chatRoom.latestMessage = messageData
@@ -319,11 +447,15 @@ extension WebSocketManager {
                 // Remove the chat room from its current position
                 self.allChatRooms.remove(at: index)
                 
+                //the unread messages count checker - later has to be replaced when the read of messages is implemented
+                if let c_chatroom = self.inCurrentChatroom, c_chatroom.id == chatRoom.id {
+                    chatRoom.read = true
+                } else {
+                    chatRoom.read = false
+                }
                 // Insert the chat room at the top of the list
                 self.allChatRooms.insert(chatRoom, at: 0)
-            }
-            
-            else {
+            } else {
                 Task{
                     var attempt = 0
                     var chatRoom: Components.Schemas.ChatRoomDto?
@@ -360,6 +492,8 @@ extension WebSocketManager {
                     }
                 }
             }
+            
+            self.calculateUnreadMessagesCount(prevChatroom: prevChatroom)
         }
     }
     
@@ -403,6 +537,15 @@ extension WebSocketManager {
                 try await getAllChats()
             }
         }
+    }
+    
+    func editMessage(messageId: String, newMessage: String) {
+        Task{
+            if let response = try await APIClient.shared.editMessage(messageId: messageId, text: newMessage){
+
+            }
+        }
+        
     }
     
     func chatMessageCheck(message: Components.Schemas.ReceivedChatMessageDto) {
@@ -450,8 +593,12 @@ extension WebSocketManager {
     
     
     func getAllChats() async throws {
+        DispatchQueue.main.async{
+            if self.allChatRooms.count >= 0 {
+                self.inboxChatsState = .loading
+            }
+        }
         if let response = try await APIClient.shared.allChats(page: chatPage, size: chatSize) {
-            
             DispatchQueue.main.async{
                 let newResponse = response.data
                 let existingResponseIDs = Set(self.allChatRooms.suffix(30).map { $0.id })
@@ -460,6 +607,12 @@ extension WebSocketManager {
                 self.allChatRooms += uniqueNewResponse
                 self.lastChatPage = response.lastPage
                 self.chatPage += 1
+                
+                if response.listCount > 0 {
+                    self.inboxChatsState = .loaded
+                } else {
+                    self.inboxChatsState = .noResults
+                }
                 self.isLoadingChats = .loaded
             }
         }
@@ -492,13 +645,23 @@ extension WebSocketManager {
         }
     }
     
+    func getUnreadMessagesCount() async throws {
+        if let response = try await APIClient.shared.unreadMessagesCount(){
+            DispatchQueue.main.async{
+                self.unreadMessagesCount = Int(response.number)
+            }
+        }
+    }
+    
     func setChatAsEntered(chatId: String) async throws {
         if (try await APIClient.shared.enterChat(chatId: chatId)) != nil {
             DispatchQueue.main.async{
+                
                 if let index = self.allChatRooms.firstIndex(where: { $0.id == chatId }) {
                     // Update the chat room's last message and timestamp
-                    
+                    let prevChatrooms = self.allChatRooms
                     self.allChatRooms[index].read = true
+                    self.calculateUnreadMessagesCount(prevChatroom: prevChatrooms)
                     
                 }
             }
@@ -544,6 +707,14 @@ extension WebSocketManager {
             completion(false)
             DispatchQueue.main.async {
                 self.loadingState = .noResults
+            }
+        }
+    }
+    
+    func unreadNotifications() async throws {
+        if let notNumber = try await APIClient.shared.unreadNotificationsCount(){
+            DispatchQueue.main.async {
+                self.unreadNotificationsCount = Int(notNumber.number)
             }
         }
     }

@@ -143,6 +143,7 @@ struct AllEventTabsView: View {
                         Text(locationCityAndCountry(post.location))
                             .font(.subheadline)
                             .fontWeight(.semibold)
+                            .multilineTextAlignment(.leading)
                         
                         if !post.askToJoin || post.currentUserStatus == .PARTICIPATING {
                             if let address = post.location.address {
@@ -150,11 +151,15 @@ struct AllEventTabsView: View {
                                     .font(.footnote)
                                     .foregroundColor(.gray)
                                     .fontWeight(.bold)
+                                    .multilineTextAlignment(.leading)
+
                             } else {
                                 Text(post.location.name)
                                     .font(.footnote)
                                     .foregroundColor(.gray)
                                     .fontWeight(.bold)
+                                    .multilineTextAlignment(.leading)
+
                             }
                         } else {
                             Text("The exact location will be revealed upon joining.")
@@ -225,7 +230,7 @@ struct AllEventTabsView: View {
                                     }
                                     
                                 }
-                                
+
                                 if eventVM.participantsList.count > 4 {
                                     
                                     Circle()
@@ -233,7 +238,7 @@ struct AllEventTabsView: View {
                                         .frame(width: 40, height: 40)
                                         .overlay(
                                             ZStack(alignment:.center){
-                                                Text("+\(formatBigNumbers(Int(eventVM.participantsList.count - 4)))")
+                                                Text("+\(formatBigNumbers(Int(eventVM.participantsCount - 4)))")
                                                     .font(.caption2)
                                                     .fontWeight(.semibold)
                                                     .foregroundColor(.white)
@@ -369,7 +374,7 @@ struct AllEventTabsView: View {
                             .font(.subheadline)
                             .fontWeight(.semibold)
                         
-                        Text("€ \(String(format: "%.2f", post.payment)) per person")
+                        Text("\(post.currency?.symbol ?? "€") \(String(format: "%.2f", post.payment)) per person")
                             .font(.footnote)
                             .foregroundColor(.gray)
                             .fontWeight(.bold)

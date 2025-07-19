@@ -174,7 +174,7 @@ extension WebSocketTestManager {
     }
     
     func sendMessage(senderId: String, chatId: String, content: String, type: Components.Schemas.ReceivedChatMessageDto.contentTypePayload) {
-        let chatMessage = ChatMessages(senderId: senderId, chatId: chatId, content: content, contentType: type.rawValue)
+        let chatMessage = ChatMessages(id: UUID().uuidString, senderId: senderId, chatId: chatId, content: content, contentType: type.rawValue)
         do {
             let jsonData = try JSONEncoder().encode(chatMessage)
             if let jsonString = String(data: jsonData, encoding: .utf8) {

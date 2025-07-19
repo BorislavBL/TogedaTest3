@@ -13,7 +13,7 @@ import EventKit
 
 struct EventView: View {
     @StateObject var eventVM = EventViewModel()
-
+    
     @State var eventNotFound: Bool = false
     @State var post: Components.Schemas.PostResponseDto
     @State var isEditing = false
@@ -46,6 +46,9 @@ struct EventView: View {
     
     @State private var hideEvent: Bool = false
     
+    @State var isShowChangeDateAlert = false
+    @State var newDate: Date = Date()
+    
     var body: some View {
         
         ZStack(alignment: .bottom) {
@@ -73,7 +76,7 @@ struct EventView: View {
                         
                         NavigationLink(value: SelectionPath.profile(post.owner)){
                             HStack(alignment: .center, spacing: 10) {
-                                                                
+                                
                                 KFImage(URL(string: post.owner.profilePhotos[0]))
                                     .resizable()
                                     .scaledToFill()
@@ -83,7 +86,7 @@ struct EventView: View {
                                 
                                 
                                 VStack(alignment: .leading, spacing: 5) {
-                                     
+                                    
                                     HStack(spacing: 5){
                                         Text("\(post.owner.firstName) \(post.owner.lastName)")
                                             .font(.body)
@@ -100,12 +103,13 @@ struct EventView: View {
                                         .font(.footnote)
                                         .foregroundColor(.gray)
                                         .fontWeight(.bold)
+                                        .multilineTextAlignment(.leading)
                                     
                                 }
                             }
                         }
                         
-
+                        
                         AllEventTabsView(eventVM: eventVM, post: post, club: club, event: $event, store: $store, locationStatus: $locationManager.authorizationStatus)
                         
                         
@@ -134,33 +138,33 @@ struct EventView: View {
                             .padding(.vertical, 8)
                         
                         if !post.askToJoin || post.currentUserStatus == .PARTICIPATING{
-
+                            
                             Text(post.location.name)
                                 .normalTagTextStyle()
                                 .normalTagCapsuleStyle()
                             
                             
-                                Button(action: {
-                                    if isGoogleMapsInstalled() {
-                                        eventVM.openMapSheet = true
-                                    } else {
-                                        if let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)"),
-                                           UIApplication.shared.canOpenURL(url) {
-                                            DispatchQueue.main.async {
-                                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                                            }
+                            Button(action: {
+                                if isGoogleMapsInstalled() {
+                                    eventVM.openMapSheet = true
+                                } else {
+                                    if let url = URL(string: "maps://?saddr=&daddr=\(post.location.latitude),\(post.location.longitude)"),
+                                       UIApplication.shared.canOpenURL(url) {
+                                        DispatchQueue.main.async {
+                                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
                                         }
                                     }
-                                }, label: {
-                                    Map(initialPosition: .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude), latitudinalMeters: 1000, longitudinalMeters: 1000))
-                                    ){
-                                        Marker(post.title, coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude))
-                                            .tint(.black)
-                                    }
-                                    .allowsHitTesting(false)
-                                    .frame(height: 300)
-                                    .cornerRadius(20)
-                                })
+                                }
+                            }, label: {
+                                Map(initialPosition: .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude), latitudinalMeters: 1000, longitudinalMeters: 1000))
+                                ){
+                                    Marker(post.title, coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude))
+                                        .tint(.black)
+                                }
+                                .allowsHitTesting(false)
+                                .frame(height: 300)
+                                .cornerRadius(20)
+                            })
                             
                             
                         } else {
@@ -190,15 +194,15 @@ struct EventView: View {
                 .padding(.bottom, 100)
                 .background(.bar)
             }
-//            .safeAreaInset(edge: .top, spacing: 0) {
-//                Rectangle()
-//                    .fill(.clear)
-//                    .frame(height: 44)
-//            }
+            //            .safeAreaInset(edge: .top, spacing: 0) {
+            //                Rectangle()
+            //                    .fill(.clear)
+            //                    .frame(height: 44)
+            //            }
             .refreshable {
                 Task{
                     do {
-
+                        
                         if let response = try await APIClient.shared.getEvent(postId: post.id) {
                             if let index = postsVM.feedPosts.firstIndex(where: { $0.id == post.id }) {
                                 postsVM.feedPosts[index] = response
@@ -210,7 +214,7 @@ struct EventView: View {
                             
                             post = response
                         }
-
+                        
                         eventVM.participantsList = []
                         eventVM.participantsPage = 0
                         try await eventVM.fetchUserList(id: post.id)
@@ -272,6 +276,7 @@ struct EventView: View {
             }
         }
         .onAppear(){
+            newDate = post.createdAt
             eventVM.participantsList = []
             eventVM.participantsPage = 0
             Task{
@@ -281,7 +286,7 @@ struct EventView: View {
                 print("\(string)")
                 
             }
-//            locationCityAndCountry(post.location)
+            //            locationCityAndCountry(post.location)
         }
         .onChange(of: chatVM.newNotification){ old, new in
             print("triggered 1")
@@ -289,6 +294,22 @@ struct EventView: View {
                 print("triggered 2")
                 eventVM.updateEvent(not: not, post: $post)
             }
+        }
+        .alert("Change Date", isPresented: $isShowChangeDateAlert) {
+            if userViewModel.currentUser?.userRole == .ADMINISTRATOR {
+                Button("Yes") {
+                    Task{
+                        if let response = try await APIClient.shared.changeEventDate(postId: post.id, newDate: newDate){
+                            post = response
+                        }
+                    }
+                }
+            }
+            Button("Cancel") {
+                isShowChangeDateAlert = false
+            }
+        } message: {
+            Text("Are you sure you want to change club's date?")
         }
         .sheet(isPresented: $showReportEvent, content: {
             ReportEventView(event: post, isActive: $showReportEvent)
@@ -344,11 +365,13 @@ struct EventView: View {
                     }
                 }
                 DispatchQueue.main.async {
-                    navManager.selectionPath.removeLast(1)
+                    if navManager.selectionPath.count >= 1{
+                        navManager.selectionPath.removeLast(1)
+                    }
                 }
             }
             .presentationDetents([.height(190)])
-                
+            
         })
         .sheet(isPresented: $eventVM.showAddEvent) {
             EventEditViewController(event: $event, eventStore: store)
@@ -419,61 +442,66 @@ struct EventView: View {
             }
             Spacer()
             
-            if isOwner {
-                
-                if let chatRoomID = post.chatRoomId {
-                    Button{
-                        Task{
-                            print("\(chatRoomID)")
-                            do {
-                                if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomID) {
-                                    print("\(chatroom)")
-//                                    chatVM.chatRoomCheck(chatRoom: chatroom)
-                                    DispatchQueue.main.async {
-                                        self.navManager.screen = .message
-                                        self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
-                                    }
-                                } else {
-                                    print("nil")
+            
+            
+            if let chatRoomID = post.chatRoomId, post.currentUserStatus == .PARTICIPATING {
+                Button{
+                    Task{
+                        print("\(chatRoomID)")
+                        do {
+                            if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomID) {
+                                print("\(chatroom)")
+                                //                                    chatVM.chatRoomCheck(chatRoom: chatroom)
+                                DispatchQueue.main.async {
+                                    navManager.resetMessage = true
+
+                                    navManager.screen = .message
+                                    navManager.selectionPath = []
+                                    
+                                    navManager.selectionPath.append(SelectionPath.userChat(chatroom: chatroom))
                                 }
-                            } catch {
-                                print(error)
+                            } else {
+                                print("nil")
                             }
+                        } catch {
+                            print(error)
                         }
-                    } label:{
-                        Text("Go To Chat")
-                            .font(.footnote)
-                            .bold()
-                            .frame(height: 35)
-                            .padding(.horizontal)
-                            .background(.bar)
-                            .clipShape(Capsule())
                     }
-                } else if post.status != .HAS_ENDED {
-                    Button{
-                        Task{
-                            if let chatRoomId = try await APIClient.shared.createChatForEvent(postId: post.id) {
-                                if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomId) {
-                                    print("\(chatroom)")
-//                                    chatVM.chatRoomCheck(chatRoom: chatroom)
-                                    DispatchQueue.main.async {
-                                        self.navManager.screen = .message
-                                        self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
-                                    }
-                                }
-                            }
-                        }
-                    } label:{
-                        Text("Create Chat")
-                            .font(.footnote)
-                            .bold()
-                            .frame(height: 35)
-                            .padding(.horizontal)
-                            .background(.bar)
-                            .clipShape(Capsule())
-                    }
+                } label:{
+                    Text("Go To Chat")
+                        .font(.footnote)
+                        .bold()
+                        .frame(height: 35)
+                        .padding(.horizontal)
+                        .background(.bar)
+                        .clipShape(Capsule())
                 }
-                
+            } else if post.status != .HAS_ENDED, post.currentUserStatus == .PARTICIPATING {
+                Button{
+                    Task{
+                        if let chatRoomId = try await APIClient.shared.createChatForEvent(postId: post.id) {
+                            if let chatroom = try await APIClient.shared.getChat(chatId: chatRoomId) {
+                                print("\(chatroom)")
+                                //                                    chatVM.chatRoomCheck(chatRoom: chatroom)
+                                DispatchQueue.main.async {
+                                    self.navManager.screen = .message
+                                    self.navManager.selectionPath = [.userChat(chatroom: chatroom)]
+                                }
+                            }
+                        }
+                    }
+                } label:{
+                    Text("Create Chat")
+                        .font(.footnote)
+                        .bold()
+                        .frame(height: 35)
+                        .padding(.horizontal)
+                        .background(.bar)
+                        .clipShape(Capsule())
+                }
+            }
+            
+            if isOwner {
                 if post.status != .HAS_ENDED {
                     Button{
                         isEditing = true
@@ -538,6 +566,123 @@ struct EventView: View {
                     }
                     
                     if userViewModel.currentUser?.userRole == .ADMINISTRATOR {
+                        Menu {
+                            Button(){
+                                newDate = Date()
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("Now")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(){
+                                newDate = Calendar.current.date(byAdding: .year, value: 1, to: post.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("1 Year Up")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(){
+                                newDate = Calendar.current.date(byAdding: .month, value: 1, to: post.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("1 Month Up")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(){
+                                newDate = Calendar.current.date(byAdding: .day, value: 7, to: post.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("1 Week Up")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            
+                            Button{
+                                newDate = Calendar.current.date(byAdding: .day, value: 1, to: post.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.up")
+                                    Text("1 Day Up")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(role: .destructive){
+                                newDate = Calendar.current.date(byAdding: .day, value: -1, to: post.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.down")
+                                    Text("1 Day Down")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(role: .destructive){
+                                newDate = Calendar.current.date(byAdding: .day, value: -7, to: post.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.down")
+                                    Text("1 Week Down")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(role: .destructive){
+                                newDate = Calendar.current.date(byAdding: .month, value: -1, to: post.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.down")
+                                    Text("1 Month Down")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                            
+                            Button(role: .destructive){
+                                newDate = Calendar.current.date(byAdding: .year, value: -1, to: post.createdAt)!
+                                isShowChangeDateAlert = true
+                                
+                            } label:{
+                                HStack(spacing: 20){
+                                    Image(systemName: "arrow.down")
+                                    Text("1 Year Down")
+                                }
+                                .foregroundStyle(.red)
+                            }
+                        } label: {
+                            HStack(spacing: 20){
+                                Image(systemName: "calendar")
+                                Text("Change Date")
+                            }
+                            .foregroundStyle(.red)
+                        }
+                        
                         Button(role: .destructive){
                             deleteSheet = true
                         } label:{
@@ -550,7 +695,7 @@ struct EventView: View {
                         .createEventTabStyle()
                     }
                 }
-
+                
                 
             } label: {
                 Image(systemName: "ellipsis")
@@ -635,8 +780,8 @@ struct EventView: View {
                         
                         if post.currentUserStatus == .PARTICIPATING && post.needsLocationalConfirmation && post.currentUserArrivalStatus != .ARRIVED {
                             Button {
-//                                locationManager.requestCurrentLocation()
-//                                if let location = locationManager.location{
+                                //                                locationManager.requestCurrentLocation()
+                                //                                if let location = locationManager.location{
                                 if let location = getUserLocationCords(){
                                     let distance = calculateDistance(lat1: location.coordinate.latitude, lon1: location.coordinate.longitude, lat2: post.location.latitude, lon2: post.location.longitude)
                                     eventVM.distance = Int(distance.rounded())
@@ -659,7 +804,7 @@ struct EventView: View {
                                         })
                                     }
                                 }
-//                                locationManager.stopLocation()
+                                //                                locationManager.stopLocation()
                             } label: {
                                 Text("Confirm Arrival")
                                     .fontWeight(.semibold)
@@ -765,7 +910,7 @@ struct EventView: View {
                         }
                     }
                 }
-
+                
                 if post.status != .HAS_ENDED {
                     shareAndSave()
                 }
@@ -834,7 +979,7 @@ struct EventView: View {
                                 }
                             }
                         }
-
+                        
                     } else {
                         DispatchQueue.main.async{
                             self.eventNotFound = true
@@ -852,7 +997,7 @@ struct EventView: View {
                             self.club = response
                             self.Init = false
                         }
-
+                        
                     }
                 } catch {
                     print(error)
@@ -890,7 +1035,7 @@ struct EventView: View {
                     }
                 }
             }
-
+            
             
             group.addTask {
                 do {
@@ -915,6 +1060,6 @@ struct EventView_Previews: PreviewProvider {
             .environmentObject(NavigationManager())
             .environmentObject(ActivityViewModel())
             .environmentObject(LocationManager())
-
+        
     }
 }

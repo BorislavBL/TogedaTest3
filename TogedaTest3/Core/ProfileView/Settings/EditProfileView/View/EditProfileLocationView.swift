@@ -14,7 +14,7 @@ struct EditProfileLocationView: View {
     @Environment(\.dismiss) var dismiss
     
     @ObservedObject var editProfileVM: EditProfileViewModel
-    @StateObject var locationVM = LocationPickerViewModel(searchType: .cityAndCountry)
+    @StateObject var locationVM = LocationPickerViewModel(searchType: .cityWithCountry)
     @State var showCancelButton: Bool = false
     @State var isCurrentLocation: Bool = true
     
@@ -69,6 +69,12 @@ struct EditProfileLocationView: View {
             .padding(16)
             .background(backgroundColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             .cornerRadius(10.0)
+            
+            Text("Please enter both a city and a country (e.g. \"London, United Kingdom\").")
+                .multilineTextAlignment(.leading)
+                .bold()
+                .foregroundStyle(.gray)
+                .padding(.vertical, 8)
             
             
             Spacer()

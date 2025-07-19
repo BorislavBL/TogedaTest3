@@ -15,6 +15,7 @@ struct EditEventView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showLocationView = false
     @State private var showCategoryView = false
+    @State private var showAccessibility = false
     @EnvironmentObject var navManager: NavigationManager
     @EnvironmentObject var postsVM: PostsViewModel
     @EnvironmentObject var activityVM: ActivityViewModel
@@ -145,29 +146,29 @@ struct EditEventView: View {
                         
                     }
                     
-//                    NavigationLink {
-//                        DateView(isDate: $vm.isDate, date: $vm.date, from: $vm.from, to: $vm.to, daySettings: $vm.daySettings, timeSettings: $vm.timeSettings)
-//                    } label: {
-//                        HStack(alignment: .center, spacing: 10) {
-//                            Image(systemName: "calendar")
-//                                .imageScale(.large)
-//                            
-//                            
-//                            Text("Date & Time")
-//                            
-//                            Spacer()
-//                            
-//                            
-//                            Text(vm.isDate ? separateDateAndTime(from:vm.date).date : "Any day")
-//                                .foregroundColor(.gray)
-//                            
-//                            Image(systemName: "chevron.right")
-//                                .padding(.trailing, 10)
-//                                .foregroundColor(.gray)
-//                            
-//                        }
-//                        .createEventTabStyle()
-//                    }
+                    Button{
+                        showAccessibility = true
+                    } label: {
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "eye.circle")
+                                .imageScale(.large)
+                            
+                            
+                            Text("Accessibility")
+                            
+                            Spacer()
+                            
+                            
+                            Text(vm.editPost.accessibility.rawValue.capitalized)
+                                .foregroundColor(.gray)
+                            
+                            Image(systemName: "chevron.right")
+                                .padding(.trailing, 10)
+                                .foregroundColor(.gray)
+                            
+                        }
+                        .createEventTabStyle()
+                    }
                     if post.status != .HAS_STARTED {
                         VStack(alignment: .leading, spacing: 20){
                             Button{
@@ -345,7 +346,9 @@ struct EditEventView: View {
                 }
                 DispatchQueue.main.async {
                     isActive = false
-                    navManager.selectionPath.removeLast(1)
+                    if navManager.selectionPath.count >= 1{
+                        navManager.selectionPath.removeLast(1)
+                    }
                     userVM.removePost(post: post)
                 }
             }
@@ -398,6 +401,9 @@ struct EditEventView: View {
         })
         .navigationDestination(isPresented: $showCategoryView, destination: {
             CategoryView(selectedInterests: $vm.selectedInterests, text: "Select at least one tag related to your event", minInterests: 0)
+        })
+        .navigationDestination(isPresented: $showAccessibility, destination: {
+            EditAccessibilityView(selectedVisability: $vm.editPost.accessibility)
         })
         .onAppear{
             if vm.isInit {

@@ -72,5 +72,5 @@ struct UserRequestTab: View {
 }
 
 #Preview {
-    UserRequestTab(users: [MockMiniUser])
+    UserRequestTab(users: [MockMiniUser, MockMiniUser])
 }

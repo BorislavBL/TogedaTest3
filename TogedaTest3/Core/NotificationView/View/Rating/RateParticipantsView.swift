@@ -10,7 +10,6 @@ import Kingfisher
 
 struct RateParticipantsView: View {
     @Environment(\.dismiss) private var dismiss
-    let size: ImageSize = .medium
     @StateObject var eventVM = EventViewModel()
     @EnvironmentObject var userVM: UserViewModel
     @EnvironmentObject var wsManager: WebSocketManager
@@ -36,75 +35,8 @@ struct RateParticipantsView: View {
                         if let currentUser = userVM.currentUser, currentUser.id == user.user.id{
                             EmptyView()
                         } else {
-                            HStack{
-//                                NavigationLink(value: SelectionPath.profile(user.user)){
-                                    HStack{
-                                        KFImage(URL(string: user.user.profilePhotos[0]))
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: size.dimension, height: size.dimension)
-                                            .clipShape(Circle())
-                                        
-                                        VStack(alignment: .leading){
-                                            HStack(spacing: 5){
-                                                Text("\(user.user.firstName) \(user.user.lastName)")
-                                                
-                                                if user.user.userRole == .AMBASSADOR {
-                                                    AmbassadorSealMini()
-                                                } else if user.user.userRole == .PARTNER {
-                                                    PartnerSealMini()
-                                                }
-                                            }
-                                                .fontWeight(.semibold)
-                                            if user._type == .CO_HOST || user._type == .HOST {
-                                                Text(user._type.rawValue.capitalized)
-                                                    .foregroundColor(.gray)
-                                                    .fontWeight(.semibold)
-                                                    .font(.footnote)
-                                            }
-                                            
-                                        }
-                                    }
-                                    
-//                                }
-                                Spacer()
+                            PostParticipantRatingTab(user: user, vm: vm, eventVM: eventVM, post: post)
                                 
-                                if vm.ratePostParticipants.contains(where: {$0.userId == user.user.id}){
-                                    Image(systemName: "hand.thumbsup.fill")
-                                        .foregroundStyle(.green)
-                                } else {
-                                    Button{
-                                        vm.selectedExtendedUser = user
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                            vm.showUserLike = true
-                                        }
-                                        
-                                    } label: {
-                                        Image(systemName: "hand.thumbsup")
-                                            .foregroundStyle(.green)
-                                    }
-                                }
-                                
-                                Menu{
-                                    Button("Report"){
-                                        vm.selectedExtendedUser = user
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                            vm.showUserReport = true
-                                        }
-                                        
-                                    }
-                                    if (post.currentUserRole == .HOST) && (user._type != .HOST){
-                                        Button("The user did not show"){
-                                            userDidNotShow(user: user.user)
-                                        }
-                                    }
-                                }label:{
-                                    Image(systemName: "exclamationmark.triangle")
-                                        .foregroundStyle(.red)
-                                }
-                                
-                            }
-                            .padding(.vertical, 5)
                         }
                     }
                     
@@ -210,22 +142,6 @@ struct RateParticipantsView: View {
         
     }
     
-    func userDidNotShow(user: Components.Schemas.MiniUser) {
-            let report: Components.Schemas.ReportDto = .init(
-                reportType: .NOT_SHOWN,
-                description: "The user did not show to the event.",
-                reportedUser: user.id,
-                reportedPost: nil,
-                reportedClub: nil
-            )
-            
-            Task{
-                if let _ = try await APIClient.shared.report(body: report) {
-
-                }
-            }
-        
-    }
     
 }
 
@@ -234,6 +150,149 @@ struct RateParticipantsView: View {
         .environmentObject(NavigationManager())
         .environmentObject(WebSocketManager())
         .environmentObject(UserViewModel())
+}
+
+struct PostParticipantRatingTab: View {
+    var user: Components.Schemas.ExtendedMiniUser
+    let size: ImageSize = .medium
+    @ObservedObject var vm: RatingViewModel
+    @ObservedObject var eventVM: EventViewModel
+    @State var openComent: Bool = false
+    var post: Components.Schemas.PostResponseDto
+    var commentBinding: Binding<String> {
+            Binding(
+                get: {
+                    if let rating = vm.ratePostParticipants.first(where: { $0.userId == user.user.id }) {
+                        return rating.rating.comment ?? ""
+                    }
+                    return ""
+                },
+                set: { newValue in
+                    if let index = vm.ratePostParticipants.firstIndex(where: { $0.userId == user.user.id }) {
+                        vm.ratePostParticipants[index].rating.comment = newValue
+                    }
+                }
+            )
+        }
+    var body: some View {
+        VStack{
+            HStack{
+                //                                NavigationLink(value: SelectionPath.profile(user.user)){
+                HStack{
+                    KFImage(URL(string: user.user.profilePhotos[0]))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size.dimension, height: size.dimension)
+                        .clipShape(Circle())
+                    
+                    VStack(alignment: .leading){
+                        HStack(spacing: 5){
+                            Text("\(user.user.firstName) \(user.user.lastName)")
+                            
+                            if user.user.userRole == .AMBASSADOR {
+                                AmbassadorSealMini()
+                            } else if user.user.userRole == .PARTNER {
+                                PartnerSealMini()
+                            }
+                        }
+                        .fontWeight(.semibold)
+                        if user._type == .CO_HOST || user._type == .HOST {
+                            Text(user._type.rawValue.capitalized)
+                                .foregroundColor(.orange)
+                                .fontWeight(.semibold)
+                                .font(.footnote)
+                        } else {
+                            if user.locationStatus == .ARRIVED {
+                                Text("Arrived")
+                                    .foregroundColor(.green)
+                                    .fontWeight(.semibold)
+                                    .font(.footnote)
+                            } else if user.locationStatus == .NOT_SHOWN{
+                                Text("Not Shown")
+                                    .foregroundColor(.red)
+                                    .fontWeight(.semibold)
+                                    .font(.footnote)
+                            }
+                        }
+                        
+                    }
+                }
+                
+                //                                }
+                Spacer()
+                
+                if vm.ratePostParticipants.contains(where: {$0.userId == user.user.id}){
+                    Button {
+                        withAnimation{
+                            openComent.toggle()
+                        }
+                        
+                    } label:{
+                        Image(systemName: "ellipsis.message.fill")
+                    }
+                    
+                    Button{
+                        vm.selectedExtendedUser = user
+                        vm.ratePostParticipants.removeAll(where: {$0.userId == user.user.id})
+                        openComent = false
+                        
+                    } label: {
+                        Image(systemName: "hand.thumbsup.fill")
+                            .foregroundStyle(.green)
+                    }
+                } else {
+                    Button{
+                        vm.selectedExtendedUser = user
+                        vm.ratePostParticipants.append(.init(postId: post.id, userId: user.user.id, rating: .init(liked: true, comment: "")))
+                        
+                    } label: {
+                        Image(systemName: "hand.thumbsup")
+                            .foregroundStyle(.green)
+                    }
+                }
+                
+                Menu{
+                    Button("Report"){
+                        vm.selectedExtendedUser = user
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            vm.showUserReport = true
+                        }
+                        
+                    }
+                    if (post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST) && user._type == .NORMAL {
+                        if user.locationStatus != .ARRIVED {
+                            Button("Arrived") {
+                                Task{
+                                    try await eventVM.changeUserStatus(postId: post.id, userId: user.user.id, status: .ARRIVED)
+                                }
+                            }
+                        }
+                        if user.locationStatus != .NOT_SHOWN {
+                            Button("Not Shown") {
+                                Task{
+                                    try await eventVM.changeUserStatus(postId: post.id, userId: user.user.id, status: .NOT_SHOWN)
+                                }
+                            }
+                        }
+                        
+                    }
+                } label:{
+                    Image(systemName: "exclamationmark.triangle")
+                        .foregroundStyle(.red)
+                }
+                
+            }
+            
+            if openComent{
+                TextField("Tell us what you liked about \(user.user.firstName)? (Optional)", text: commentBinding, axis: .vertical)
+                    .lineLimit(3, reservesSpace: true)
+                    .padding()
+                    .background{Color("main-secondary-color")}
+                    .cornerRadius(10)
+            }
+        }
+        .padding(.vertical, 5)
+    }
 }
 
 struct RateParticipantSheet: View {
@@ -308,3 +367,5 @@ struct RateParticipantSheet: View {
         .padding(.top, 26)
     }
 }
+
+

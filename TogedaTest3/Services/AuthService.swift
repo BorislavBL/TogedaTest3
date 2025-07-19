@@ -14,7 +14,7 @@ import SwiftUI
 class AuthService: ObservableObject {
     static let shared = AuthService()
     private var client: Client
-    private let serverURL = URL(string: "https://api.togeda.net")!
+    private let serverURL = URL(string: TogedaMainLinks.baseURL)!
     private weak var viewModel: ContentViewModel?
     
     private init() {

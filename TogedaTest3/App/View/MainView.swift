@@ -112,9 +112,8 @@ struct MainView: View {
                 }
             }
             .onChange(of: vm.sessionCount) { oldValue, newValue in
-                if webSocketManager.isConnected {
-                    webSocketManager.reconnectWithNewToken()
-                }
+                print("\(vm.sessionCount) <<<<<<<<<<<<>>>>>>>>>")
+                webSocketManager.reconnectWithNewToken()
             }
             .onChange(of: vm.resetCurrentUser) { oldValue, newValue in
                 if newValue{
@@ -129,7 +128,7 @@ struct MainView: View {
     func fetchOnDidBecomeActive() async throws{
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
-                await vm.validateTokens()
+                await vm.validateTokensAndCheckState()
             }
             
             group.addTask {
@@ -144,6 +143,22 @@ struct MainView: View {
                 } catch {
                     // Handle the error if needed
                     print("Error updating chat rooms: \(error)")
+                }
+            }
+            
+            group.addTask {
+                do {
+                    try await webSocketManager.unreadNotifications()
+                } catch {
+                    print(error)
+                }
+            }
+            
+            group.addTask {
+                do {
+                    try await webSocketManager.getUnreadMessagesCount()
+                } catch {
+                    print(error)
                 }
             }
             
@@ -179,10 +194,16 @@ struct MainView: View {
                     postsViewModel.lat = location.coordinate.latitude
                     postsViewModel.long = location.coordinate.longitude
                     postsViewModel.state = .loading
+                    postsViewModel.feedPosts = []
+                    postsViewModel.lastPage = true
+                    postsViewModel.page = 0
                     
                     clubsViewModel.lat = location.coordinate.latitude
                     clubsViewModel.long = location.coordinate.longitude
                     clubsViewModel.state = .loading
+                    clubsViewModel.feedClubs = []
+                    clubsViewModel.lastPage = true
+                    clubsViewModel.page = 0
                     group.addTask {
                         do {
                             try await postsViewModel.fetchPosts()
@@ -205,6 +226,9 @@ struct MainView: View {
             await group.waitForAll()
             DispatchQueue.main.async {
                 vm.initialSetupDone = true
+                if webSocketManager.swiftStomp.connectionStatus == .socketDisconnected {
+                    webSocketManager.reconnectWithNewToken()
+                }
             }
             
             // After both tasks are complete, trigger the connect method
@@ -228,6 +252,22 @@ struct MainView: View {
                     try await webSocketManager.fetchInitialNotification { success in
 
                     }
+                } catch {
+                    print(error)
+                }
+            }
+            
+            group.addTask {
+                do {
+                    try await webSocketManager.unreadNotifications()
+                } catch {
+                    print(error)
+                }
+            }
+            
+            group.addTask {
+                do {
+                    try await webSocketManager.getUnreadMessagesCount()
                 } catch {
                     print(error)
                 }

@@ -75,19 +75,41 @@ func formatDateToDayAndMonthString(date: Date) -> String {
     return dateFormatter.string(from: date)
 }
 
-func calculateAge(from birthdateStr: String) -> Int? {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd"
+//func calculateAge(from birthdateStr: String) -> Int? {
+//    let dateFormatter = DateFormatter()
+//    dateFormatter.dateFormat = "yyyy-MM-dd"
+//    dateFormatter.locale = Locale(identifier: "en_US_POSIX") // Ensures consistent parsing
+//    dateFormatter.calendar = Calendar(identifier: .gregorian) // Optional but more precise
+//
+//    guard let birthdate = dateFormatter.date(from: birthdateStr) else {
+//        return nil
+//    }
+//
+//    let calendar = Calendar.current
+//    let now = Date()
+//    let ageComponents = calendar.dateComponents([.year], from: birthdate, to: now)
+//    return ageComponents.year
+//}
 
-    guard let birthdate = dateFormatter.date(from: birthdateStr) else {
+func calculateAge(from birthdateStr: String) -> Int? {
+    let parts = birthdateStr.split(separator: "-").compactMap { Int($0) }
+    guard parts.count == 3 else { return nil }
+    
+    let year = parts[0], month = parts[1], day = parts[2]
+    
+    var calendar = Calendar.current
+    calendar.timeZone = TimeZone.current
+
+    // Use only Y-M-D to avoid DST issues
+    guard let birthdate = calendar.date(from: DateComponents(year: year, month: month, day: day)) else {
         return nil
     }
 
-    let calendar = Calendar.current
     let now = Date()
     let ageComponents = calendar.dateComponents([.year], from: birthdate, to: now)
     return ageComponents.year
 }
+
 
 
 func birthDayFromStringToDate(dateString: String) -> Date? {
