@@ -41,7 +41,18 @@ enum APIClientError: Error {
     case badRequest(Components.Schemas.ApiError) 
 }
 
-
+enum AppError: Error, Sendable {
+    case badRequest(Components.Schemas.ApiError)           // 400
+    case unauthorized(Components.Schemas.ApiError)         // 401
+    case forbidden(Components.Schemas.ApiError)            // 403
+    case notFound(Components.Schemas.ApiError)             // 404
+    case conflict(Components.Schemas.ApiError)             // 409
+    case requestTimeout(Components.Schemas.ApiError)       // 408
+    case internalServerError(Components.Schemas.ApiError?)  // 500
+    case rateLimit(Components.Schemas.RateLimitError)      // 429
+    case undocumented(_ status: Int,
+                      _ payload: OpenAPIRuntime.UndocumentedPayload? = nil)                             // anything else
+}
 
 struct AuthenticationMiddleware: ClientMiddleware {
     //    @EnvironmentObject var vm: ContentViewModel
@@ -73,7 +84,9 @@ struct AuthenticationMiddleware: ClientMiddleware {
         
         return try await next(request, body, baseURL)
     }
+    
 }
+
 
 
 class APIClient: ObservableObject {
@@ -131,178 +144,163 @@ class APIClient: ObservableObject {
 
 extension APIClient {
     // 1️⃣  An error type that lists every status code you care about
-    enum AppError: Error, Sendable {
-        case badRequest(Components.Schemas.ApiError)           // 400
-        case unauthorized(Components.Schemas.ApiError)         // 401
-        case forbidden(Components.Schemas.ApiError)            // 403
-        case notFound(Components.Schemas.ApiError)             // 404
-        case conflict(Components.Schemas.ApiError)             // 409
-        case requestTimeout(Components.Schemas.ApiError)       // 408
-        case internalServerError(Components.Schemas.ApiError)  // 500
-        case rateLimit(Components.Schemas.RateLimitError)      // 429
-        case undocumented(_ status: Int)                               // anything else
-    }
 
-    // 2️⃣  Generic helper that turns *any* generated `Output` enum
-    //     into Success *or* AppError.
-    @inlinable
-    func unwrap<Output, Success>(
-        _ output: Output,
-        success extractor: (Output) throws -> Success
-    ) throws -> Success {
 
-        // --- fast path ---------------------------------------------------------
-        if let val = try? extractor(output) { return val }
-
-        // --- the one small Mirror walk ----------------------------------------
-        let root = Mirror(reflecting: output)
-        guard root.displayStyle == .enum,
-              let (caseLabel, container) = root.children.first
-        else { throw AppError.undocumented(-1) }
-
-        if let body = Mirror(reflecting: container)
-            .children.first(where: { $0.label == "body" })?.value,
-           let payload = Mirror(reflecting: body).children.first?.value {
-
-            switch (caseLabel, payload) {
-            case ("badRequest",        let api as Components.Schemas.ApiError):   throw AppError.badRequest(api)
-            case ("unauthorized",      let api as Components.Schemas.ApiError):   throw AppError.unauthorized(api)
-            case ("forbidden",         let api as Components.Schemas.ApiError):   throw AppError.forbidden(api)
-            case ("notFound",          let api as Components.Schemas.ApiError):   throw AppError.notFound(api)
-            case ("conflict",          let api as Components.Schemas.ApiError):   throw AppError.conflict(api)
-            case ("requestTimeout",    let api as Components.Schemas.ApiError):   throw AppError.requestTimeout(api)
-            case ("internalServerError", let api as Components.Schemas.ApiError): throw AppError.internalServerError(api)
-            case ("tooManyRequests",   let rl  as Components.Schemas.RateLimitError): throw AppError.rateLimit(rl)
-            default: break
-            }
-        }
-
-        // `.undocumented`
-        if case let .some((_, status)) = root.children
-             .first(where: { $0.label == "undocumented" })
-             .flatMap({ Mirror(reflecting: $0.value).children.first }),
-           let code = status as? Int {
-            throw AppError.undocumented(code)
-        }
-
-        throw AppError.undocumented(-1)
-    }
-    
-    func handle(_ err: AppError) {
-        switch err {
-        
-        case .rateLimit(let rl):
-            print("Slow down – retry after \(rl.message)s")
-        case .internalServerError(let api):
-            print("Server 500: \(api.message ?? "n/a")")
-            print("Sorry, something went wrong.")
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        default:
-            print("API error: \(err)")
-        }
-    }
 }
 
 extension APIClient {
+    /// One function to handle success + every error case individually.
+    /// Returns the success payload if `.ok`, otherwise `nil`.
     func processResponse<Output, Success>(
         _ response: Output,
-        extractSuccess: (Output) -> Success?
-    ) -> Success? {
-        if let result = extractSuccess(response) {
-            return result
+        extractSuccess: (Output) throws -> Success
+    ) throws -> Success? {
+        // 1) Try success first
+        if let value = try? extractSuccess(response) {
+            return value
         }
-        
-        // Fallthrough error handling (pattern match by type)
-        if let undocumented = response as? (any CustomStringConvertible) {
-            print("Undocumented response: \(undocumented)")
+
+        // 2) Introspect the enum case the generator returned
+        let root = Mirror(reflecting: response)
+        guard root.displayStyle == .enum,
+              let (caseLabel, container) = root.children.first else {
+            print("Unhandled response type: \(type(of: response))")
+            throw AppError.undocumented(-1, nil)
+            return nil
         }
-        
-        switch String(describing: response) {
-        case let str where str.contains("unauthorized"):
-            print("Unauthorized")
-        case let str where str.contains("forbidden"):
-            print("Forbidden")
-        case let str where str.contains("badRequest"):
-            print("Bad Request")
-        case let str where str.contains("conflict"):
-            print("Conflict")
-        case let str where str.contains("tooManyRequests"):
-            print("Too many requests")
-        case let str where str.contains("requestTimeout"):
-            print("Request timeout")
-        case let str where str.contains("notFound"):
-            print("Not found")
-        case let str where str.contains("internalServerError"):
-            print("Internal server error")
-        case let str where str.contains("undocumented"):
-            print("Undocumented error")
+
+        // Helper: pull `body.json(<payload>)`
+        func payload() -> Any? {
+            guard let body = Mirror(reflecting: container)
+                    .children.first(where: { $0.label == "body" })?.value
+            else { return nil }
+            return Mirror(reflecting: body).children.first?.value
+        }
+
+        // Nice to have when ApiError.statusString is nil
+
+        // 3) Per–status handling
+        switch caseLabel {
+
+        case "badRequest":
+            if let api = payload() as? Components.Schemas.ApiError {
+                print((api.statusString ?? "400"), api.message ?? "")
+                throw AppError.badRequest(api)
+                // TODO: your specific handling for 400
+            }
+
+        case "unauthorized":
+            if let api = payload() as? Components.Schemas.ApiError {
+                print((api.statusString ?? "401"), api.message ?? "")
+                throw AppError.unauthorized(api)
+                // e.g. AuthService.shared.clearSession()
+            }
+
+        case "forbidden":
+            if let api = payload() as? Components.Schemas.ApiError {
+                print((api.statusString ?? "403"), api.message ?? "")
+                throw AppError.forbidden(api)
+                // TODO: your specific handling for 403
+            }
+
+        case "notFound":
+            if let api = payload() as? Components.Schemas.ApiError {
+                let line = api.statusString ?? "404"
+                print("\(line): \(api.message ?? "")")
+                throw AppError.notFound(api)
+                // TODO: your specific handling for 404
+            }
+
+        case "requestTimeout":
+            if let api = payload() as? Components.Schemas.ApiError {
+                print((api.statusString ?? "408"), api.message ?? "")
+                throw AppError.requestTimeout(api)
+                // TODO: retry, backoff, etc.
+            }
+
+        case "conflict":
+            if let api = payload() as? Components.Schemas.ApiError {
+                print((api.statusString ?? "409"), api.message ?? "")
+                throw AppError.conflict(api)
+                // TODO: conflict flow
+            }
+
+        case "tooManyRequests":
+            if let rl = payload() as? Components.Schemas.RateLimitError {
+                // Adjust fields to what your RateLimitError exposes
+                print("429 Too Many Requests: \(rl.message)")
+                throw AppError.rateLimit(rl)
+                // TODO: sleep/retry after rl.retryAfter?
+            }
+
+        case "internalServerError":
+            if let api = payload() as? Components.Schemas.ApiError {
+                print((api.statusString ?? "500"), api.message ?? "")
+                throw AppError.internalServerError(api)
+                // TODO: show user-friendly "Something went wrong"
+            }
+
+        case "undocumented":
+            // Pull status + UndocumentedPayload
+            let assoc   = Mirror(reflecting: container).children.map(\.value)
+            let status  = assoc.first as? Int ?? -1
+            let pay     = assoc.dropFirst().first as? OpenAPIRuntime.UndocumentedPayload
+            print("Undocumented response (\(status))")
+            if (500...510).contains(status) {
+                print("Internal server error2")
+                DispatchQueue.main.async {
+                    if let bool = self.viewModel?.internalServerError, !bool {
+                        self.viewModel?.internalServerError = true
+                    }
+                }
+                throw AppError.internalServerError(nil)
+            } else {
+                throw AppError.undocumented(-1, nil)
+            }
+            // You can inspect headers/body from `pay`
+            // TODO: decide what to do
+
         default:
-            print("Unhandled error: \(response)")
+            // Anything else we didn’t expect
+            print("Unhandled error case `\(caseLabel)`: \(payload() ?? "")")
         }
-        
+
         return nil
     }
+
+
 }
 // User
 extension APIClient {
-    func hasBasicInfo2() async throws -> Bool? {
-        let dto = try unwrap(                       // <— generic helper
-            try await client.hasBasicInfo()         // generated call
-        ) {                                         // success extractor closure
-            try $0.ok.body.json                     // only how to find the 200 payload
-        }
-        return dto.hasBasicInfo
+//    func getUserInfoTest2() async throws -> Components.Schemas.UserInfoDto?{
+//        do{
+//            let response = try await client.getUserInfo(.init(path: .init(userId: "123123123123")))
+//            print(try response.ok.body.json)
+//            return try response.ok.body.json
+//        } catch let error {
+//            print(error)
+//            throw error
+//        }
+//        return nil
+//    }
+    
+    func getUserInfoTest() async throws -> Components.Schemas.UserInfoDto? {
+        let response = try? await client.getUserInfo(
+            .init(path: .init(userId: "23f4d8e2-50d1-7036-e331-a281f36"))
+        )
+        guard let response else { return nil }
+        // The ONLY line you repeat per endpoint: how to read the success value.
+        return try processResponse(response) { try $0.ok.body.json }
     }
-
+    
     func hasBasicInfo() async throws -> Bool?{
         let response = try await client.hasBasicInfo()
-        switch response {
-        case let .ok(okResponse):
-            switch okResponse.body{
-            case .json(let message):
-                return message.hasBasicInfo
-            }
-            
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-            if (500...510).contains(statusCode) {
-                print("Internal server error2")
-                throw APIClientError.internalServerError
-            }
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for hasBasicInfo")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-            throw APIClientError.internalServerError
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.hasBasicInfo }
     }
     
     func deleteUser() async throws -> Bool?{
         let response = try await client.deleteUser()
+        return try processResponse(response) { try $0.ok.body.json.success }
         switch response {
         case let .ok(okResponse):
             switch okResponse.body{

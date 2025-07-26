@@ -165,6 +165,7 @@ extension Interest {
     ]
     
     static var HobbyInterests: [Interest] = [
+        .init(name: "Traveling", icon: "✈️", category: "hobby"),
         .init(name: "Self-improvement", icon: "🗿", category: "hobby"),
         .init(name: "Reading", icon: "🤓", category: "hobby"),
         .init(name: "Darts", icon: "🎯", category: "hobby"),

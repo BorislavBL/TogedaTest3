@@ -175,7 +175,7 @@ extension ContentViewModel {
         Task{
             do {
 //                if let hasBasicInfo = try await APIClient.shared.retryWithExponentialDelay(task:{ try await APIClient.shared.hasBasicInfo() }) {
-                if let hasBasicInfo = try await APIClient.shared.hasBasicInfo2(){
+                if let hasBasicInfo = try await APIClient.shared.hasBasicInfo(){
                     DispatchQueue.main.async {
                         if hasBasicInfo {
                             self.authenticationState = .authenticated
@@ -192,18 +192,18 @@ extension ContentViewModel {
                         self.authenticationState = .unauthenticated
                     }
                 }
-            } catch APIClientError.internalServerError {
+            } catch AppError.internalServerError(_) {
                 print("bbbbbbb")
                 DispatchQueue.main.async {
-                    self.internalServerError = true
+//                    self.internalServerError = true
                 }
 
             } catch {
                 print("aaaaaaaaaaaa")
-                AuthService.shared.clearSession()
-                DispatchQueue.main.async {
-                    self.authenticationState = .unauthenticated
-                }
+//                AuthService.shared.clearSession()
+//                DispatchQueue.main.async {
+//                    self.authenticationState = .unauthenticated
+//                }
             }
         }
     }

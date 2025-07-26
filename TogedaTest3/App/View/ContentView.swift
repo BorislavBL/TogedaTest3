@@ -38,16 +38,20 @@ struct ContentView: View {
             
             
 //            VStack{
+//                Spacer()
 //                Button{
 //                    Task{
-//                       try await AuthService.shared.refreshToken()
+//                        try await APIClient.shared.getUserInfoTest2()
 //                    }
 //
 //                } label:{
 //                    Text("Wazzup")
+//                        .padding()
+//                        .background(.red)
 //                }
+//                Spacer()
 //            }
-//            .background(.base)
+            
             
 //            NetworkStatusView(isConnected: $networkManager.isConnected)
 //                .padding(.top, 20)
