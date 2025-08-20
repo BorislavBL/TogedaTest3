@@ -56,3 +56,4 @@ class StripeAccountViewModel: ObservableObject {
         self.paymentResult = result
     }
 }
+

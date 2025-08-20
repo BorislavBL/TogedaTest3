@@ -136,10 +136,9 @@ struct LoginView: View {
             
             Spacer()
             
-            Button{
+            LoadingButton(action: {
                 errorMessage = nil
-                
-                Task{
+                do {
                     try await AuthService.shared.login(email: email, password: password) { response, error  in
                         if let response = response {
                             print("Success")
@@ -169,10 +168,19 @@ struct LoginView: View {
                             }
                         }
                     }
+                } catch {
+                    print(error)
                 }
-                
-            } label: {
+            }) {
                 Text("Login")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(Color("blackAndWhite"))
+                    .foregroundColor(Color("testColor"))
+                    .cornerRadius(10)
+                    .fontWeight(.semibold)
+            } loadingView: {
+                Text("Loading...")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
                     .background(Color("blackAndWhite"))
@@ -187,7 +195,7 @@ struct LoginView: View {
                     displayError.toggle()
                 }
             }
-
+        
         }
         .animation(.easeInOut(duration: 0.6), value: focus)
         .toolbar{

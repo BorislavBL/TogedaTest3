@@ -15,9 +15,7 @@ struct ForgottenPasswordView: View {
     @State private var displayError: Bool = false
     @State private var errorMessage: String?
     @State private var confirmPassword: Bool = false
-    @Binding var isActive1: Bool
-
-    
+    @Binding var isActive1: Bool    
     @EnvironmentObject var mainVm: ContentViewModel
     
     @State var userId: String = ""
@@ -56,22 +54,41 @@ struct ForgottenPasswordView: View {
             
             Spacer()
             
-            Button{
+            LoadingButton(action: {
                 errorMessage = nil
-                Task{
-                    try await AuthService.shared.forgotPassword(email: email) { success, error in
-                        if let success = success, success {
-                            confirmPassword = true
-                        } else if let errorMessage = error {
-                            DispatchQueue.main.async{
-                                print("Error on the way")
-                                self.errorMessage = errorMessage
+                do{
+                    if let exists = try await AuthService.shared.userExistsWithEmail(email: email) {
+                        if exists {
+                            try await AuthService.shared.forgotPassword(email: email) { success, error in
+                                if let success = success, success {
+                                    confirmPassword = true
+                                } else if let errorMessage = error {
+                                    DispatchQueue.main.async{
+                                        print("Error on the way")
+                                        self.errorMessage = errorMessage
+                                    }
+                                }
                             }
+                        } else {
+                            self.errorMessage = "There is no account associated with the provided email address."
                         }
+                    } else {
+                        self.errorMessage = "Something went wrong."
                     }
+                } catch {
+                    print(error)
+                    self.errorMessage = "Something went wrong."
                 }
-            } label: {
-                Text("Next")
+            }) {
+                Text("Send")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(Color("blackAndWhite"))
+                    .foregroundColor(Color("testColor"))
+                    .cornerRadius(10)
+                    .fontWeight(.semibold)
+            } loadingView: {
+                Text("Sending...")
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
                     .background(Color("blackAndWhite"))

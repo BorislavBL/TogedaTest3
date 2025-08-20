@@ -277,3 +277,4 @@ struct InterestCategorySection: View {
 #Preview {
     RegistartionInterestsView(vm: RegistrationViewModel())
 }
+

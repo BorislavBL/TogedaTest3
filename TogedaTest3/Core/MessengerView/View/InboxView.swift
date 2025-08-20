@@ -21,8 +21,6 @@ struct InboxView: View {
     @State private var openLeavePost = false
     @State private var openLeaveClub = false
     @State private var selectedChatroom: Components.Schemas.ChatRoomDto?
-
-    
     
     var body: some View {
         VStack(spacing: 0){
@@ -89,9 +87,7 @@ struct InboxView: View {
                                             if let request = try await APIClient.shared.muteChat(chatId: chatroom.id) {
                                                 if request {
                                                     DispatchQueue.main.async{
-                                                        print("is muted")
                                                         if let index = chatManager.allChatRooms.firstIndex(where: {$0.id == chatroom.id}) {
-                                                            print("1111")
                                                             chatManager.allChatRooms[index].isMuted = true
                                                         }
                                                     }
@@ -120,7 +116,7 @@ struct InboxView: View {
                                             Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
                                         }
                                     }
-                                } else if chatroom._type == .CLUB || (chatroom._type == .POST && chatroom.post?.status != .HAS_ENDED){
+                                } else if chatroom._type == .CLUB || (chatroom._type == .POST && chatroom.post?.status != .HAS_ENDED && chatroom.post?.status != .HAS_STARTED){
                                     Button(role: .destructive) {
                                         if chatroom._type == .CLUB {
                                             selectedChatroom = chatroom
@@ -181,6 +177,7 @@ struct InboxView: View {
                 }
                 .listStyle(PlainListStyle())
                 .scrollIndicators(.hidden)
+                .listRowSpacing(0)
                 .background(.bar)
                 .refreshable {
                     Task{

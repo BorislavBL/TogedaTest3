@@ -28,283 +28,293 @@ struct CreateClubView: View {
     @State var isLoading = false
     @State private var errorMessage: String?
     @EnvironmentObject var userVM: UserViewModel
+    @EnvironmentObject var bannerService: BannerService
 
     
     var body: some View {
         NavigationStack{
-            ZStack(alignment: .bottom){
-                ScrollView{
-                    
-                    if let error = errorMessage {
-                        WarningTextComponent(text: error)
-                    }
-                    
-                    VStack(alignment: .leading){
-                        Text("Title:")
-                            .foregroundStyle(.tint)
-                        TextField("What club would you like to make", text: $createGroupVM.title, axis: .vertical)
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .autocorrectionDisabled(true)
-                            .onChange(of: createGroupVM.title) { oldValue, newValue in
-                                if createGroupVM.title.count > 70 {
-                                    createGroupVM.title = String(createGroupVM.title.prefix(70))
+            ZStack{
+                ZStack(alignment: .bottom){
+                    ScrollView{
+                        
+                        //                    if let error = errorMessage {
+                        //                        WarningTextComponent(text: error)
+                        //                    }
+                        
+                        VStack(alignment: .leading){
+                            Text("Title:")
+                                .foregroundStyle(.tint)
+                            TextField("What club would you like to make", text: $createGroupVM.title, axis: .vertical)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .autocorrectionDisabled(true)
+                                .onChange(of: createGroupVM.title) { oldValue, newValue in
+                                    if createGroupVM.title.count > 70 {
+                                        createGroupVM.title = String(createGroupVM.title.prefix(70))
+                                    }
                                 }
-                            }
-                    }
-                    .createEventTabStyle()
-                    .padding(.top)
-                    
-                    if titleEmpty {
-                        WarningTextComponent(text: "Please write a title.")
-                    } else if titleChartLimit {
-                        WarningTextComponent(text: "The title has to be more than 5 characters long.")
-                    }
-                    
-                    //                VStack(alignment: .leading){
-                    //                    Text("Description:")
-                    //                        .foregroundStyle(.tint)
-                    //                    TextField(placeholder, text: $description, axis: .vertical)
-                    //                        .lineLimit(5, reservesSpace: true)
-                    //                        .onChange(of: description) { oldValue, newValue in
-                    //                            if description.count > 500 {
-                    //                                description = String(description.prefix(500))
-                    //                            }
-                    //                        }
-                    //
-                    //                    HStack{
-                    //                        Spacer()
-                    //                        Text("\(500 - description.count)")
-                    //                            .fontWeight(.semibold)
-                    //                            .foregroundStyle(.gray)
-                    //                    }
-                    //                }
-                    //                .createEventTabStyle()
-                    
-                    Button {
-                        showDescription = true
-                    } label: {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "square.and.pencil")
-                                .imageScale(.large)
-                            
-                            
-                            Text("Description")
-                            
-                            Spacer()
-                            
-                            Text(createGroupVM.description)
-                                .foregroundColor(.gray)
-                                .lineLimit(1)
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundColor(.gray)
-                            
                         }
                         .createEventTabStyle()
-                    }
-                    
-                    Button {
-                        showPhotos = true
-                    } label: {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "photo")
-                                .foregroundStyle(.tint)
-                            Text("Photos")
-                                .foregroundStyle(.tint)
-                            Spacer()
-                            
-                            if photoPickerVM.selectedImages.contains(where: {$0 != nil}) {
-                                Text("Selected")
-                                    .foregroundColor(.gray)
-                            } else {
-                                Text("Select")
-                                    .foregroundStyle(.gray)
-                            }
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundStyle(.gray)
-                            
-                            
-                        }
-                        .createEventTabStyle()
-                    }
-                    
-                    if noPhotos {
-                        WarningTextComponent(text: "Please add photos.")
-                        
-                    }
-                    
-                    Button {
-                        showLocation = true
-                    }label: {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "mappin.circle")
-                                .imageScale(.large)
-                            
-                            
-                            Text("Location")
-                            
-                            Spacer()
-                            
-                            if let location = createGroupVM.location{
-                                
-                                Text(location.name)
-                                    .foregroundColor(.gray)
-                                    .lineLimit(1)
-                            } else {
-                                Text("Select")
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundColor(.gray)
-                            
-                            
-                        }
-                        .createEventTabStyle()
-                    }
-                    
-                    if noLocation {
-                        WarningTextComponent(text: "Please select a location.")
-                        
-                    }
-                    
-                    Button {
-                        showInterests = true
-                    } label:{
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "circle.grid.2x2")
-                                .imageScale(.large)
-                            
-                            if createGroupVM.selectedInterests.count > 0 {
-                                Text(interestsOrder(createGroupVM.selectedInterests))
-                                    .lineLimit(1)
-                                Spacer()
-                            } else {
-                                Text("Interests")
-                                Spacer()
-                                Text("Select")
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundColor(.gray)
-                            
-                            
-                        }
-                        .createEventTabStyle()
-                    }
-                    
-                    if noTag {
-                        WarningTextComponent(text: "Please select at least one interest.")
-                        
-                    }
-                    
-                    Text("Aditional Options")
-                        .font(.callout)
-                        .foregroundStyle(.gray)
-                        .fontWeight(.bold)
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         .padding(.top)
-                        .padding(.horizontal, 8)
-                    
-                    Button {
-                        showAcessibility = true
-                    } label: {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "eye.circle")
-                                .imageScale(.large)
-                            
-                            
-                            Text("Accessibility")
-                            
-                            Spacer()
-                            
-                            Text(createGroupVM.selectedVisability.capitalized)
-                                .foregroundColor(.gray)
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundColor(.gray)
-                            
-                            
+                        
+                        if titleEmpty {
+                            WarningTextComponent(text: "Please write a title.")
+                        } else if titleChartLimit {
+                            WarningTextComponent(text: "The title has to be more than 5 characters long.")
                         }
-                        .createEventTabStyle()
-                    }
-                    
-                    Button {
-                        showPermission = true
-                    } label: {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "lock")
-                                .imageScale(.large)
-                            
-                            Text("Permissions")
-                            
-                            Spacer()
-                            
-                            Text(createGroupVM.selectedPermission.value)
-                                .foregroundColor(.gray)
-                            
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing, 10)
-                                .foregroundColor(.gray)
-                            
-                            
-                        }
-                        .createEventTabStyle()
-                    }
-                }
-                .padding(.horizontal)
-                .scrollIndicators(.hidden)
-                .navigationBarBackButtonHidden(true)
-                
-                if allRequirenments {
-                    ZStack(alignment: .bottom){
-                        LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
-                            .ignoresSafeArea(edges: .bottom)
-                        Button{
-                            errorMessage = nil
-                            withAnimation{
-                                isLoading = true
-                            }
-                            Task {
-                                try await createClub()
-                            }
+                        
+                        //                VStack(alignment: .leading){
+                        //                    Text("Description:")
+                        //                        .foregroundStyle(.tint)
+                        //                    TextField(placeholder, text: $description, axis: .vertical)
+                        //                        .lineLimit(5, reservesSpace: true)
+                        //                        .onChange(of: description) { oldValue, newValue in
+                        //                            if description.count > 500 {
+                        //                                description = String(description.prefix(500))
+                        //                            }
+                        //                        }
+                        //
+                        //                    HStack{
+                        //                        Spacer()
+                        //                        Text("\(500 - description.count)")
+                        //                            .fontWeight(.semibold)
+                        //                            .foregroundStyle(.gray)
+                        //                    }
+                        //                }
+                        //                .createEventTabStyle()
+                        
+                        Button {
+                            showDescription = true
                         } label: {
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "square.and.pencil")
+                                    .imageScale(.large)
+                                
+                                
+                                Text("Description")
+                                
+                                Spacer()
+                                
+                                Text(createGroupVM.description)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(1)
+                                
+                                Image(systemName: "chevron.right")
+                                    .padding(.trailing, 10)
+                                    .foregroundColor(.gray)
+                                
+                            }
+                            .createEventTabStyle()
+                        }
+                        
+                        Button {
+                            showPhotos = true
+                        } label: {
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "photo")
+                                    .foregroundStyle(.tint)
+                                Text("Photos")
+                                    .foregroundStyle(.tint)
+                                Spacer()
+                                
+                                if photoPickerVM.selectedImages.contains(where: {$0 != nil}) {
+                                    Text("Selected")
+                                        .foregroundColor(.gray)
+                                } else {
+                                    Text("Select")
+                                        .foregroundStyle(.gray)
+                                }
+                                
+                                Image(systemName: "chevron.right")
+                                    .padding(.trailing, 10)
+                                    .foregroundStyle(.gray)
+                                
+                                
+                            }
+                            .createEventTabStyle()
+                        }
+                        
+                        if noPhotos {
+                            WarningTextComponent(text: "Please add photos.")
+                            
+                        }
+                        
+                        Button {
+                            showLocation = true
+                        }label: {
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "mappin.circle")
+                                    .imageScale(.large)
+                                
+                                
+                                Text("Location")
+                                
+                                Spacer()
+                                
+                                if let location = createGroupVM.location{
+                                    
+                                    Text(location.name)
+                                        .foregroundColor(.gray)
+                                        .lineLimit(1)
+                                } else {
+                                    Text("Select")
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Image(systemName: "chevron.right")
+                                    .padding(.trailing, 10)
+                                    .foregroundColor(.gray)
+                                
+                                
+                            }
+                            .createEventTabStyle()
+                        }
+                        
+                        if noLocation {
+                            WarningTextComponent(text: "Please select a location.")
+                            
+                        } else if locationError && displayWarnings {
+                            WarningTextComponent(text: "There is something wrong with the location you selected. Please try again.")
+                        }
+
+                        
+                        Button {
+                            showInterests = true
+                        } label:{
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "circle.grid.2x2")
+                                    .imageScale(.large)
+                                
+                                if createGroupVM.selectedInterests.count > 0 {
+                                    Text(interestsOrder(createGroupVM.selectedInterests))
+                                        .lineLimit(1)
+                                    Spacer()
+                                } else {
+                                    Text("Interests")
+                                    Spacer()
+                                    Text("Select")
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Image(systemName: "chevron.right")
+                                    .padding(.trailing, 10)
+                                    .foregroundColor(.gray)
+                                
+                                
+                            }
+                            .createEventTabStyle()
+                        }
+                        
+                        if noTag {
+                            WarningTextComponent(text: "Please select at least one interest.")
+                            
+                        }
+                        
+                        Text("Aditional Options")
+                            .font(.callout)
+                            .foregroundStyle(.gray)
+                            .fontWeight(.bold)
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                            .padding(.top)
+                            .padding(.horizontal, 8)
+                        
+                        Button {
+                            showAcessibility = true
+                        } label: {
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "eye.circle")
+                                    .imageScale(.large)
+                                
+                                
+                                Text("Accessibility")
+                                
+                                Spacer()
+                                
+                                Text(createGroupVM.selectedVisability.capitalized)
+                                    .foregroundColor(.gray)
+                                
+                                Image(systemName: "chevron.right")
+                                    .padding(.trailing, 10)
+                                    .foregroundColor(.gray)
+                                
+                                
+                            }
+                            .createEventTabStyle()
+                        }
+                        
+                        Button {
+                            showPermission = true
+                        } label: {
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "lock")
+                                    .imageScale(.large)
+                                
+                                Text("Permissions")
+                                
+                                Spacer()
+                                
+                                Text(createGroupVM.selectedPermission.value)
+                                    .foregroundColor(.gray)
+                                
+                                Image(systemName: "chevron.right")
+                                    .padding(.trailing, 10)
+                                    .foregroundColor(.gray)
+                                
+                                
+                            }
+                            .createEventTabStyle()
+                        }
+                    }
+                    .padding(.horizontal)
+                    .scrollIndicators(.hidden)
+                    .navigationBarBackButtonHidden(true)
+                    
+                    if allRequirenments {
+                        ZStack(alignment: .bottom){
+                            LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
+                                .ignoresSafeArea(edges: .bottom)
+                            Button{
+                                errorMessage = nil
+                                withAnimation{
+                                    isLoading = true
+                                }
+                                Task {
+                                    try await createClub()
+                                }
+                            } label: {
+                                Text("Create")
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                                    .fontWeight(.semibold)
+                            }
+                            .padding()
+                        }
+                        .frame(height: 60)
+                    } else {
+                        ZStack(alignment: .bottom){
+                            LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
+                                .ignoresSafeArea(edges: .bottom)
                             Text("Create")
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
-                                .background(Color("blackAndWhite"))
+                                .background(.gray)
                                 .foregroundColor(Color("testColor"))
                                 .cornerRadius(10)
                                 .fontWeight(.semibold)
+                                .padding()
+                                .onTapGesture {
+                                    displayWarnings.toggle()
+                                }
                         }
-                        .padding()
+                        .frame(height: 60)
                     }
-                    .frame(height: 60)
-                } else {
-                    ZStack(alignment: .bottom){
-                        LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
-                            .ignoresSafeArea(edges: .bottom)
-                        Text("Create")
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(.gray)
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
-                            .fontWeight(.semibold)
-                            .padding()
-                            .onTapGesture {
-                                displayWarnings.toggle()
-                            }
-                    }
-                    .frame(height: 60)
+                }
+                
+                if let type = bannerService.bannerType, bannerService.isPresent {
+                    BannerView(banner: type)
                 }
             }
             .overlay {
@@ -356,46 +366,40 @@ struct CreateClubView: View {
         do{
             if await photoPickerVM.imageCheckAndMerge(images: $createGroupVM.publishedPhotosURLs){
                 let createClub = createGroupVM.createClub()
-                
-                try await APIClient.shared.createClub(data: createClub) { response, error in
-                    if let error = error {
-                        DispatchQueue.main.async{
-                            withAnimation{
-                                self.isLoading = false
+                if let responseID =  try await APIClient.shared.createClub(data: createClub) {
+                    resetClubsOnCreate()
+                    Task{
+                        if let club = try await APIClient.shared.getClub(clubID: responseID) {
+                            DispatchQueue.main.async{
+                                if club.accessibility != .PRIVATE{
+                                    self.clubVM.feedClubs.insert(club, at: 0)
+                                }
+                                self.userVM.addClub(club: club)
+                                
+                                withAnimation{
+                                    self.isLoading = false
+                                }
+                                dismiss()
                             }
-                            self.errorMessage = error
-                        }
-                    } else if let responseID = response {
-                        resetClubsOnCreate()
-                        Task{
-                            if let club = try await APIClient.shared.getClub(clubID: responseID) {
-                                DispatchQueue.main.async{
-                                    if club.accessibility != .PRIVATE{
-                                        self.clubVM.feedClubs.insert(club, at: 0)
-                                    }
-                                    self.userVM.addClub(club: club)
-                                    
-                                    withAnimation{
-                                        self.isLoading = false
-                                    }
-                                    dismiss()
+                        } else {
+                            DispatchQueue.main.async{
+                                
+                                withAnimation{
+                                    self.isLoading = false
                                 }
-                            } else {
-                                DispatchQueue.main.async{
-                                    
-                                    withAnimation{
-                                        self.isLoading = false
-                                    }
-                                    dismiss()
-                                }
+                                dismiss()
                             }
                         }
                     }
+                    
                     
                 }
             }
         } catch {
             print("Error message:", error)
+            withAnimation{
+                self.isLoading = false
+            }
         }
         
     }
@@ -455,6 +459,18 @@ struct CreateClubView: View {
         }
     }
     
+    var locationError: Bool {
+        if let location = createGroupVM.location{
+            if location.name.isEmpty && location.city == nil && location.country == nil && location.state == nil {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return true
+        }
+    }
+    
     var noTag: Bool {
         if createGroupVM.selectedInterests.count == 0 && displayWarnings {
             return true
@@ -464,7 +480,7 @@ struct CreateClubView: View {
     }
     
     var allRequirenments: Bool {
-        if createGroupVM.title.count >= 5, !createGroupVM.title.isEmpty, createGroupVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }), createGroupVM.selectedInterests.count > 0 {
+        if createGroupVM.title.count >= 5, !createGroupVM.title.isEmpty, !locationError, createGroupVM.returnedPlace.name != "Unknown Location", photoPickerVM.selectedImages.contains(where: { $0 != nil }), createGroupVM.selectedInterests.count > 0 {
             return true
         } else {
             return false
@@ -477,5 +493,6 @@ struct CreateClubView: View {
         .environmentObject(LocationManager())
         .environmentObject(ClubsViewModel())
         .environmentObject(UserViewModel())
+        .environmentObject(BannerService())
 
 }

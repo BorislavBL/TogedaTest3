@@ -112,6 +112,8 @@ struct EditEventView: View {
                     if noLocation {
                         WarningTextComponent(text: "Please select a location.")
                         
+                    } else if locationError && displayWarnings {
+                        WarningTextComponent(text: "There is something wrong with the location you selected. Please try again.")
                     }
                     
                     Button {
@@ -288,6 +290,12 @@ struct EditEventView: View {
                             }
                         }
                         .createEventTabStyle()
+                    }
+                    
+                    if displayWarnings && limitLessThanParticipants {
+                        WarningTextComponent(text: "There are already \(post.participantsCount) people in the event. You can't set the participant limit to less than that.")
+                    } else if displayWarnings && vm.editPost.maximumPeople == 1 {
+                        WarningTextComponent(text: "You count as a participant, so the minimum number is 2.")
                     }
                     
                     if post.payment > 0, post.participantsCount > 1  {
@@ -531,8 +539,42 @@ struct EditEventView: View {
         return false
     }
     
+    var limitLessThanParticipants: Bool {
+        if let maxppl = vm.editPost.maximumPeople {
+            if post.participantsCount > maxppl{
+                return true
+            } else {
+                return false
+            }
+        }
+        return false
+    }
+    
+    var locationError: Bool {
+        if vm.editPost.location.name.isEmpty &&
+            vm.editPost.location.city == nil &&
+            vm.editPost.location.country == nil &&
+            vm.editPost.location.state == nil {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    var saveButtonCheckParticiapntsCount: Bool {
+        if let maxppl = vm.editPost.maximumPeople {
+            if (post.participantsCount <= maxppl && maxppl > 1 ) || maxppl == 0 {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return true
+        }
+    }
+    
     var saveButtonCheck: Bool {
-        if vm.editPost.title.count >= 5, !vm.editPost.title.isEmpty, vm.editPost.location.name != "Unknown Location", (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || vm.editPost.images.count > 0), vm.selectedInterests.count > 0, (vm.editPost != vm.initialPost || photoPickerVM.imageIsSelected()) || changedTime{
+        if saveButtonCheckParticiapntsCount, vm.editPost.title.count >= 5, !vm.editPost.title.isEmpty, !locationError, vm.editPost.location.name != "Unknown Location", (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || vm.editPost.images.count > 0), vm.selectedInterests.count > 0, (vm.editPost != vm.initialPost || photoPickerVM.imageIsSelected()) || changedTime{
             return true
         } else {
             return false

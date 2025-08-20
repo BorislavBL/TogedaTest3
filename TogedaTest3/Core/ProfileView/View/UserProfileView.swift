@@ -304,7 +304,7 @@ struct UserProfileView: View {
                     
                     //                BadgesTab()
                     
-                    AboutTab(user: user, badges: viewModel.badges, showInstagram: (isCurrentUser || isFriend))
+                    AboutTab(isCurrentUser: isCurrentUser, user: user, badges: viewModel.badges, showInstagram: (isCurrentUser || isFriend))
                     
                     
                     if let currentUser = userVm.currentUser, currentUser.id == miniUser.id || viewModel.posts.count > 0 {

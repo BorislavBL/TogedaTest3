@@ -106,6 +106,8 @@ struct EditClubView: View {
                     
                     if noLocation {
                         WarningTextComponent(text: "Select a location.")
+                    } else if locationError && displayWarnings {
+                        WarningTextComponent(text: "There is something wrong with the location you selected. Please try again.")
                     }
                     
                     NavigationLink {
@@ -239,13 +241,22 @@ struct EditClubView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if saveButtonCheck{
-                    Button {
-                       save()
-                    } label: {
+                    LoadingButton(action: save){
                         Text("Save")
                             .foregroundStyle(.blue)
                             .bold()
+                    } loadingView: {
+                        Text("Saving")
+                            .foregroundStyle(.blue)
+                            .bold()
                     }
+//                    Button {
+//                       save()
+//                    } label: {
+//                        Text("Save")
+//                            .foregroundStyle(.blue)
+//                            .bold()
+//                    }
                 } else {
                     Text("Save")
                         .foregroundStyle(.blue.opacity(0.5))
@@ -313,8 +324,7 @@ struct EditClubView: View {
         .presentationDetents([.fraction(0.2)])
     }
     
-    func save() {
-        Task {
+    func save() async {
             errorMessage = nil
             do{
                 if await photoPickerVM.imageCheckAndMerge(images: $editGroupVM.editClub.images){
@@ -384,7 +394,7 @@ struct EditClubView: View {
                 print("Error message:", error)
             }
             
-        }
+        
     }
     
     
@@ -420,6 +430,14 @@ struct EditClubView: View {
         }
     }
     
+    var locationError: Bool {
+        if editGroupVM.editClub.location.name.isEmpty && editGroupVM.editClub.location.city == nil && editGroupVM.editClub.location.country == nil && editGroupVM.editClub.location.state == nil {
+                return true
+            } else {
+                return false
+            }
+    }
+    
     var noTag: Bool {
         if editGroupVM.selectedInterests.count == 0 && displayWarnings {
             return true
@@ -429,7 +447,7 @@ struct EditClubView: View {
     }
     
     var saveButtonCheck: Bool {
-        if editGroupVM.editClub.title.count >= 5, !editGroupVM.editClub.title.isEmpty, editGroupVM.editClub.location.name != "Unknown Location", (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || editGroupVM.editClub.images.count > 0), editGroupVM.selectedInterests.count > 0, (editGroupVM.editClub != editGroupVM.initialClub || photoPickerVM.imageIsSelected()) {
+        if editGroupVM.editClub.title.count >= 5, !editGroupVM.editClub.title.isEmpty, !locationError, editGroupVM.editClub.location.name != "Unknown Location", (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || editGroupVM.editClub.images.count > 0), editGroupVM.selectedInterests.count > 0, (editGroupVM.editClub != editGroupVM.initialClub || photoPickerVM.imageIsSelected()) {
             return true
         } else {
             return false

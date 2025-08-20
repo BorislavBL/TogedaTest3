@@ -10,11 +10,11 @@ import SwiftStomp
 
 class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var allChatRooms: [Components.Schemas.ChatRoomDto] = []
-//    {
-//        didSet {
-//            self.unreadMessagesCount = allChatRooms.filter { !$0.read }.count
-//        }
-//    }
+    //    {
+    //        didSet {
+    //            self.unreadMessagesCount = allChatRooms.filter { !$0.read }.count
+    //        }
+    //    }
     @Published private var previousAllChatRooms: [Components.Schemas.ChatRoomDto] = []
     @Published var inboxChatsState: LoadingCases = .loading
     @Published var chatPage: Int32 = 0
@@ -23,7 +23,7 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var isLoadingChats: LoadingCases = .noResults
     @Published var unreadMessagesCount = 0
     @Published var inCurrentChatroom: Components.Schemas.ChatRoomDto?
-        
+    
     //    struct ReceivedChatMessageExtension: Hashable {
     //        var message: Components.Schemas.ReceivedChatMessageDto
     //        var post: Components.Schemas.PostResponseDto?
@@ -66,7 +66,7 @@ class WebSocketManager: ObservableObject, SwiftStompDelegate {
     @Published var loadingState: LoadingCases = .loading
     @Published var isLoadingRect: LoadingCases = .noResults
     @Published var unreadNotificationsCount: Int = 0
-
+    
     
     init(){
         print("The websokcet init is triggered <------------------>")
@@ -211,7 +211,7 @@ extension WebSocketManager {
         case .fullyConnected:
             DispatchQueue.main.async {
                 self.showSatatusDisconnectedError = false
-
+                
             }
             print("Both socket and STOMP is connected. Ready for messaging...")
         case .socketDisconnected:
@@ -251,7 +251,7 @@ extension WebSocketManager {
             DispatchQueue.main.async {
                 self.isConnected = false
                 self.showSatatusDisconnectedError = true
-
+                
             }
         }
     }
@@ -263,7 +263,6 @@ extension WebSocketManager {
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
                     
-                    print("JsonData:", message)
                     let messageData = try decoder.decode(Components.Schemas.ReceivedChatMessageDto.self, from: jsonData)
                     chatRoomCheckWithMessage(messageData: messageData)
                     
@@ -280,7 +279,7 @@ extension WebSocketManager {
                             self.messages.removeAll(where: {$0.id == messageData.id})
                             self.messages.append(messageData)
                             
-//                            print(messageData.status?.rawValue)
+                            //                            print(messageData.status?.rawValue)
                             
                         }
                     }
@@ -412,6 +411,7 @@ extension WebSocketManager {
             if let jsonString = String(data: jsonData, encoding: .utf8) {
                 print(jsonString)
                 swiftStomp.send(body: jsonString, to: "/app/chat", headers: ["content-type":"application/json"])
+                
             }
         } catch {
             print("Error encoding message: \(error)")
@@ -426,7 +426,7 @@ extension WebSocketManager {
         
         let diff = newUnreadCount - oldUnreadCount
         self.unreadMessagesCount += diff
-
+        
         // Optional: If you want to guarantee it doesn't go negative
         if unreadMessagesCount < 0 {
             unreadMessagesCount = 0
@@ -439,7 +439,7 @@ extension WebSocketManager {
             
             if let index = self.allChatRooms.firstIndex(where: { $0.id == messageData.chatId }) {
                 // Update the chat room's last message and timestamp
-
+                
                 
                 var chatRoom = self.allChatRooms[index]
                 chatRoom.latestMessage = messageData
@@ -542,7 +542,7 @@ extension WebSocketManager {
     func editMessage(messageId: String, newMessage: String) {
         Task{
             if let response = try await APIClient.shared.editMessage(messageId: messageId, text: newMessage){
-
+                
             }
         }
         

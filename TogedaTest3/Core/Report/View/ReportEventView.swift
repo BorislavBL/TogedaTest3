@@ -17,108 +17,114 @@ struct ReportEventView: View {
     @State var showScamView = false
     @State var other = false
     @State var otherDescription: String = ""
-    
+    @EnvironmentObject var bannerService: BannerService
     @Binding var isActive: Bool
     
     @Environment(\.dismiss) var dismiss
     var body: some View {
         NavigationStack{
-            VStack{
-                ZStack{
-                    Text("Report")
-                        .bold()
+            ZStack{
+                VStack{
+                    ZStack{
+                        Text("Report")
+                            .bold()
+                            .padding()
+                        HStack{
+                            Spacer()
+                            Button{
+                                dismiss()
+                            } label: {
+                                Image(systemName: "xmark")
+                            }
+                            
+                        }
+                    }
+                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity)
+                    
+                    Divider()
+                    
+                    Text("Your report is anonymus. Also if someone is in immediate danger, call the local emergency services - don't wait.")
+                        .font(.footnote)
+                        .foregroundStyle(.gray)
                         .padding()
-                    HStack{
-                        Spacer()
-                        Button{
-                            dismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                        }
-                        
-                    }
-                }
-                .padding(.horizontal)
-                .frame(maxWidth: .infinity)
-                
-                Divider()
-                
-                Text("Your report is anonymus. Also if someone is in immediate danger, call the local emergency services - don't wait.")
-                    .font(.footnote)
-                    .foregroundStyle(.gray)
-                    .padding()
-                
-                ScrollView{
-                    LazyVStack(alignment:.leading){
-                        Divider()
-                        
-                        Button{
-                            showPhotoView = true
-                        } label: {
-                            HStack(){
-                                Text("Inappropriate photos")
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
+                    
+                    ScrollView{
+                        LazyVStack(alignment:.leading){
+                            Divider()
+                            
+                            Button{
+                                showPhotoView = true
+                            } label: {
+                                HStack(){
+                                    Text("Inappropriate photos")
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                }
+                                .padding()
                             }
-                            .padding()
-                        }
-
-                        Button{
-                            showAbusiveTextView = true
-                        } label: {
-                            HStack(){
-                                Text("Abusive text")
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
+                            
+                            Button{
+                                showAbusiveTextView = true
+                            } label: {
+                                HStack(){
+                                    Text("Abusive text")
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                }
+                                .padding()
                             }
-                            .padding()
-                        }
-                        
-                        Button{
-                            showAdvertizingView = true
-                        } label: {
-                            HStack(){
-                                Text("Advertizing")
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
+                            
+                            Button{
+                                showAdvertizingView = true
+                            } label: {
+                                HStack(){
+                                    Text("Advertizing")
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                }
+                                .padding()
                             }
-                            .padding()
-                        }
-                        
-                        Button{
-                            showScamView = true
-                        } label: {
-                            HStack(){
-                                Text("Scam")
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
+                            
+                            Button{
+                                showScamView = true
+                            } label: {
+                                HStack(){
+                                    Text("Scam")
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                }
+                                .padding()
                             }
-                            .padding()
-                        }
-                        
-                        Button{
-                            other = true
-                        } label: {
-                            HStack(){
-                                Text("Other")
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
+                            
+                            Button{
+                                other = true
+                            } label: {
+                                HStack(){
+                                    Text("Other")
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                }
+                                .padding()
                             }
-                            .padding()
                         }
                     }
+                    .scrollIndicators(.hidden)
                 }
-                .scrollIndicators(.hidden)
+                
+                if let type = bannerService.bannerType, bannerService.isPresent {
+                    BannerView(banner: type)
+                }
             }
             .navigationBarBackButtonHidden(true)
             .navigationDestination(isPresented: $showPhotoView) {
@@ -187,4 +193,5 @@ struct ReportEventView: View {
 
 #Preview {
     ReportEventView(event: MockPost, isActive: .constant(true))
+        .environmentObject(BannerService())
 }

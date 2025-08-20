@@ -17,7 +17,7 @@ class CreateClubViewModel: ObservableObject {
     @Published var location: Components.Schemas.BaseLocation?
     @Published var returnedPlace = Place(mapItem: MKMapItem()){
         didSet{
-            self.location = .init(name: returnedPlace.address, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+            self.location = .init(name: returnedPlace.address.isEmpty ? returnedPlace.name : returnedPlace.address, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
         }
     }
 
@@ -36,6 +36,12 @@ class CreateClubViewModel: ObservableObject {
         
         let trimTitle = trimAndLimitWhitespace(title)
         let trimDescription = trimAndLimitWhitespace(description)
+        
+        if let location = self.location {
+            if location.name.isEmpty && location.city == nil && location.country == nil {
+                self.location = .init(name: returnedPlace.address.isEmpty ? returnedPlace.name : returnedPlace.address, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+            }
+        }
         
         return .init(
             title: trimTitle,

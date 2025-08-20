@@ -9,7 +9,7 @@ import SwiftUI
 
 struct InstagramOverlay: View {
     @Binding var isActive: Bool
-    @State var step = 1
+    @State var step = 5
     var post: Components.Schemas.PostResponseDto
     var body: some View {
         ZStack{

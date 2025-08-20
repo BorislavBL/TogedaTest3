@@ -22,13 +22,22 @@ struct LikeMessage<Content: View>: View {
     @State private var showReplyIcon: Bool = false
     @State private var isDragging = false
     
+    @State private var dragLock: Axis? = nil
+    
     var body: some View {
         VStack(alignment: isMessageFromCurrentUser ? .trailing : .leading, spacing: 0){
             if let reply = message.replyTo {
-                Text(isMessageFromCurrentUser ? "You replied to \(reply.sender.firstName)" : "\(message.sender.firstName) replied to \(reply.sender.firstName)")
-                    .font(.footnote)
-                    .foregroundStyle(.gray)
-                    .padding(.vertical, 10)
+                if isMessageFromCurrentUser && reply.sender.id == message.sender.id {
+                    Text("You replied to yourself")
+                        .font(.footnote)
+                        .foregroundStyle(.gray)
+                        .padding(.vertical, 10)
+                } else {
+                    Text(isMessageFromCurrentUser ? "You replied to \(reply.sender.firstName)" : "\(message.sender.firstName) replied to \(reply.sender.firstName)")
+                        .font(.footnote)
+                        .foregroundStyle(.gray)
+                        .padding(.vertical, 10)
+                }
                 
                 VStack{
                     if let isUnsent = reply.isUnsent, isUnsent {
@@ -56,7 +65,7 @@ struct LikeMessage<Content: View>: View {
                             MessageClubPreview(clubID: reply.content)
                                 .scaleEffect(0.6)
                                 .frame(width: 180 * 0.6, height: 300 * 0.6)
-
+                            
                         case .IMAGE:
                             KFImage(URL(string: reply.content))
                                 .resizable()
@@ -68,7 +77,7 @@ struct LikeMessage<Content: View>: View {
                             MessagePostPreview(postID: reply.content)
                                 .scaleEffect(0.6)
                                 .frame(width: 180 * 0.6, height: 300 * 0.6)
-
+                            
                         }
                     }
                 }
@@ -91,55 +100,51 @@ struct LikeMessage<Content: View>: View {
                     }
                     .frame(maxHeight: .infinity, alignment: .center)
                 }
-
+                
                 ZStack(alignment: .bottomLeading){
                     content()
                         .offset(x: offsetX)
-                        .highPriorityGesture(
-                            isMessageFromCurrentUser ?
-                            DragGesture()
+                        .simultaneousGesture(       // ⬅️ use simultaneous, not highPriority
+                            DragGesture(minimumDistance: 12, coordinateSpace: .local)
                                 .onChanged { value in
-                                    if value.translation.width < 0 && value.translation.width > -80 { // Only allow dragging left
-                                        offsetX = value.translation.width
-                                        isDragging = true
-                                        if value.translation.width < -50 {
-                                            showReplyIcon = true
-                                        }
+                                    let dx = value.translation.width
+                                    let dy = value.translation.height
+                                    
+                                    // decide once which way the user is going
+                                    if dragLock == nil {
+                                        dragLock = abs(dx) > abs(dy) ? .horizontal : .vertical
+                                    }
+                                    
+                                    // only handle if horizontal, otherwise let ScrollView scroll
+                                    guard dragLock == .horizontal else { return }
+                                    
+                                    if isMessageFromCurrentUser {
+                                        // allow only left swipe
+                                        let clamped = max(-80, min(0, dx))
+                                        offsetX = clamped
+                                        showReplyIcon = clamped <= -50
+                                    } else {
+                                        // allow only right swipe
+                                        let clamped = min(80, max(0, dx))
+                                        offsetX = clamped
+                                        showReplyIcon = clamped >= 50
                                     }
                                 }
                                 .onEnded { value in
-                                    if offsetX < -50 { // Threshold to trigger reply
-                                        print("reply")
-                                        replyFunc()
-                                        UIImpactFeedbackGenerator(style: .heavy)
-                                            .impactOccurred()
-                                    }
-                                    isDragging = false
-                                    withAnimation(.spring()) { // Animate back to original position
-                                        offsetX = 0
-                                        showReplyIcon = false
-                                    }
-                                }
-                            :
-                                DragGesture()
-                                .onChanged { value in
-                                    if value.translation.width > 0 && value.translation.width < 80 { // Only allow dragging left
-                                        offsetX = value.translation.width
-                                        if value.translation.width > 50 {
-                                            showReplyIcon = true
+                                    defer {
+                                        withAnimation(.spring()) {
+                                            offsetX = 0
+                                            showReplyIcon = false
                                         }
+                                        dragLock = nil
                                     }
-                                }
-                                .onEnded { value in
-                                    if offsetX > 50 { // Threshold to trigger reply
-                                        print("reply")
+                                    
+                                    guard dragLock == .horizontal else { return }
+                                    
+                                    if (isMessageFromCurrentUser && value.translation.width <= -50) ||
+                                        (!isMessageFromCurrentUser && value.translation.width >= 50) {
                                         replyFunc()
-                                        UIImpactFeedbackGenerator(style: .heavy)
-                                            .impactOccurred()
-                                    }
-                                    withAnimation(.spring()) { // Animate back to original position
-                                        offsetX = 0
-                                        showReplyIcon = false
+                                        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
                                     }
                                 }
                         )

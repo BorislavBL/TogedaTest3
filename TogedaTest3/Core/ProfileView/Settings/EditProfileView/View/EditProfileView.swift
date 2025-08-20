@@ -32,6 +32,8 @@ struct EditProfileView: View {
     @State var isLoading = false
     @State private var errorMessage: String?
     
+
+    
     
     var body: some View {
         ScrollView{
@@ -70,6 +72,9 @@ struct EditProfileView: View {
                     
                     if firstNameError {
                         WarningTextComponent(text: "The field should contain at least 3 letters.")
+                    } else if (!containsOnlyLetters(editProfileVM.editUser.firstName)) && showError {
+                        WarningTextComponent(text: "Please use only letters for your name.")
+                            .padding(.bottom, 15)
                     }
                     
                     TextField("", text: $editProfileVM.editUser.lastName)
@@ -83,6 +88,9 @@ struct EditProfileView: View {
                     
                     if lastNameError {
                         WarningTextComponent(text: "The field should contain at least 3 letters.")
+                    } else if (!containsOnlyLetters(editProfileVM.editUser.lastName)) && showError {
+                        WarningTextComponent(text: "Please use only letters for your name.")
+                            .padding(.bottom, 15)
                     }
                     
                     TextField("", text: $editProfileVM.editUser.occupation)
@@ -413,6 +421,32 @@ struct EditProfileView: View {
                         }
                         .createEventTabStyle()
                     }
+                    
+                    HStack(alignment: .top, spacing: 16, content: {
+                        Button{
+                            editProfileVM.editUser.subToEmail.toggle()
+                        } label: {
+                            Image(systemName: editProfileVM.editUser.subToEmail ? "checkmark.square.fill" : "square")
+                            
+                        }
+                        
+                        HStack(alignment: .top, spacing: 16, content: {
+                            Text("I agree to receive email updates from Togeda about events, products, apps, news, and other information included in our ")
+                                .foregroundStyle(.gray)
+                                .font(.footnote)
+                                .bold() +
+                            Text(directMarketingAgreement)
+                                .font(.footnote)
+                                .bold() +
+                            Text(".")
+                                .foregroundStyle(.gray)
+                                .font(.footnote)
+                                .bold()
+                        })
+                        .accentColor(.blue)
+                    })
+                    .multilineTextAlignment(.leading)
+                    .createEventTabStyle()
                 }
             }
             .padding()
@@ -586,7 +620,7 @@ struct EditProfileView: View {
     }
     
     var saveButtonCheck: Bool {
-        if editProfileVM.editUser.occupation.count >= 3 && editProfileVM.editUser.lastName.count >= 3 && editProfileVM.editUser.firstName.count >= 3 && editProfileVM.editUser.interests.count >= 5 &&
+        if containsOnlyLetters(editProfileVM.editUser.firstName) && containsOnlyLetters(editProfileVM.editUser.lastName) && editProfileVM.editUser.occupation.count >= 3 && editProfileVM.editUser.lastName.count >= 3 && editProfileVM.editUser.firstName.count >= 3 && editProfileVM.editUser.interests.count >= 5 &&
             validHeight && (editProfileVM.editUser != editProfileVM.initialUser || photoPickerVM.imageIsSelected()), (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || editProfileVM.editUser.profilePhotos.count > 0)
         {
             return true

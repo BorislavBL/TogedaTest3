@@ -36,13 +36,9 @@ struct ClubAboutView: View {
                 .fontWeight(.bold)
                 .padding(.bottom, 5)
             
-            WrappingHStack(alignment: .leading){
-                ForEach(club.interests, id: \.self){interest in
-                    Text("\(interest.icon) \(interest.name)")
-                        .normalTagTextStyle()
-                        .normalTagCapsuleStyle()
-                }
-            }.padding(.bottom, 8)
+                
+            InterestsWrapper(interests: club.interests)
+                .padding(.bottom, 8)
             
             
             

@@ -180,13 +180,15 @@ struct EventView: View {
                             .fontWeight(.bold)
                             .padding(.vertical, 8)
                         
-                        WrappingHStack(alignment: .leading, horizontalSpacing: 5){
-                            ForEach(post.interests, id:\.self){ interest in
-                                Text("\(interest.icon) \(interest.name)")
-                                    .normalTagTextStyle()
-                                    .normalTagCapsuleStyle()
-                            }
-                        }
+//                        WrappingHStack(alignment: .leading, horizontalSpacing: 5){
+//                            ForEach(post.interests, id:\.self){ interest in
+//                                Text("\(interest.icon) \(interest.name)")
+//                                    .normalTagTextStyle()
+//                                    .normalTagCapsuleStyle()
+//                            }
+//                        }
+                        
+                        InterestsWrapper(interests: post.interests)
                     }
                     .padding(.horizontal)
                     
@@ -282,10 +284,10 @@ struct EventView: View {
             Task{
                 await fetchAllOnAppear()
             }
-            reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)){ string in
-                print("\(string)")
-                
-            }
+//            reverseGeocode(coordinate: CLLocationCoordinate2D(latitude: post.location.latitude, longitude: post.location.longitude)){ string in
+//                print("\(string)")
+//                
+//            }
             //            locationCityAndCountry(post.location)
         }
         .onChange(of: chatVM.newNotification){ old, new in

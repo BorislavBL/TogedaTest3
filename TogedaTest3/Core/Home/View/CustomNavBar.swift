@@ -27,7 +27,6 @@ struct CustomNavBar: View {
                     
                     Spacer(minLength: 0)
                     
-                    
                     if !showLocationServicesView {
                         Button{
                             withAnimation{
@@ -60,9 +59,10 @@ struct CustomNavBar: View {
                             
                             if websocketManager.unreadNotificationsCount > 9 {
                                 Text("\(websocketManager.unreadNotificationsCount)")
-                                    .font(.caption2)
+                                    .font(.caption)
                                     .foregroundColor(.white)
-                                    .padding(5)
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 3)
                                     .background(Color.red)
                                     .clipShape(Capsule())
                                     .offset(x: 10, y: -10)
@@ -70,17 +70,19 @@ struct CustomNavBar: View {
                                 Text("\(websocketManager.unreadNotificationsCount)")
                                     .font(.caption2)
                                     .foregroundColor(.white)
-                                    .padding(5)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
                                     .background(Color.red)
-                                    .clipShape(Circle())
+                                    .clipShape(Capsule())
                                     .offset(x: 10, y: -10)
                             }
-
+                            
                         } else if websocketManager.unreadNotificationsCount > 99{
-                            Text("+99")
-                                .font(.caption2)
+                            Text("+\(99)")
+                                .font(.caption)
                                 .foregroundColor(.white)
-                                .padding(5)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 3)
                                 .background(Color.red)
                                 .clipShape(Capsule())
                                 .offset(x: 10, y: -10)

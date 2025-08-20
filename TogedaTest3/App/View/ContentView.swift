@@ -35,13 +35,14 @@ struct ContentView: View {
             case .update:
                 UpdateAppView()
             }
+//            BannersTestView()
             
             
 //            VStack{
 //                Spacer()
 //                Button{
 //                    Task{
-//                        try await APIClient.shared.getUserInfoTest2()
+//                        try await APIClient.shared.getUserInfo(userId: "sdasd")
 //                    }
 //
 //                } label:{

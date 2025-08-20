@@ -82,3 +82,15 @@ func containsLink(text: String) -> Bool {
     
     return matches?.count ?? 0 > 0
 }
+
+func containsOnlyLetters(_ text: String) -> Bool {
+    // Regex matches only letters (upper/lowercase)
+    let pattern = "^[A-Za-z]+$"
+    
+    guard let regex = try? NSRegularExpression(pattern: pattern) else {
+        return false
+    }
+    
+    let range = NSRange(location: 0, length: text.utf16.count)
+    return regex.firstMatch(in: text, options: [], range: range) != nil
+}

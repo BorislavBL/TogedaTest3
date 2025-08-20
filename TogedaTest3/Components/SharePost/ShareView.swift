@@ -283,7 +283,7 @@ struct ShareView: View {
                             .cornerRadius(10)
                             .padding(.top)
                         } else {
-                            Text("Loading ...")
+                            Text("Loading...")
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
                                 .background(Color("blackAndWhite"))

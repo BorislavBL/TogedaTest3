@@ -9,6 +9,7 @@ import SwiftUI
 import WrappingHStack
 
 struct AboutTab: View {
+    var isCurrentUser: Bool = false
     var user: Components.Schemas.UserInfoDto?
     var badges: [Components.Schemas.Badge]?
     var showInstagram: Bool
@@ -95,18 +96,22 @@ struct AboutTab: View {
             
 //            if user.interests.count <= 11 {
             if let user = user {
-                
                 Text("Interests")
                     .font(.body)
                     .fontWeight(.bold)
-                
-                WrappingHStack(alignment: .leading){
-                    ForEach(user.interests, id: \.self){interest in
-                        Text("\(interest.icon) \(interest.name)")
-                            .normalTagTextStyle()
-                            .normalTagCapsuleStyle()
+                if isCurrentUser {
+                    WrappingHStack(alignment: .leading){
+                        ForEach(user.interests, id: \.self){interest in
+                            Text("\(interest.icon) \(interest.name)")
+                                .normalTagTextStyle()
+                                .normalTagCapsuleStyle()
+                        }
                     }
-                }.padding(.bottom, 30)
+                    .padding(.bottom, 30)
+                } else {
+                    InterestsWrapper(interests: user.interests)
+                        .padding(.bottom, 30)
+                }
             }
 //            } else {
 //                InterestsTranformativeRow(interests: user.interests)

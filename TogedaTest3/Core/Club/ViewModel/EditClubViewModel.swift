@@ -26,7 +26,7 @@ class EditClubViewModel: ObservableObject {
     }
     @Published var returnedPlace = Place(mapItem: MKMapItem()){
         didSet{
-            editClub.location = .init(name: returnedPlace.address, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
+            editClub.location = .init(name: returnedPlace.address.isEmpty ? returnedPlace.name : returnedPlace.address, address: returnedPlace.street, city: returnedPlace.city, state: returnedPlace.state, country: returnedPlace.country, latitude: returnedPlace.latitude, longitude: returnedPlace.longitude)
         }
     }
 

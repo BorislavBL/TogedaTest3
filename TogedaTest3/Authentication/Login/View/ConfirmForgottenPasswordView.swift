@@ -154,7 +154,7 @@ struct ConfirmForgottenPasswordView: View {
                 }
             } label:{
                 if isLoading {
-                    ProgressView()
+                    Text("Loading...")
                         .frame(maxWidth: .infinity)
                         .frame(height: 60)
                         .background(Color("blackAndWhite"))

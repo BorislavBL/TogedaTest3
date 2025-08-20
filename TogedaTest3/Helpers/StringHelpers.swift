@@ -5,7 +5,7 @@
 //  Created by Borislav Lorinkov on 22.01.24.
 //
 
-import Foundation
+import SwiftUI
 
 func formatBigNumbers(_ num: Int) -> String {
     let number = Double(num)
@@ -67,7 +67,9 @@ func locationCityAndCountry(_ location: Components.Schemas.BaseLocation) -> Stri
         locationComponents.append(country)
     }
     
-    return locationComponents.joined(separator: ", ")
+    let final = locationComponents.joined(separator: ", ")
+    
+    return final.isEmpty ? location.name : final
 }
 
 func locationAddress(_ location: Components.Schemas.BaseLocation) -> String {
@@ -204,7 +206,7 @@ func isEmojiOnly(_ text: String) -> Bool {
         // A cluster qualifies as an emoji if *any* scalar inside it wants
         // emoji presentation (covers plain & variant-selector cases).
         let isEmoji = char.unicodeScalars.contains {
-            $0.properties.isEmojiPresentation || $0.properties.isEmoji
+            $0.properties.isEmojiPresentation && $0.properties.isEmoji
         }
         if !isEmoji { return false }    // Found a non-emoji → fail fast.
 

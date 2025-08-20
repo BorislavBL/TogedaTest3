@@ -32,8 +32,6 @@ struct RegistrationView: View {
     @State var confirmPassword: String = ""
     @State private var isPasswordVisible: Bool = false
     
-    let directMarketingAgreement = try! AttributedString(markdown: "[Direct Marketing Agreement](\(TogedaLinks().directMarketingAgreement))")
-    
     
     var body: some View {
         VStack{

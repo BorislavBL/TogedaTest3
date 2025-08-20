@@ -125,11 +125,15 @@ struct MessageClubPreview: View {
         .onAppear(){
             Task{
                 if Init{
-                    if let response =  try await APIClient.shared.getClub(clubID: clubID) {
-                        self.club = response
-                        self.loadingCases = .loaded
-                        self.Init = false
-                    } else {
+                    do {
+                        if let response =  try await APIClient.shared.getClub(clubID: clubID, showBanners: false) {
+                            self.club = response
+                            self.loadingCases = .loaded
+                            self.Init = false
+                        } else {
+                            self.loadingCases = .noResults
+                        }
+                    } catch {
                         self.loadingCases = .noResults
                     }
                 }

@@ -27,6 +27,23 @@ struct MainView: View {
     var body: some View {
         MainTabView()
             .overlay {
+                if userViewModel.showStripeWarrning {
+                    FullScreenWarningMessageView(
+                        isActive: $userViewModel.showStripeWarrning,
+                        icon: nil,
+                        image: Image(systemName: "creditcard.trianglebadge.exclamationmark.fill"),
+                        title: "Action Required",
+                        description: "You have active paid events, but attendees can’t join until your Stripe onboarding is complete—please finish setting up your account to start receiving payments.",
+                        buttonName: "Go To Stripe",
+                        action: {
+                            if let url = URL(string: "https://dashboard.stripe.com/dashboard") {
+                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                            }
+                        },
+                        isCancelButton: true)
+                }
+            }
+            .overlay {
                 if postsViewModel.showInstaOverlay{
                     InstagramOverlay(isActive: $postsViewModel.showInstaOverlay, post: postsViewModel.clickedPost)
                 }
@@ -187,7 +204,23 @@ struct MainView: View {
                 }
             }
             
+            group.addTask {
+                do {
+                    try await webSocketManager.unreadNotifications()
+                } catch {
+                    print(error)
+                }
+            }
             
+            group.addTask {
+                do {
+                    if let user = await userViewModel.currentUser, let accountId = user.stripeAccountId {
+                        try await userViewModel.checkForStripeWarning(accountId: accountId)
+                    }
+                } catch {
+                    print(error)
+                }
+            }
             
             if Date().timeIntervalSince(setDateOnLeave) > 10 * 60 {
                 if let location = locationManager.getUserLocationCords() {

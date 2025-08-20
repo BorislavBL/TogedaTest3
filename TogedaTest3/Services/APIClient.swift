@@ -97,6 +97,7 @@ class APIClient: ObservableObject {
     private var client: Client
     private let serverURL = URL(string: TogedaMainLinks.baseURL)!
     private weak var viewModel: ContentViewModel?
+    private weak var bannerService: BannerService?
     
     private init() {
         let middlewares = [AuthenticationMiddleware()]
@@ -107,9 +108,13 @@ class APIClient: ObservableObject {
         self.viewModel = viewModel
     }
     
+    func setBannerService(_ service: BannerService) {
+        self.bannerService = service
+    }
+    
     @MainActor func handleAuthenticationFailure() {
         Task{
-            await viewModel?.validateTokens()
+            await viewModel?.validateTokensAndCheckState()
         }
     }
     
@@ -143,16 +148,11 @@ class APIClient: ObservableObject {
 }
 
 extension APIClient {
-    // 1️⃣  An error type that lists every status code you care about
-
-
-}
-
-extension APIClient {
     /// One function to handle success + every error case individually.
     /// Returns the success payload if `.ok`, otherwise `nil`.
     func processResponse<Output, Success>(
         _ response: Output,
+        showBanners: Bool = true,
         extractSuccess: (Output) throws -> Success
     ) throws -> Success? {
         // 1) Try success first
@@ -169,7 +169,6 @@ extension APIClient {
             return nil
         }
 
-        // Helper: pull `body.json(<payload>)`
         func payload() -> Any? {
             guard let body = Mirror(reflecting: container)
                     .children.first(where: { $0.label == "body" })?.value
@@ -177,71 +176,82 @@ extension APIClient {
             return Mirror(reflecting: body).children.first?.value
         }
 
-        // Nice to have when ApiError.statusString is nil
-
         // 3) Per–status handling
         switch caseLabel {
 
         case "badRequest":
             if let api = payload() as? Components.Schemas.ApiError {
                 print((api.statusString ?? "400"), api.message ?? "")
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: api.message ?? "Bad Request", isPersistent: false))
+                }
                 throw AppError.badRequest(api)
-                // TODO: your specific handling for 400
             }
 
         case "unauthorized":
             if let api = payload() as? Components.Schemas.ApiError {
                 print((api.statusString ?? "401"), api.message ?? "")
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: api.message ?? "Unauthorized", isPersistent: false))
+                }
                 throw AppError.unauthorized(api)
-                // e.g. AuthService.shared.clearSession()
             }
 
         case "forbidden":
             if let api = payload() as? Components.Schemas.ApiError {
                 print((api.statusString ?? "403"), api.message ?? "")
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: api.message ?? "Forbidden", isPersistent: false))
+                }
                 throw AppError.forbidden(api)
-                // TODO: your specific handling for 403
             }
 
         case "notFound":
             if let api = payload() as? Components.Schemas.ApiError {
-                let line = api.statusString ?? "404"
-                print("\(line): \(api.message ?? "")")
+                print((api.statusString ?? "404"), api.message ?? "")
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: api.message ?? "Not Found", isPersistent: false))
+                }
                 throw AppError.notFound(api)
-                // TODO: your specific handling for 404
             }
 
         case "requestTimeout":
             if let api = payload() as? Components.Schemas.ApiError {
                 print((api.statusString ?? "408"), api.message ?? "")
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: api.message ?? "Timeout", isPersistent: false))
+                }
                 throw AppError.requestTimeout(api)
-                // TODO: retry, backoff, etc.
             }
 
         case "conflict":
             if let api = payload() as? Components.Schemas.ApiError {
                 print((api.statusString ?? "409"), api.message ?? "")
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: api.message ?? "Conflict", isPersistent: false))
+                }
                 throw AppError.conflict(api)
-                // TODO: conflict flow
             }
 
         case "tooManyRequests":
             if let rl = payload() as? Components.Schemas.RateLimitError {
-                // Adjust fields to what your RateLimitError exposes
                 print("429 Too Many Requests: \(rl.message)")
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: rl.message, isPersistent: false))
+                }
                 throw AppError.rateLimit(rl)
-                // TODO: sleep/retry after rl.retryAfter?
             }
 
         case "internalServerError":
             if let api = payload() as? Components.Schemas.ApiError {
                 print((api.statusString ?? "500"), api.message ?? "")
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: api.message ?? "Internal Server Error", isPersistent: false))
+                }
                 throw AppError.internalServerError(api)
-                // TODO: show user-friendly "Something went wrong"
             }
 
         case "undocumented":
-            // Pull status + UndocumentedPayload
             let assoc   = Mirror(reflecting: container).children.map(\.value)
             let status  = assoc.first as? Int ?? -1
             let pay     = assoc.dropFirst().first as? OpenAPIRuntime.UndocumentedPayload
@@ -253,20 +263,24 @@ extension APIClient {
                         self.viewModel?.internalServerError = true
                     }
                 }
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: "Internal Server Error", isPersistent: false))
+                }
                 throw AppError.internalServerError(nil)
             } else {
+                if showBanners {
+                    bannerService?.setBanner(banner: .error(message: "Something went wrong", isPersistent: false))
+                }
                 throw AppError.undocumented(-1, nil)
             }
-            // You can inspect headers/body from `pay`
-            // TODO: decide what to do
 
         default:
-            // Anything else we didn’t expect
             print("Unhandled error case `\(caseLabel)`: \(payload() ?? "")")
         }
 
         return nil
     }
+
 
 
 }
@@ -301,126 +315,21 @@ extension APIClient {
     func deleteUser() async throws -> Bool?{
         let response = try await client.deleteUser()
         return try processResponse(response) { try $0.ok.body.json.success }
-        switch response {
-        case let .ok(okResponse):
-            switch okResponse.body{
-            case .json(let message):
-                return message.success
-            }
-            
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for hasBasicInfo")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        return nil
     }
     
     func blockUser(userId: String) async throws -> Bool?{
         let response = try await client.blockUser(.init(path: .init(userId: userId)))
-        switch response {
-        case let .ok(okResponse):
-            switch okResponse.body{
-            case .json(let message):
-                return message.success
-            }
-            
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for hasBasicInfo")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func unBlockUser(userId: String) async throws -> Bool?{
         let response = try await client.removeBlock(.init(path: .init(userId: userId)))
-        switch response {
-        case let .ok(okResponse):
-            switch okResponse.body{
-            case .json(let message):
-                return message.success
-            }
-            
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for hasBasicInfo")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func giveUserRole(userId: String, role: Operations.setUserRole.Input.Query.userRolePayload) async throws -> Bool?{
         let response = try await client.setUserRole(.init(path: .init(userId: userId), query: .init(userRole: role)))
-        switch response {
-        case let .ok(okResponse):
-            switch okResponse.body{
-            case .json(let message):
-                return message.success
-            }
-            
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for hasBasicInfo")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func changePassword(old: String, new: String, completion: @escaping (Bool?, String?) -> Void) async throws{
@@ -474,190 +383,32 @@ extension APIClient {
     
     func getUserInfo(userId: String) async throws -> Components.Schemas.UserInfoDto? {
         let response = try await client.getUserInfo(path: Operations.getUserInfo.Input.Path(userId: userId))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let info):
-                return info
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getUserInfo")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func searchFriends(searchText: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
         let response = try await client.searchFriends(.init(query: .init(query: searchText, pageNumber: page, pageSize: size)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func blockedUsers(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
         let response = try await client.getBlockedUsers(.init(query: .init(pageNumber: page, pageSize: size)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func setUserActivityStatus(status: Operations.changeUserStatus.Input.Query.statusPayload) async throws -> Bool? {
         let response = try await client.changeUserStatus(.init(query: .init(status: status)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let info):
-                return info.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getUserInfo")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func getUserNoShows(userId: String) async throws -> Int32? {
         let response = try await client.getUserNoShows(.init(path: .init(userId: userId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let info):
-                return info.data
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getUserInfo")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.data }
     }
     
     func activityFeed(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoActivityDto? {
         let response = try await client.getActivityFeed(.init(query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let data):
-                return data
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getUserInfo")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func addUserInfo(body: Components.Schemas.UserDto, completion: @escaping (Bool?, String?) -> Void) async throws {
@@ -705,35 +456,7 @@ extension APIClient {
     func generatePresignedPutUrl(bucketName: String, keyName: String) async throws -> String? {
         let jpegName = "\(keyName).jpeg"
         let response = try await client.generatePresignedPutUrl(.init(query: .init(bucketName: bucketName, keyName: jpegName)))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.url
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for saveOrUnsaveEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.url }
     }
     
     func updateUserInfo(body: Components.Schemas.PatchUserDto, completion: @escaping (Bool?, String?) -> Void) async throws {
@@ -779,68 +502,12 @@ extension APIClient {
     
     func getUserEvents(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
         let response = try await client.getUserPosts(.init(path: .init(userId: userId), query: .init(pageable: .init(page: page, size: size, sort: nil))))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let events):
-                return events
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getUserEvents")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getUserClubs(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoClubDto? {
         let response = try await client.getUserClubs(.init(path: .init(userId: userId), query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let events):
-                return events
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getUserClubs")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func searchUsers(searchText: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
@@ -850,353 +517,57 @@ extension APIClient {
             pageSize: size
         )))
         
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for searchUsers")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func sendFriendRequest(sendToUserId: String) async throws -> Bool? {
         let response = try await client.sendFriendRequest(.init(path: .init(userId: sendToUserId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for sendFriendRequest")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func respondToFriendRequest(toUserId: String, action: Operations.acceptOrDenyFriendRequest.Input.Query.actionPayload) async throws -> Bool? {
         let response = try await client.acceptOrDenyFriendRequest(.init(path: .init(userId: toUserId), query: .init(action: action)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for respondToFriendRequest")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func getFriendRequests(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
         let response = try await client.getAllFriendRequestsForUser(.init(query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getFriendRequests")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func removeFriend(removeUserId: String) async throws -> Bool? {
         let response = try await client.removeFriend(.init(path: .init(userId: removeUserId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for removeFriend")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func removeFriendRequest(removeUserId: String) async throws -> Bool? {
         let response = try await client.cancelFriendRequest(.init(path: .init(userId: removeUserId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for removeFriendRequest")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func getFriendList(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoGetFriendsDto? {
         let response = try await client.getFriends(.init(path: .init(userId: userId), query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getFriendList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getUserSavedEvents(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
         let response = try await client.getUserSavedPosts(.init(query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getUserSavedEvents")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getUserLikesList(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoParticipationRatingResponseDto? {
         let response = try await client.receivedRatingsForParticipatedEvents(.init(path: .init(userId: userId), query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getUserLikesList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getUserRatingAvg(userId: String) async throws -> Components.Schemas.ReceivedEventRatingsAverageResponseDto? {
         let response = try await client.receivedEventRatingsAverage(.init(path: .init(userId: userId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getUserRatingAvg")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getRatingForProfile(userId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoRatingResponseDto? {
         let response = try await client.receivedEventRatings(.init(path: .init(userId: userId), query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getRatingForProfile")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
 }
@@ -1206,102 +577,19 @@ extension APIClient {
     func getBadges(userId: String) async throws -> [Components.Schemas.Badge]? {
         
         let response = try await client.getBadges(.init(path: .init(userId: userId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getBadgeTasks() async throws -> [Components.Schemas.BadgeTask]? {
         
         let response = try await client.getBadgeTasks()
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getBadgeSupply() async throws -> Components.Schemas.BadgeSupplyDto? {
         
         let response = try await client.getBadgeSupply()
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
 }
 
@@ -1334,475 +622,80 @@ extension APIClient {
 
 // Event
 extension APIClient {
-    func createEvent(body: Components.Schemas.CreatePostDto, completion: @escaping (String?, String?) -> Void) async throws {
-        do {
-            let response = try await client.createPost(body: .json(body))
-            print("\(response)")
-            
-            switch response {
-                
-            case .ok(let okResponse):
-                switch okResponse.body {
-                case .json(let info):
-                    completion(info.id, nil)
-                }
-            case .undocumented(statusCode: let statusCode, _):
-                completion(nil, "The status code: \(statusCode)")
-            case .unauthorized(_):
-                completion(nil, "Unauthorized")
-            case .forbidden(_):
-                completion(nil, "Forbidden")
-            case .badRequest(let error):
-                switch error.body {
-                case .json(let error):
-                    let errorMessage = errorHandler(error: error)
-                    completion(nil, errorMessage)
-                }
-                //                completion(nil, "Bad Request")
-            case .conflict(_):
-                completion(nil, "Conflict")
-            case .tooManyRequests(_):
-                completion(nil, "Too many requests for createEvent")
-            case .requestTimeout(_):
-                completion(nil, "Request timeout")
-            case .notFound(_):
-                completion(nil, "Not found")
-            case .internalServerError(_):
-                completion(nil,"Internal server error")
-            }
-        } catch {
-            completion(nil, "Failed with error: \(error.localizedDescription)")
-            throw error
-        }
+    func createEvent(body: Components.Schemas.CreatePostDto) async throws -> String? {
+        let response = try await client.createPost(body: .json(body))
+        return try processResponse(response) { try $0.ok.body.json.id }
     }
     
-    func getEvent(postId: String) async throws -> Components.Schemas.PostResponseDto? {
+    func getEvent(postId: String, showBanners: Bool = true) async throws -> Components.Schemas.PostResponseDto? {
         
         let response = try await client.getPostById(.init(path: .init(postId: postId)))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response, showBanners: showBanners) { try $0.ok.body.json }
     }
     
     func updateParticipantsArrivalStatus(postId: String, userId: String, status: Operations.updateParticipantLocationStatus.Input.Query.locationStatusPayload) async throws -> Bool? {
         
         let response = try await client.updateParticipantLocationStatus(.init(path: .init(postId: postId, userId: userId), query: .init(locationStatus: status)))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func currenciesList(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoCurrency? {
         
         let response = try await client.getPostCurrencies(.init(query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func searchPostParticipants(postId: String, text: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoExtendedMiniUser? {
         
         let response = try await client.searchPostParticipants(.init(path: .init(postId: postId), query: .init(query: text, pageNumber: page, pageSize: size)))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func confirmUserLocation(postId: String) async throws -> Bool? {
         
         let response = try await client.sendUserArrival(.init(path: .init(postId: postId)))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func hideorRevealEvent(postId: String, isHide: Bool) async throws -> Bool? {
         let response = try await client.hideOrRevealPost(.init(path: .init(postId: postId), query: .init(isHide: isHide)))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func saveOrUnsaveEvent(postId: String, isSave: Bool) async throws -> Bool? {
         
         let response = try await client.saveOrUnsavePost(.init(path: .init(postId: postId), query: .init(isSave: isSave)))
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for saveOrUnsaveEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func startOrEndEvent(postId: String, action: Operations.startOrEndPost.Input.Query.actionPayload) async throws -> Bool? {
         let response = try await client.startOrEndPost(.init(path: .init(postId: postId), query: .init(action: action)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for startOrEndEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func joinEvent(postId: String) async throws -> Bool? {
         let response = try await client.tryToJoinPost(.init(path: .init(postId: postId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for joinEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func leaveEvent(postId: String) async throws -> Bool? {
         let response = try await client.leavePost(.init(path: .init(postId: postId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for leaveEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func deleteEvent(postId: String) async throws -> Bool? {
         let response = try await client.deletePost(path: .init(postId: postId))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for deleteEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func shareEvent(postId: String, chatRoomIds: Components.Schemas.ChatRoomIdsDto) async throws -> Bool? {
         let response = try await client.sharePost(.init(path: .init(postId: postId), body: .json(chatRoomIds)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for deleteEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func paidEventFees(postId: String) async throws -> Components.Schemas.PostFeeResponseDto? {
         let response = try await client.getPostFees(.init(path: .init(postId: postId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for deleteEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getAllEvents(page: Int32, size: Int32, sortBy: Operations.getAllPosts.Input.Query.sortByPayload, long: Double, lat: Double, distance: Int32, from: Date?, to: Date?, categories: [String]?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
@@ -1820,35 +713,7 @@ extension APIClient {
             pageSize: size
         )
         )
-        
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getAllEvents")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func editEvent(postId: String, editPost: Components.Schemas.PatchPostDto, completion: @escaping (Bool?, String?) -> Void) async throws {
@@ -1894,33 +759,7 @@ extension APIClient {
     
     func cancelJoinRequestForEvent(postId: String) async throws -> Bool? {
         let response = try await client.cancelJoinRequestForPost(.init(path: .init(postId: postId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for cancelJoinRequestForEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func searchEvent(searchText: String, page: Int32, size: Int32, askToJoin: Bool?) async throws -> Components.Schemas.ListResponseDtoPostResponseDto? {
@@ -1930,256 +769,43 @@ extension APIClient {
             pageNumber: page,
             pageSize: size
         )))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for searchEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getEventParticipants(postId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoExtendedMiniUser? {
         let response = try await client.getPostParticipants(.init(path: .init(postId: postId), query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEventParticipants")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getEventWaitlist(postId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
         let response = try await client.getWaitRequestParticipants(.init(path: .init(postId: postId), query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEventWaitlist")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getEventParticipantsWaitingList(postId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoJoinRequestDto? {
         let response = try await client.getJoinRequestParticipants(.init(path: .init(postId: postId), query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getEventParticipantsWaitingList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func addCoHostRoleToEvent(postId: String, userId: String) async throws -> Bool {
         let response = try await client.addCoHostRole(.init(path: .init(postId: postId, userId: userId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for addCoHostRoleToEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return false
+        return try processResponse(response) { try $0.ok.body.json.success } ?? false
     }
     
     func removeCoHostRoleToEvent(postId: String, userId: String) async throws -> Bool {
         let response = try await client.removeCoHostRole(.init(path: .init(postId: postId, userId: userId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for removeCoHostRoleToEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return false
+        return try processResponse(response) { try $0.ok.body.json.success } ?? false
     }
     
     func removeParticipant(postId: String, userId: String) async throws -> Bool {
         let response = try await client.removeParticipant(.init(path: .init(postId: postId, userId: userId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for removeParticipant")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return false
+        return try processResponse(response) { try $0.ok.body.json.success } ?? false
     }
     
     func acceptJoinRequest(postId: String, userId: String, action: Operations.acceptJoinRequest.Input.Query.actionPayload) async throws -> Bool {
         
         let response = try await client.acceptJoinRequest(.init(path: .init(postId: postId, userId: userId), query: .init(action: action)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for acceptJoinRequest")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return false
+        return try processResponse(response) { try $0.ok.body.json.success } ?? false
     }
     
     
@@ -2198,99 +824,19 @@ extension APIClient {
                 pageSize: size
             )))
             
-            switch response {
-            case .ok(let okResponse):
-                switch okResponse.body{
-                case .json(let returnResponse):
-                    return returnResponse
-                }
-            case .undocumented(statusCode: let statusCode, _):
-                print("The status code:", statusCode)
-            case .unauthorized(_):
-                print("Unauthorized")
-            case .forbidden(_):
-                print("Forbidden")
-            case .badRequest(_):
-                print("Bad Request")
-            case .conflict(_):
-                print("Conflict")
-            case .tooManyRequests(_):
-                print("To many Requests for getMapEvents")
-            case .requestTimeout(_):
-                print("Requested timeout")
-            case .notFound(_):
-                print("Not found")
-            case .internalServerError(_):
-                print("Internal server error")
-            }
-            
-            return nil
+            return try processResponse(response) { try $0.ok.body.json }
         }
     
     func giveRatingToEvent(postId: String, ratingBody:Components.Schemas.RatingDto) async throws -> Bool? {
         
         let response = try await client.ratePost(.init(path: .init(postId: postId), body: .json(ratingBody)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for giveRatingToEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func giveRatingToParticipant(postId: String, userId: String, ratingBody: Components.Schemas.ParticipationRatingDto) async throws -> Bool? {
         
         let response = try await client.ratePostParticipant(.init(path: .init(postId: postId, userId: userId), body: .json(ratingBody)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for giveRatingToParticipant")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     
@@ -2312,34 +858,7 @@ extension APIClient {
             pageSize: size
         )))
         
-        switch response {
-            
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getAllClubs")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func searchClubs(searchText: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoClubDto? {
@@ -2349,138 +868,24 @@ extension APIClient {
             pageSize: size
         )))
         
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for searchClubs")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func shareClub(clubId: String, chatRoomIds: Components.Schemas.ChatRoomIdsDto) async throws -> Bool? {
         let response = try await client.shareClub(.init(path: .init(clubId: clubId), body: .json(chatRoomIds)))
         
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for deleteEvent")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
-    func createClub(data: Components.Schemas.CreateClubDto, completion: @escaping (String?, String?) -> Void) async throws {
-        do {
-            let response = try await client.createClub(body: .json(data))
-            
-            switch response {
-            case .ok(let okResponse):
-                switch okResponse.body {
-                case .json(let returnResponse):
-                    completion(returnResponse.id, nil)
-                }
-            case .undocumented(statusCode: let statusCode, _):
-                completion(nil, "The status code: \(statusCode)")
-            case .unauthorized(_):
-                completion(nil, "Unauthorized")
-            case .forbidden(_):
-                completion(nil, "Forbidden")
-            case .badRequest(let error):
-                switch error.body {
-                case .json(let error):
-                    let errorMessage = errorHandler(error: error)
-                    completion(nil, errorMessage)
-                }
-                //                completion(nil, "Bad Request")
-            case .conflict(_):
-                completion(nil, "Conflict")
-            case .tooManyRequests(_):
-                completion(nil, "Too many requests for createClub")
-            case .requestTimeout(_):
-                completion(nil, "Request timeout")
-            case .notFound(_):
-                completion(nil, "Not found")
-            case .internalServerError(_):
-                completion(nil,"Internal server error")
-            }
-        } catch {
-            completion(nil, "Failed with error: \(error.localizedDescription)")
-            throw error
-        }
+    func createClub(data: Components.Schemas.CreateClubDto) async throws -> String? {
+        let response = try await client.createClub(body: .json(data))
+        return try processResponse(response) { try $0.ok.body.json.id }
     }
     
     
-    func getClub(clubID: String) async throws -> Components.Schemas.ClubDto? {
+    func getClub(clubID: String, showBanners: Bool = true) async throws -> Components.Schemas.ClubDto? {
         let response = try await client.getClubById(.init(path: .init(clubId: clubID)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getClub")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response, showBanners: showBanners) { try $0.ok.body.json }
     }
     
     func editClub(clubID: String, body: Components.Schemas.PatchClubDto, completion: @escaping (Bool?, String?) -> Void) async throws {
@@ -2532,33 +937,7 @@ extension APIClient {
             )
         )
         
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getClubMembers")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getClubJoinRequests(
@@ -2572,34 +951,7 @@ extension APIClient {
                 query: .init(pageNumber: page, pageSize: size)
             )
         )
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getClubJoinRequests")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getClubEvents(
@@ -2608,34 +960,7 @@ extension APIClient {
         size: Int32
     ) async throws -> Components.Schemas.ListResponseDtoPostResponseDto?{
         let response = try await client.getClubPosts(path: .init(clubId: clubId), query: .init(pageNumber: page, pageSize: size))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getClubEvents")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func getClubsWithCreatePostPermission(
@@ -2643,286 +968,48 @@ extension APIClient {
         size: Int32
     ) async throws -> Components.Schemas.ListResponseDtoClubDto?{
         let response = try await client.getClubsWithCreatePostPermission(.init(query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getClubsWithCreatePostPermission")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
     }
     
     func acceptJoinRequestClub(clubId: String, userId: String, action: Operations.joinRequest.Input.Query.actionPayload) async throws -> Bool {
         
         let response = try await client.joinRequest(.init(path: .init(clubId: clubId, userId: userId), query: .init(action: action)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for acceptJoinRequestClub")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return false
+        return try processResponse(response) { try $0.ok.body.json.success} ?? false
     }
     
     func addAdminToClub(clubId: String, userId: String) async throws -> Bool {
         let response = try await client.addAdminRole(.init(path: .init(clubId: clubId, userId: userId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for addAdminToClub")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return false
+        return try processResponse(response) { try $0.ok.body.json.success} ?? false
     }
     
     func removeClubMemeber(clubId: String, userId: String) async throws -> Bool {
         let response = try await client.removeMember(.init(path: .init(clubId: clubId, userId: userId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for removeClubMemeber")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return false
+        return try processResponse(response) { try $0.ok.body.json.success} ?? false
     }
     
     func removeAdminRoleForClub(clubId: String, userId: String) async throws -> Bool {
         let response = try await client.removeAdminRole(.init(path: .init(clubId: clubId, userId: userId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for removeAdminRoleForClub")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return false
+        return try processResponse(response) { try $0.ok.body.json.success} ?? false
     }
     
     func deleteClub(clubId: String) async throws -> Bool? {
         let response = try await client.delete(.init(path: .init(clubId: clubId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let response):
-                return response.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for deleteClub")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success}
     }
     
     func joinClub(clubId: String) async throws -> Bool? {
         let response = try await client.tryToJoinClub(.init(path: .init(clubId: clubId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, let message):
-            print("The status code:", statusCode, message)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success}
     }
     
     func leaveClub(clubId: String) async throws -> Bool? {
         let response = try await client.leaveClub(.init(path: .init(clubId: clubId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for leaveClub")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success}
     }
     
     func cancelJoinRequestForClub(clubId: String) async throws -> Bool? {
         let response = try await client.cancelJoinRequestForClub(.init(path: .init(clubId: clubId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for cancelJoinRequestForClub")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success}
     }
 }
 
@@ -2931,194 +1018,42 @@ extension APIClient {
 extension APIClient {
     func createStripeAccount() async throws -> String? {
         let response = try await client.createAccount()
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.data
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createStripeAccount")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-            
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.data}
+    }
+    
+    func deleteStripeAccount() async throws -> String? {
+        let response = try await client.deleteAccount()
+        return try processResponse(response) { try $0.ok.body.json.data}
     }
     
     func updateStripeAccount() async throws -> String? {
         let response = try await client.updateAccount()
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.data
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createStripeAccount")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-            
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.data}
+    }
+    
+    func getStripeAccountInfo() async throws -> Components.Schemas.StripeAccountDto? {
+        let response = try await client.getStripeAccountInfo()
+        return try processResponse(response, showBanners: false) { try $0.ok.body.json}
     }
     
     func getStripeOnBoardingLink(accountId: String) async throws -> String? {
         let response = try await client.getOnboardingLink(.init(path: .init(accountId: accountId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.data
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getStripeOnBoardingLink")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-            
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.data}
     }
     
     func stripeOnBordingStatus(accountId: String) async throws -> Components.Schemas.StripeResponseDto? {
         let response = try await client.getOnboardingStatus(.init(path: .init(accountId: accountId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getPaymentSheet")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-            
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func getPaymentSheet(postId: String) async throws -> Components.Schemas.StripePaymentSheet? {
         let response = try await client.getPaymentSheet(.init(path: .init(postId: postId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getPaymentSheet")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-            
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func checkForPaidEvents() async throws -> Components.Schemas.StripeResponseDto? {
         let response = try await client.hasPaidPosts()
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for getPaymentSheet")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-            
-        }
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
 }
@@ -3128,33 +1063,7 @@ extension APIClient {
     func addDiviceToken() async throws -> Bool? {
         if !notificationToken.isEmpty {
             let response = try await client.addDeviceTokenForUser(.init(query: .init(token: notificationToken)))
-            
-            switch response {
-            case .ok(let okResponse):
-                switch okResponse.body{
-                case .json(let returnResponse):
-                    return returnResponse.success
-                }
-            case .undocumented(statusCode: let statusCode, _):
-                print("The status code:", statusCode)
-            case .unauthorized(_):
-                print("Unauthorized")
-            case .forbidden(_):
-                print("Forbidden")
-            case .badRequest(_):
-                print("Bad Request")
-            case .conflict(_):
-                print("Conflict")
-            case .tooManyRequests(_):
-                print("To many Requests for addDiviceToken")
-            case .requestTimeout(_):
-                print("Requested timeout")
-            case .notFound(_):
-                print("Not found")
-            case .internalServerError(_):
-                print("Internal server error")
-                
-            }
+            return try processResponse(response) { try $0.ok.body.json.success}
         }
         return nil
     }
@@ -3162,34 +1071,7 @@ extension APIClient {
     func removeDiviceToken() async throws -> Bool?{
         if !notificationToken.isEmpty {
             let response = try await client.removeDeviceTokenForUser(.init(query: .init(token: notificationToken)))
-            
-            switch response {
-            case .ok(let okResponse):
-                switch okResponse.body{
-                case .json(let returnResponse):
-                    print(notificationToken)
-                    return returnResponse.success
-                }
-            case .undocumented(statusCode: let statusCode, _):
-                print("The status code:", statusCode)
-            case .unauthorized(_):
-                print("Unauthorized")
-            case .forbidden(_):
-                print("Forbidden")
-            case .badRequest(_):
-                print("Bad Request")
-            case .conflict(_):
-                print("Conflict")
-            case .tooManyRequests(_):
-                print("To many Requests for removeDiviceToken")
-            case .requestTimeout(_):
-                print("Requested timeout")
-            case .notFound(_):
-                print("Not found")
-            case .internalServerError(_):
-                print("Internal server error")
-                
-            }
+            return try processResponse(response) { try $0.ok.body.json.success}
         }
         return nil
     }
@@ -3200,164 +1082,27 @@ extension APIClient {
     
     func notificationsList(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoNotificationDto?{
         let response = try await client.getUserNotifications(.init(query: .init(pageNumber: page, pageSize: size)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from notifications:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for notificationsList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func unreadNotificationsCount() async throws -> Components.Schemas.NumberDto?{
         let response = try await client.getUnreadNotificationsCount()
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                print("Notcount", returnResponse.number)
-
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from notifications:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for notificationsList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func readAllNotifications() async throws -> Components.Schemas.NumberDto?{
         let response = try await client.markAllNotificationsAsRead()
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from notifications:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for notificationsList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func updateNotifications(lastTimestamp: Date) async throws -> [Components.Schemas.NotificationDto]?{
         let response = try await client.getNotificationsAfterTimestamp(.init(query: .init(latestNotificationTimestamp: lastTimestamp)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from notifications:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for notificationsList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func removeRatingNotifications(postId: String) async throws -> Bool?{
         let response = try await client.removeNotificationForRatePost(.init(path: .init(postId: postId)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from notifications:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for notificationsList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success}
     }
     
     //    func notificationsPoll(lastTimestamp: Date, lastId: Int64, complete: @escaping ([Components.Schemas.NotificationDto]?, String?) -> Void) async throws{
@@ -3402,757 +1147,140 @@ extension APIClient {
 extension APIClient {
     func leaveChat(chatId: String) async throws -> Bool? {
         let response = try await client.leaveChatroom(.init(path: .init(chatId: chatId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success}
     }
     
     func leaveGroupChatRoom(chatId: String) async throws -> Bool? {
         let response = try await client.leaveGroupOrPostChatRoom(.init(path: .init(chatId: chatId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success}
     }
     
     func unreadMessagesCount() async throws -> Components.Schemas.NumberDto?{
         let response = try await client.getUnreadMessagesCount()
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                print("Notcount", returnResponse.number)
-
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from notifications:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for notificationsList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func enterChat(chatId: String) async throws -> Bool? {
         let response = try await client.enterChatroom(.init(path: .init(chatId: chatId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success}
     }
     
     func addFriendToChatRoomParticipants(chatId: String, userId: String) async throws -> Bool? {
         let response = try await client.addFriendToChatRoomParticipants(.init(path: .init(chatId: chatId, userId: userId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success}
     }
     
     func chatMessages(chatId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoReceivedChatMessageDto? {
         let response = try await client.findChatMessagesGroup(path: .init(chatId: chatId), query: .init(pageNumber: page, pageSize: size))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func updateChatMessages(chatId: String, lastTimestamp: Date) async throws -> Components.Schemas.ListResponseDtoReceivedChatMessageDto? {
         let response = try await client.findChatMessagesAfterTimestamp(.init(path: .init(chatId: chatId), query: .init(latestMessageTimestamp: lastTimestamp)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from notifications:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for notificationsList")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func searchChatRoom(searchText: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoChatRoomDto? {
         let response = try await client.searchChatRooms(.init(query: .init(query: searchText, pageNumber: page, pageSize: size)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json}
     }
     
     func likeDislikeMessage(messageId: String) async throws -> Bool? {
         let response = try await client.likeMessage(.init(path: .init(messageId: messageId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
+
     }
     
     func editMessage(messageId: String, text: String) async throws -> Bool? {
         let response = try await client.editMessage(.init(path: .init(messageId: messageId), query: .init(content: text)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
     }
     
     func likeMembers(messageId: String,pageNumber: Int32, pageSize: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
         let response = try await client.getMessageLikes(path: .init(messageId: messageId), query: .init(pageNumber: pageNumber, pageSize: pageSize))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
+
+
     }
     
     func unsendMessage(messageId: String) async throws -> Bool? {
         let response = try await client.unsendMsg(path: .init(messageId: messageId))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
+
     }
     
     func allChats(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoChatRoomDto? {
         let response = try await client.findChatRoomsForUser(.init(query: .init(pageNumber: page, pageSize: size)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
+
     }
     
     func allChatsRooms(page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoChatRoomDto? {
         let response = try await client.findAllChatRoomsForUser(.init(query: .init(pageNumber: page, pageSize: size)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
+
     }
     
     func getChatParticipants(chatId: String, page: Int32, size: Int32) async throws -> Components.Schemas.ListResponseDtoMiniUser? {
         let response = try await client.getChatRoomParticipants(.init(path: .init(chatId: chatId), query: .init(pageNumber: page, pageSize: size)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
+
     }
     
     func getChat(chatId: String) async throws -> Components.Schemas.ChatRoomDto? {
         let response = try await client.findChatRoomById(.init(path: .init(chatId: chatId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
+
     }
     
     func updateChatRooms(latestDate: Date) async throws -> [Components.Schemas.ChatRoomDto]?{
         let response = try await client.findChatRoomsWithUpdatedLatestMessageAfterTimestamp(.init(query: .init(latestMessageTimestamp: latestDate)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
+
     }
     
     func createChatForEvent(postId: String) async throws -> String?{
         let response = try await client.createChatForPost(.init(path: .init(postId: postId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.id
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(let error):
-            print("Bad Request create chat")
-            switch error.body {
-            case .json(let errorMessage):
-                print(errorHandler(error: errorMessage))
-            }
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.id }
+
     }
     
     func createChatForClub(clubId: String) async throws -> String?{
         let response = try await client.createChatForClub(.init(path: .init(clubId: clubId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.id
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.id }
+
     }
     
     func createGroupChat(image: String?, title: String?, friendIds: [String]) async throws -> String?{
 //        let response = try await client.createChatForGroup(.init(body: .json(friendIds)))
         let response = try await client.createChatForGroup(.init(body: .json(.init(friendIds: friendIds, image: image, title: title))))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.id
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.id }
+
     }
     
     func kickGroupParticipant(userId: String, chatId: String) async throws -> Bool?{
         let response = try await client.removeFromChatRoomParticipants(.init(path: .init(chatId: chatId, userId: userId)))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
+
     }
     
     func muteChat(chatId: String) async throws -> Bool?{
         let response = try await client.muteChatroom(path: .init(chatId: chatId))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
+
     }
     
     func unmuteChat(chatId: String) async throws -> Bool?{
         let response = try await client.unmuteChatroom(path: .init(chatId: chatId))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
+
     }
     
     func patchGroupChat(image: String?, title: String?, chatId: String) async throws -> Bool?{
 //        let response = try await client.createChatForGroup(.init(body: .json(friendIds)))
         let response = try await client.patchGroupChatRoom(.init(path: .init(chatId: chatId), body: .json(.init(title: title, image: image))))
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
+
     }
     
     
@@ -4163,34 +1291,8 @@ extension APIClient {
 extension APIClient {
     func report(body: Components.Schemas.ReportDto) async throws -> Bool? {
         let response = try await client.sendReport(.init(body: .json(body)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse.success
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json.success }
+
     }
 }
 
@@ -4200,64 +1302,13 @@ extension APIClient {
     func changeEventDate(postId: String, newDate: Date) async throws -> Components.Schemas.PostResponseDto? {
         let response = try await client.updatePostCreatedAt(.init(path: .init(postId: postId), query: .init(newCreatedAt: newDate)))
         
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
+
     }
     
     func changeClubDate(clubId: String, newDate: Date) async throws -> Components.Schemas.ClubDto? {
         let response = try await client.updateClubCreatedAt(.init(path: .init(clubId: clubId), query: .init(newCreatedAt: newDate)))
-        
-        switch response {
-        case .ok(let okResponse):
-            switch okResponse.body{
-            case .json(let returnResponse):
-                return returnResponse
-            }
-        case .undocumented(statusCode: let statusCode, _):
-            print("The status code from chat:", statusCode)
-        case .unauthorized(_):
-            print("Unauthorized")
-        case .forbidden(_):
-            print("Forbidden")
-        case .badRequest(_):
-            print("Bad Request")
-        case .conflict(_):
-            print("Conflict")
-        case .tooManyRequests(_):
-            print("To many Requests for createChatForFriends")
-        case .requestTimeout(_):
-            print("Requested timeout")
-        case .notFound(_):
-            print("Not found")
-        case .internalServerError(_):
-            print("Internal server error")
-        }
-        
-        return nil
+        return try processResponse(response) { try $0.ok.body.json }
+
     }
 }

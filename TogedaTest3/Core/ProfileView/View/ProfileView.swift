@@ -122,6 +122,32 @@ struct ProfileView: View {
                         }
                         .padding(.bottom, 8)
                         
+                        HStack(alignment:.center, spacing: 10) {
+                            NavigationLink(value: SelectionPath.editProfile){
+                                HStack{
+                                    Image(systemName: "pencil.circle")
+                                    Text("Edit")
+                                        .font(.footnote)
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundColor(Color("textColor"))
+                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                .normalTagRectangleStyle()
+                            }
+                            
+                            NavigationLink(value: SelectionPath.paymentPage){
+                                HStack{
+                                    Image(systemName: "menucard")
+                                    Text("Wallet")
+                                        .font(.footnote)
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundColor(Color("textColor"))
+                                .frame(width: UIScreen.main.bounds.width/2 - 60)
+                                .normalTagRectangleStyle()
+                            }
+                        }
+                        .padding(.horizontal)
                         
                     }
                     .padding(.bottom)
@@ -135,7 +161,7 @@ struct ProfileView: View {
                     //                        VerifyPhoneProfileTab()
                     //                    }
                     
-                    AboutTab(user: user, badges: viewModel.badges, showInstagram: true)
+                    AboutTab(isCurrentUser: true, user: user, badges: viewModel.badges, showInstagram: true)
                     
                     if viewModel.badgeTasks.count > 0 {
                         UserTaskView(badgeTask: viewModel.badgeTasks[0], referralCode: user.details.referralCode, badgesLeft: viewModel.badgeSupply)

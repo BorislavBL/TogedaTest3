@@ -25,7 +25,7 @@ struct RegistrationCodeView: View {
     
     var body: some View {
         VStack {
-            Text("Please enter the verification code you have received on your email.")
+            Text("Verification code sent to \(email)")
                 .multilineTextAlignment(.center)
                 .font(.title)
                 .bold()
@@ -198,6 +198,6 @@ struct RegistrationCodeView: View {
 }
 
 #Preview {
-    RegistrationCodeView(email: .constant(""), password: .constant(""))
+    RegistrationCodeView(email: .constant("borislavlorinkov@gmail.com"), password: .constant(""))
         .environmentObject(ContentViewModel())
 }

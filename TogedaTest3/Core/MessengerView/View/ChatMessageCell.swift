@@ -107,7 +107,7 @@ struct ChatMessageCell: View {
                                             .font(.largeTitle)
                                             .padding(12)
                                     } else {
-                                        Text(LocalizedStringKey(message.content))
+                                        Text(attributedMessage(message.content))
                                             .font(.subheadline)
                                             .padding(12)
                                             .background(Color(.systemBlue))
@@ -248,7 +248,7 @@ struct ChatMessageCell: View {
                                                 .padding(12)
                                                 .frame(maxWidth: UIScreen.main.bounds.width / 1.75, alignment: .leading)
                                         } else {
-                                            Text(LocalizedStringKey(message.content))
+                                            Text(attributedMessage(message.content))
                                                 .font(.subheadline)
                                                 .padding(12)
                                                 .background(Color(.systemGray6))
@@ -327,7 +327,28 @@ struct ChatMessageCell: View {
 }
 
 
+private func attributedMessage(_ text: String) -> AttributedString {
+    var attributed = AttributedString(text)
 
+    // Detect and style links
+    if let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) {
+        let nsString = NSString(string: text)
+        let matches = detector.matches(in: text, range: NSRange(location: 0, length: nsString.length))
+
+        for match in matches {
+            if let range = Range(match.range, in: text) {
+                let linkText = text[range]
+                if let linkRange = attributed.range(of: String(linkText)) {
+                    attributed[linkRange].link = URL(string: String(linkText))
+                    attributed[linkRange].font = .bold(.subheadline)()  // 👈 Make it bold
+                    attributed[linkRange].underlineStyle = .single     // 👈 Optional underline
+                }
+            }
+        }
+    }
+
+    return attributed
+}
 
 
 #Preview {

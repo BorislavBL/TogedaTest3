@@ -18,25 +18,59 @@ struct RateParticipantsView: View {
     
     var post: Components.Schemas.PostResponseDto
     var rating: Components.Schemas.RatingDto
-
+    
     @State var Init: Bool = true
     @EnvironmentObject var navManager: NavigationManager
     @ObservedObject var vm: RatingViewModel
     
     var body: some View {
-        VStack{
-            ScrollView{
+        VStack {
+            List {
                 Text("What do you think of the people from this event?")
                     .font(.title2)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
+                    .listRowSeparator(.hidden)
+                
                 LazyVStack(alignment:.leading){
                     ForEach(eventVM.participantsList, id:\.user.id) { user in
                         if let currentUser = userVM.currentUser, currentUser.id == user.user.id{
                             EmptyView()
+                                .listRowSeparator(.hidden)
                         } else {
                             PostParticipantRatingTab(user: user, vm: vm, eventVM: eventVM, post: post)
-                                
+                                .listRowSeparator(.hidden)
+                                .swipeActions(edge: .trailing) {
+                                    if (user._type != .HOST && user._type != .CO_HOST) &&
+                                        (post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST) &&
+                                        user.locationStatus != .NOT_SHOWN{
+                                        Button {
+                                            Task{
+                                                try await eventVM.changeUserStatus(postId: post.id, userId: user.user.id, status: .NOT_SHOWN)
+                                            }
+                                        } label: {
+                                            Label("Not Shown", systemImage: "xmark.circle")
+                                                .foregroundStyle(.white)
+                                        }
+                                        .tint(.red)
+                                    }
+                                }
+                                .swipeActions(edge: .leading) {
+                                    if (user._type != .HOST && user._type != .CO_HOST) &&
+                                        (post.currentUserRole == .HOST || post.currentUserRole == .CO_HOST) &&
+                                        user.locationStatus != .ARRIVED {
+                                        
+                                        Button {
+                                            Task{
+                                                try await eventVM.changeUserStatus(postId: post.id, userId: user.user.id, status: .ARRIVED)
+                                            }
+                                        } label: {
+                                            Label("Arrived", systemImage: "checkmark.circle")
+                                                .foregroundStyle(.white)
+                                        }
+                                        .tint(.green)
+                                    }
+                                }
                         }
                     }
                     
@@ -47,42 +81,30 @@ struct RateParticipantsView: View {
                         }
                     }
                 }
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
                 .padding(.horizontal)
                 
             }
-            VStack(){
+            .listStyle(PlainListStyle())
+            .scrollIndicators(.hidden)
+            VStack() {
+                
                 Divider()
                 
-                Button {
-                    Task {
-                        if post.currentUserRole == .NORMAL {
-                            // Step 1: Submit all likes
-                            await vm.submitAllLikes()
-                            print("here1")
-                            // Step 2: Remove rating notifications after all likes are submitted
-                            do {
-                                if try await APIClient.shared.giveRatingToEvent(postId: post.id, ratingBody: rating) != nil {
-                                    print("here2")
-
-                                    if let removed = try await APIClient.shared.removeRatingNotifications(postId: post.id), removed {
-                                        print("here3")
-
-                                        DispatchQueue.main.async {
-                                            wsManager.notificationsList.removeAll { not in
-                                                return not.alertBodyReviewEndedPost?.post.id == post.id
-                                            }
-                                            self.vm.openReviewSheet = false
-                                        }
-                                    }
-                                }
-                            } catch {
-                                print("Failed to submit rating or remove notifications:", error)
-                            }
-                        } else {
-                            await vm.submitAllLikes()
-                            // For other roles, skip submitting likes and directly remove notifications
-                            do {
+                LoadingButton(action: {
+                    if post.currentUserRole == .NORMAL {
+                        // Step 1: Submit all likes
+                        await vm.submitAllLikes()
+                        print("here1")
+                        // Step 2: Remove rating notifications after all likes are submitted
+                        do {
+                            if try await APIClient.shared.giveRatingToEvent(postId: post.id, ratingBody: rating) != nil {
+                                print("here2")
+                                
                                 if let removed = try await APIClient.shared.removeRatingNotifications(postId: post.id), removed {
+                                    print("here3")
+                                    
                                     DispatchQueue.main.async {
                                         wsManager.notificationsList.removeAll { not in
                                             return not.alertBodyReviewEndedPost?.post.id == post.id
@@ -90,17 +112,40 @@ struct RateParticipantsView: View {
                                         self.vm.openReviewSheet = false
                                     }
                                 }
-                            } catch {
-                                print("Failed to remove notifications:", error)
                             }
+                        } catch {
+                            print("Failed to submit rating or remove notifications:", error)
+                        }
+                    } else {
+                        await vm.submitAllLikes()
+                        // For other roles, skip submitting likes and directly remove notifications
+                        do {
+                            if let removed = try await APIClient.shared.removeRatingNotifications(postId: post.id), removed {
+                                DispatchQueue.main.async {
+                                    wsManager.notificationsList.removeAll { not in
+                                        return not.alertBodyReviewEndedPost?.post.id == post.id
+                                    }
+                                    self.vm.openReviewSheet = false
+                                }
+                            }
+                        } catch {
+                            print("Failed to remove notifications:", error)
                         }
                     }
-                } label: {
+                }) {
                     HStack(spacing:2){
-                        
                         Text("Finish")
                             .fontWeight(.semibold)
-                        
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(Color("blackAndWhite"))
+                    .foregroundColor(Color("testColor"))
+                    .cornerRadius(10)
+                } loadingView: {
+                    HStack(spacing:2){
+                        Text("Loading...")
+                            .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -112,10 +157,7 @@ struct RateParticipantsView: View {
             }
             .background(.bar)
         }
-        .swipeBack()
-        .sheet(isPresented: $vm.showUserLike, content: {
-            RateParticipantSheet(post: post, selectedExtendedUser: vm.selectedExtendedUser, eventVM: eventVM, showUserLike: $vm.showUserLike, vm: vm)
-        })
+        //        .swipeBack()
         .sheet(isPresented: $vm.showUserReport, content: {
             if let user = vm.selectedExtendedUser {
                 ReportUserView(user: user.user, isActive: $vm.showUserReport)
@@ -160,20 +202,20 @@ struct PostParticipantRatingTab: View {
     @State var openComent: Bool = false
     var post: Components.Schemas.PostResponseDto
     var commentBinding: Binding<String> {
-            Binding(
-                get: {
-                    if let rating = vm.ratePostParticipants.first(where: { $0.userId == user.user.id }) {
-                        return rating.rating.comment ?? ""
-                    }
-                    return ""
-                },
-                set: { newValue in
-                    if let index = vm.ratePostParticipants.firstIndex(where: { $0.userId == user.user.id }) {
-                        vm.ratePostParticipants[index].rating.comment = newValue
-                    }
+        Binding(
+            get: {
+                if let rating = vm.ratePostParticipants.first(where: { $0.userId == user.user.id }) {
+                    return rating.rating.comment ?? ""
                 }
-            )
-        }
+                return ""
+            },
+            set: { newValue in
+                if let index = vm.ratePostParticipants.firstIndex(where: { $0.userId == user.user.id }) {
+                    vm.ratePostParticipants[index].rating.comment = newValue
+                }
+            }
+        )
+    }
     var body: some View {
         VStack{
             HStack{
@@ -223,13 +265,14 @@ struct PostParticipantRatingTab: View {
                 
                 if vm.ratePostParticipants.contains(where: {$0.userId == user.user.id}){
                     Button {
-                        withAnimation{
-                            openComent.toggle()
-                        }
+                        
+                        openComent.toggle()
+                        
                         
                     } label:{
                         Image(systemName: "ellipsis.message.fill")
                     }
+                    .buttonStyle(.borderless)
                     
                     Button{
                         vm.selectedExtendedUser = user
@@ -240,6 +283,7 @@ struct PostParticipantRatingTab: View {
                         Image(systemName: "hand.thumbsup.fill")
                             .foregroundStyle(.green)
                     }
+                    .buttonStyle(.borderless)
                 } else {
                     Button{
                         vm.selectedExtendedUser = user
@@ -248,6 +292,7 @@ struct PostParticipantRatingTab: View {
                     } label: {
                         Image(systemName: "hand.thumbsup")
                             .foregroundStyle(.green)
+                            .frame(CGSize(width: 40, height: 40))
                     }
                 }
                 
@@ -283,89 +328,19 @@ struct PostParticipantRatingTab: View {
                 
             }
             
-            if openComent{
-                TextField("Tell us what you liked about \(user.user.firstName)? (Optional)", text: commentBinding, axis: .vertical)
-                    .lineLimit(3, reservesSpace: true)
-                    .padding()
-                    .background{Color("main-secondary-color")}
-                    .cornerRadius(10)
+            VStack{
+                if openComent{
+                    TextField("Tell us what you liked about \(user.user.firstName)? (Optional)", text: commentBinding, axis: .vertical)
+                        .lineLimit(3, reservesSpace: true)
+                        .padding()
+                        .background{Color("main-secondary-color")}
+                        .cornerRadius(10)
+                }
             }
         }
         .padding(.vertical, 5)
     }
 }
 
-struct RateParticipantSheet: View {
-    var post: Components.Schemas.PostResponseDto
-    @State var description: String = ""
-    var selectedExtendedUser: Components.Schemas.ExtendedMiniUser?
-    @ObservedObject var eventVM: EventViewModel
-    @Binding var showUserLike: Bool
-    @ObservedObject var vm: RatingViewModel
-    
-    var body: some View {
-        VStack{
-            if let user = selectedExtendedUser {
-                VStack(alignment: .center, spacing: 10) {
-                    KFImage(URL(string: user.user.profilePhotos[0]))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 200, height: 200)
-                        .clipShape(Circle())
-                    
-                    Text("\(user.user.firstName) \(user.user.lastName)")
-                        .fontWeight(.semibold)
-                        .font(.title3)
-                }
-                
-                
-                VStack(alignment: .leading){
-                    TextField("Tell us what you liked about \(user.user.firstName)? (Optional)", text: $description, axis: .vertical)
-                        .lineLimit(10, reservesSpace: true)
-                        .padding()
-                        .background{Color("main-secondary-color")}
-                        .cornerRadius(10)
-                    
-                }
-                .padding()
-                .frame(minWidth: UIScreen.main.bounds.width, alignment: .leading)
-                
-                Spacer()
-                
-                Button{
-//                    Task{
-//                        if try await APIClient.shared.giveRatingToParticipant(postId: post.id, userId: user.user.id, ratingBody: .init(liked: true, comment: description)) != nil {
-//                            DispatchQueue.main.async {
-//                                if let index = eventVM.participantsList.firstIndex(where: { $0.user.id == user.user.id }) {
-//                                    eventVM.participantsList.remove(at: index)
-//                                    showUserLike = false
-//                                }
-//                            }
-//                        } else {
-//                            print("No no no")
-//                        }
-//                    }
-                    vm.ratePostParticipants.append(.init(postId: post.id, userId: user.user.id, rating: .init(liked: true, comment: description)))
-                    showUserLike = false
-                } label: {
-                    HStack(spacing:2){
-                        
-                        Text("Give \(user.user.firstName) a Like")
-                            .fontWeight(.semibold)
-                        
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color("blackAndWhite"))
-                    .foregroundColor(Color("testColor"))
-                    .cornerRadius(10)
-                }
-                .padding()
-                
-            }
-        }
-        .padding(.top, 26)
-    }
-}
 
 

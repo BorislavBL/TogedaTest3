@@ -112,11 +112,13 @@ struct ReviewProfileView: View {
                     ForEach(likesList, id: \.id){ response in
                         if let comment = response.comment {
                             HStack(alignment: .top){
-                                KFImage(URL(string: response.userFrom.profilePhotos[0]))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 40, height: 40)
-                                    .clipShape(Circle())
+                                NavigationLink(value: SelectionPath.profile(response.userFrom)) {
+                                    KFImage(URL(string: response.userFrom.profilePhotos[0]))
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 40, height: 40)
+                                        .clipShape(Circle())
+                                }
                                 
                                 VStack(alignment: .leading) {
                                     HStack(alignment: .center){
@@ -124,7 +126,7 @@ struct ReviewProfileView: View {
                                             .fontWeight(.semibold)
                                             .font(.footnote)
                                         
-                                        Image(systemName: "hand.thumbsup")
+                                        Image(systemName: "hand.thumbsup.fill")
                                             .foregroundStyle(.green)
                                             .imageScale(.small)
                                     }
@@ -141,82 +143,101 @@ struct ReviewProfileView: View {
                         }
                     }
                 case .rating:
-                    ForEach(ratingList, id: \.id){ response in
-                        if let comment = response.comment {
-                            HStack(alignment: .top){
-                                KFImage(URL(string: response.user.profilePhotos[0]))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 40, height: 40)
-                                    .clipShape(Circle())
-                                
-                                VStack(alignment: .leading) {
-                                    HStack(alignment: .center){
-                                        Text("\(response.user.firstName) \(response.user.lastName)")
-                                            .fontWeight(.semibold)
-                                            .font(.footnote)
-                                        
-                                        RatingView(rating: Int(round(response.value)), dimension: 10)
-                                        
+                    LazyVStack(alignment:. leading, spacing: 15) {
+                        ForEach(ratingList, id: \.id){ response in
+                            if let comment = response.comment {
+                                HStack(alignment: .top){
+                                    NavigationLink(value: SelectionPath.profile(response.user)) {
+                                        KFImage(URL(string: response.user.profilePhotos[0]))
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 40, height: 40)
+                                            .clipShape(Circle())
                                     }
                                     
-                                    Text(comment)
-                                        .font(.footnote)
-                                        .multilineTextAlignment(/*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/)
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        VStack(alignment: .leading) {
+                                            HStack(alignment: .center){
+                                                Text("\(response.user.firstName) \(response.user.lastName)")
+                                                    .fontWeight(.semibold)
+                                                    .font(.footnote)
+                                                
+                                                RatingView(rating: Int(round(response.value)), onColor: Color.orange, dimension: 10)
+                                                
+                                            }
+                                            
+                                            ExpandableText(comment)
+                                                .font(.footnote)
+                                                .lineLimit(4)
+                                                .moreButtonText("read more")
+                                                .moreButtonFont(.system(.footnote, design: .rounded).bold())
+                                                .trimMultipleNewlinesWhenTruncated(false)
+                                                .enableCollapse(true)
+                                                .hasAnimation(false)
+                                                .multilineTextAlignment(/*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/)
+                                            //                                    Text(comment)
+                                            //                                        .font(.footnote)
+                                            //                                        .multilineTextAlignment(/*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/)
+                                        }
+                                        .padding(8)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .background(Color("main-secondary-color"))
+                                        .cornerRadius(10)
+                                        
+                                        postTag(post: response.post)
+                                    }
                                 }
-                                .padding(8)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color("main-secondary-color"))
-                                .cornerRadius(10)
+                                
+                            }
+                            
+                        }
+                    }
+                }
+                
+                switch selectedRating {
+                case .likes:
+                    ListLoadingButton(isLoading: $isLoading, isLastPage: likesLastPage) {
+                        Task{
+                            defer{isLoading = false}
+                            if !likesLastPage{
+                                if let response = try await APIClient.shared.getUserLikesList(userId: user.id, page: likesPage, size: likesSize) {
+                                    let newResponse = response.data
+                                    let existingResponseIDs = Set(self.likesList.suffix(30).map { $0.id })
+                                    let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                                    
+                                    
+                                    likesList += uniqueNewResponse
+                                    likesPage += 1
+                                    likesLastPage = response.lastPage
+                                    likesCount = response.listCount
+                                    
+                                    likesInit = false
+                                }
+                            }
+                        }
+                    }
+                case .rating:
+                    ListLoadingButton(isLoading: $isLoading, isLastPage: ratingLastPage) {
+                        Task{
+                            defer{isLoading = false}
+                            if  !ratingLastPage{
+                                if let response = try await APIClient.shared.getRatingForProfile(userId: user.id, page: ratingPage, size: ratingSize) {
+                                    let newResponse = response.data
+                                    let existingResponseIDs = Set(self.ratingList.suffix(30).map { $0.id })
+                                    let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
+                                    
+                                    
+                                    ratingList += uniqueNewResponse
+                                    ratingPage += 1
+                                    ratingLastPage = response.lastPage
+                                    ratingCount = response.listCount
+                                }
                             }
                         }
                     }
                 }
                 
-                        switch selectedRating {
-                        case .likes:
-                            ListLoadingButton(isLoading: $isLoading, isLastPage: likesLastPage) {
-                                Task{
-                                    defer{isLoading = false}
-                                    if !likesLastPage{
-                                        if let response = try await APIClient.shared.getUserLikesList(userId: user.id, page: likesPage, size: likesSize) {
-                                            let newResponse = response.data
-                                            let existingResponseIDs = Set(self.likesList.suffix(30).map { $0.id })
-                                            let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
-                                            
-                                            
-                                            likesList += uniqueNewResponse
-                                            likesPage += 1
-                                            likesLastPage = response.lastPage
-                                            likesCount = response.listCount
-                                            
-                                            likesInit = false
-                                        }
-                                    }
-                                }
-                            }
-                        case .rating:
-                            ListLoadingButton(isLoading: $isLoading, isLastPage: ratingLastPage) {
-                                Task{
-                                    defer{isLoading = false}
-                                    if  !ratingLastPage{
-                                        if let response = try await APIClient.shared.getRatingForProfile(userId: user.id, page: ratingPage, size: ratingSize) {
-                                            let newResponse = response.data
-                                            let existingResponseIDs = Set(self.ratingList.suffix(30).map { $0.id })
-                                            let uniqueNewResponse = newResponse.filter { !existingResponseIDs.contains($0.id) }
-                                            
-                                            
-                                            ratingList += uniqueNewResponse
-                                            ratingPage += 1
-                                            ratingLastPage = response.lastPage
-                                            ratingCount = response.listCount
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                    
+                
                 
             }
             .padding()
@@ -264,6 +285,28 @@ struct ReviewProfileView: View {
         
     }
     
+    @ViewBuilder
+    func postTag(post: Components.Schemas.PostResponseDto) -> some View {
+        NavigationLink(value: SelectionPath.eventDetails(post)) {
+            HStack{
+                KFImage(URL(string: post.images[0]))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 20, height: 20)
+                    .clipShape(Circle())
+                
+                Text(post.title)
+                    .fontWeight(.medium)
+                    .font(.footnote)
+                    .opacity(0.8)
+            }
+            .frame(height: 16)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background{Capsule().fill(Color("main-secondary-color").opacity(0.5))}
+        }
+    }
+    
     func fetchAllInitialData(userId: String) async throws{
         // Use a task group to fetch all data concurrently
         await withTaskGroup(of: Void.self) { group in
@@ -278,7 +321,7 @@ struct ReviewProfileView: View {
                             
                             self.likesInit = false
                         }
-
+                        
                     }
                 } catch {
                     print("Error fetching user posts: \(error)")
@@ -294,7 +337,7 @@ struct ReviewProfileView: View {
                         }
                     }
                 }
-                 catch {
+                catch {
                     print("Error fetching user posts: \(error)")
                 }
             }

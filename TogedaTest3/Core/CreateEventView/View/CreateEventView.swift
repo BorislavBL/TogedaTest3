@@ -34,397 +34,261 @@ struct CreateEventView: View {
     @EnvironmentObject var userVM: UserViewModel
     @EnvironmentObject var postVM: PostsViewModel
     @EnvironmentObject var navManager: NavigationManager
+    @EnvironmentObject var bannerService: BannerService
     
     @State private var isStripeOnboardingDone: Bool = false
     let paidActivitiesAgreement = try! AttributedString(markdown: "[Paid Activity Agreement](\(TogedaLinks().paidActivitiesAgreement))")
     
     var body: some View {
         NavigationStack() {
-            ScrollView(showsIndicators: false){
-                if let error = serverErrorMessage {
-                    WarningTextComponent(text: error)
-                }
-                
-                VStack(alignment: .leading){
-                    Text("Title:")
-                        .foregroundStyle(.tint)
-                    TextField("What event would you like to make?", text: $ceVM.title)
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .autocorrectionDisabled(true)
-                        .onChange(of: ceVM.title) { oldValue, newValue in
-                            if ceVM.title.count > 70 {
-                                ceVM.title = String(ceVM.title.prefix(70))
+            ZStack{
+                ScrollView(showsIndicators: false){
+//                    if let error = serverErrorMessage {
+//                        WarningTextComponent(text: error)
+//                    }
+                    
+                    VStack(alignment: .leading){
+                        Text("Title:")
+                            .foregroundStyle(.tint)
+                        TextField("What event would you like to make?", text: $ceVM.title)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .autocorrectionDisabled(true)
+                            .onChange(of: ceVM.title) { oldValue, newValue in
+                                if ceVM.title.count > 70 {
+                                    ceVM.title = String(ceVM.title.prefix(70))
+                                }
                             }
-                        }
-                }
-                .createEventTabStyle()
-                .padding(.top)
-                
-                if titleEmpty {
-                    WarningTextComponent(text: "Please write a title.")
-                } else if titleChartLimit {
-                    WarningTextComponent(text: "The title has to be more than 5 characters long.")
-                }
-                
-                
-                Button{
-                    showDescriptionView = true
-                } label: {
-                    HStack(alignment: .center, spacing: 10) {
-                        Image(systemName: "square.and.pencil")
-                            .imageScale(.large)
-                        
-                        
-                        Text("Description")
-                        
-                        Spacer()
-                        
-                        Text(ceVM.description)
-                            .foregroundColor(.gray)
-                            .lineLimit(1)
-                        
-                        Image(systemName: "chevron.right")
-                            .padding(.trailing, 10)
-                            .foregroundColor(.gray)
-                        
                     }
                     .createEventTabStyle()
-                }
-                
-                Button{
-                    showPhotosView = true
-                } label: {
-                    HStack(alignment: .center, spacing: 10) {
-                        Image(systemName: "photo")
-                            .foregroundStyle(.tint)
-                        Text("Photos")
-                            .foregroundStyle(.tint)
-                        Spacer()
-                        
-                        if (photoPickerVM.selectedImages.contains(where: {$0 != nil}) || ceVM.postPhotosURls.count > 0) {
-                            Text("Selected")
-                                .foregroundColor(.gray)
-                        } else {
-                            Text("Select")
-                                .foregroundStyle(.gray)
-                        }
-                        
-                        Image(systemName: "chevron.right")
-                            .padding(.trailing, 10)
-                            .foregroundStyle(.gray)
-                        
-                        
-                    }
-                    .createEventTabStyle()
-                    
-                }
-                
-                if noPhotos {
-                    WarningTextComponent(text: "Please add photos.")
-                    
-                }
-                
-                
-                Button {
-                    showLocationView = true
-                } label: {
-                    HStack(alignment: .center, spacing: 10) {
-                        Image(systemName: "mappin.circle")
-                            .imageScale(.large)
-                        
-                        
-                        Text("Location")
-                        
-                        Spacer()
-                        
-                        if let location = ceVM.location {
-                            Text(location.name)
-                                .foregroundColor(.gray)
-                                .lineLimit(1)
-                        } else {
-                            Text("Select")
-                                .foregroundColor(.gray)
-                        }
-                        
-                        Image(systemName: "chevron.right")
-                            .padding(.trailing, 10)
-                            .foregroundColor(.gray)
-                        
-                        
-                    }
-                    .createEventTabStyle()
-                }
-                
-                if noLocation {
-                    WarningTextComponent(text: "Please select a location.")
-                    
-                }
-                
-                Button {
-                    showAccessibilityView = true
-                } label: {
-                    HStack(alignment: .center, spacing: 10) {
-                        Image(systemName: "eye.circle")
-                            .imageScale(.large)
-                        
-                        
-                        Text("Accessibility")
-                        
-                        Spacer()
-                        
-                        if !ceVM.selectedVisability.isEmpty {
-                            Text(ceVM.selectedVisability.capitalized)
-                                .foregroundColor(.gray)
-                        } else {
-                            Text("Select")
-                                .foregroundColor(.gray)
-                        }
-                        
-                        Image(systemName: "chevron.right")
-                            .padding(.trailing, 10)
-                            .foregroundColor(.gray)
-                        
-                        
-                    }
-                    .createEventTabStyle()
-                }
-                
-                if noVisability {
-                    WarningTextComponent(text: "Please select a visibility type.")
-                    
-                }
-                
-                Button {
-                    showInterestsView = true
-                } label: {
-                    HStack(alignment: .center, spacing: 10) {
-                        Image(systemName: "circle.grid.2x2")
-                            .imageScale(.large)
-                        
-                        if $ceVM.selectedInterests.count > 0 {
-                            Text(interestsOrder(ceVM.selectedInterests))
-                                .lineLimit(1)
-                            Spacer()
-                        } else {
-                            Text("Interests")
-                            Spacer()
-                            Text("Select")
-                                .foregroundColor(.gray)
-                        }
-                        
-                        Image(systemName: "chevron.right")
-                            .padding(.trailing, 10)
-                            .foregroundColor(.gray)
-                        
-                        
-                    }
-                    .createEventTabStyle()
-                }
-                
-                if noTag {
-                    WarningTextComponent(text: "Please select at least one interest.")
-                    
-                }
-                
-                Text("Aditional Options")
-                    .font(.callout)
-                    .foregroundStyle(.gray)
-                    .fontWeight(.bold)
-                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                     .padding(.top)
-                    .padding(.horizontal, 8)
-                
-                //                    NavigationLink {
-                //                        DateView(isDate: $ceVM.isDate, date: $ceVM.date, from: $ceVM.from, to: $ceVM.to, daySettings: $ceVM.daySettings, timeSettings: $ceVM.timeSettings)
-                //                    } label: {
-                //                        HStack(alignment: .center, spacing: 10) {
-                //                            Image(systemName: "calendar")
-                //                                .imageScale(.large)
-                //
-                //
-                //                            Text("Date & Time")
-                //
-                //                            Spacer()
-                //
-                //
-                //                            Text(ceVM.isDate ? separateDateAndTime(from:ceVM.date).date : "Any day")
-                //                                .foregroundColor(.gray)
-                //
-                //                            Image(systemName: "chevron.right")
-                //                                .padding(.trailing, 10)
-                //                                .foregroundColor(.gray)
-                //
-                //                        }
-                //                        .createEventTabStyle()
-                //                    }
-                
-                VStack(alignment: .leading, spacing: 20){
+                    
+                    if titleEmpty {
+                        WarningTextComponent(text: "Please write a title.")
+                    } else if titleChartLimit {
+                        WarningTextComponent(text: "The title has to be more than 5 characters long.")
+                    }
+                    
+                    
                     Button{
-                        ceVM.showTimeSettings.toggle()
+                        showDescriptionView = true
                     } label: {
                         HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "calendar")
+                            Image(systemName: "square.and.pencil")
                                 .imageScale(.large)
                             
                             
-                            Text("Date & Time")
+                            Text("Description")
                             
                             Spacer()
                             
-                            if ceVM.dateTimeSettings == 1 {
-                                Text(separateDateAndTime(from:ceVM.from).date)
-                                    .foregroundColor(.gray)
-                            } else if ceVM.dateTimeSettings == 2 {
-                                Text("\(separateDateAndTime(from:ceVM.from).date) - \(separateDateAndTime(from:ceVM.to).date)")
-                                    .foregroundColor(.gray)
-                                    .lineLimit(1)
-                            } else {
-                                Text("Anyday")
-                                    .foregroundColor(.gray)
-                            }
+                            Text(ceVM.description)
+                                .foregroundColor(.gray)
+                                .lineLimit(1)
                             
-                            Image(systemName: ceVM.showTimeSettings ? "chevron.down" : "chevron.right")
+                            Image(systemName: "chevron.right")
                                 .padding(.trailing, 10)
                                 .foregroundColor(.gray)
                             
                         }
+                        .createEventTabStyle()
+                    }
+                    
+                    Button{
+                        showPhotosView = true
+                    } label: {
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "photo")
+                                .foregroundStyle(.tint)
+                            Text("Photos")
+                                .foregroundStyle(.tint)
+                            Spacer()
+                            
+                            if (photoPickerVM.selectedImages.contains(where: {$0 != nil}) || ceVM.postPhotosURls.count > 0) {
+                                Text("Selected")
+                                    .foregroundColor(.gray)
+                            } else {
+                                Text("Select")
+                                    .foregroundStyle(.gray)
+                            }
+                            
+                            Image(systemName: "chevron.right")
+                                .padding(.trailing, 10)
+                                .foregroundStyle(.gray)
+                            
+                            
+                        }
+                        .createEventTabStyle()
                         
                     }
                     
-                    if ceVM.showTimeSettings {
-                        Picker("Choose Date", selection: $ceVM.dateTimeSettings){
-                            Text("Anytime").tag(0)
-                            Text("Exact").tag(1)
-                            Text("Range").tag(2)
-                            
-                        }
-                        .pickerStyle(.segmented)
-                        
-                        if ceVM.dateTimeSettings != 0 {
-                            DatePicker("From", selection: $ceVM.from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
-                                .fontWeight(.semibold)
-                            
-                            if ceVM.dateTimeSettings == 2 {
-                                DatePicker("To", selection: $ceVM.to, in: ceVM.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
-                                    .fontWeight(.semibold)
-                            }
-                        } else {
-                            HStack {
-                                Text("The event won't have a specific timeframe.")
-                                    .fontWeight(.medium)
-                                    .padding()
-                            }
-                        }
-                        
+                    if noPhotos {
+                        WarningTextComponent(text: "Please add photos.")
                         
                     }
-                }
-                .createEventTabStyle()
-                
-                if pastDate {
-                    WarningTextComponent(text: "Change your timeframe. You can't create an event in the past.")
                     
-                }
-                
-                VStack(alignment: .leading, spacing: 20){
                     
                     Button {
-                        ceVM.showParticipants.toggle()
+                        showLocationView = true
                     } label: {
-                        
                         HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "person.2.circle")
+                            Image(systemName: "mappin.circle")
                                 .imageScale(.large)
                             
                             
-                            Text("Participants")
+                            Text("Location")
                             
                             Spacer()
                             
-                            if let participant = ceVM.participants{
-                                Text(participant > 0 ? "\(participant)" : "No Limit")
+                            if let location = ceVM.location {
+                                Text(location.name)
                                     .foregroundColor(.gray)
                                     .lineLimit(1)
-                                
                             } else {
-                                Text("No Limit")
+                                Text("Select")
                                     .foregroundColor(.gray)
                             }
                             
-                            Image(systemName: ceVM.showParticipants ? "chevron.down" : "chevron.right")
+                            Image(systemName: "chevron.right")
                                 .padding(.trailing, 10)
                                 .foregroundColor(.gray)
                             
+                            
                         }
-                        
+                        .createEventTabStyle()
                     }
-                    if ceVM.showParticipants {
+                    
+                    if noLocation {
+                        WarningTextComponent(text: "Please select a location.")
+                        
+                    } else if locationError && displayWarnings {
+                        WarningTextComponent(text: "There is something wrong with the location you selected. Please try again.")
+                    }
+                    
+                    Button {
+                        showAccessibilityView = true
+                    } label: {
                         HStack(alignment: .center, spacing: 10) {
-                            Text("The number of participants")
+                            Image(systemName: "eye.circle")
+                                .imageScale(.large)
+                            
+                            
+                            Text("Accessibility")
                             
                             Spacer()
                             
-                            TextField("Max", value: $ceVM.participants, format:.number)
-                                .foregroundColor(.primary.opacity(0.8))
-                                .padding(8)
-                                .frame(width: 80)
-                                .background(Color(.tertiarySystemFill))
-                                .cornerRadius(10)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.primary.opacity(0.5), lineWidth: 0.3)
-                                )
-                                .keyboardType(.numberPad)
-                                .onChange(of: ceVM.participants) { old, new in
-                                    if let number = ceVM.participants {
-                                        if number > 1000000 {
-                                            ceVM.participants = old
-                                        }
-                                        if new == 1 {
-                                            hideKeyboard()
-                                        }
-                                    }
-                                }
+                            if !ceVM.selectedVisability.isEmpty {
+                                Text(ceVM.selectedVisability.capitalized)
+                                    .foregroundColor(.gray)
+                            } else {
+                                Text("Select")
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Image(systemName: "chevron.right")
+                                .padding(.trailing, 10)
+                                .foregroundColor(.gray)
+                            
                             
                         }
-                        
+                        .createEventTabStyle()
+                    }
+                    
+                    if noVisability {
+                        WarningTextComponent(text: "Please select a visibility type.")
                         
                     }
-                }
-                .createEventTabStyle()
-                
-                if ceVM.participants == 1 {
-                    WarningTextComponent(text: "You count as a participant, so the minimum number is 2.")
-                }
-                
-                if let user = userVM.currentUser {
-                    VStack(alignment: .leading, spacing: 20){
-                        Button {
-                            ceVM.showPricing.toggle()
-                        } label: {
+                    
+                    Button {
+                        showInterestsView = true
+                    } label: {
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "circle.grid.2x2")
+                                .imageScale(.large)
                             
+                            if $ceVM.selectedInterests.count > 0 {
+                                Text(interestsOrder(ceVM.selectedInterests))
+                                    .lineLimit(1)
+                                Spacer()
+                            } else {
+                                Text("Interests")
+                                Spacer()
+                                Text("Select")
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Image(systemName: "chevron.right")
+                                .padding(.trailing, 10)
+                                .foregroundColor(.gray)
+                            
+                            
+                        }
+                        .createEventTabStyle()
+                    }
+                    
+                    if noTag {
+                        WarningTextComponent(text: "Please select at least one interest.")
+                        
+                    }
+                    
+                    Text("Aditional Options")
+                        .font(.callout)
+                        .foregroundStyle(.gray)
+                        .fontWeight(.bold)
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                        .padding(.top)
+                        .padding(.horizontal, 8)
+                    
+                    //                    NavigationLink {
+                    //                        DateView(isDate: $ceVM.isDate, date: $ceVM.date, from: $ceVM.from, to: $ceVM.to, daySettings: $ceVM.daySettings, timeSettings: $ceVM.timeSettings)
+                    //                    } label: {
+                    //                        HStack(alignment: .center, spacing: 10) {
+                    //                            Image(systemName: "calendar")
+                    //                                .imageScale(.large)
+                    //
+                    //
+                    //                            Text("Date & Time")
+                    //
+                    //                            Spacer()
+                    //
+                    //
+                    //                            Text(ceVM.isDate ? separateDateAndTime(from:ceVM.date).date : "Any day")
+                    //                                .foregroundColor(.gray)
+                    //
+                    //                            Image(systemName: "chevron.right")
+                    //                                .padding(.trailing, 10)
+                    //                                .foregroundColor(.gray)
+                    //
+                    //                        }
+                    //                        .createEventTabStyle()
+                    //                    }
+                    
+                    VStack(alignment: .leading, spacing: 20){
+                        Button{
+                            ceVM.showTimeSettings.toggle()
+                        } label: {
                             HStack(alignment: .center, spacing: 10) {
-                                Image(systemName: "wallet.pass")
+                                Image(systemName: "calendar")
                                     .imageScale(.large)
                                 
                                 
-                                Text("Ticket Price")
+                                Text("Date & Time")
                                 
                                 Spacer()
                                 
-                                if let price = ceVM.price{
-                                    
-                                    Text(price > 0.0 ? "\(ceVM.selectedCurrency.symbol) \(price, specifier: "%.2f")" : "Free")
+                                if ceVM.dateTimeSettings == 1 {
+                                    Text(separateDateAndTime(from:ceVM.from).date)
+                                        .foregroundColor(.gray)
+                                } else if ceVM.dateTimeSettings == 2 {
+                                    Text("\(separateDateAndTime(from:ceVM.from).date) - \(separateDateAndTime(from:ceVM.to).date)")
                                         .foregroundColor(.gray)
                                         .lineLimit(1)
-                                    
                                 } else {
-                                    Text("Free")
+                                    Text("Anyday")
                                         .foregroundColor(.gray)
                                 }
                                 
-                                Image(systemName: ceVM.showPricing ? "chevron.down" : "chevron.right")
+                                Image(systemName: ceVM.showTimeSettings ? "chevron.down" : "chevron.right")
                                     .padding(.trailing, 10)
                                     .foregroundColor(.gray)
                                 
@@ -432,96 +296,273 @@ struct CreateEventView: View {
                             
                         }
                         
+                        if ceVM.showTimeSettings {
+                            Picker("Choose Date", selection: $ceVM.dateTimeSettings){
+                                Text("Anytime").tag(0)
+                                Text("Exact").tag(1)
+                                Text("Range").tag(2)
+                                
+                            }
+                            .pickerStyle(.segmented)
+                            
+                            if ceVM.dateTimeSettings != 0 {
+                                DatePicker("From", selection: $ceVM.from, in: Date().addingTimeInterval(900)..., displayedComponents: [.date, .hourAndMinute])
+                                    .fontWeight(.semibold)
+                                
+                                if ceVM.dateTimeSettings == 2 {
+                                    DatePicker("To", selection: $ceVM.to, in: ceVM.from.addingTimeInterval(600)..., displayedComponents: [.date, .hourAndMinute])
+                                        .fontWeight(.semibold)
+                                }
+                            } else {
+                                HStack {
+                                    Text("The event won't have a specific timeframe.")
+                                        .fontWeight(.medium)
+                                        .padding()
+                                }
+                            }
+                            
+                            
+                        }
+                    }
+                    .createEventTabStyle()
+                    
+                    if pastDate {
+                        WarningTextComponent(text: "Change your timeframe. You can't create an event in the past.")
                         
-                        if ceVM.showPricing {
-                            if user.stripeAccountId != nil{
-                                if !isStripeOnboardingDone {
-                                    VStack(alignment: .leading, spacing: 10){
-                                        HStack(alignment: .center, spacing: 10) {
-                                            Text("Price")
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 20){
+                        
+                        Button {
+                            ceVM.showParticipants.toggle()
+                        } label: {
+                            
+                            HStack(alignment: .center, spacing: 10) {
+                                Image(systemName: "person.2.circle")
+                                    .imageScale(.large)
+                                
+                                
+                                Text("Participants")
+                                
+                                Spacer()
+                                
+                                if let participant = ceVM.participants{
+                                    Text(participant > 0 ? "\(participant)" : "No Limit")
+                                        .foregroundColor(.gray)
+                                        .lineLimit(1)
+                                    
+                                } else {
+                                    Text("No Limit")
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Image(systemName: ceVM.showParticipants ? "chevron.down" : "chevron.right")
+                                    .padding(.trailing, 10)
+                                    .foregroundColor(.gray)
+                                
+                            }
+                            
+                        }
+                        if ceVM.showParticipants {
+                            HStack(alignment: .center, spacing: 10) {
+                                Text("The number of participants")
+                                
+                                Spacer()
+                                
+                                TextField("Max", value: $ceVM.participants, format:.number)
+                                    .foregroundColor(.primary.opacity(0.8))
+                                    .padding(8)
+                                    .frame(width: 80)
+                                    .background(Color(.tertiarySystemFill))
+                                    .cornerRadius(10)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.primary.opacity(0.5), lineWidth: 0.3)
+                                    )
+                                    .keyboardType(.numberPad)
+                                    .onChange(of: ceVM.participants) { old, new in
+                                        if let number = ceVM.participants {
+                                            if number > 1000000 {
+                                                ceVM.participants = old
+                                            }
+                                            if new == 1 {
+                                                hideKeyboard()
+                                            }
+                                        }
+                                    }
+                                
+                            }
+                            
+                            
+                        }
+                    }
+                    .createEventTabStyle()
+                    
+                    if ceVM.participants == 1 {
+                        WarningTextComponent(text: "You count as a participant, so the minimum number is 2.")
+                    }
+                    
+                    if let user = userVM.currentUser {
+                        VStack(alignment: .leading, spacing: 20){
+                            Button {
+                                ceVM.showPricing.toggle()
+                            } label: {
+                                
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "wallet.pass")
+                                        .imageScale(.large)
+                                    
+                                    
+                                    Text("Ticket Price")
+                                    
+                                    Spacer()
+                                    
+                                    if let price = ceVM.price{
+                                        
+                                        Text(price > 0.0 ? "\(ceVM.selectedCurrency.symbol) \(price, specifier: "%.2f")" : "Free")
+                                            .foregroundColor(.gray)
+                                            .lineLimit(1)
+                                        
+                                    } else {
+                                        Text("Free")
+                                            .foregroundColor(.gray)
+                                    }
+                                    
+                                    Image(systemName: ceVM.showPricing ? "chevron.down" : "chevron.right")
+                                        .padding(.trailing, 10)
+                                        .foregroundColor(.gray)
+                                    
+                                }
+                                
+                            }
+                            
+                            
+                            if ceVM.showPricing {
+                                if user.stripeAccountId != nil{
+                                    if isStripeOnboardingDone {
+                                        VStack(alignment: .leading, spacing: 10){
+                                            HStack(alignment: .center, spacing: 10) {
+                                                Text("Price")
+                                                
+                                                Spacer()
+                                                
+                                                TextField("0.00", value: $ceVM.price, format: .number)
+                                                    .foregroundColor(.primary.opacity(0.8))
+                                                    .padding(8)
+                                                    .frame(width: 80)
+                                                    .background(Color(.tertiarySystemFill))
+                                                    .cornerRadius(10)
+                                                //                                                .overlay(
+                                                //                                                    RoundedRectangle(cornerRadius: 10)
+                                                //                                                        .stroke(Color.primary.opacity(0.3), lineWidth: 0.5)
+                                                //                                                )
+                                                //                                        .textFieldStyle(.roundedBorder)
+                                                    .keyboardType(.decimalPad) // Changed to decimalPad to allow decimal numbers
+                                                    .onChange(of: ceVM.price) { old, new in
+                                                        if let number = new, number >= 2000 {
+                                                            ceVM.price = old
+                                                        }
+                                                    }
+                                            }
                                             
-                                            Spacer()
-                                            
-                                            TextField("0.00", value: $ceVM.price, format: .number)
-                                                .foregroundColor(.primary.opacity(0.8))
-                                                .padding(8)
+                                            HStack(alignment: .center, spacing: 10) {
+                                                Text("Currency")
+                                                
+                                                Spacer()
+                                                
+                                                Picker("Currency",selection: $ceVM.selectedCurrency) {
+                                                    ForEach(ceVM.allCurrencies, id: \.self) { currency in
+                                                        Text(currency.name).tag(currency.code)
+                                                    }
+                                                }
+                                                .tint(.primary.opacity(0.8))
+                                                .labelsHidden()
                                                 .frame(width: 80)
                                                 .background(Color(.tertiarySystemFill))
                                                 .cornerRadius(10)
-//                                                .overlay(
-//                                                    RoundedRectangle(cornerRadius: 10)
-//                                                        .stroke(Color.primary.opacity(0.3), lineWidth: 0.5)
-//                                                )
-                                            //                                        .textFieldStyle(.roundedBorder)
-                                                .keyboardType(.decimalPad) // Changed to decimalPad to allow decimal numbers
-                                                .onChange(of: ceVM.price) { old, new in
-                                                    if let number = new, number >= 2000 {
-                                                        ceVM.price = old
-                                                    }
-                                                }
+                                                //                                            .overlay(
+                                                //                                                RoundedRectangle(cornerRadius: 10)
+                                                //                                                    .stroke(Color.primary.opacity(0.5), lineWidth: 0.3)
+                                                //                                            )
+                                            }
+                                            
+                                            
+                                            HStack{
+                                                Text("The maximum price you can charge per participant is €2000. For higher amounts, please contact us at info@togeda.net. \nBy making Paid event you agree with our ")
+                                                    .foregroundStyle(.gray) +
+                                                Text(paidActivitiesAgreement) +
+                                                Text(" for more details.")
+                                                    .foregroundStyle(.gray)
+                                            }
+                                            .accentColor(.blue)
+                                            .font(.footnote)
+                                            .multilineTextAlignment(.leading)
                                         }
-                                        
-                                        HStack(alignment: .center, spacing: 10) {
-                                            Text("Currency")
-                                            
-                                            Spacer()
-                                            
-                                            Picker("Currency",selection: $ceVM.selectedCurrency) {
-                                                ForEach(ceVM.allCurrencies, id: \.self) { currency in
-                                                    Text(currency.name).tag(currency.code)
+                                        .onAppear(){
+                                            Task{
+                                                if let response = try await APIClient.shared.currenciesList(
+                                                    page: 0,
+                                                    size: 50
+                                                ){
+                                                    print(response.data)
+                                                    ceVM.allCurrencies = response.data
+                                                    ceVM.selectedCurrency = response.data
+                                                        .first(
+                                                            where: { $0.code == ceVM.selectedCurrency.code
+                                                            }) ?? ceVM.selectedCurrency
+                                                    
                                                 }
                                             }
-                                            .tint(.primary.opacity(0.8))
-                                            .labelsHidden()
-                                            .frame(width: 80)
-                                            .background(Color(.tertiarySystemFill))
-                                            .cornerRadius(10)
-//                                            .overlay(
-//                                                RoundedRectangle(cornerRadius: 10)
-//                                                    .stroke(Color.primary.opacity(0.5), lineWidth: 0.3)
-//                                            )
                                         }
                                         
-                                        
-                                        HStack{
-                                            Text("The maximum price you can charge per participant is €2000. For higher amounts, please contact us at info@togeda.net. \nBy making Paid event you agree with our ")
-                                                .foregroundStyle(.gray) +
-                                            Text(paidActivitiesAgreement) +
-                                            Text(" for more details.")
-                                                .foregroundStyle(.gray)
-                                        }
-                                        .accentColor(.blue)
-                                        .font(.footnote)
-                                        .multilineTextAlignment(.leading)
-                                    }
-                                    .onAppear(){
-                                        Task{
-                                            if let response = try await APIClient.shared.currenciesList(
-                                                page: 0,
-                                                size: 50
-                                            ){
-                                                print(response.data)
-                                                ceVM.allCurrencies = response.data
-                                                ceVM.selectedCurrency = response.data
-                                                    .first(
-                                                        where: { $0.code == ceVM.selectedCurrency.code
-                                                        }) ?? ceVM.selectedCurrency
-
+                                    } else {
+                                        VStack(alignment: .center){
+                                            Text("To create a paid event, you must complete the setup of your Stripe account!")
+                                                .foregroundColor(Color("blackAndWhite"))
+                                                .fontWeight(.semibold)
+                                                .multilineTextAlignment(.center)
+                                                .padding(.bottom)
+                                            
+                                            Button{
+                                                dismiss()
+                                                navManager.selectionPath.append(.paymentPage)
+                                            } label: {
+                                                Text("Go to Stripe")
+                                                    .foregroundStyle(Color("base"))
+                                                    .fontWeight(.semibold)
+                                                    .padding(.horizontal, 12)
+                                                    .padding(.vertical, 10)
+                                                    .background{Capsule().fill(Color("blackAndWhite"))}
                                             }
                                         }
+                                        .padding(.bottom)
+                                        .frame(maxWidth: .infinity, alignment: .center)
                                     }
+                                    
+                                    
                                     
                                 } else {
                                     VStack(alignment: .center){
-                                        Text("To create a paid event, you must complete the setup of your Stripe account!")
+                                        Text("To create a paid event frist create a Stripe account!")
                                             .foregroundColor(Color("blackAndWhite"))
                                             .fontWeight(.semibold)
                                             .multilineTextAlignment(.center)
                                             .padding(.bottom)
                                         
                                         Button{
+                                            //                                        Task{
+                                            //                                            if let accountId = try await APIClient.shared.createStripeAccount() {
+                                            //                                                print(accountId)
+                                            //                                                if let link = try await APIClient.shared.getStripeOnBoardingLink(accountId: accountId) {
+                                            //                                                    print(link)
+                                            //                                                    openURL(URL(string: link)!)
+                                            //                                                    dismiss()
+                                            //                                                }
+                                            //                                            }
+                                            //                                        }
                                             dismiss()
                                             navManager.selectionPath.append(.paymentPage)
+                                            
                                         } label: {
                                             Text("Go to Stripe")
                                                 .foregroundStyle(Color("base"))
@@ -535,151 +576,119 @@ struct CreateEventView: View {
                                     .frame(maxWidth: .infinity, alignment: .center)
                                 }
                                 
-                                
-                                
-                            } else {
-                                VStack(alignment: .center){
-                                    Text("To create a paid event frist create a Stripe account!")
-                                        .foregroundColor(Color("blackAndWhite"))
-                                        .fontWeight(.semibold)
-                                        .multilineTextAlignment(.center)
-                                        .padding(.bottom)
+                            }
+                        }
+                        .createEventTabStyle()
+                        
+                        
+                        VStack(alignment: .leading, spacing: 20){
+                            
+                            Toggle(isOn: $ceVM.needsLocationalConfirmation) {
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: "location.fill.viewfinder")
+                                        .imageScale(.large)
                                     
-                                    Button{
-                                        //                                        Task{
-                                        //                                            if let accountId = try await APIClient.shared.createStripeAccount() {
-                                        //                                                print(accountId)
-                                        //                                                if let link = try await APIClient.shared.getStripeOnBoardingLink(accountId: accountId) {
-                                        //                                                    print(link)
-                                        //                                                    openURL(URL(string: link)!)
-                                        //                                                    dismiss()
-                                        //                                                }
-                                        //                                            }
-                                        //                                        }
-                                        dismiss()
-                                        navManager.selectionPath.append(.paymentPage)
-                                        
-                                    } label: {
-                                        Text("Go to Stripe")
-                                            .foregroundStyle(Color("base"))
-                                            .fontWeight(.semibold)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 10)
-                                            .background{Capsule().fill(Color("blackAndWhite"))}
-                                    }
+                                    Text("Confirm Location")
+                                        .fontWeight(.semibold)
                                 }
-                                .padding(.bottom)
-                                .frame(maxWidth: .infinity, alignment: .center)
                             }
                             
+                            if ceVM.needsLocationalConfirmation {
+                                Text("Upon arriving at the event, participants will need to confirm their attendance through the app. If confirmation is not completed by the end of the event, the participant will be marked as 'No Show'. To ensure accuracy, the confirmation feature is designed to work within a 50-meter radius of the event location.")
+                                    .font(.footnote)
+                                    .multilineTextAlignment(.leading)
+                                    .opacity(0.5)
+                            }
                         }
+                        .createEventTabStyle()
+                        .padding(.bottom, 50)
+                        .disableWithOpacity(ceVM.price ?? 0 > 0.0)
                     }
-                    .createEventTabStyle()
                     
-                    
-                    VStack(alignment: .leading, spacing: 20){
-                        
-                        Toggle(isOn: $ceVM.needsLocationalConfirmation) {
-                            HStack(alignment: .center, spacing: 10) {
-                                Image(systemName: "location.fill.viewfinder")
-                                    .imageScale(.large)
-                                
-                                Text("Confirm Location")
+                    if allRequirenments {
+                        ZStack(alignment: .bottom){
+                            LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
+                                .ignoresSafeArea(edges: .bottom)
+                            
+                            Button{
+                                withAnimation{
+                                    isLoading = true
+//                                    serverErrorMessage = nil
+                                }
+                                Task{
+                                    try await createEvent()
+                                }
+                            } label: {
+                                Text("Create")
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
                                     .fontWeight(.semibold)
                             }
+                            .padding(.vertical)
                         }
-                        
-                        if ceVM.needsLocationalConfirmation {
-                            Text("Upon arriving at the event, participants will need to confirm their attendance through the app. If confirmation is not completed by the end of the event, the participant will be marked as 'No Show'. To ensure accuracy, the confirmation feature is designed to work within a 50-meter radius of the event location.")
-                                .font(.footnote)
-                                .multilineTextAlignment(.leading)
-                                .opacity(0.5)
-                        }
-                    }
-                    .createEventTabStyle()
-                    .padding(.bottom, 50)
-                    .disableWithOpacity(ceVM.price ?? 0 > 0.0)
-                }
-                
-                if allRequirenments {
-                    ZStack(alignment: .bottom){
-                        LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
-                            .ignoresSafeArea(edges: .bottom)
-                        
-                        Button{
-                            withAnimation{
-                                isLoading = true
-                                serverErrorMessage = nil
-                            }
-                            Task{
-                                try await createEvent()
-                            }
-                        } label: {
+                        .frame(height: 60)
+                    } else {
+                        ZStack(alignment: .bottom){
+                            LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
+                                .ignoresSafeArea(edges: .bottom)
+                            
                             Text("Create")
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
-                                .background(Color("blackAndWhite"))
+                                .background(.gray)
                                 .foregroundColor(Color("testColor"))
                                 .cornerRadius(10)
                                 .fontWeight(.semibold)
+                                .padding(.vertical)
+                                .onTapGesture {
+                                    displayWarnings.toggle()
+                                }
                         }
-                        .padding(.vertical)
+                        .frame(height: 60)
                     }
-                    .frame(height: 60)
-                } else {
-                    ZStack(alignment: .bottom){
-                        LinearGradient(colors: [.base, .clear], startPoint: .bottom, endPoint: .top)
-                            .ignoresSafeArea(edges: .bottom)
+                }
+                .padding(.horizontal)
+                .scrollDismissesKeyboard(.immediately)
+                .overlay {
+                    if isLoading {
+                        LoadingScreenView(isVisible: $isLoading)
+                    }
+                }
+                .onAppear(){
+                    if Init{
+                        if let event = prevEvent {
+                            ceVM.mergeEvent(event: event)
+                        }
+                        ceVM.club = fromClub
                         
-                        Text("Create")
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(.gray)
-                            .foregroundColor(Color("testColor"))
-                            .cornerRadius(10)
-                            .fontWeight(.semibold)
-                            .padding(.vertical)
-                            .onTapGesture {
-                                displayWarnings.toggle()
-                            }
-                    }
-                    .frame(height: 60)
-                }
-            }
-            .padding(.horizontal)
-            .scrollDismissesKeyboard(.immediately)
-            .overlay {
-                if isLoading {
-                    LoadingScreenView(isVisible: $isLoading)
-                }
-            }
-            .onAppear(){
-                if Init{
-                    if let event = prevEvent {
-                        ceVM.mergeEvent(event: event)
-                    }
-                    ceVM.club = fromClub
-                    
-                    if let user = userVM.currentUser, let id = user.stripeAccountId{
-                        Task{
-                            if let response = try await APIClient.shared.stripeOnBordingStatus(accountId: id) {
-                                print(response)
-                                if let bool = Bool(response.data) {
-                                    isStripeOnboardingDone = bool
+                        if let user = userVM.currentUser, let id = user.stripeAccountId{
+                            Task{
+                                if let response = try await APIClient.shared.stripeOnBordingStatus(accountId: id) {
+                                    print(response)
+                                    if let bool = Bool(response.data) {
+                                        isStripeOnboardingDone = bool
+                                    }
                                 }
                             }
                         }
+                        
+                        Init = false
                     }
-                    
-                    Init = false
+                }
+                .toolbar{
+                    ToolbarItemGroup(placement: .keyboard) {
+                        KeyboardToolbarItems()
+                    }
+                }
+                .frame(maxHeight: UIScreen.main.bounds.height, alignment: .top)
+                
+                if let type = bannerService.bannerType, bannerService.isPresent {
+                    BannerView(banner: type)
                 }
             }
-            .toolbar{
-                ToolbarItemGroup(placement: .keyboard) {
-                    KeyboardToolbarItems()
-                }
-            }
-            .frame(maxHeight: UIScreen.main.bounds.height, alignment: .top)
             .navigationBarBackButtonHidden(true)
             .navigationTitle("Create Event")
             .navigationBarTitleDisplayMode(.inline)
@@ -716,46 +725,35 @@ struct CreateEventView: View {
         do{
             if await photoPickerVM.imageCheckAndMerge(images: $ceVM.postPhotosURls){
                 let createPost = ceVM.createPost()
-                try await APIClient.shared.createEvent(body: createPost) { response, error in
-                    if let responseID = response {
-                        Task{
-                            if let post = try await APIClient.shared.getEvent(postId: responseID){
-                                DispatchQueue.main.async{
-                                    if post.accessibility != .PRIVATE{
-                                        postVM.feedPosts.insert(post, at: 0)
-                                    }
-                                    userVM.addPost(post: post)
-                                    withAnimation{
-                                        self.isLoading = false
-                                    }
-                                    dismiss()
-                                    
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                        self.postVM.clickedPost = post
-                                        self.postVM.showSharePostSheet = true
-                                    }
+                if let responseID = try await APIClient.shared.createEvent(body: createPost) {
+                    Task{
+                        if let post = try await APIClient.shared.getEvent(postId: responseID){
+                            DispatchQueue.main.async{
+                                if post.accessibility != .PRIVATE{
+                                    postVM.feedPosts.insert(post, at: 0)
                                 }
-                            }
-                            else {
-                                DispatchQueue.main.async{
-                                    withAnimation{
-                                        self.isLoading = false
-                                    }
-                                    dismiss()
+                                userVM.addPost(post: post)
+                                withAnimation{
+                                    self.isLoading = false
+                                }
+                                dismiss()
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    self.postVM.clickedPost = post
+                                    self.postVM.showSharePostSheet = true
                                 }
                             }
                         }
-                    } else if let error = error {
-                        DispatchQueue.main.async{
-                            withAnimation{
-                                self.isLoading = false
+                        else {
+                            DispatchQueue.main.async{
+                                withAnimation{
+                                    self.isLoading = false
+                                }
+                                dismiss()
                             }
-                            
-                            self.serverErrorMessage = error
                         }
                     }
                 }
-                
             } else {
                 print("Problem with image")
                 self.isLoading = false
@@ -763,6 +761,9 @@ struct CreateEventView: View {
             }
         } catch {
             print("Error message:", error)
+            withAnimation{
+                self.isLoading = false
+            }
         }
         
     }
@@ -838,6 +839,18 @@ struct CreateEventView: View {
         }
     }
     
+    var locationError: Bool {
+        if let location = ceVM.location{
+            if location.name.isEmpty && location.city == nil && location.country == nil && location.state == nil {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return true
+        }
+    }
+    
     var pastDate: Bool {
         if ceVM.from <= Date() && displayWarnings {
             return true
@@ -847,7 +860,7 @@ struct CreateEventView: View {
     }
     
     var allRequirenments: Bool {
-        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.location != nil, (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || ceVM.postPhotosURls.count > 0),
+        if ceVM.title.count >= 5, !ceVM.title.isEmpty, ceVM.location != nil, !locationError, (photoPickerVM.selectedImages.contains(where: { $0 != nil }) || ceVM.postPhotosURls.count > 0),
            ceVM.selectedInterests.count > 0 && !ceVM.selectedVisability.isEmpty && ceVM.from > Date() {
             if let participants = ceVM.participants {
                 if participants > 1 {
@@ -870,6 +883,8 @@ struct CreateEventView: View {
         .environmentObject(LocationManager())
         .environmentObject(PostsViewModel())
         .environmentObject(NavigationManager())
+        .environmentObject(BannerService())
+
 }
 
 extension View {

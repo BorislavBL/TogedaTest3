@@ -69,8 +69,11 @@ struct RegistrationFullNameView: View {
                     .padding(.top, 2)
                     .padding(.bottom, 15)
                 
-                if displayError {
+                if (vm.firstName.count < 3 || vm.lastName.count < 3) && displayError {
                     WarningTextComponent(text: "Each of the fields has to be at least 3 characters long.")
+                        .padding(.bottom, 15)
+                } else if (!containsOnlyLetters(vm.firstName) || !containsOnlyLetters(vm.lastName)) && displayError {
+                    WarningTextComponent(text: "Please use only letters for your name.")
                         .padding(.bottom, 15)
                 }
                 
@@ -91,9 +94,9 @@ struct RegistrationFullNameView: View {
                         .cornerRadius(10)
                         .fontWeight(.semibold)
                 }
-                .disableWithOpacity((vm.firstName.count < 3 || vm.lastName.count < 3))
+                .disableWithOpacity((vm.firstName.count < 3 || vm.lastName.count < 3) || (!containsOnlyLetters(vm.firstName) || !containsOnlyLetters(vm.lastName)))
                 .onTapGesture {
-                    if vm.firstName.count < 3 || vm.lastName.count < 3 {
+                    if vm.firstName.count < 3 || vm.lastName.count < 3 || (!containsOnlyLetters(vm.firstName) || !containsOnlyLetters(vm.lastName)) {
                         displayError.toggle()
                     }
                 }
@@ -151,6 +154,7 @@ struct RegistrationFullNameView: View {
             return Color(.systemGray6)
         }
     }
+
 }
 
 

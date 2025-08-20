@@ -55,8 +55,6 @@ struct MainTabView: View {
                         .tabItem {
                             Image(systemName: "person.circle")
                         }
-                    
-                    
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -156,7 +154,7 @@ struct MainTabView: View {
                 case .userReviewView(user: let user):
                     ReviewProfileView(user: user)
                 case .paymentPage:
-                    CreateStripeView()
+                    StripeAccountDetailsView()
                 case .chatParticipants(chatroom: let chatroom):
                     ChatParticipantsView(chatRoom: chatroom)
                 case .changePassword:

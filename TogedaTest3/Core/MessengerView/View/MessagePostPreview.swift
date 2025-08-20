@@ -135,14 +135,18 @@ struct MessagePostPreview: View {
         .onAppear(){
             Task{
                 if Init{
-                    if let response = try await APIClient.shared.getEvent(postId: postID) {
-                        self.post = response
-                        self.loadingCases = .loaded
-                        self.Init = false
-                        print("here")
-
-                    } else {
-                        print("no its here")
+                    do{
+                        if let response = try await APIClient.shared.getEvent(postId: postID, showBanners: false) {
+                            self.post = response
+                            self.loadingCases = .loaded
+                            self.Init = false
+                            print("here")
+                            
+                        } else {
+                            print("no its here")
+                            self.loadingCases = .noResults
+                        }
+                    } catch {
                         self.loadingCases = .noResults
                     }
                 }

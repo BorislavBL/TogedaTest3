@@ -108,90 +108,108 @@ struct EventCheckoutSheet: View {
             if let error = paymentVM.error {
                 WarningTextComponent(text: error)
                     .padding()
+            } else if maxParticipantsReached {
+                WarningTextComponent(text: "Oh no, tickets are sold out! But keep an eye out—if someone cancels, you’ll have the chance to grab their spot. Stay ready to snag a ticket if it opens up!")
+                    .padding()
+            } else if post.status != .NOT_STARTED {
+                WarningTextComponent(text: "The event has already started.")
+                    .padding()
             }
             
             Spacer()
             
             VStack {
-                if let paymentSheet = paymentVM.paymentSheet {
-                    if let result = paymentVM.paymentResult {
-                        switch result {
-                        case .completed:
-                            Text("Payment complete.")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 60)
-                                .background(Color("blackAndWhite"))
-                                .foregroundColor(Color("testColor"))
-                                .cornerRadius(10)
-                                .padding()
-                                .onAppear(){
-                                    Task{
-                                        if let response = try await APIClient.shared.getEvent(postId: post.id){
-                                            postsViewModel.localRefreshEventOnAction(post: response)
-                                            
-                                            refreshParticipants()
-                                            
-                                            post = response
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if post.status == .NOT_STARTED || !maxParticipantsReached {
+                    if let paymentSheet = paymentVM.paymentSheet {
+                        if let result = paymentVM.paymentResult {
+                            switch result {
+                            case .completed:
+                                Text("Payment complete.")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                                    .padding()
+                                    .onAppear(){
+                                        Task{
+                                            if let response = try await APIClient.shared.getEvent(postId: post.id){
+                                                postsViewModel.localRefreshEventOnAction(post: response)
                                                 
-                                                isActive = false
+                                                refreshParticipants()
+                                                
+                                                post = response
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                    
+                                                    isActive = false
+                                                }
                                             }
+                                            
                                         }
-
                                     }
-                                }
-                        case .failed(let error):
-                            Text("Payment failed.")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 60)
-                                .background(Color("blackAndWhite"))
-                                .foregroundColor(Color("testColor"))
-                                .cornerRadius(10)
-                                .onAppear(){
-                                    paymentVM.error = error.localizedDescription
-                                }
-                                .padding()
-
-                        case .canceled:
-                            Text("Payment canceled.")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 60)
-                                .background(Color("blackAndWhite"))
-                                .foregroundColor(Color("testColor"))
-                                .cornerRadius(10)
-                                .onAppear(){
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                        isActive = false
+                            case .failed(let error):
+                                Text("Payment failed.")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                                    .onAppear(){
+                                        paymentVM.error = error.localizedDescription
                                     }
-                                }
-                                .padding()
-
+                                    .padding()
+                                
+                            case .canceled:
+                                Text("Payment canceled.")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                                    .onAppear(){
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                            isActive = false
+                                        }
+                                    }
+                                    .padding()
+                                
+                            }
+                        } else {
+                            PaymentSheet.PaymentButton(
+                                paymentSheet: paymentSheet,
+                                onCompletion: paymentVM.onPaymentCompletion
+                            ) {
+                                Text("Pay")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 60)
+                                    .background(Color("blackAndWhite"))
+                                    .foregroundColor(Color("testColor"))
+                                    .cornerRadius(10)
+                                
+                            }
+                            .padding()
+                            
+                            
                         }
-                    } else {
-                        PaymentSheet.PaymentButton(
-                            paymentSheet: paymentSheet,
-                            onCompletion: paymentVM.onPaymentCompletion
-                        ) {
-                            Text("Pay")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 60)
-                                .background(Color("blackAndWhite"))
-                                .foregroundColor(Color("testColor"))
-                                .cornerRadius(10)
-
-                        }
-                        .padding()
-
                         
                     }
-
-                }
-                else {
-                    Text("Loading…")
+                    else {
+                        Text("Loading…")
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color("blackAndWhite"))
+                            .foregroundColor(Color("testColor"))
+                            .cornerRadius(10)
+                            .padding()
+                        
+                    }
+                } else {
+                    Text("Payment Locked")
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 60)
@@ -199,7 +217,6 @@ struct EventCheckoutSheet: View {
                         .foregroundColor(Color("testColor"))
                         .cornerRadius(10)
                         .padding()
-                    
                 }
             }
         }
@@ -210,10 +227,23 @@ struct EventCheckoutSheet: View {
                 }
                 paymentVM.eventID = post.id
                 paymentVM.preparePaymentSheet()
+                
+                if let resposne = try await APIClient.shared.getEvent(postId: post.id) {
+                    post = resposne
+                    postsViewModel.localRefreshEventOnAction(post: resposne)
+                }
             }
         }
     }
     
+    var maxParticipantsReached: Bool {
+        if let max = post.maximumPeople{
+            if max <= post.participantsCount{
+                return true
+            }
+        }
+        return false
+    }
     
     @ViewBuilder
     func navbar() -> some View {

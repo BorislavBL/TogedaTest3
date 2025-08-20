@@ -99,25 +99,29 @@ struct InviteFriendsToGroupSheet: View {
                 
                 if friends.count > 0 {
                     VStack{
-                        Button{
-                            Task{
-                                for friend in selectedFriends {
-                                    do {
-                                        try await APIClient.shared.addFriendToChatRoomParticipants(chatId: chatId, userId: friend.id)
-                                    } catch {
-                                        print("Failed to add \(friend.firstName) \(friend.lastName): \(error)")
-                                    }
+                        LoadingButton(action: {
+                            for friend in selectedFriends {
+                                do {
+                                    try await APIClient.shared.addFriendToChatRoomParticipants(chatId: chatId, userId: friend.id)
+                                } catch {
+                                    print("Failed to add \(friend.firstName) \(friend.lastName): \(error)")
                                 }
-                                dismiss()
                             }
-                        } label: {
+                            dismiss()
+                        }) {
                             Text("Add")
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 60)
                                 .background(Color("blackAndWhite"))
                                 .foregroundColor(Color("testColor"))
                                 .fontWeight(.semibold)
-                            
+                        } loadingView: {
+                            Text("Loading...")
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 60)
+                                .background(Color("blackAndWhite"))
+                                .foregroundColor(Color("testColor"))
+                                .fontWeight(.semibold)
                         }
                         .cornerRadius(10)
                         .padding(.top)

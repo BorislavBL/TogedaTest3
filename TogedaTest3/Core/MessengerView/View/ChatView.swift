@@ -113,6 +113,8 @@ struct ChatView: View {
                                                 .padding()
                                                 .normalTagRectangleStyle()
                                                 .padding()
+                                            
+                                            Spacer()
                                         }
                                     }
                                     
@@ -152,7 +154,7 @@ struct ChatView: View {
                                                 .offset(x: dragOffsetX)
                                             }
                                             
-                                            if chatManager.messages.last?.sender.id == currentUser.id && index + 1 == chatManager.messages.count && chatManager.messages[index].status == .SENT{
+                                            if chatManager.messages.last?.sender.id == currentUser.id && index + 1 == chatManager.messages.count && (chatManager.messages[index].status == .SENT || chatManager.messages[index].status == .READ){
                                                 Text("Sent")
                                                     .font(.footnote)
                                                     .foregroundStyle(.gray)
@@ -352,6 +354,7 @@ struct ChatView: View {
                             chatManager.editMessage(messageId: editMessage.id, newMessage: viewModel.messageText)
                             viewModel.chatState = .normal
                             draftManager.deleteDraft(chatId: chatRoom.id)
+                            viewModel.messageText = ""
                         } else {
                             if let currentUser = userVm.miniCurrentUser {
                                 if let uiImage = viewModel.messageImage, !viewModel.isSendingImage{
@@ -387,7 +390,6 @@ struct ChatView: View {
                     .background(GeometryReader { geometry in
                         Color.clear
                             .onChange(of: viewModel.messageText) {
-                                print("Text Message triggered by reply")
                                 if viewModel.chatState != .editing {
                                     draftManager.saveDraft(chatId: chatRoom.id, text: viewModel.messageText)
                                 }
@@ -555,9 +557,6 @@ struct ChatView: View {
             }
         }
         .photosPicker(isPresented: $viewModel.openPhotoPicker, selection: $viewModel.selectedItem, matching: .images)
-
-        
-        
     }
     
     @ViewBuilder

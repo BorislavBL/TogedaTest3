@@ -33,10 +33,24 @@ struct UsersListView: View {
             HStack(spacing: 16){
                 CustomSearchBar(searchText: $eventVM.searchText, showCancelButton: $eventVM.showCancelButton)
             }
-            .padding()
+            .padding([.top, .leading, .trailing])
+            .padding(.bottom, 8)
             
             List {
                 //            LazyVStack(alignment:.leading){
+                if post.currentUserRole == .HOST && post.status == .HAS_STARTED {
+                VStack(spacing: 0){
+                    Text("Only after you end the event and complete the review, all participants who didn’t attend will be marked as No-Show.")
+                        .font(.footnote)
+                        .foregroundStyle(.gray)
+                        .padding(8)
+                    
+                    Divider()
+                }
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                }
+                        
                 if post.status != .HAS_ENDED && post.askToJoin && eventVM.joinRequestParticipantsList.count > 0 && (post.currentUserRole == .CO_HOST || post.currentUserRole == .HOST){
                     
                     UserRequestTab(users: joinRequestParticipantsAsMiniUsers)

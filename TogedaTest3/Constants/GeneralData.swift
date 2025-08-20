@@ -19,6 +19,8 @@ let personalityType: [String] = [
     "ESTJ", "ESFJ", "ENFJ", "ENTJ"
 ]
 
+let directMarketingAgreement = try! AttributedString(markdown: "[Direct Marketing Agreement](\(TogedaLinks().directMarketingAgreement))")
+
 struct TogedaLinks {
     let privacyPolicy: String = "https://docs.google.com/document/d/1oRpJoIQubBcoijDzwCbFjZ7miOjf9su_85TAnATsK2I/edit?usp=sharing"
     let termsOfUse: String = "https://docs.google.com/document/d/16SNvY5euyNNG-T2rWSSz2TpNaMl47Cth0OAvQ5pTpb4/edit?usp=sharing"
@@ -37,7 +39,7 @@ enum APIEnvironment {
 }
 
 struct TogedaMainLinks {
-    static let environment: APIEnvironment = .test // Change this to .test to switch environments
+    static let environment: APIEnvironment = .production // Change this to .test to switch environments
 
     private static let productionBaseURL = "https://api.togeda.net"
     private static let testBaseURL = "http://test-env-11.eba-mjv4k9hc.eu-central-1.elasticbeanstalk.com"

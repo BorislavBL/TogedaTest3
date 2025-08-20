@@ -195,15 +195,14 @@ extension ContentViewModel {
             } catch AppError.internalServerError(_) {
                 print("bbbbbbb")
                 DispatchQueue.main.async {
-//                    self.internalServerError = true
+                    self.internalServerError = true
                 }
-
             } catch {
                 print("aaaaaaaaaaaa")
-//                AuthService.shared.clearSession()
-//                DispatchQueue.main.async {
-//                    self.authenticationState = .unauthenticated
-//                }
+                AuthService.shared.clearSession()
+                DispatchQueue.main.async {
+                    self.authenticationState = .unauthenticated
+                }
             }
         }
     }
@@ -214,7 +213,9 @@ extension ContentViewModel {
                 // Assuming refreshToken updates the accessToken in Keychain
                 if let newAccessToken = KeychainManager.shared.getToken(item: userKeys.accessToken.toString, service: userKeys.service.toString) {
                     DispatchQueue.main.async {
-                        self.authenticationState = .authenticated
+                        if self.authenticationState != .authenticatedNoInformation {
+                            self.authenticationState = .authenticated
+                        }
                         self.startTokenRefreshTimer(accessToken: newAccessToken)
                         //keep in mind that sessionCount handels the websocket conncetion upon user becoming active again
                         self.sessionCount += 1
@@ -264,3 +265,4 @@ extension ContentViewModel {
     }
     
 }
+
