@@ -290,8 +290,8 @@ struct EditClubView: View {
                 .font(.headline)
                 .fontWeight(.bold)
             
-            Button{
-                Task{
+            LoadingButton(action: {
+                do{
                     try await clubsVM.deleteClub(clubId: club.id)
                     if let index = activityVM.activityFeed.firstIndex(where: {$0.club?.id == club.id}) {
                         activityVM.activityFeed.remove(at: index)
@@ -306,11 +306,20 @@ struct EditClubView: View {
                             chatManager.allChatRooms.removeAll(where: {$0.id == chatRoomId})
                         }
                     }
-                    
+                } catch {
+                    print(error)
                 }
-
-            } label:{
+            }){
                 Text("Delete")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(.red)
+                    .cornerRadius(10)
+            } loadingView: {
+                Text("Deleting...")
                     .font(.headline)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)

@@ -151,6 +151,7 @@ struct StripeAccountDetailsView: View {
         })
         .swipeBack()
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            print("Is active triggered -------////=")
             getAllStripeInfo()
             
         }
@@ -161,44 +162,39 @@ struct StripeAccountDetailsView: View {
     }
     
     func getAllStripeInfo() {
-        if let user = userVM.currentUser, let id = user.stripeAccountId{
-            Task{
+        Task {
+            do {
+                // 1) Fetch user FIRST
                 try await userVM.fetchCurrentUser()
+
+                // 2) Now safely unwrap values that may depend on the fetch
+                guard let user = userVM.currentUser,
+                      let id = user.stripeAccountId else {
+                    print("No user or stripeAccountId after fetching.")
+                    return
+                }
+
+                // 3) Run the rest concurrently
                 await withTaskGroup(of: Void.self) { group in
                     group.addTask {
-                        do {
-                            let _ = try await userVM.stripeOnBordingStatus(accountId: id)
-                        } catch {
-                            print("хере", error)
-                        }
+                        do { _ = try await userVM.stripeOnBordingStatus(accountId: id) }
+                        catch { print("stripeOnBordingStatus error:", error) }
                     }
                     group.addTask {
-                        do {
-                            try await userVM.fetchCurrentUser()
-                        } catch {
-                            print("хере", error)
-                        }
+                        do { _ = try await userVM.checkForPaidEvent() }
+                        catch { print("checkForPaidEvent error:", error) }
                     }
                     group.addTask {
-                        do {
-                            let _ = try await userVM.checkForPaidEvent()
-                        } catch {
-                            print(error)
-                        }
-                    }
-                    group.addTask {
-                        do {
-                            try await userVM.stripeAccountInformation()
-                        } catch {
-                            print("хере2", error)
-                        }
+                        do { try await userVM.stripeAccountInformation() }
+                        catch { print("stripeAccountInformation error:", error) }
                     }
                 }
-                
+            } catch {
+                print("fetchCurrentUser failed:", error)
             }
         }
-        
     }
+
     
     func onRemoveStripeTab() -> some View {
         VStack(spacing: 30){
@@ -208,7 +204,7 @@ struct StripeAccountDetailsView: View {
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
             } else {
-                Text("Confirm disconnect: Chnage the connection between Togeda and Stripe?")
+                Text("Confirm disconnect: Are you sure you want to chnage your Stripe account?")
                     .font(.headline)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)

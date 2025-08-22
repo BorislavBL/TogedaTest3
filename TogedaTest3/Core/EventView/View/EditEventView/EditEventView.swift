@@ -341,7 +341,7 @@ struct EditEventView: View {
         }
         .sheet(isPresented: $deleteSheet, content: {
             DeleteEventSheet(){
-                Task{
+                do{
                     try await postsVM.deleteEvent(postId: post.id)
                     if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
                         DispatchQueue.main.async{
@@ -351,7 +351,10 @@ struct EditEventView: View {
                     if let chatRoomId = post.chatRoomId {
                         chatManager.allChatRooms.removeAll(where: {$0.id == chatRoomId})
                     }
+                } catch {
+                    print(error)
                 }
+                
                 DispatchQueue.main.async {
                     isActive = false
                     if navManager.selectionPath.count >= 1{

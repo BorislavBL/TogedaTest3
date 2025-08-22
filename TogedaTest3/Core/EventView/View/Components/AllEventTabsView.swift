@@ -32,6 +32,8 @@ struct AllEventTabsView: View {
                             Text(club.title)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
+                                .multilineTextAlignment(.leading)
+                                .lineLimit(2)
                             
                             Text("Club Event")
                                 .font(.footnote)

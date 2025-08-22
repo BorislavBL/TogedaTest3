@@ -202,21 +202,34 @@ struct InboxView: View {
                     }
                 }
             } else if chatManager.inboxChatsState == .noResults {
-                VStack(spacing: 15){
-                    Text("🫵")
-                        .font(.custom("image", fixedSize: 120))
-                    
-                    Text("Looks a little quiet here! Start by joining events or clubs around you to make new friends, and jump into chats with people who share your vibe!")
-                        .font(.body)
-                        .foregroundStyle(.gray)
-                        .fontWeight(.semibold)
-                        .multilineTextAlignment(.center)
-                        .padding(.bottom)
-                    
+                ScrollView{
+                    VStack(spacing: 15){
+                        Text("🫵")
+                            .font(.custom("image", fixedSize: 120))
+                        
+                        Text("Looks a little quiet here! Start by joining events or clubs around you to make new friends, and jump into chats with people who share your vibe!")
+                            .font(.body)
+                            .foregroundStyle(.gray)
+                            .fontWeight(.semibold)
+                            .multilineTextAlignment(.center)
+                            .padding(.bottom)
+                        
+                    }
+                    .padding(.all)
+                    .frame(maxHeight: .infinity, alignment: .center)
+                    .background(.bar)
                 }
-                .padding(.all)
-                .frame(maxHeight: .infinity, alignment: .center)
-                .background(.bar)
+                .refreshable {
+                    Task{
+                        chatManager.allChatRooms = []
+                        chatManager.lastChatPage = true
+                        chatManager.chatPage = 0
+                        chatManager.isLoadingChats = .noResults
+                        try await chatManager.getAllChats()
+                        
+                        
+                    }
+                }
             } else if chatManager.inboxChatsState == .loading {
                 InboxSkeleton()
             }

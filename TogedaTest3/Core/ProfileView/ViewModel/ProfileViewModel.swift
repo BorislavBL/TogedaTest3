@@ -129,7 +129,6 @@ class ProfileViewModel: ObservableObject {
                 do {
                     if let badgeTasks = try await APIClient.shared.getBadgeTasks() {
                         DispatchQueue.main.async {
-                            print("BadgesTasks: \(badgeTasks)")
                             self.badgeTasks = badgeTasks.filter { task in
                                 return task.completionNumber != task.currentNumber
                             }

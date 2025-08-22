@@ -84,6 +84,7 @@ class UserViewModel: ObservableObject {
     }
     
     func fetchCurrentUser() async throws{
+        print("---->fetch user triggered")
         currentUser = try await APIClient.shared.getCurrentUserInfo()
     }
 }
@@ -91,6 +92,8 @@ class UserViewModel: ObservableObject {
 extension UserViewModel {
     func stripeAccountInformation() async throws {
         do {
+            print("---->account info triggered")
+
             if let response = try await APIClient.shared.getStripeAccountInfo() {
                 DispatchQueue.main.async {
                     self.userStripeAccountInformation = response
@@ -105,8 +108,8 @@ extension UserViewModel {
     }
     
     func stripeOnBordingStatus(accountId: String) async throws -> Bool?{
+        print("---->Onboarding triggered")
         if let response = try await APIClient.shared.stripeOnBordingStatus(accountId: accountId) {
-            print(response)
             if let bool = Bool(response.data) {
                 DispatchQueue.main.async {
                     self.isOnBoardingDone = bool
@@ -118,6 +121,7 @@ extension UserViewModel {
     }
     
     func checkForPaidEvent() async throws -> Bool? {
+        print("---->paideventcheck triggered")
         if let response = try await APIClient.shared.checkForPaidEvents() {
             if let bool = Bool(response.data) {
                 DispatchQueue.main.async {
@@ -132,6 +136,7 @@ extension UserViewModel {
     func checkForStripeWarning(accountId: String) async throws {
         // Throttle based on in-memory cooldown; if within 24h, do nothing.
         guard canPresentStripeWarning() else { return }
+        print("---->check for stripe warrning triggered")
 
         if let onboarded = try await stripeOnBordingStatus(accountId: accountId), !onboarded {
             if let hasPaid = try await checkForPaidEvent(), hasPaid {

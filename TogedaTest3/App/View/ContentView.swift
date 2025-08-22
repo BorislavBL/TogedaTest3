@@ -38,20 +38,24 @@ struct ContentView: View {
 //            BannersTestView()
             
             
-//            VStack{
-//                Spacer()
-//                Button{
-//                    Task{
-//                        try await APIClient.shared.getUserInfo(userId: "sdasd")
-//                    }
-//
-//                } label:{
-//                    Text("Wazzup")
-//                        .padding()
-//                        .background(.red)
-//                }
-//                Spacer()
-//            }
+            VStack{
+                Spacer()
+                Button{
+                    Task{
+                        do {
+                            try await APIClient.shared.getUserInfo(userId: "sdasd")
+                        } catch {
+                            print(error)
+                        }
+                    }
+
+                } label:{
+                    Text("Wazzup")
+                        .padding()
+                        .background(.red)
+                }
+                Spacer()
+            }
             
             
 //            NetworkStatusView(isConnected: $networkManager.isConnected)

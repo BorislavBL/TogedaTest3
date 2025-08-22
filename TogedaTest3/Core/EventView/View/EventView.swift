@@ -358,13 +358,15 @@ struct EventView: View {
         }
         .sheet(isPresented: $deleteSheet, content: {
             DeleteEventSheet(){
-                Task{
+                do {
                     try await postsVM.deleteEvent(postId: post.id)
                     if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
                         DispatchQueue.main.async{
                             activityVM.activityFeed.remove(at: index)
                         }
                     }
+                } catch {
+                    print(error)
                 }
                 DispatchQueue.main.async {
                     if navManager.selectionPath.count >= 1{

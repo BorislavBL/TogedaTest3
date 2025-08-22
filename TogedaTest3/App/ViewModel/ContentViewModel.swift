@@ -198,11 +198,11 @@ extension ContentViewModel {
                     self.internalServerError = true
                 }
             } catch {
-                print("aaaaaaaaaaaa")
-                AuthService.shared.clearSession()
-                DispatchQueue.main.async {
-                    self.authenticationState = .unauthenticated
-                }
+                print("aaaaaaaaaaaa-------->", error)
+//                AuthService.shared.clearSession()
+//                DispatchQueue.main.async {
+//                    self.authenticationState = .unauthenticated
+//                }
             }
         }
     }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DeleteEventSheet: View {
-    @State var onAction: () -> ()
+    @State var onAction: () async -> Void
     var body: some View {
             VStack(spacing: 30){
                 Text("All of the information including the chat will be deleted!")
@@ -16,10 +16,19 @@ struct DeleteEventSheet: View {
                     .font(.headline)
                     .fontWeight(.bold)
                 
-                Button{
-                    onAction()
-                } label:{
+                LoadingButton(action: {
+                    await onAction()
+                }){
                     Text("Delete")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(.red)
+                        .cornerRadius(10)
+                } loadingView: {
+                    Text("Deleting...")
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
