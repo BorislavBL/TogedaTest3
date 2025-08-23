@@ -365,6 +365,10 @@ struct EventView: View {
                             activityVM.activityFeed.remove(at: index)
                         }
                     }
+                    
+                    if let chatRoomId = post.chatRoomId {
+                        chatVM.allChatRooms.removeAll(where: {$0.id == chatRoomId})
+                    }
                 } catch {
                     print(error)
                 }
@@ -991,6 +995,9 @@ struct EventView: View {
                     }
                 } catch {
                     print(error)
+                    DispatchQueue.main.async{
+                        self.eventNotFound = true
+                    }
                 }
             }
             

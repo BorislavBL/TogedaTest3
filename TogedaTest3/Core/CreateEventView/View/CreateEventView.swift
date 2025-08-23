@@ -465,26 +465,23 @@ struct CreateEventView: View {
                                                     }
                                             }
                                             
-                                            HStack(alignment: .center, spacing: 10) {
-                                                Text("Currency")
-                                                
-                                                Spacer()
-                                                
-                                                Picker("Currency",selection: $ceVM.selectedCurrency) {
-                                                    ForEach(ceVM.allCurrencies, id: \.self) { currency in
-                                                        Text(currency.name).tag(currency.code)
-                                                    }
-                                                }
-                                                .tint(.primary.opacity(0.8))
-                                                .labelsHidden()
-                                                .frame(width: 80)
-                                                .background(Color(.tertiarySystemFill))
-                                                .cornerRadius(10)
-                                                //                                            .overlay(
-                                                //                                                RoundedRectangle(cornerRadius: 10)
-                                                //                                                    .stroke(Color.primary.opacity(0.5), lineWidth: 0.3)
-                                                //                                            )
-                                            }
+//                                            HStack(alignment: .center, spacing: 10) {
+//                                                Text("Currency")
+//                                                
+//                                                Spacer()
+//                                                
+//                                                Picker("Currency",selection: $ceVM.selectedCurrency) {
+//                                                    ForEach(ceVM.allCurrencies, id: \.self) { currency in
+//                                                        Text(currency.name).tag(currency.code)
+//                                                    }
+//                                                }
+//                                                .tint(.primary.opacity(0.8))
+//                                                .labelsHidden()
+//                                                .frame(width: 80)
+//                                                .background(Color(.tertiarySystemFill))
+//                                                .cornerRadius(10)
+//  
+//                                            }
                                             
                                             
                                             HStack{

@@ -67,12 +67,12 @@ struct ChatMessageCell: View {
                 } else {
                     switch message.contentType {
                     case .CLUB:
-                        LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: isEdit, showLikes: showLikes) {
+                        LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: isEdit, showLikes: showLikes, isReplying: $vm.isReplying) {
                             MessageClubPreview(clubID: message.content)
                         }
                         .padding(.horizontal)
                     case .IMAGE:
-                        LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: isEdit, showLikes: showLikes) {
+                        LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: isEdit, showLikes: showLikes, isReplying: $vm.isReplying) {
                             Button{
                                 hideKeyboard()
                                 vm.selectedImage = message.content
@@ -100,7 +100,7 @@ struct ChatMessageCell: View {
                                     .padding(.trailing, 4)
                             }
                             
-                            LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: isEdit, showLikes: showLikes) {
+                            LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: isEdit, showLikes: showLikes, isReplying: $vm.isReplying) {
                                 VStack{
                                     if isEmojiOnly(message.content) {
                                         Text(message.content)
@@ -112,6 +112,7 @@ struct ChatMessageCell: View {
                                             .padding(12)
                                             .background(Color(.systemBlue))
                                             .foregroundColor(.white)
+                                            .tint(.white)
                                             .clipShape(ChatBubble(isFromCurrentUser: true, shouldRoundAllCorners: false))
                                     }
                                 }
@@ -121,7 +122,7 @@ struct ChatMessageCell: View {
                             .padding(.horizontal)
                         }
                     case .POST:
-                        LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: isEdit, showLikes: showLikes) {
+                        LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: isEdit, showLikes: showLikes, isReplying: $vm.isReplying) {
                             MessagePostPreview(postID: message.content)
                         }
                         .padding(.horizontal)
@@ -176,7 +177,7 @@ struct ChatMessageCell: View {
                                         .padding(.top)
                                         .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
                                 }
-                                LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: {}, showLikes: showLikes) {
+                                LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: {}, showLikes: showLikes, isReplying: $vm.isReplying) {
                                     
                                     MessageClubPreview(clubID: message.content)
                                 }
@@ -193,7 +194,7 @@ struct ChatMessageCell: View {
                                         .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
                                     
                                 }
-                                LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: {}, showLikes: showLikes) {
+                                LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: {}, showLikes: showLikes, isReplying: $vm.isReplying) {
                                     Button{
                                         vm.selectedImage = message.content
                                         vm.isImageView = true
@@ -240,7 +241,7 @@ struct ChatMessageCell: View {
                                         .padding(.leading, shouldShowChatPartnerImage ? 4 : size.dimension + 12)
                                 }
                                 
-                                LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: {}, showLikes: showLikes) {
+                                LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: {}, showLikes: showLikes, isReplying: $vm.isReplying) {
                                     VStack{
                                         if isEmojiOnly(message.content) {
                                             Text(message.content)
@@ -251,8 +252,10 @@ struct ChatMessageCell: View {
                                             Text(attributedMessage(message.content))
                                                 .font(.subheadline)
                                                 .padding(12)
-                                                .background(Color(.systemGray6))
+                                                .background(Color("chat-bubble"))
+//                                                .background(Color(.systemGray6))
                                                 .foregroundColor(Color("blackAndWhite"))
+                                                .tint(Color("blackAndWhite"))
                                                 .clipShape(ChatBubble(isFromCurrentUser: false, shouldRoundAllCorners: !shouldShowChatPartnerImage))
                                                 .frame(maxWidth: UIScreen.main.bounds.width / 1.75, alignment: .leading)
                                         }
@@ -270,7 +273,7 @@ struct ChatMessageCell: View {
                                         .padding(.leading, shouldShowChatPartnerImage ? 0 : size.dimension + 8)
                                     
                                 }
-                                LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: {}, showLikes: showLikes) {
+                                LikeMessage(message: message, likeFunc: likeDislikeMessage, delFunc: unsentMessage, replyFunc: reply, canUnsent: canUnsent, isMessageFromCurrentUser: isMessageFromCurrentUser, edit: {}, showLikes: showLikes, isReplying: $vm.isReplying) {
                                     
                                     MessagePostPreview(postID: message.content)
                                 }

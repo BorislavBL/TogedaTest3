@@ -189,6 +189,11 @@ struct ClubView: View {
                     if let index = activityVM.activityFeed.firstIndex(where: {$0.club?.id == club.id}) {
                         activityVM.activityFeed.remove(at: index)
                     }
+                    
+                    if let chatRoomId = club.chatRoomId {
+                        websocketVM.allChatRooms.removeAll(where: {$0.id == chatRoomId})
+                    }
+                    
                     DispatchQueue.main.async {
                         if navManager.selectionPath.count >= 1{
                             navManager.selectionPath.removeLast(1)

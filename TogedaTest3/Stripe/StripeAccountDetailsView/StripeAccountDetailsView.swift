@@ -20,7 +20,6 @@ struct StripeAccountDetailsView: View {
         ScrollView{
             LazyVStack(spacing: 10) {
                 if let user = userVM.currentUser, user.stripeAccountId != nil {
-
                     StripeCard(isOnBoardingDone: userVM.isOnBoardingDone, stripeAccountInformation: userVM.userStripeAccountInformation, user: user)
                     
                     VStack(alignment: .leading, spacing: 10){

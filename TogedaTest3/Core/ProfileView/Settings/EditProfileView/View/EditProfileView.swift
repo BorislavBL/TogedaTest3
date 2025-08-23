@@ -540,7 +540,6 @@ struct EditProfileView: View {
                         }
                        try await APIClient.shared.updateUserInfo(body: editProfileVM.convertToPathcUser(currentUser: editProfileVM.editUser)) { response, error in
                            if let response = response {
-    
                                Task{
                                    try await userVM.fetchCurrentUser()
                                }
@@ -550,6 +549,8 @@ struct EditProfileView: View {
                                    }
                                    if navManager.selectionPath.count >= 2 {
                                        navManager.selectionPath.removeLast(2)
+                                   } else {
+                                       navManager.selectionPath.removeLast(1)
                                    }
                                }
                            } else if let error = error {

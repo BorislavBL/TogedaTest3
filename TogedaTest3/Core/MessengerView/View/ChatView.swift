@@ -39,6 +39,7 @@ struct ChatView: View {
     let size: ImageSize = .medium
     
     @State private var dragOffsetX: CGFloat = 0
+    @State private var dragLock: Axis? = nil
     
     @Environment(\.managedObjectContext) private var context
     @StateObject private var draftManager = DraftManager.shared
@@ -246,11 +247,24 @@ struct ChatView: View {
                             DragGesture()
                                 .onChanged { value in
                                     // Only allow left drag
-                                    if value.translation.width < 0 && value.translation.width > -80 {
-                                        dragOffsetX = value.translation.width
+                                    guard !viewModel.isReplying else { return }
+                                    let dx = value.translation.width
+                                    let dy = value.translation.height
+                                    
+                                    // decide once which way the user is going
+                                    if dragLock == nil {
+                                        dragLock = abs(dx) > abs(dy) ? .horizontal : .vertical
+                                    }
+                                    
+                                    // only handle if horizontal, otherwise let ScrollView scroll
+                                    guard dragLock == .horizontal else { return }
+                                    
+                                    if dx < 0 && dx > -80 {
+                                        dragOffsetX = dx
                                     }
                                 }
                                 .onEnded { value in
+                                    dragLock = nil
                                     dragOffsetX = 0 // snap back
                                 }
                         )

@@ -17,7 +17,9 @@ struct LikeMessage<Content: View>: View {
     var isMessageFromCurrentUser: Bool
     var edit: () -> ()
     var showLikes: () -> ()
+    @Binding var isReplying: Bool
     var content: () -> Content
+
     @State private var offsetX: CGFloat = 0
     @State private var showReplyIcon: Bool = false
     @State private var isDragging = false
@@ -57,10 +59,11 @@ struct LikeMessage<Content: View>: View {
                             Text(reply.content)
                                 .font(.subheadline)
                                 .padding(12)
-                                .background(Color(.systemGray6))
-                                .foregroundColor(Color("blackAndWhite"))
+                                .background(Color("chat-bubble").opacity(0.4))
+                                .foregroundColor(Color("blackAndWhite").opacity(0.7))
                                 .clipShape(ChatBubble(isFromCurrentUser: false, shouldRoundAllCorners: true))
                                 .lineLimit(3)
+                            
                         case .CLUB:
                             MessageClubPreview(clubID: reply.content)
                                 .scaleEffect(0.6)
@@ -118,6 +121,8 @@ struct LikeMessage<Content: View>: View {
                                     // only handle if horizontal, otherwise let ScrollView scroll
                                     guard dragLock == .horizontal else { return }
                                     
+                                    isReplying = true
+                                    
                                     if isMessageFromCurrentUser {
                                         // allow only left swipe
                                         let clamped = max(-80, min(0, dx))
@@ -138,6 +143,8 @@ struct LikeMessage<Content: View>: View {
                                         }
                                         dragLock = nil
                                     }
+                                    
+                                    isReplying = false
                                     
                                     guard dragLock == .horizontal else { return }
                                     
@@ -243,6 +250,6 @@ struct LikeMessage<Content: View>: View {
 }
 
 #Preview {
-    LikeMessage(message: mockReceivedMessage, likeFunc: {}, delFunc: {}, replyFunc: {}, canUnsent: true, isMessageFromCurrentUser: true, edit: {}, showLikes: {}, content: {Rectangle()
+    LikeMessage(message: mockReceivedMessage, likeFunc: {}, delFunc: {}, replyFunc: {}, canUnsent: true, isMessageFromCurrentUser: true, edit: {}, showLikes: {}, isReplying: .constant(false), content: {Rectangle()
         .foregroundStyle(.green)})
 }

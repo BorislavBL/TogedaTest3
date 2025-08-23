@@ -48,6 +48,8 @@ class ChatViewModel: ObservableObject {
     @Published var chatroomsPage: Int32 = 0
     @Published var chatroomsLastPage: Bool = true
     
+    @Published var isReplying: Bool = false
+    
     @Published var isEditing: Bool = false {
         didSet{
             if !isEditing {

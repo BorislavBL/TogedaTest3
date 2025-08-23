@@ -199,10 +199,10 @@ extension ContentViewModel {
                 }
             } catch {
                 print("aaaaaaaaaaaa-------->", error)
-//                AuthService.shared.clearSession()
-//                DispatchQueue.main.async {
-//                    self.authenticationState = .unauthenticated
-//                }
+                AuthService.shared.clearSession()
+                DispatchQueue.main.async {
+                    self.authenticationState = .unauthenticated
+                }
             }
         }
     }

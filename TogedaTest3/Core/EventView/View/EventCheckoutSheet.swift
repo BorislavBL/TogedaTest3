@@ -119,7 +119,7 @@ struct EventCheckoutSheet: View {
             Spacer()
             
             VStack {
-                if post.status == .NOT_STARTED || !maxParticipantsReached {
+                if post.status == .NOT_STARTED && !maxParticipantsReached {
                     if let paymentSheet = paymentVM.paymentSheet {
                         if let result = paymentVM.paymentResult {
                             switch result {

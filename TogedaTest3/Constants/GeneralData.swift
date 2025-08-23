@@ -39,7 +39,7 @@ enum APIEnvironment {
 }
 
 struct TogedaMainLinks {
-    static let environment: APIEnvironment = .test // Change this to .test to switch environments
+    static let environment: APIEnvironment = .production // Change this to .test to switch environments
 
     private static let productionBaseURL = "https://api.togeda.net"
     private static let testBaseURL = "http://test-env-11.eba-mjv4k9hc.eu-central-1.elasticbeanstalk.com"

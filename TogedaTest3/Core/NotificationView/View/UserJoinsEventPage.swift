@@ -16,15 +16,9 @@ struct UserJoinsEventPage: View {
     @Binding var selectionPath: [SelectionPath]
 
     var body: some View {
-            VStack {
+            HStack {
 //                NavigationLink(value: SelectionPath.eventDetails(post)){
-                Button{
-                    Task{
-                        if let response = try await APIClient.shared.getEvent(postId: post.id){
-                            selectionPath.append(.eventDetails(response))
-                        }
-                    }
-                } label:{
+                NavigationLink(value: SelectionPath.profile(alertBody.userAdded)) {
                     HStack(alignment:.top){
                         KFImage(URL(string:alertBody.userAdded.profilePhotos[0]))
                             .resizable()
@@ -32,7 +26,14 @@ struct UserJoinsEventPage: View {
                             .frame(width: size.dimension, height: size.dimension)
                             .clipShape(Circle())
                     }
-                    
+                }
+                Button{
+                    Task{
+                        if let response = try await APIClient.shared.getEvent(postId: post.id){
+                            selectionPath.append(.eventDetails(response))
+                        }
+                    }
+                } label:{
                     VStack(alignment: .leading, spacing: 5){
                         Text("\(alertBody.userAdded.firstName) \(alertBody.userAdded.lastName)")
                             .font(.footnote)

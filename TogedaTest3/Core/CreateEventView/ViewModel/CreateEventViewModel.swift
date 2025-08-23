@@ -25,7 +25,7 @@ class CreateEventViewModel: ObservableObject {
             }
         }
     }
-    @Published var selectedCurrency: Components.Schemas.Currency = .init(name: "Lev", symbol: "лв", code: "BGN")
+    @Published var selectedCurrency: Components.Schemas.Currency = .init(name: "Euro", symbol: "€", code: "EUR")
     @Published var allCurrencies: [Components.Schemas.Currency] = []
     
     //Location View

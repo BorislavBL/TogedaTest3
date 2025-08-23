@@ -99,6 +99,11 @@ struct JoinRequestView: View {
                                             if let index = activityVM.activityFeed.firstIndex(where: { $0.post?.id == post.id }) {
                                                 activityVM.activityFeed.remove(at: index)
                                             }
+                                            
+                                            if let chatRoomId = post.chatRoomId {
+                                                chatManager.allChatRooms.removeAll(where: {$0.id == chatRoomId})
+                                            }
+                                            
                                             isActive = false
                                             if navManager.selectionPath.count > 0 {
                                                 navManager.selectionPath.removeLast(1)

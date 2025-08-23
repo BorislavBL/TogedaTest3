@@ -88,6 +88,7 @@ struct InternalServerErrorView: View {
         do {
             if let _ = try await APIClient.shared.hasBasicInfo() {
                 await vm.validateTokensAndCheckState()
+                vm.sessionCount += 1
                 await MainActor.run { vm.internalServerError = false }
                 return true                          // ✅ succeed → stop loop
             }

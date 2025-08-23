@@ -21,6 +21,7 @@ let MockUser: Components.Schemas.UserInfoDto = .init(
     location: .init(name: "Sofia, Bulgaria", address: nil, city: "Sofia", state: "Sofia", country: "Bulgaria", latitude: 42.6889525, longitude: 23.3188913),
     occupation: "Mechanic",
     profilePhotos: ["https://images.unsplash.com/photo-1461935793258-ac2ac2c930b2?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    stripeAccountId: nil,
     interests: [
         .init(name: "Workingout", icon: "💪", category: "sport"),
         .init(name: "Workingout", icon: "💪", category: "sport"),
