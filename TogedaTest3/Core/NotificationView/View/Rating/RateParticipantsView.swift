@@ -32,7 +32,6 @@ struct RateParticipantsView: View {
                     .multilineTextAlignment(.center)
                     .listRowSeparator(.hidden)
                 
-                LazyVStack(alignment:.leading){
                     ForEach(eventVM.participantsList, id:\.user.id) { user in
                         if let currentUser = userVM.currentUser, currentUser.id == user.user.id{
                             EmptyView()
@@ -80,10 +79,8 @@ struct RateParticipantsView: View {
                             isLoading = false
                         }
                     }
-                }
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                .padding(.horizontal)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
                 
             }
             .listStyle(PlainListStyle())

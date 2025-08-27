@@ -594,7 +594,7 @@ extension WebSocketManager {
     
     func getAllChats() async throws {
         DispatchQueue.main.async{
-            if self.allChatRooms.count >= 0 {
+            if self.allChatRooms.count <= 0 {
                 self.inboxChatsState = .loading
             }
         }

@@ -166,7 +166,6 @@ struct InboxView: View {
                         .onAppear {
                             if !chatManager.lastChatPage{
                                 if chatManager.isLoadingChats == .loaded {
-                                    chatManager.isLoadingChats = .loading
                                     Task{
                                         try await chatManager.getAllChats()
                                     }

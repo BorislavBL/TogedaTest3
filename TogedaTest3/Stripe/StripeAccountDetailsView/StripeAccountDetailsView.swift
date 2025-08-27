@@ -81,7 +81,7 @@ struct StripeAccountDetailsView: View {
                     .cornerRadius(10)
                     
                     LoadingButton(action: {
-                        Task{
+                        do{
                             if let accountId = try await APIClient.shared.createStripeAccount() {
                                 print(accountId)
                                 if let link = try await APIClient.shared.getStripeOnBoardingLink(accountId: accountId) {
@@ -89,6 +89,8 @@ struct StripeAccountDetailsView: View {
                                     openURL(URL(string: link)!)
                                 }
                             }
+                        } catch {
+                            print(error)
                         }
                     }) {
                         Text("Create account")
